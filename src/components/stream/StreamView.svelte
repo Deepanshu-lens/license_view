@@ -37,7 +37,7 @@
   import JSZip from "jszip";
   import SearchDialog from "../dialogs/SearchDialog.svelte";
   import CarDetailsDialog from "../dialogs/CarDetailsDialog.svelte";
-  import EventDialog from "../dialogs/EventDialog.svelte";
+  import EventModal from "../modal/EventModal.svelte";
   import type { Gallery } from "@/types";
   import { Label } from "../ui/label";
   import { Input } from "../ui/input";
@@ -138,15 +138,6 @@
       URL.revokeObjectURL(link.href);
       toast.success("Downloaded all screen snips.");
     });
-
-    // const canvas = await html2canvas(captureRef);
-    // const imgData = canvas.toDataURL("image/webp");
-    // const link = document.createElement("a");
-    // link.href = imgData;
-    // link.download = "screenshot.webp";
-    // link.click();
-    // toast.success("Downloaded screen snip.");
-    // link.remove();
   };
 
   function toggleFullscreen() {
@@ -171,7 +162,6 @@
       document.exitFullscreen();
     }
   }
-
   let selectedEvent = null;
 
   function openEventDialog(eventData) {
@@ -219,7 +209,7 @@
   }
 
   let galleryItems = [];
-  // let unknownItems = [];
+  let unknownItems = [];
   let batchedGallery = [];
   let batchedUnknownGallery = [];
 
@@ -231,26 +221,26 @@
     setTimeout(updateGallery, 1000);
   }
 
-  // async function updateUnknowns() {
-  //   if (batchedUnknownGallery.length > 0) {
-  //     unknownItems = await getUnknowns();
-  //     batchedUnknownGallery = [];
-  //   }
-  //   setTimeout(updateUnknowns, 1000);
-  // }
+  async function updateUnknowns() {
+    if (batchedUnknownGallery.length > 0) {
+      unknownItems = await getUnknowns();
+      batchedUnknownGallery = [];
+    }
+    setTimeout(updateUnknowns, 1000);
+  }
 
   onMount(async () => {
     galleryItems = await getGallery();
-    // unknownItems = await getUnknowns();
+    unknownItems = await getUnknowns();
     PB.collection("faceGallery").subscribe("*", async (e) => {
       console.log("New change ", e.action, e.record);
       batchedGallery.push(e.record.id);
     });
-    // PB.collection("impostors").subscribe("*", async (e) => {
-    //   batchedUnknownGallery.push(e.record.id);
-    // });
+    PB.collection("impostors").subscribe("*", async (e) => {
+      batchedUnknownGallery.push(e.record.id);
+    });
     setTimeout(updateGallery, 1000);
-    // setTimeout(updateUnknowns, 1000);
+    setTimeout(updateUnknowns, 1000);
   });
 </script>
 
@@ -582,19 +572,21 @@
         </div>
       </div>
     </header>
-    <div class="flex flex-row items-center justify-center gap-4 w-full mt-4">
+    <div
+      class="flex flex-row items-center justify-center 2xl:gap-4 gap-2 mt-4 px-2"
+    >
       <button
         class={!comfort
-          ? "text-xs dark:text-white text-[#015A62] ml-4 px-8 py-2 rounded-md w-full bg-[white] dark:bg-[#333] dark:border-none mb-2 border border-solid border-[#015A62]"
-          : "bg-[#015A62] text-xs px-8 py-2 ml-4 rounded-md mb-2 text-white w-full"}
+          ? "text-xs dark:text-white text-[#015A62] 2xl:px-8 xl:px-4 py-2 rounded-md w-full bg-[white] dark:bg-[#333] dark:border-none mb-2 border border-solid border-[#015A62]"
+          : "bg-[#015A62] text-xs 2xl:px-8 xl:px-3 py-2 rounded-md mb-2 text-white w-full"}
         on:click={() => (comfort = !comfort)}
       >
         Comfortable
       </button>
       <button
         class={comfort
-          ? "text-xs dark:text-white text-[#015A62] mr-4 px-8 py-2 w-full rounded-md bg-[white] dark:bg-[#333] dark:border-none mb-2 border border-solid border-[#015A62]"
-          : "bg-[#015A62] text-xs px-8 py-2 rounded-md mr-4 mb-2 text-white w-full"}
+          ? "text-xs dark:text-white text-[#015A62] 2xl:px-8 xl:px-4 py-2 rounded-md w-full bg-[white] dark:bg-[#333] dark:border-none mb-2 border border-solid border-[#015A62]"
+          : "bg-[#015A62] text-xs 2xl:px-8 xl:px-3 py-2 rounded-md mb-2 text-white w-full"}
         on:click={() => (comfort = !comfort)}
       >
         Informative
@@ -700,5 +692,5 @@
 </div>
 
 {#if selectedEvent}
-  <EventDialog {selectedEvent} on:close={() => (selectedEvent = null)} />
+  <EventModal {selectedEvent} on:close={() => (selectedEvent = null)} />
 {/if}

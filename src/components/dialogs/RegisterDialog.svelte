@@ -165,13 +165,13 @@
       >
     </Dialog.Header>
     <div class="w-full flex flex-col items-start justify-center py-4 gap-4">
-      <p class="text-[#00132B]">
+      <p class="text-[#00132B] dark:text-slate-100">
         Choose from the options below to register your images
       </p>
       <span class="flex items-center justify-between w-full gap-4">
         <button
           class={captureMode !== 1
-            ? "text-[#00132B] flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[rgb(145,158,171)]/[.24] font-semibold "
+            ? "text-[#00132B] dark:text-slate-300 flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[rgb(145,158,171)]/[.24] font-semibold "
             : " text-[#00132B] flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#136ad5] bg-[#ecf3fc] font-semibold "}
           on:click={() => (captureMode = 1)}
         >
@@ -180,7 +180,7 @@
         </button>
         <button
           class={captureMode !== 2
-            ? "text-[#00132B] flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[rgb(145,158,171)]/[.24] font-semibold"
+            ? "text-[#00132B] dark:text-slate-300 flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[rgb(145,158,171)]/[.24] font-semibold"
             : "text-[#00132B] flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#136ad5] bg-[#ecf3fc] font-semibold"}
           on:click={() => (captureMode = 2)}
         >
@@ -188,7 +188,9 @@
           Upload Image
         </button>
       </span>
-      <label for="username" class=" text-[#00132B]"> Username </label>
+      <label for="username" class=" text-[#00132B] dark:text-slate-100">
+        Username
+      </label>
       <span class="relative">
         <input
           name="Person Name"

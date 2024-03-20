@@ -383,7 +383,7 @@
                         : "bg-[rgba(1,90,98)]/[.08] dark:bg-[#0f1118] w-full h-screen relative"}
                     >
                       <div
-                        class="flex flex-col absolute -my-20 scale-90 -top-[5rem] z-20"
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20"
                       >
                         {@html morningAMItems}
                       </div>
@@ -403,7 +403,7 @@
                         : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-screen relative"}
                     >
                       <div
-                        class="flex col absolute -my-20 scale-90 -top-[5rem] z-20"
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20"
                       >
                         {@html midAMItems}
                       </div>
@@ -423,7 +423,7 @@
                         : "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-screen relative h-full"}
                     >
                       <div
-                        class="flex flex-col absolute -my-20 scale-90 -top-[5rem] z-20"
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20"
                       >
                         {@html lateAMItems}
                       </div>
@@ -443,7 +443,7 @@
                         : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-screen relative"}
                     >
                       <div
-                        class="flex flex-col absolute -my-20 scale-90 -top-[5rem] z-20"
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20"
                       >
                         {@html morningPMItems}
                       </div>
@@ -463,7 +463,7 @@
                         : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-screen relative"}
                     >
                       <div
-                        class="flex flex-col absolute -my-20 scale-90 -top-[5rem] z-20"
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20"
                       >
                         {@html midPMItems}
                       </div>
@@ -483,7 +483,7 @@
                         : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-screen relative"}
                     >
                       <div
-                        class="flex flex-col absolute -my-20 scale-90 -top-[5rem] z-20"
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20"
                       >
                         {@html latePMItems}
                       </div>
@@ -546,7 +546,7 @@
                     ? "bg-[rgba(1,90,98)]/[.08] dark:bg-[#0f1118] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
                     : "bg-[rgba(1,90,98)]/[.08] dark:bg-[#0f1118] w-full min-h-screen h-full relative"}
                 >
-                  <div class=" absolute top-[5rem] z-20 scale-90 -my-10">
+                  <div class=" fixed top-[5rem] z-20 scale-90 -my-10">
                     {#if matchingData}
                       {#each matchingData as e, i}
                         {@const originalDate = e.created}
@@ -571,10 +571,10 @@
                 </span>
                 <span
                   class={!eventFullscreen
-                    ? "bg-[rgba(1,90,98)]/[.08] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
-                    : "bg-[rgba(1,90,98)]/[.08] dark:bg-[#1b1b1b] w-full min-h-screen h-full relative"}
+                    ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
+                    : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
-                  <div class=" absolute -top-[5rem] z-20 scale-90 -my-10">
+                  <div class=" absolute top-[5rem] z-20 scale-90 -my-10">
                     {#if matchingData}
                       {#each matchingData as e, i}
                         {@const originalDate = e.created}
@@ -599,10 +599,10 @@
                 </span>
                 <span
                   class={!eventFullscreen
-                    ? "bg-[rgba(1,90,98)]/[.08] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
-                    : "bg-[rgba(1,90,98)]/[.08] dark:bg-[#1b1b1b] w-full min-h-screen h-full relative"}
+                    ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
+                    : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
-                  <div class=" absolute -top-[5rem] z-20 scale-90 -my-10">
+                  <div class=" absolute top-[5rem] z-20 scale-90 -my-10">
                     {#if matchingData}
                       {#each matchingData as e, i}
                         {@const originalDate = e.created}
@@ -627,10 +627,10 @@
                 </span>
                 <span
                   class={!eventFullscreen
-                    ? "bg-[rgba(1,90,98)]/[.08] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
-                    : "bg-[rgba(1,90,98)]/[.08] dark:bg-[#1b1b1b] w-full min-h-screen h-full relative"}
+                    ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
+                    : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
-                  <div class=" absolute -top-[5rem] z-20 scale-90 -my-10">
+                  <div class=" absolute top-[5rem] z-20 scale-90 -my-10">
                     {#if matchingData}
                       {#each matchingData as e, i}
                         {@const originalDate = e.created}
@@ -655,10 +655,10 @@
                 </span>
                 <span
                   class={!eventFullscreen
-                    ? "bg-[rgba(1,90,98)]/[.08] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
-                    : "bg-[rgba(1,90,98)]/[.08] dark:bg-[#1b1b1b] w-full min-h-screen h-full relative"}
+                    ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
+                    : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
-                  <div class=" absolute -top-[5rem] z-20 scale-90 -my-10">
+                  <div class=" absolute top-[5rem] z-20 scale-90 -my-10">
                     {#if matchingData}
                       {#each matchingData as e, i}
                         {@const originalDate = e.created}
@@ -683,10 +683,10 @@
                 </span>
                 <span
                   class={!eventFullscreen
-                    ? "bg-[rgba(1,90,98)]/[.08] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
-                    : "bg-[rgba(1,90,98)]/[.08] dark:bg-[#1b1b1b] w-full min-h-screen h-full relative"}
+                    ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
+                    : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
-                  <div class=" absolute -top-[5rem] z-20 scale-90 -my-10">
+                  <div class=" absolute top-[5rem] z-20 scale-90 -my-10">
                     {#if matchingData}
                       {#each matchingData as e, i}
                         {@const originalDate = e.created}
