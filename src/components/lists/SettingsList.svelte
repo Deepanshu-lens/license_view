@@ -3,6 +3,7 @@
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import { leftPaneHide, selectedNode } from "@/lib/stores";
+  import { addUserLog } from "@/lib/addUserLog";
 
   export let sessionId: string;
   let selectedButton = "Remote";
@@ -24,7 +25,7 @@
     goto(`/configuration/${sessionId}?section=${text}`);
   };
 
-  $: selectedButton = search? search : 'Remote';
+  $: selectedButton = search ? search : "Remote";
 </script>
 
 {#if !$leftPaneHide}
@@ -36,6 +37,7 @@
         <button
           on:click={() => {
             handleButtonClick(button.text);
+            addUserLog(`user clicked on setting list button ${button.text}`);
           }}
           class="w-full rounded-xl text-black dark:text-[#e0e0e0] flex items-center justify-start gap-4 font-medium text-base px-4 py-3 z-20 {selectedButton !==
           button.text

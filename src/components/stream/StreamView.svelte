@@ -44,6 +44,7 @@
   import { Button } from "../ui/button";
   import ComfortableProfileCard from "../cards/ComfortableProfileCard.svelte";
   import * as Accordion from "@/components/ui/accordion";
+  import { addUserLog } from "@/lib/addUserLog";
 
   let animateHeader = false;
   let comfort = true;
@@ -251,17 +252,6 @@
     setTimeout(updateGallery, 1000);
     // setTimeout(updateUnknowns, 1000);
   });
-  function addUserLog(string: string) {
-    fetch("/api/userLogs", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        event: string,
-      }),
-    }).catch((error) => console.error("Error:", error));
-  }
 </script>
 
 {#if !$topPanelHide}
@@ -274,7 +264,7 @@
           class="flex items-center justify-center gap-2 cursor-pointer lg:scale-95 2xl:scale-100 hover:text-primary"
           on:click={() => {
             showSearchModal = true;
-            addUserLog(`user clicked on Search button top panel`);
+            addUserLog(`user clicked on Search button, top panel`);
           }}
         >
           <Search size={18} />
@@ -288,7 +278,7 @@
         <button
           class="flex items-center justify-center gap-2 cursor-pointer relative lg:scale-95 2xl:scale-100 hover:text-primary"
           on:click={() =>
-            addUserLog("user clicked on Register button top panel")}
+            addUserLog("user clicked on Register button, top panel")}
         >
           <ScanFace size={18} />
           Register
@@ -302,7 +292,7 @@
         target="_blank"
         rel="noreferrer"
         class="flex items-center justify-center gap-2 cursor-pointer relative lg:scale-95 2xl:scale-100 hover:text-primary"
-        on:click={() => addUserLog("user clicked on exted display top panel")}
+        on:click={() => addUserLog("user clicked on exted display, top panel")}
       >
         <Airplay size={18} />
         Extend Display
@@ -315,7 +305,7 @@
           class="flex items-center justify-center gap-1 cursor-pointer relative lg:scale-95 2xl:scale-100 hover:text-primary"
           on:click={() => {
             recording = false;
-            addUserLog("user clicked on stop recording top panel ");
+            addUserLog("user clicked on stop recording, top panel ");
           }}
         >
           <Disc2 size={18} />
@@ -326,7 +316,7 @@
           class="flex items-center justify-center gap-1 cursor-pointer relative lg:scale-95 2xl:scale-100 hover:text-primary"
           on:click={() => {
             slideRecording = false;
-            addUserLog("user clicked on stop recording top panel ");
+            addUserLog("user clicked on stop recording, top panel ");
           }}
         >
           <Disc2 size={18} />
@@ -340,7 +330,7 @@
           on:click={() => {
             recordDropdownOpen = !recordDropdownOpen;
             snipDropDownOpen = false;
-            addUserLog("user clicked on start recording top panel ");
+            addUserLog("user clicked on start recording, top panel ");
           }}
         >
           <Disc2 size={18} />
@@ -400,7 +390,7 @@
         on:click={() => {
           snipDropDownOpen = !snipDropDownOpen;
           recordDropdownOpen = false;
-          addUserLog("user clicked on screen snip top panel ");
+          addUserLog("user clicked on screen snip, top panel ");
         }}
       >
         <ImageDown size={18} />
@@ -488,7 +478,7 @@
         on:click={() => {
           if (cameraCount > 0) {
             toggleFullscreen();
-            addUserLog(`user clicked on fulscreen top panel`);
+            addUserLog(`user clicked on fulscreen, top panel`);
           }
         }}
       >
@@ -634,7 +624,10 @@
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <li
               class="w-full fade-in-15 transition-all duration-200"
-              on:click={() => openEventDialog(event)}
+              on:click={() => {
+                openEventDialog(event);
+                addUserLog(`user clicked on aler panel event`);
+              }}
             >
               <article
                 class={`relative items-center gap-4 m-4 p-4 bg-background

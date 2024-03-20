@@ -1,6 +1,7 @@
 <script lang="ts">
   import { leftPaneHide, playbackVideos } from "@/lib/stores";
   import { VideoOff } from "lucide-svelte";
+  import { addUserLog } from "@/lib/addUserLog";
 
   const dateOptions: Intl.DateTimeFormatOptions = {
     year: "numeric",
@@ -37,7 +38,13 @@
         class="text-base flex flex-col items-center justify-center gap-2 font-medium rounded-lg px-2 py-4 w-full cursor-pointer max-w-[300px]"
       >
         {#each uniqueDates as date}
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
           <span
+            on:click={() =>
+              addUserLog(
+                `user clicked on playback list item ${new Date(date).toLocaleDateString("en-US", dateOptions)}`,
+              )}
             class={selectedDate !== date
               ? "text-[#333] dark:text-white font-medium rounded-lg px-4 py-4 w-full cursor-pointer text-sm flex items-center gap-1 hover:bg-[rgba(1,90,98,0.1)] dark:hover:bg-[rgba(1,90,98,0.2)]"
               : "text-[#333] dark:text-white font-medium rounded-lg px-4 py-4 w-full cursor-pointer text-sm flex items-center gap-1 bg-[rgba(1,90,98,0.1)] dark:bg-[rgba(1,90,98,0.4)]"}

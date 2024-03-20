@@ -10,6 +10,7 @@
   import { Menu } from "lucide-svelte";
   import { cn } from "@/lib";
   import PlaybackList from "../lists/PlaybackList.svelte";
+  import { addUserLog } from "@/lib/addUserLog";
   import EventList from "../lists/EventList.svelte";
   export let nodes: Node[];
   export let url: string;
@@ -19,15 +20,9 @@
 
   const toggleVisibility = () => {
     console.log("Toggle Visibility", $leftPaneHide);
-    fetch("/api/userLogs", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        event: `user clicked to switch left pane visibility to ${$leftPaneHide}`,
-      }),
-    }).catch((error) => console.error("Error:", error));
+    addUserLog(
+      `user clicked to switch left pane visibility to ${$leftPaneHide}`,
+    );
     if ($leftPaneHide) {
       // SHOW
       leftPaneHide.set(!$leftPaneHide);

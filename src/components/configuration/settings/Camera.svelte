@@ -9,6 +9,7 @@
   export let user: User;
   import { onMount, onDestroy } from "svelte";
   import { toast } from "svelte-sonner";
+  import { addUserLog } from "@/lib/addUserLog";
   import { writable } from "svelte/store";
 
   let selected = 1;
@@ -123,7 +124,10 @@
     {:else}
       <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 1)}
+        on:click={() => {
+          selected = 1;
+          addUserLog("user clicked on camera details button Camera panel");
+        }}
       >
         Camera details
       </button>
@@ -140,7 +144,10 @@
     {:else}
       <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 2)}
+        on:click={() => {
+          selected = 2;
+          addUserLog("user clicked on camera status button Camera panel");
+        }}
       >
         Camera status
       </button>
@@ -157,7 +164,10 @@
     {:else}
       <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 3)}
+        on:click={() => {
+          selected = 3;
+          addUserLog("user clicked on camera failures button Camera panel");
+        }}
       >
         Camera failures
       </button>
@@ -218,6 +228,8 @@
         <div class="flex gap-4">
           <AddNodeDialog {user} {getNodeData}>
             <button
+              on:click={() =>
+                addUserLog("user clicked on add node button camera panel")}
               class="dark:text-[#CAC4D0] text-[#4f4f4f] font-xs bg-[#d9d9d9] border-none dark:bg-[#242424] rounded-md px-3 py-1.5 border-[#333] border dark:border-solid"
             >
               Add
@@ -229,7 +241,13 @@
               on:click={() => {
                 if (nodeIndex !== undefined && nodeIndex !== null) {
                   nodeModify = true;
-                } else alert("please select a node");
+                  addUserLog("user clicked on modify node button camera panel");
+                } else {
+                  alert("please select a node");
+                  addUserLog(
+                    "user clicked on modify node button, without selecting a node,  camera panel",
+                  );
+                }
               }}
             >
               Modify
@@ -238,8 +256,6 @@
             <button
               class="dark:text-[#cac4d0] text-[#4f4f4f] font-xs bg-[#d9d9d9] border-none dark:bg-[#242424] rounded-md px-3 py-1.5 border-[#333] border dark:border-solid"
               on:click={() => {
-                console.log(newNodeName);
-                console.log(newData[nodeIndex].id);
                 const data = fetch("/api/node/update", {
                   method: "PATCH",
                   headers: {
@@ -294,6 +310,9 @@
                     }
                   } else {
                     nodeIndex = index;
+                    addUserLog(
+                      `user clicked on table row with node name ${item.name}`,
+                    );
                   }
                 }}
               >
@@ -346,6 +365,9 @@
                     }
                   } else {
                     nodeIndex = index;
+                    addUserLog(
+                      `user clicked on table row with node name ${data.name}`,
+                    );
                   }
                 }}
               >
@@ -423,6 +445,8 @@
           <div class="flex gap-4">
             <AddCameraDialog sNode={newData[nodeIndex]}>
               <button
+                on:click={() =>
+                  addUserLog(`user clicked on add camera button camera table`)}
                 class="dark:text-[#cac4d0] text-[#4f4f4f] font-xs bg-[#d9d9d9] border-none dark:bg-[#242424] rounded-md px-3 py-1.5 border-[#333] border dark:border-solid"
               >
                 Add
@@ -434,7 +458,15 @@
                 on:click={() => {
                   if (detailIndex !== undefined && detailIndex !== null) {
                     modify = true;
-                  } else alert("please select a camera");
+                    addUserLog(
+                      `user clicked on add modify button camera table`,
+                    );
+                  } else {
+                    alert("please select a camera");
+                    addUserLog(
+                      `user clicked on add modify button, without selecting a camera, camera table`,
+                    );
+                  }
                 }}
               >
                 Modify
@@ -457,6 +489,9 @@
                   }).then((res) => {
                     toast("Camera edited");
                     modify = false;
+                    addUserLog(
+                      `user clicked on save changes button after modification, camera table`,
+                    );
                   });
                 }}
               >
@@ -466,7 +501,12 @@
             {#if modify}
               <button
                 class="dark:text-[#cac4d0] text-[#4f4f4f] font-xs bg-[#d9d9d9] border-none dark:bg-[#242424] rounded-md px-3 py-1.5 border-[#333] border dark:border-solid"
-                on:click={() => (modify = false)}
+                on:click={() => {
+                  modify = false;
+                  addUserLog(
+                    `user clicked on discard button after modification, camera table`,
+                  );
+                }}
               >
                 Discard
               </button>
@@ -488,6 +528,9 @@
                 }).then(() => {
                   detailIndex = null;
                   toast("Selected camera Deleted!");
+                  addUserLog(
+                    `user deleted camera with name ${newData[nodeIndex].cameradata[detailIndex][0].name} & url ${newData[nodeIndex].cameraData[detailIndex][0].url}`,
+                  );
                 });
               }}
             >
@@ -564,6 +607,9 @@
                       detailIndex = null;
                     } else {
                       detailIndex = index;
+                      addUserLog(
+                        `user clicked on camera table row with camera name ${item[0].name}`,
+                      );
                     }
                   }}
                 >
@@ -657,6 +703,9 @@
                       detailIndex = null;
                     } else {
                       detailIndex = index;
+                      addUserLog(
+                        `user clicked on camera table row with camera name ${item[0].name}`,
+                      );
                     }
                   }}
                 >

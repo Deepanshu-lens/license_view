@@ -2,6 +2,7 @@
   import Switch from "@/components/ui/switch/switch.svelte";
   import { selectedNode } from "@/lib/stores";
   import { onMount } from "svelte";
+  import { addUserLog } from "@/lib/addUserLog";
 
   let selected = 1;
   let recAudio = false;
@@ -80,7 +81,10 @@
     {:else}
       <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 1)}
+        on:click={() => {
+          selected = 1;
+          addUserLog("user clicked on recording mode button recording panel");
+        }}
       >
         Recording mode
       </button>
@@ -98,7 +102,10 @@
     {:else}
       <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 2)}
+        on:click={() => {
+          selected = 2;
+          addUserLog("user clicked on video quality button recording panel");
+        }}
       >
         Video quality
       </button>
@@ -114,7 +121,10 @@
       </div>
     {:else}
       <button
-        on:click={() => (selected = 3)}
+        on:click={() => {
+          selected = 3;
+          addUserLog("user clicked on audio settings button recording panel");
+        }}
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
       >
         Audio settings

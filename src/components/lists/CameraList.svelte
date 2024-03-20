@@ -10,6 +10,7 @@
   import { leftPaneHide, selectedNode } from "@/lib/stores";
   import Button from "../ui/button/button.svelte";
   export let showItems: boolean;
+  import { addUserLog } from "@/lib/addUserLog";
 
   /**
    * Sortable Camera Info Cards
@@ -77,15 +78,7 @@
       class={`relative flex items-center px-4 py-4 gap-5 bg-background transition-all duration-100 
           ${!showItems ? "opacity-0" : "opacity-100"}`}
       on:click={() => {
-        fetch("/api/userLogs", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            event: "user clicked on search cameralist",
-          }),
-        }).catch((error) => console.error("Error:", error));
+        addUserLog("user clicked on search cameralist");
       }}
     >
       <span
@@ -115,15 +108,7 @@
       <AddCameraDialog sNode={""}>
         <svg
           on:click={() => {
-            fetch("/api/userLogs", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                event: "user clicked on addCamera cameralist",
-              }),
-            }).catch((error) => console.error("Error:", error));
+            addUserLog("user clicked on addCamera cameralist");
           }}
           xmlns="http://www.w3.org/2000/svg"
           width="24"

@@ -72,3 +72,10 @@ export type LoginEvent = {
   email: string;
   created: Date;
 };
+
+export type UserLog = {
+  id: string;
+  emaiL: string;
+  created: Date;
+  event: string;
+};

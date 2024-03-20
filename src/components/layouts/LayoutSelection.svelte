@@ -2,6 +2,7 @@
   import { ChevronDown, ChevronUp } from "lucide-svelte";
   import LayoutDialog from "../dialogs/LayoutDialog.svelte";
   import { leftPaneHide } from "@/lib/stores";
+  import { addUserLog } from "@/lib/addUserLog";
 
   let displayLayouts = false;
   let nodeCameras = false;
@@ -20,15 +21,7 @@
     on:click={() => {
       displayLayouts = !displayLayouts;
       nodeCameras = false;
-      fetch("/api/userLogs", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          event: "user clicked display and layouts left pane",
-        }),
-      }).catch((error) => console.error("Error:", error));
+      addUserLog("user clicked display and layouts, left pane");
     }}
   >
     Display & Layouts
@@ -69,15 +62,7 @@
     on:click={() => {
       nodeCameras = !nodeCameras;
       displayLayouts = false;
-      fetch("/api/userLogs", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          event: "user clicked nodes and cameras left pane",
-        }),
-      }).catch((error) => console.error("Error:", error));
+      addUserLog("user clicked nodes and cameras, left pane");
     }}
   >
     Node & Cameras

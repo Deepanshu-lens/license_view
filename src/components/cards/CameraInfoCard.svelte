@@ -10,6 +10,7 @@
   import Input from "../ui/input/input.svelte";
   import Button from "../ui/button/button.svelte";
   import CameraSettingsDialog from "../dialogs/CameraSettingsDialog.svelte";
+  import { addUserLog } from "@/lib/addUserLog";
 
   export let cameraId: string;
   export let name: string;
@@ -113,15 +114,9 @@
     hoveredCamera.set(cameraId);
   }}
   on:click={() => {
-    fetch("/api/userLogs", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        event: `user clicked on camera ${name} having url "${url}" from cameralist`,
-      }),
-    }).catch((error) => console.error("Error:", error));
+    addUserLog(
+      `user clicked on camera ${name} having url "${url}" from cameralist`,
+    );
     activeCamera.update((previous) => (previous === cameraId ? "" : cameraId));
   }}
   on:mouseleave={() => {
@@ -153,7 +148,14 @@
           ><Edit class="h-4 w-4" /></button
         >
       </li>
-      <li class="cursor-pointer hover:scale-125">
+      <li
+        class="cursor-pointer hover:scale-125"
+        on:click={() => {
+          addUserLog(
+            `user clicked on camera settings for camera with name  ${name}`,
+          );
+        }}
+      >
         <CameraSettingsDialog
           cameraName={name}
           {save}

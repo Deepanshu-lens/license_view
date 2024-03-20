@@ -1,6 +1,7 @@
 <script type="ts">
   import { selectedNode } from "@/lib/stores";
   import { onMount } from "svelte";
+  import { addUserLog } from "@/lib/addUserLog";
 
   let selected = 1;
   let delayOptions = [
@@ -53,7 +54,10 @@
       </div>
     {:else}
       <button
-        on:click={() => (selected = 1)}
+        on:click={() => {
+          selected = 1;
+          addUserLog("user clicked on Live mode button stream panel");
+        }}
         class="cursor-pointer text-[#212427] font-medium dark:text-[rgba(255,255,255,.6)]"
       >
         Live mode
@@ -70,7 +74,10 @@
       </div>
     {:else}
       <button
-        on:click={() => (selected = 2)}
+        on:click={() => {
+          selected = 2;
+          addUserLog("user clicked on resolution button stream panel");
+        }}
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
       >
         Resolution

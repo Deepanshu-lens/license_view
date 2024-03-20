@@ -10,6 +10,7 @@
   import type { LoginEvent, User } from "@/types";
   export let user: User;
   export let records: LoginEvent;
+  export let logs: UserLog;
 
   $: {
     const searchParams = new URLSearchParams($page.url.search);
@@ -34,6 +35,6 @@
   {:else if search === "Camera"}
     <Camera {user} />
   {:else}
-    <UserS {user} {records} />
+    <UserS {user} {records} {logs} />
   {/if}
 </section>

@@ -8,6 +8,7 @@
   import DarkModeSwitch from "../toggles/DarkModeSwitch.svelte";
   import { mode } from "mode-watcher";
   import { alertPanelHide, topPanelHide } from "@/lib/stores";
+  import { addUserLog } from "@/lib/addUserLog";
 
   const menuList = [
     {
@@ -34,15 +35,7 @@
   let isOpen = false;
   function toggleOpen() {
     isOpen = !isOpen;
-    fetch("/api/userLogs", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        event: "user clicked on user icon",
-      }),
-    }).catch((error) => console.error("Error:", error));
+    addUserLog("user clicked on user icon");
   }
 </script>
 
@@ -73,16 +66,7 @@
           <a
             href={item.href}
             on:click={() => {
-              // console.log(item);
-              fetch("/api/userLogs", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  event: `user clicked on navbar link "${item.text}"`,
-                }),
-              }).catch((error) => console.error("Error:", error));
+              addUserLog(`user clicked on navbar link "${item.text}"`);
             }}
           >
             <span
@@ -107,15 +91,7 @@
         <span
           class="flex items-center justify-center gap-1.5 cursor-pointer hover:text-primary"
           on:click={() => {
-            fetch("/api/userLogs", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                event: `user clicked on support on navbar`,
-              }),
-            }).catch((error) => console.error("Error:", error));
+            addUserLog(`user clicked on support on navbar`);
           }}
         >
           Support
@@ -124,15 +100,7 @@
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <span
           on:click={() => {
-            fetch("/api/userLogs", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                event: "user switched theme mode",
-              }),
-            }).catch((error) => console.error("Error:", error));
+            addUserLog("user switched theme mode");
           }}
         >
           <DarkModeSwitch />

@@ -45,5 +45,5 @@
 <main
   class="sm:flex items-start justify-between w-full overflow-y-hidden hidden min-h-[calc(100vh-75px)]"
 >
-  <ConfigPanel {user} records={data.records} />
+  <ConfigPanel {user} records={data.records} logs={data.logs} />
 </main>

@@ -1,9 +1,12 @@
 <script lang="ts">
   import { Check, Pencil, X } from "lucide-svelte";
-  import type { LoginEvent, User } from "@/types";
+  import type { LoginEvent, User, UserLog } from "@/types";
   import { toast } from "svelte-sonner";
+  import { addUserLog } from "@/lib/addUserLog";
+
   export let user: User;
   export let records: LoginEvent[];
+  export let logs: UserLog[];
   export let selected = 1;
   let showUpdateUsernameModal = false;
   let showUpdateEmailModal = false;
@@ -25,6 +28,9 @@
         .then((response) => {
           showUpdateUsernameModal = false;
           toast(`Username updated from ${user.name} to ${username}`);
+          addUserLog(
+            `user clicked on save username, username updated to ${username}`,
+          );
         })
         .catch((err) => console.log(err));
     } else {
@@ -65,7 +71,10 @@
     {:else}
       <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 1)}
+        on:click={() => {
+          selected = 1;
+          addUserLog("user clicked on user details button, user panel");
+        }}
       >
         User details
       </button>
@@ -82,7 +91,10 @@
     {:else}
       <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 2)}
+        on:click={() => {
+          selected = 2;
+          addUserLog("user clicked on permissions button, user panel");
+        }}
       >
         Premissions
       </button>
@@ -97,7 +109,10 @@
     {:else}
       <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 3)}
+        on:click={() => {
+          selected = 3;
+          addUserLog("user clicked on policies button, user panel");
+        }}
       >
         Policies
       </button>
@@ -114,9 +129,32 @@
     {:else}
       <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 4)}
+        on:click={() => {
+          selected = 4;
+          addUserLog("user clicked on login events button, user panel");
+        }}
       >
         Login Events
+      </button>
+    {/if}
+    {#if selected === 6}
+      <div class=" relative">
+        <span class="font-bold text-[#015A62] dark:text-white">
+          System Logs
+        </span>
+        <span
+          class=" h-[3px] rounded-full bg-[#0B8995] w-full absolute left-0 -bottom-4"
+        />
+      </div>
+    {:else}
+      <button
+        class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
+        on:click={() => {
+          selected = 6;
+          addUserLog("user clicked on system logs button, user panel");
+        }}
+      >
+        System Logs
       </button>
     {/if}
     {#if selected === 5}
@@ -132,7 +170,10 @@
     {:else}
       <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 5)}
+        on:click={() => {
+          selected = 5;
+          addUserLog("user clicked on device authorisation button, user panel");
+        }}
       >
         Device Authorisation
       </button>
@@ -158,7 +199,10 @@
         {#if !showUpdateUsernameModal}
           <button
             class="text-sm font-medium dark:text-white/[.7] flex gap-2 items-center w-[80px] h-[35px] px-3 py-2 bg-black/[.08] hover:bg-black/[0.18] dark:bg-white/[0.08] dark:hover:bg-white/[0.18] border-[1px] border-solid border-[rgb(145,158,171)]/[.24] rounded-md text-black/[.7]"
-            on:click={() => (showUpdateUsernameModal = true)}
+            on:click={() => {
+              showUpdateUsernameModal = true;
+              addUserLog("user clicked on username edit button, user panel");
+            }}
           >
             Edit
             <Pencil />
@@ -172,7 +216,10 @@
             <Check />
           </button>
           <button
-            on:click={() => (showUpdateUsernameModal = false)}
+            on:click={() => {
+              showUpdateUsernameModal = false;
+              addUserLog("user clicked on discard for username updated");
+            }}
             class="text-sm font-medium dark:text-white/[.7] flex gap-2 items-center w-[105px] h-[35px] px-3 py-2 bg-black/[.08] hover:bg-black/[0.18] dark:bg-white/[0.08] dark:hover:bg-white/[0.18] border-[1px] border-solid border-[rgb(145,158,171)]/[.24] rounded-md text-black/[.7]"
           >
             Discard
@@ -195,7 +242,10 @@
           />
           {#if !showUpdateEmailModal}
             <button
-              on:click={() => (showUpdateEmailModal = true)}
+              on:click={() => {
+                showUpdateEmailModal = true;
+                addUserLog("user clicked on edit email button, user panel");
+              }}
               class="text-sm font-medium dark:text-white/[.7] flex gap-2 items-center w-[80px] h-[35px] px-3 py-2 bg-black/[.08] hover:bg-black/[0.18] dark:bg-white/[0.08] dark:hover:bg-white/[0.18] border-[1px] border-solid border-[rgb(145,158,171)]/[.24] rounded-md text-black/[.7]"
             >
               Edit
@@ -205,12 +255,21 @@
             <button
               type="submit"
               class="btn btn-primary text-sm font-medium dark:text-white/[.7] flex gap-2 items-center w-[85px] h-[35px] px-3 py-2 bg-black/[.08] hover:bg-black/[0.18] dark:bg-white/[0.08] dark:hover:bg-white/[0.18] border-[1px] border-solid border-[rgb(145,158,171)]/[.24] rounded-md text-black/[.7] disabled:cursor-not-allowed"
+              on:click={() =>
+                addUserLog(
+                  "user clicked on save for email update, camera panel",
+                )}
             >
               Save
               <Check />
             </button>
             <button
-              on:click={() => (showUpdateEmailModal = false)}
+              on:click={() => {
+                showUpdateEmailModal = false;
+                addUserLog(
+                  "user clicked on discard for email update, camera panel",
+                );
+              }}
               class="text-sm font-medium dark:text-white/[.7] flex gap-2 items-center w-[105px] h-[35px] px-3 py-2 bg-black/[.08] hover:bg-black/[0.18] dark:bg-white/[0.08] dark:hover:bg-white/[0.18] border-[1px] border-solid border-[rgb(145,158,171)]/[.24] rounded-md text-black/[.7] disabled:cursor-not-allowed"
             >
               Discard
@@ -232,7 +291,10 @@
               disabled={!showUpdatePasswordModal}
             />
             <button
-              on:click={() => (showUpdatePasswordModal = true)}
+              on:click={() => {
+                showUpdatePasswordModal = true;
+                addUserLog("user clicked on edit for password, user panel");
+              }}
               class="text-sm font-medium dark:text-white/[.7] flex gap-2 items-center w-[80px] h-[35px] px-3 py-2 bg-black/[.08] hover:bg-black/[0.18] dark:bg-white/[0.08] dark:hover:bg-white/[0.18] border-[1px] border-solid border-[rgb(145,158,171)]/[.24] rounded-md text-black/[.7]"
             >
               Edit
@@ -251,12 +313,21 @@
             />
             <button
               class="text-sm font-medium dark:text-white/[.7] flex gap-2 items-center w-[85px] h-[35px] px-3 py-2 bg-black/[.08] hover:bg-black/[0.18] dark:bg-white/[0.08] dark:hover:bg-white/[0.18] border-[1px] border-solid border-[rgb(145,158,171)]/[.24] rounded-md text-black/[.7]"
+              on:click={() =>
+                addUserLog(
+                  "user clicked on save for password update, user panel",
+                )}
             >
               Save
               <Check />
             </button>
             <button
-              on:click={() => (showUpdatePasswordModal = false)}
+              on:click={() => {
+                showUpdatePasswordModal = false;
+                addUserLog(
+                  "user clicked on discard for password update, user panel",
+                );
+              }}
               class="text-sm font-medium dark:text-white/[.7] flex gap-2 items-center w-[105px] h-[35px] px-3 py-2 bg-black/[.08] hover:bg-black/[0.18] dark:bg-white/[0.08] dark:hover:bg-white/[0.18] border-[1px] border-solid border-[rgb(145,158,171)]/[.24] rounded-md text-black/[.7]"
             >
               Discard
@@ -292,5 +363,31 @@
   {#if selected === 5}
     <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
     <h2 class="font-medium px-6 mb-4">Device Authorisation Settings</h2>
+  {/if}
+  {#if selected === 6}
+    <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
+    <h2 class="font-medium px-6 mb-4">System Logs</h2>
+    {#if logs}
+      <div
+        class="flex flex-col items-start overflow-y-scroll max-h-[calc(100vh-250px)] w-full"
+      >
+        {#each logs as item, index}
+          <li class="flex items-center justify-evenly gap-4 px-6 pb-6">
+            <!-- <h2 class=" flex-shrink-0 font-medium">{index + 1} :</h2> -->
+            <p class="flex-shrink-0">
+              <span class="text-base font-medium"> Event Time: </span>
+              {formatDateTime(item?.created)}
+            </p>
+            <p>
+              <span class="text-base font-medium"> Event: </span>
+
+              {item.event}
+            </p>
+          </li>
+        {/each}
+      </div>
+    {:else}
+      <span class="px-6 text-sm">Loading...</span>
+    {/if}
   {/if}
 </div>

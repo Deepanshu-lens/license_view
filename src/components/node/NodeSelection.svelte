@@ -7,22 +7,11 @@
   import AlertDeleteNode from "../dialogs/alerts/AlertDeleteNode.svelte";
   import { cn } from "@/lib";
   import AddNodeModal from "../modal/AddNodeModal.svelte";
+  import { addUserLog } from "@/lib/addUserLog";
   // import * as Select from "../ui/select";
   export let url: string;
   export let nodes: Node[];
   let showAddNode = false;
-
-  function addUserLog(string: string) {
-    fetch("/api/userLogs", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        event: string,
-      }),
-    }).catch((error) => console.error("Error:", error));
-  }
 
   const onDeleteNode = () => {
     const localCameraList = $selectedNode.camera;

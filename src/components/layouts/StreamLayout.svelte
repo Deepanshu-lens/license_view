@@ -9,6 +9,8 @@
   import AddCameraDialog from "../dialogs/AddCameraDialog.svelte";
   import { Disc2, Expand, ImageDown, VolumeX } from "lucide-svelte";
   import { Shrink } from "lucide-svelte";
+  import { addUserLog } from "@/lib/addUserLog";
+
   export let handleSingleSS: () => void;
   export let isAllFullScreen: boolean;
   // export let slideIndex: number | undefined | null;
@@ -147,18 +149,6 @@
     } else {
       document.removeEventListener("fullscreenchange", onFullscreenChange);
     }
-  }
-
-  function addUserLog(string: string) {
-    fetch("/api/userLogs", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        event: string,
-      }),
-    }).catch((error) => console.error("Error:", error));
   }
 </script>
 
@@ -337,6 +327,8 @@
                         : ""}
                 >
                   <AddCameraDialog sNode={""}>
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                     <img
                       on:click={() => {
                         addUserLog(

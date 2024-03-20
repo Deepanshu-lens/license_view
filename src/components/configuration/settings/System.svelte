@@ -1,6 +1,7 @@
 <script lang="ts">
   import Switch from "@/components/ui/switch/switch.svelte";
   import { ChevronDown, RotateCcw } from "lucide-svelte";
+  import { addUserLog } from "@/lib/addUserLog";
 
   let selected = 1;
   let firmType = 1;
@@ -32,12 +33,15 @@
         />
       </div>
     {:else}
-      <span
+      <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 1)}
+        on:click={() => {
+          selected = 1;
+          addUserLog("user clicked on miantenance button system panel");
+        }}
       >
         Maintenance
-      </span>
+      </button>
     {/if}
     {#if selected === 2}
       <div class=" relative">
@@ -47,12 +51,15 @@
         />
       </div>
     {:else}
-      <span
+      <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 2)}
+        on:click={() => {
+          selected = 2;
+          addUserLog("user clicked on time button system panel");
+        }}
       >
         Time
-      </span>
+      </button>
     {/if}
     {#if selected === 3}
       <div class=" relative">
@@ -64,12 +71,15 @@
         />
       </div>
     {:else}
-      <span
+      <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 3)}
+        on:click={() => {
+          selected = 3;
+          addUserLog("user clicked on diagnostics button system panel");
+        }}
       >
         Diagnostics
-      </span>
+      </button>
     {/if}
     {#if selected === 4}
       <div class=" relative">
@@ -81,12 +91,15 @@
         />
       </div>
     {:else}
-      <span
+      <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 4)}
+        on:click={() => {
+          selected = 4;
+          addUserLog("user clicked on system logs button system panel");
+        }}
       >
         System logs
-      </span>
+      </button>
     {/if}
     {#if selected === 5}
       <div class=" relative">
@@ -96,12 +109,15 @@
         />
       </div>
     {:else}
-      <span
+      <button
         class="cursor-pointer text-[#212427] dark:text-[rgba(255,255,255,.6)] font-medium"
-        on:click={() => (selected = 5)}
+        on:click={() => {
+          selected = 5;
+          addUserLog("user clicked on reboot button system panel");
+        }}
       >
         Reboot
-      </span>
+      </button>
     {/if}
   </div>
   <div class="h-[1px] w-[96%] dark:bg-[#333] mb-8 bg-[#e0e0e0]" />

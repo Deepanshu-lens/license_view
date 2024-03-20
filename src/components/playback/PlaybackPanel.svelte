@@ -8,6 +8,7 @@
   import PocketBase, { Record } from "pocketbase";
   import { onDestroy, onMount } from "svelte";
   import type { Playback } from "@/types";
+  import { addUserLog } from "@/lib/addUserLog";
 
   let showCalendar: boolean = false;
   let value = null;
@@ -112,7 +113,11 @@
     <div class="flex gap-6 items-center">
       <span class="flex items-center justify-center gap-5">
         <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <span class="relative">
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <span
+          class="relative"
+          on:click={() => addUserLog("user clicked on date input playback")}
+        >
           <input
             id="search-input"
             type="text"
@@ -148,7 +153,10 @@
       <span class="relative">
         <button
           class="flex item-center gap-2"
-          on:click={() => (showFilters = !showFilters)}
+          on:click={() => {
+            showFilters = !showFilters;
+            addUserLog("user clicked on filter button playback");
+          }}
         >
           <ListFilter /> Filter
         </button>
@@ -249,6 +257,7 @@
       <button
         on:click={() => {
           singleFullscreen();
+          addUserLog("user clicked on fulscreen button playback");
         }}
         class="flex items-center justify-center gap-2 cursor-pointer relative lg:scale-95 2xl:scale-100 hover:text-primary"
         ><Expand size={18} /> Fullscreen</button
@@ -261,7 +270,10 @@
         class={!manual
           ? "font-semibold text-sm text-white px-4 py-1.5 rounded-md bg-[#015A62] border-solid border border-[#015A62] w-[135px]"
           : "font-semibold text-sm bg-white px-4 py-1.5 rounded-md text-[#015A62] dark:border-none dark:bg-[#333] dark:text-[white] border-solid border border-[#015A62] w-[135px]"}
-        on:click={() => (manual = false)}
+        on:click={() => {
+          manual = false;
+          addUserLog("user clicked on automated button playback");
+        }}
       >
         Automated
       </button>
@@ -269,7 +281,10 @@
         class={!manual
           ? "font-semibold text-sm bg-white px-4 py-1.5 rounded-md text-[#015A62] dark:border-none dark:bg-[#333] dark:text-[white] border-solid border border-[#015A62] w-[135px]"
           : "font-semibold text-sm text-white px-4 py-1.5 rounded-md bg-[#015A62] border-solid border border-[#015A62] w-[135px]"}
-        on:click={() => (manual = true)}
+        on:click={() => {
+          manual = true;
+          addUserLog("user clicked on manual button playback");
+        }}
       >
         Manual
       </button>
@@ -289,7 +304,10 @@
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-static-element-interactions -->
       <span
-        on:click={() => exitSingleFullscreen()}
+        on:click={() => {
+          exitSingleFullscreen();
+          addUserLog("user clicked on Minimize button playback");
+        }}
         class=" cursor-pointer absolute top-4 right-4 backdrop-blur-sm bg-[rgba(0,0,0,0.6)] p-1.5 rounded-sm text-white flex items-center gap-2"
       >
         <Shrink size={18} /> Minimize
