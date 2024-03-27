@@ -26,9 +26,9 @@
   });
 </script>
 
-<div class="container mx-auto py-4">
+<div class="container p-2 mx-auto">
   <h1
-    class="text-xl font-bold dark:text-[#e0e0e0] text-[#212427] flex justify-center"
+    class="text-xl font-bold dark:text-[#e0e0e0] text-[#212427] flex justify-center pt-2 pb-4"
   >
     Gallery
   </h1>

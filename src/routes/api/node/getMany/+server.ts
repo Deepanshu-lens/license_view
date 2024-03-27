@@ -23,6 +23,7 @@ export const POST: RequestHandler = async ({
           }
         }
         // Add the camera data to the node object. Adjust this according to how you want the data structured.
+        // node.expand = cameraData;
         node.cameraData = cameraData;
       }
     }

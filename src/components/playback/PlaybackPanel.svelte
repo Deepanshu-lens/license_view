@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { Calendar } from "bits-ui";
+  import { Calendar } from "@/components/ui/calendar";
   import { CalendarDays, X, Shrink, Expand, ListFilter } from "lucide-svelte";
-  import Separator from "../ui/separator/separator.svelte";
   import PlaybackVideoCard from "../cards/PlaybackVideoCard.svelte";
   import { playbackVideos, selectedPlaybackDate } from "@/lib/stores";
   import { cn } from "@/lib";
@@ -14,7 +13,6 @@
   let value = null;
   let searchDate: string = "";
   let queryDate = "";
-  let selectedDate = "";
   let playbackFullscreen = false;
   let showFilters = false;
   let manual: boolean = false;
@@ -25,6 +23,28 @@
     if (searchDate.length === 0) queryDate = "";
     // console.log(searchDate);
     // console.log(queryDate);
+    if (!isNaN(formattedInput)) {
+      const inputDate = formattedInput.toString().slice(0, 15);
+      queryDate = inputDate;
+    }
+  }
+
+  $: if (value) {
+    const date = new Date(value.year, value.month - 1, value.day);
+
+    // Convert to desired format
+    let formattedDate = date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+
+    console.log(formattedDate);
+    searchDate = formattedDate;
+    queryDate = formattedDate;
+    formattedDate = null;
+    showCalendar = false;
+    value = null;
   }
 
   const PB = new PocketBase("http://127.0.0.1:5555");
@@ -35,7 +55,7 @@
   });
 
   async function getPlaybackData(): Promise<Playback[]> {
-    console.log("Getting events");
+    console.log("Getting playback data");
     const data = await PB.collection("playback").getFullList({
       sort: "-startTime",
     });
@@ -130,14 +150,14 @@
           <span
             class="absolute top-1/2 -translate-y-1/2 left-[10px] text-[#4f4f4f] dark:text-white cursor-pointer scale-90 z-20"
             on:click={() => {
-              // showCalendar = !showCalendar;
+              showCalendar = !showCalendar;
             }}
           >
             <CalendarDays />
           </span>
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <span
-            on:click={() => (searchDate = "")}
+            on:click={() => ((searchDate = ""), (queryDate = ""))}
             class="absolute top-1/2 -translate-y-1/2 right-[10px] text-[#4f4f4f] dark:text-white cursor-pointer scale-75"
           >
             <X />
@@ -290,7 +310,7 @@
       </button>
     </div>
     <div class="text-[#015A62]">
-      {selectedDate === "" ? "Date" : selectedDate}
+      {queryDate.length === 0 ? "Date" : queryDate}
     </div>
   </div>
   <div

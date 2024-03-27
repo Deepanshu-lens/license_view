@@ -5,6 +5,7 @@
   import { onMount } from "svelte";
   import { events, leftPaneHide } from "@/lib/stores";
   import InformativeEventCard from "../cards/InformativeEventCard.svelte";
+  import { toast } from "svelte-sonner";
 
   let eventFullscreen: boolean = false;
   let isDropDownOpen: boolean = false;
@@ -35,8 +36,25 @@
   $: showMore, updateMapData();
   $: data = $events;
   $: if (value) {
-    searchDate = `${value.day}-${value.month}-${value.year}`;
-    queryDate = `${value.month}-${value.day}-${value.year}`;
+    // console.log(value);
+    const date = new Date(value.year, value.month - 1, value.day);
+
+    // Convert to desired format
+    let formattedDate = date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+
+    console.log(formattedDate);
+    searchDate = formattedDate;
+    queryDate = formattedDate;
+    formattedDate = null;
+    handleDateInput();
+    showCalendar = false;
+    value = null;
+    // searchDate = `${value.day} ${value.month} ${value.year}`;
+    // queryDate = `${value.month} ${value.day} ${value.year}`;
   }
 
   function updateMapData() {
@@ -70,19 +88,22 @@
     if (searchDate.length === 0) queryDate = "";
     if (!isNaN(formattedInput)) {
       const inputDate = formattedInput.toString().slice(0, 15);
-      //   console.log(inputDate);
+      // console.log(inputDate);
       if (inputDate.length > 0 && data) {
         const matchingEvents = [];
         for (const item of data) {
           const eventDate = item.created.toString().slice(0, 15);
           //   console.log(eventDate);
           if (inputDate === eventDate) {
-            console.log("matching");
             queryDate = eventDate;
             matchingEvents.push(item);
           }
           matchingData = matchingEvents;
         }
+        // if (matchingEvents.length === 0) {
+        //   (queryDate = ""), (searchDate = ""), (value = null);
+        //   toast("no events on that date!");
+        // } else showCalendar = false;
       }
     }
   }
@@ -103,7 +124,11 @@
   // console.log(12 % 12);
 
   const handleEventFullscreen = () => {
-    let cell = document.getElementById(`scrollEle`);
+    console.log("clicked");
+    let cell =
+      queryDate?.length > 0
+        ? document.getElementById(`zoomEle`)
+        : document.getElementById(`scrollEle`);
     cell?.requestFullscreen({ navigationUI: "show" });
     eventFullscreen = true;
   };
@@ -143,7 +168,7 @@
           id="search-input"
           type="text"
           class="bg-transparent border border-gray-300 text-gray-900 dark:text-white capitalize text-sm sm:text-[8px] md:text-[10px] lg:text-sm xl:text-md rounded-lg block px-10 py-2 box-border dark:focus:border-black dark:active:border-black w-[260px]"
-          placeholder="Enter Date  DD MONTH YY"
+          placeholder="Enter Date:  DD MONTH YY"
           bind:value={searchDate}
           on:input={handleDateInput}
         />
@@ -151,14 +176,14 @@
         <span
           class="absolute top-1/2 -translate-y-1/2 left-[10px] text-[#4f4f4f] dark:text-white cursor-pointer scale-90 z-20"
           on:click={() => {
-            // showCalendar = !showCalendar;
+            showCalendar = !showCalendar;
           }}
         >
           <CalendarDays />
         </span>
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <span
-          on:click={() => (searchDate = "")}
+          on:click={() => ((searchDate = ""), (queryDate = ""))}
           class="absolute top-1/2 -translate-y-1/2 right-[10px] text-[#4f4f4f] dark:text-white cursor-pointer scale-75"
         >
           <X />
@@ -517,10 +542,20 @@
       </div>
     {:else}
       <div
+        id="zoomEle"
         class={eventFullscreen
-          ? "h-screen flex items-start justify-start overflow-x-scroll overflow-y-scroll  relative"
-          : "min-h-[calc(100vh-75px-55px)] h-full flex items-start justify-start overflow-x-scroll overflow-y-clip  relative min-w-full"}
+          ? "h-screen flex items-start justify-start overflow-hidden relative bg-white dark:bg-black"
+          : "min-h-[calc(100vh-75px-55px)] h-full flex items-start justify-start relative min-w-full bg-white dark:bg-black"}
       >
+        {#if eventFullscreen}
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <span on:click={handleExitFullscreen}>
+            <Shrink
+              class="fixed right-4 top-4 cursor-pointer text-black dark:text-white z-20  backdrop-blur-md bg-white dark:bg-black"
+            />
+          </span>
+        {/if}
         <div
           class="w-full h-full border border-solid border-[#f3f2fb] dark:border-[#242424]"
         >
@@ -531,10 +566,10 @@
               {new Date(queryDate).toString().slice(0, 15)}
             </span>
             <span
-              class="text-[#2c2c2c] dark:text-white flex items-start justify-evenly w-full h-full max-h-[calc(100vh-156px)] overflow-y-scroll"
+              class="text-[#2c2c2c] dark:text-white flex items-start justify-evenly w-full h-full max-h-[calc(100vh-156px)]"
             >
               <span
-                class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
+                class={`flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full ${eventFullscreen ? "min-h-[calc(100vh-25px)]" : "min-h-[calc(100vh-75px-55px-50px)]"}`}
               >
                 <span
                   class="flex w-full items-center justify-center border-b border-solid border-[#f3f2fb] dark:border-[#242424]"
@@ -548,7 +583,7 @@
                 >
                   <!-- class=" fixed top-[5rem] z-20 scale-90 -my-10" -->
                   <div
-                    class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-md`}
                   >
                     {#if matchingData}
                       {#each matchingData as e, i}
@@ -565,7 +600,7 @@
                 </span>
               </span>
               <span
-                class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
+                class={`flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full ${eventFullscreen ? "min-h-[calc(100vh-25px)]" : "min-h-[calc(100vh-75px-55px-50px)]"}`}
               >
                 <span
                   class="flex w-full items-center justify-center border-b border-solid border-[#f3f2fb] dark:border-[#242424]"
@@ -578,7 +613,7 @@
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
                   <div
-                    class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-md`}
                   >
                     {#if matchingData}
                       {#each matchingData as e, i}
@@ -595,7 +630,7 @@
                 </span>
               </span>
               <span
-                class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
+                class={`flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full ${eventFullscreen ? "min-h-[calc(100vh-25px)]" : "min-h-[calc(100vh-75px-55px-50px)]"}`}
               >
                 <span
                   class="flex w-full items-center justify-center border-b border-solid border-[#f3f2fb] dark:border-[#242424]"
@@ -608,7 +643,7 @@
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
                   <div
-                    class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-md`}
                   >
                     {#if matchingData}
                       {#each matchingData as e, i}
@@ -625,7 +660,7 @@
                 </span>
               </span>
               <span
-                class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
+                class={`flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full ${eventFullscreen ? "min-h-[calc(100vh-25px)]" : "min-h-[calc(100vh-75px-55px-50px)]"}`}
               >
                 <span
                   class="flex w-full items-center justify-center border-b border-solid border-[#f3f2fb] dark:border-[#242424]"
@@ -638,7 +673,7 @@
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
                   <div
-                    class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-md`}
                   >
                     {#if matchingData}
                       {#each matchingData as e, i}
@@ -655,7 +690,7 @@
                 </span>
               </span>
               <span
-                class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
+                class={`flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full ${eventFullscreen ? "min-h-[calc(100vh-25px)]" : "min-h-[calc(100vh-75px-55px-50px)]"}`}
               >
                 <span
                   class="flex w-full items-center justify-center border-b border-solid border-[#f3f2fb] dark:border-[#242424]"
@@ -668,7 +703,7 @@
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
                   <div
-                    class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-md`}
                   >
                     {#if matchingData}
                       {#each matchingData as e, i}
@@ -685,7 +720,7 @@
                 </span>
               </span>
               <span
-                class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
+                class={`flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full ${eventFullscreen ? "min-h-[calc(100vh-25px)]" : "min-h-[calc(100vh-75px-55px-50px)]"}`}
               >
                 <span
                   class="flex w-full items-center justify-center border-b border-solid border-[#f3f2fb] dark:border-[#242424]"
@@ -698,7 +733,7 @@
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
                   <div
-                    class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md hover:-translate-x-40 ease-in duration-200"
+                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"}  hover:z-50 hover:backdrop-blur-md md:hover:-translate-x-40 2xl:hover:translate-x-0 ease-in duration-200`}
                   >
                     {#if matchingData}
                       {#each matchingData as e, i}

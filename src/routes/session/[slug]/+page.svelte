@@ -21,6 +21,7 @@
         sort: "-created",
         expand: "camera",
       });
+
       return nodes.map(
         (node) =>
           ({
@@ -84,6 +85,7 @@
 
   onMount(async () => {
     nodes = await getNodes();
+    // console.log("nodes[0]", nodes[0]);
     selectedNode.set(nodes[0]);
     let x = await getEvents();
     events.set(x);
@@ -102,6 +104,7 @@
   });
 
   $: leftPaneHide.set(!$selectedNode ? true : false);
+  // $: console.log("slected", $selectedNode);
 </script>
 
 {#if $selectedNode}

@@ -14,6 +14,7 @@
   let showAddNode = false;
 
   const onDeleteNode = () => {
+    // console.log($selectedNode);
     const localCameraList = $selectedNode.camera;
     fetch("/api/node/delete", {
       method: "delete",
@@ -41,6 +42,7 @@
       console.log("adding node");
       showAddNode = true;
     } else {
+      // console.log("nodeselect");
       const data = await fetch("/api/node/getMany", {
         method: "POST",
         headers: {
@@ -60,7 +62,7 @@
       const nodeData = result.nodeData;
 
       const selected = nodeData.find((node) => node.name === selectedOption);
-
+      // console.log("selected", selected);
       selectedNode.set(selected);
     }
   };
