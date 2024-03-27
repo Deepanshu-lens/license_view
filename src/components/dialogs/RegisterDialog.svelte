@@ -242,10 +242,27 @@
         >Capture photo</Button
       >
     {:else}
+      <!-- <Input
+        id="picture"
+        type="file"
+        accept="image/*"
+        on:input={onFileUpload}
+      /> -->
+      <p class="text-bold">Upload a folder</p>
+      <input
+        class="cursor-pointer"
+        type="file"
+        multiple
+        id="flder"
+        webkitdirectory
+        on:input={onFileUpload}
+      />
+      <p class="text-bold">Upload single images</p>
       <Input
         id="picture"
         type="file"
         accept="image/*"
+        class="cursor-pointer"
         on:input={onFileUpload}
       />
       <div class="flex flex-wrap justify-center">

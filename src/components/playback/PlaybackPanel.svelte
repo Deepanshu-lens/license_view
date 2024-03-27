@@ -296,7 +296,7 @@
   <div
     id="scrollableEle"
     class={cn(
-      "flex flex-col overflow-y-scroll px-6 bg-white dark:bg-black relative",
+      "flex flex-col overflow-y-scroll px-6 bg-white dark:bg-black relative ml-2",
       playbackFullscreen ? "max-h-screen py-8" : "max-h-[calc(100vh-200px)]",
     )}
   >
@@ -313,10 +313,14 @@
         <Shrink size={18} /> Minimize
       </span>
     {/if}
-    <span class="text-base font-medium dark:text-[#e0e0e0] text-[#212427] px-6">
+    <span
+      class="text-base font-medium dark:text-[#e0e0e0] text-[#212427] px-6 mb-2"
+    >
       Files that got converted
     </span>
-    <div class={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4")}>
+    <div
+      class={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6")}
+    >
       <!-- {#each $playbackVideos.filter((item) => {
       if ($selectedPlaybackDate === "") return true;
       const [day, month, year] = new Date(item.startTime)
@@ -341,7 +345,9 @@
         </span>
       {/if}
     </div>
-    <span class="text-base font-medium dark:text-[#e0e0e0] text-[#212427] px-6">
+    <span
+      class="text-base font-medium dark:text-[#e0e0e0] text-[#212427] px-6 mb-2"
+    >
       Files that match db
     </span>
     <div class={"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"}>

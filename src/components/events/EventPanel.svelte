@@ -100,6 +100,8 @@
   //   }
   // }
 
+  // console.log(12 % 12);
+
   const handleEventFullscreen = () => {
     let cell = document.getElementById(`scrollEle`);
     cell?.requestFullscreen({ navigationUI: "show" });
@@ -254,7 +256,7 @@
       <div
         id="scrollEle"
         class={eventFullscreen
-          ? "min-h-screen h-full flex items-start justify-start overflow-x-scroll overflow-y-scroll  relative"
+          ? "min-h-screen h-full flex items-start justify-start overflow-x-scroll overflow-y-clip relative"
           : `min-h-[calc(100vh-75px-62px)] h-[calc(100vh-75px-85px)] flex items-start ${$leftPaneHide ? "w-full" : "max-w-[calc(100vw-300px)]"} justify-start overflow-x-scroll overflow-y-clip  relative`}
       >
         {#if data?.message?.search("No") !== 0}
@@ -273,37 +275,36 @@
             {@const filterAndMapItems = (items, startHour, endHour, period) => {
               return items
                 ?.filter((item) => {
+                  // console.log(item);
                   const date = item.created;
                   let hours = date.getHours();
+                  console.log("12", hours);
                   const amPm = hours >= 12 ? "PM" : "AM";
                   if (period !== amPm) return false;
-                  hours = hours % 12 || 12;
+                  console.log(hours);
+                  hours = hours % 12;
+                  console.log(hours);
+                  // hours === 12 ? 0 : hours;
+                  // console.log(hours);
                   const start = parseInt(startHour, 10);
                   const end = parseInt(endHour, 10);
+                  // console.log(start, hours, end);
                   return hours >= start && hours <= end;
                 })
                 .map((filteredItem, index) => {
                   const rawDate = filteredItem.created;
-                  const options = {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  };
-                  const timeOptions = {
+                  const formattedTime = rawDate.toLocaleTimeString("en-US", {
                     hour: "2-digit",
                     minute: "2-digit",
                     second: "2-digit",
-                  };
-                  const formattedTime = rawDate.toLocaleTimeString(
-                    "en-US",
-                    timeOptions,
-                  );
-                  const formattedDate = rawDate.toLocaleDateString(
-                    "en-US",
-                    options,
-                  );
-                  const divContent = `<div key={${index}} class="flex scale-90 items-start gap-4 rounded-lg py-4 px-4 w-[375px] border-l-4 border-solid border-[#DE4B63] informative-shadow bg-white dark:bg-[#1b1b1b]">
-                    <img alt='team member' src='data:image/png;base64,${filteredItem.frameImage}' class='object-contain rounded-md h-10 w-10 aspect-square'/>
+                  });
+                  const formattedDate = rawDate.toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  });
+                  const divContent = `<div key={${index}} class="flex scale-[.95] items-start gap-4 rounded-lg py-4 px-4 w-[255px] border-l-4 border-solid border-[#DE4B63] informative-shadow bg-white dark:bg-[#1b1b1b]">
+                    <img alt='team member' src='data:image/png;base64,${filteredItem.frameImage}' class='object-contain rounded-md h-12 w-12 aspect-square mt-1.5'/>
                                         <div class="flex flex-col">
                                             <span class="font-bold text-[#222] dark:text-white">
                                                 ${filteredItem.title}
@@ -321,13 +322,13 @@
 
             {@const morningAMItems = filterAndMapItems(
               matchingDataItems,
-              "01",
+              "00",
               "03",
               "AM",
             )}
             {@const midAMItems = filterAndMapItems(
               matchingDataItems,
-              "03",
+              "04",
               "07",
               "AM",
             )}
@@ -339,11 +340,10 @@
             )}
             {@const morningPMItems = filterAndMapItems(
               matchingDataItems,
-              "01",
+              "00",
               "03",
               "PM",
             )}
-
             {@const midPMItems = filterAndMapItems(
               matchingDataItems,
               "04",
@@ -366,10 +366,10 @@
                 <span class="text-[#2c2c2c] dark:text-white font-bold pl-4">
                   {item.title}
                 </span>
-                <span
+                <div
                   class="text-[#2c2c2c] dark:text-white flex items-start justify-evenly w-full h-full"
                 >
-                  <span
+                  <div
                     class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
                   >
                     <span
@@ -377,19 +377,19 @@
                     >
                       00
                     </span>
-                    <span
+                    <div
                       class={!eventFullscreen
                         ? "bg-[rgba(1,90,98)]/[.08] dark:bg-[#0f1118] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
                         : "bg-[rgba(1,90,98)]/[.08] dark:bg-[#0f1118] w-full h-screen relative"}
                     >
-                      <div
-                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20"
+                      <span
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
                       >
                         {@html morningAMItems}
-                      </div>
-                    </span>
-                  </span>
-                  <span
+                      </span>
+                    </div>
+                  </div>
+                  <div
                     class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
                   >
                     <span
@@ -397,19 +397,19 @@
                     >
                       04
                     </span>
-                    <span
+                    <div
                       class={!eventFullscreen
                         ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
                         : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-screen relative"}
                     >
-                      <div
-                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20"
+                      <span
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
                       >
                         {@html midAMItems}
-                      </div>
-                    </span>
-                  </span>
-                  <span
+                      </span>
+                    </div>
+                  </div>
+                  <div
                     class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
                   >
                     <span
@@ -417,19 +417,19 @@
                     >
                       08
                     </span>
-                    <span
+                    <div
                       class={!eventFullscreen
                         ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
-                        : "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-screen relative h-full"}
+                        : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-screen relative"}
                     >
-                      <div
-                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20"
+                      <span
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
                       >
                         {@html lateAMItems}
-                      </div>
-                    </span>
-                  </span>
-                  <span
+                      </span>
+                    </div>
+                  </div>
+                  <div
                     class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
                   >
                     <span
@@ -437,19 +437,19 @@
                     >
                       12
                     </span>
-                    <span
+                    <div
                       class={!eventFullscreen
                         ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
                         : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-screen relative"}
                     >
-                      <div
-                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20"
+                      <span
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
                       >
                         {@html morningPMItems}
-                      </div>
-                    </span>
-                  </span>
-                  <span
+                      </span>
+                    </div>
+                  </div>
+                  <div
                     class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
                   >
                     <span
@@ -457,19 +457,19 @@
                     >
                       16
                     </span>
-                    <span
+                    <div
                       class={!eventFullscreen
                         ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
                         : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-screen relative"}
                     >
-                      <div
-                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20"
+                      <span
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
                       >
                         {@html midPMItems}
-                      </div>
-                    </span>
-                  </span>
-                  <span
+                      </span>
+                    </div>
+                  </div>
+                  <div
                     class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
                   >
                     <span
@@ -477,19 +477,19 @@
                     >
                       20
                     </span>
-                    <span
+                    <div
                       class={!eventFullscreen
                         ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
                         : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-screen relative"}
                     >
-                      <div
-                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20"
+                      <span
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
                       >
                         {@html latePMItems}
-                      </div>
-                    </span>
-                  </span>
-                </span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           {/each}
@@ -546,7 +546,10 @@
                     ? "bg-[rgba(1,90,98)]/[.08] dark:bg-[#0f1118] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
                     : "bg-[rgba(1,90,98)]/[.08] dark:bg-[#0f1118] w-full min-h-screen h-full relative"}
                 >
-                  <div class=" fixed top-[5rem] z-20 scale-90 -my-10">
+                  <!-- class=" fixed top-[5rem] z-20 scale-90 -my-10" -->
+                  <div
+                    class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                  >
                     {#if matchingData}
                       {#each matchingData as e, i}
                         {@const originalDate = e.created}
@@ -574,7 +577,9 @@
                     ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
-                  <div class=" absolute top-[5rem] z-20 scale-90 -my-10">
+                  <div
+                    class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                  >
                     {#if matchingData}
                       {#each matchingData as e, i}
                         {@const originalDate = e.created}
@@ -602,7 +607,9 @@
                     ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
-                  <div class=" absolute top-[5rem] z-20 scale-90 -my-10">
+                  <div
+                    class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                  >
                     {#if matchingData}
                       {#each matchingData as e, i}
                         {@const originalDate = e.created}
@@ -630,7 +637,9 @@
                     ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
-                  <div class=" absolute top-[5rem] z-20 scale-90 -my-10">
+                  <div
+                    class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                  >
                     {#if matchingData}
                       {#each matchingData as e, i}
                         {@const originalDate = e.created}
@@ -658,7 +667,9 @@
                     ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
-                  <div class=" absolute top-[5rem] z-20 scale-90 -my-10">
+                  <div
+                    class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                  >
                     {#if matchingData}
                       {#each matchingData as e, i}
                         {@const originalDate = e.created}
@@ -686,7 +697,9 @@
                     ? "bg-[#fff] dark:bg-[#1b1b1b] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
-                  <div class=" absolute top-[5rem] z-20 scale-90 -my-10">
+                  <div
+                    class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md hover:-translate-x-40 ease-in duration-200"
+                  >
                     {#if matchingData}
                       {#each matchingData as e, i}
                         {@const originalDate = e.created}

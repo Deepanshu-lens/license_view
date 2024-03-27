@@ -38,9 +38,10 @@
   }
 
   async function getEvents(): Promise<Event[]> {
-    const events = await PB.collection("events").getList(1, 40, {
+    const events = await PB.collection("events").getList(1, 250, {
       sort: "-created",
     });
+
     // console.log(events)
     return events.items.map(
       (event) =>

@@ -14,3 +14,4 @@ server/pb_data/*.db*
 server/*.exe
 server/packages/ai/face/models/*
 PlayBackData
+static/Playback

@@ -14,7 +14,9 @@
   const PB = new PocketBase("http://127.0.0.1:5555");
 
   async function getNodes(): Promise<Node[]> {
+    // console.log("session", session.node);
     if (session?.node.length > 0) {
+      // console.log("first");
       const nodes = await PB.collection("node").getFullList(200, {
         sort: "-created",
         expand: "camera",

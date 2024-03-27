@@ -13,9 +13,9 @@
 <Card.Root>
   <Card.Header>
     <Card.Title>{galleryItem.name}</Card.Title>
-    <Card.Description
-      >Last Seen: {timeAgo.format(
-        new Date(galleryItem.lastSeen),
+    <Card.Description>
+      Last Seen: {timeAgo?.format(
+        new Date(galleryItem?.lastSeen),
       )}</Card.Description
     >
   </Card.Header>

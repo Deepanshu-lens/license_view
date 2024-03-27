@@ -37,6 +37,7 @@
     video.url = camera.url;
     video.src = new URL(
       `ws://${neededUrl}:8082/api/ws?src=${camera.url
+        // `ws://127.0.0.1:8082/api/ws?src=${camera.url
         ?.split("@")[1]
         ?.split(":")[0]
         ?.replace(/\./g, "_")}&camID=${camera.id}&nodeID=${1}`,
@@ -102,6 +103,7 @@
           videos[c.id].url = c.url;
           videos[c.id].src = new URL(
             `ws://${neededUrl}:8082/api/ws?src=${c.url
+              // `ws://10.20.30.89:8082/api/ws?src=${c.url
               ?.split("@")[1]
               ?.split(":")[0]
               ?.replace(/\./g, "_")}&camID=${c.id}&nodeID=${1}`,

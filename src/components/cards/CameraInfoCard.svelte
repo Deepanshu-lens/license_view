@@ -105,7 +105,7 @@
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <article
-  class={`flex border items-center flex-wrap gap-4 p-4 overflow-clip
+  class={`flex border items-center gap-4 p-4 
               hover:border-primary 
               rounded-xl shadow-sm text-base z-10 ${!$leftPaneHide ? "w-full px-4" : "w-0 px-0"}
           ${cameraId === $activeCamera ? "animate-gradient-border " : "bg-background"}

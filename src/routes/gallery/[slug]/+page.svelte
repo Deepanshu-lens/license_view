@@ -27,8 +27,10 @@
 </script>
 
 <div class="container mx-auto py-4">
-  <span class="text-base font-medium dark:text-[#e0e0e0] text-[#212427] px-6">
+  <h1
+    class="text-xl font-bold dark:text-[#e0e0e0] text-[#212427] flex justify-center"
+  >
     Gallery
-  </span>
+  </h1>
   {#if gallery && gallery.length > 0}<DataTable data={gallery} />{/if}
 </div>
