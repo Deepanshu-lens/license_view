@@ -172,12 +172,15 @@
     const galleryItem = await PB.collection("faceGallery").getFullList({
       sort: "-lastSeen",
       expand: "events",
-      fields: "name,lastSeen,expand.events.frameImage",
+      fields: "name,lastSeen,expand.events.frameImage,images",
     });
+
+    // console.log(galleryItem);
 
     return galleryItem.map((e) => ({
       name: e.name,
       lastSeen: e.lastSeen,
+      savedData: e.images,
       images: e.expand.events
         ? e.expand.events
             .map((f) => f.frameImage)
@@ -593,7 +596,7 @@
       </button>
     </div>
     {#if comfort}
-      <div class="m-4">
+      <div class="m-4 flex flex-col gap-2">
         {#each galleryItems as galleryItem}
           <ComfortableProfileCard {galleryItem} />
         {/each}

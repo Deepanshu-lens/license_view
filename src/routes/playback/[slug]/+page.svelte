@@ -1,6 +1,6 @@
 <script lang="ts">
   import PlaybackPanel from "@/components/playback/PlaybackPanel.svelte";
-  import { selectedNode } from "@/lib/stores";
+  import { convertedVideos, selectedNode } from "@/lib/stores";
   import type { Camera } from "@/types.d.ts";
   import PocketBase from "pocketbase";
   import type { PageServerData } from "./$types";
@@ -40,6 +40,10 @@
   onMount(async () => {
     nodes = await getNodes();
     selectedNode.set(nodes[0]);
+    if (data) {
+      console.log(data.webmFiles);
+      convertedVideos.set(data.webmFiles);
+    }
   });
 </script>
 

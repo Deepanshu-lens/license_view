@@ -1,98 +1,4 @@
 export const ssr = false;
-
-// src/routes/playback/[slug]/+page.server.ts
-// import { promises as fs } from "fs";
-// import path from "path";
-// import { exec } from "child_process";
-// import { promisify } from "util";
-
-// const execAsync = promisify(exec);
-
-// export const load = async () => {
-//   const playbackDir = path.resolve("static", "Playback");
-//   const files = await fs.readdir(playbackDir);
-//   //   const tsFiles = files.filter((file) => file.endsWith(".ts"));
-//   const tsFiles = files.filter(
-//     (file) => (file.match(/_/g) || []).length === 9 && file.endsWith(".ts"),
-//   );
-
-//   //   console.log(tsFiles);
-
-//   for (const file of tsFiles) {
-//     const filePath = path.join(playbackDir, file);
-//     const outputFilePath = filePath.replace(".ts", ".mp4");
-
-//     // Convert .ts to .mp4 using ffmpeg
-//     await execAsync(`ffmpeg -i "${filePath}" -c copy "${outputFilePath}"`);
-//   }
-
-//   // Assuming conversion is quick and you want to list the converted files
-//   const convertedFiles = await fs.readdir(playbackDir);
-//   console.log(convertedFiles);
-//   const mp4Files = convertedFiles.filter((file) => file.endsWith(".mp4"));
-
-//   console.log(mp4Files);
-
-//   //   Send the list of .mp4 files to the Svelte page
-//   return {
-//     mp4Files,
-//   };
-// };
-
-// export const load = async () => {
-//   try {
-//     const playbackDir = path.resolve("static", "Playback");
-//     const files = await fs.readdir(playbackDir);
-
-//     // Get all .mp4 files in the directory
-//     const mp4Files = files.filter((file) => file.endsWith(".webm"));
-//     // Create a set of names without extension for quick lookup
-//     const mp4FileNamesWithoutExtension = new Set(
-//       mp4Files.map((file) => file.replace(".webm", "")),
-//     );
-
-//     // Filter .ts files based on the new condition and the existing one
-//     const tsFilesToConvert = files.filter((file) => {
-//       const fileNameWithoutExtension = file.replace(".ts", "");
-//       return (
-//         (file.match(/_/g) || []).length === 9 &&
-//         file.endsWith(".ts") &&
-//         !mp4FileNamesWithoutExtension.has(fileNameWithoutExtension)
-//       ); // Check if .mp4 version exists
-//     });
-
-//     console.log(tsFilesToConvert);
-
-//     for (const file of tsFilesToConvert) {
-//       const filePath = path.join(playbackDir, file);
-//       const outputFilePath = filePath.replace(".ts", ".webm"); // Change the extension to .webm
-
-//       // Convert .ts to .webm using ffmpeg with VP9 and Opus codecs
-//       await execAsync(
-//         `ffmpeg -i "${filePath}" -c:v libvpx-vp9 -c:a libopus "${outputFilePath}"`,
-//       );
-//     }
-
-//     // Assuming conversion is quick and you want to list the converted files
-//     const convertedFiles = await fs.readdir(playbackDir);
-//     const updatedWebmFiles = convertedFiles.filter((file) =>
-//       file.endsWith(".webm"),
-//     );
-
-//     // Send the list of .webm files to the Svelte page
-//     return {
-//       webmFiles: updatedWebmFiles,
-//     };
-//   } catch (error) {
-//     console.error("Error during file conversion or listing:", error);
-//     // Handle the error appropriately
-//     return {
-//       mp4Files: [],
-//       error: "Failed to convert files or retrieve the list of converted files.",
-//     };
-//   }
-// };
-
 import { promises as fs } from "fs";
 import path from "path";
 import { exec } from "child_process";
@@ -162,6 +68,7 @@ export const load = async () => {
     console.log(updatedWebmFiles);
 
     const webmFiles = files.filter((file) => file.endsWith(".webm"));
+    console.log(webmFiles);
     return {
       webmFiles,
     };

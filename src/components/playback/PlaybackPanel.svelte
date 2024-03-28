@@ -2,7 +2,7 @@
   import { Calendar } from "@/components/ui/calendar";
   import { CalendarDays, X, Shrink, Expand, ListFilter } from "lucide-svelte";
   import PlaybackVideoCard from "../cards/PlaybackVideoCard.svelte";
-  import { playbackVideos, selectedPlaybackDate } from "@/lib/stores";
+  import { playbackVideos } from "@/lib/stores";
   import { cn } from "@/lib";
   import PocketBase, { Record } from "pocketbase";
   import { onDestroy, onMount } from "svelte";

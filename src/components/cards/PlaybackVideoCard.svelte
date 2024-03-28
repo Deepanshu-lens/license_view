@@ -1,11 +1,5 @@
 <script lang="ts">
-  import type { Playback } from "@/types";
-  import Hls from "hls.js";
-  import mpegts from "mpegts.js";
-  // import { onMount } from "svelte";
-
   export let video: string;
-
   // onMount(() => {
   //   let videoElement = document.createElement("video") as HTMLMediaElement;
   //   videoElement.width = "512";
@@ -46,7 +40,7 @@
   {#if typeof video === "string"}
     <div
       class="relative flex w-full items-center justify-center"
-      id={`container-${video[0].id}`}
+      id={`container-${video}`}
     >
       <!-- <video width="100%" height="100%" controls id={`playback-${video.id}`}>
       <source src={`${video.url.replace("../static", "")}`} />
@@ -67,10 +61,16 @@
       <span class="text-sm text-[#828282]">
         {" "}
         Recording from camera:{" "}
-        <span class="text-[#fb9a2e] font-semibold">{video.id}</span>
+        <span class="text-[#fb9a2e] font-semibold"
+          >{video.split("_").slice(0, 4).join("_")}</span
+        >
       </span>
       <span class="text-xs text-[#828282]">
-        Date: {video.startTime}, Time: {video.startTime}
+        Date: {video.split("_").slice(4, 7).join("_")}, Time: {video
+          .split("_")
+          .slice(7, 10)
+          .join("_")
+          .split(".webm")[0]}
       </span>
     </div>
   {:else}
