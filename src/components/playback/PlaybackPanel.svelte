@@ -339,7 +339,9 @@
       Files that got converted
     </span>
     <div
-      class={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6")}
+      class={cn(
+        "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-4 mb-6",
+      )}
     >
       <!-- {#each $playbackVideos.filter((item) => {
       if ($selectedPlaybackDate === "") return true;

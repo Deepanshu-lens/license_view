@@ -5,9 +5,9 @@
   export let galleryItem: Gallery;
   import TimeAgo from "javascript-time-ago";
   import en from "javascript-time-ago/locale/en";
-  TimeAgo.addDefaultLocale(en);
+  TimeAgo.addLocale(en);
   const timeAgo = new TimeAgo("en-US");
-  // console.log(galleryItem);
+  // console.log(galleryItem.lastSeen, galleryItem.name);
 </script>
 
 <Card.Root>
@@ -25,10 +25,13 @@
       </div>
     </Card.Title>
     <Card.Description>
-      Last Seen: {timeAgo?.format(
-        new Date(galleryItem?.lastSeen),
-      )}</Card.Description
-    >
+      Last Seen:
+      {#if galleryItem.lastSeen.length === 0}
+        Not yet
+      {:else}
+        {timeAgo?.format(new Date(galleryItem?.lastSeen))}
+      {/if}
+    </Card.Description>
   </Card.Header>
   <Card.Content>
     <!-- <div class="flex flex-col bg-[red]"> -->

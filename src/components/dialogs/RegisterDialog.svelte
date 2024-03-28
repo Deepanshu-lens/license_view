@@ -107,6 +107,7 @@
             frame: base64String.replace(/^data:[^,]+,/, ""),
           }),
         });
+        console.log("first on file upload register", result.status);
         if (!result.ok) {
           const error = (await result.json()).error;
           console.error("!@!!! ", error);

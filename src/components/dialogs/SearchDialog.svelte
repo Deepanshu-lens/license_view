@@ -155,13 +155,25 @@
       />
     {/if}
 
-    <div class="flex flex-row items-center flex-wrap">
+    <div class="flex flex-row items-center flex-wrap gap-x-2">
       {#each $searchResults as result}
-        <img
-          src={"data:image/jpeg;base64," + result.frameImage}
-          alt="resultImage"
-          width="100px"
-        />
+        <span class="flex flex-col items-start gap-y-2">
+          <img
+            src={"data:image/jpeg;base64," + result.frameImage}
+            alt="resultImage"
+            width="100px"
+          />
+          <p class="text-sm font-semibold">
+            CameraId: <span class="font-bold text-primary">
+              {result.camera}
+            </span>
+          </p>
+          <p class="text-sm font-semibold">
+            CreatedAt: <span class="font-bold text-primary"
+              >{result.created.split(".")[0]}</span
+            >
+          </p>
+        </span>
       {/each}
     </div>
 

@@ -582,7 +582,7 @@
         class={!comfort
           ? "text-xs dark:text-white text-[#015A62] 2xl:px-8 xl:px-4 py-2 rounded-md w-full bg-[white] dark:bg-[#333] dark:border-none mb-2 border border-solid border-[#015A62]"
           : "bg-[#015A62] text-xs 2xl:px-8 xl:px-3 py-2 rounded-md mb-2 text-white w-full"}
-        on:click={() => (comfort = !comfort)}
+        on:click={() => (comfort = true)}
       >
         Comfortable
       </button>
@@ -590,7 +590,7 @@
         class={comfort
           ? "text-xs dark:text-white text-[#015A62] 2xl:px-8 xl:px-4 py-2 rounded-md w-full bg-[white] dark:bg-[#333] dark:border-none mb-2 border border-solid border-[#015A62]"
           : "bg-[#015A62] text-xs 2xl:px-8 xl:px-3 py-2 rounded-md mb-2 text-white w-full"}
-        on:click={() => (comfort = !comfort)}
+        on:click={() => (comfort = false)}
       >
         Informative
       </button>

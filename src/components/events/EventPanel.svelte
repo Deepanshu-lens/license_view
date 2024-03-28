@@ -303,12 +303,12 @@
                   // console.log(item);
                   const date = item.created;
                   let hours = date.getHours();
-                  console.log("12", hours);
+                  // console.log("12", hours);
                   const amPm = hours >= 12 ? "PM" : "AM";
                   if (period !== amPm) return false;
-                  console.log(hours);
+                  // console.log(hours);
                   hours = hours % 12;
-                  console.log(hours);
+                  // console.log(hours);
                   // hours === 12 ? 0 : hours;
                   // console.log(hours);
                   const start = parseInt(startHour, 10);
@@ -408,7 +408,7 @@
                         : "bg-[rgba(1,90,98)]/[.08] dark:bg-[#0f1118] w-full h-screen relative"}
                     >
                       <span
-                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-xl"
                       >
                         {@html morningAMItems}
                       </span>
@@ -428,7 +428,7 @@
                         : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-screen relative"}
                     >
                       <span
-                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-xl"
                       >
                         {@html midAMItems}
                       </span>
@@ -448,7 +448,7 @@
                         : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-screen relative"}
                     >
                       <span
-                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-xl"
                       >
                         {@html lateAMItems}
                       </span>
@@ -468,7 +468,7 @@
                         : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-screen relative"}
                     >
                       <span
-                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-xl"
                       >
                         {@html morningPMItems}
                       </span>
@@ -488,7 +488,7 @@
                         : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-screen relative"}
                     >
                       <span
-                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-xl"
                       >
                         {@html midPMItems}
                       </span>
@@ -508,7 +508,7 @@
                         : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-screen relative"}
                     >
                       <span
-                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-md"
+                        class="flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll max-h-[calc(100vh-75px-80px)] hover:z-50 hover:backdrop-blur-xl"
                       >
                         {@html latePMItems}
                       </span>
@@ -583,7 +583,7 @@
                 >
                   <!-- class=" fixed top-[5rem] z-20 scale-90 -my-10" -->
                   <div
-                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-md`}
+                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-xl`}
                   >
                     {#if matchingData}
                       {#each matchingData as e, i}
@@ -613,7 +613,7 @@
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
                   <div
-                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-md`}
+                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-xl`}
                   >
                     {#if matchingData}
                       {#each matchingData as e, i}
@@ -643,7 +643,7 @@
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
                   <div
-                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-md`}
+                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-xl`}
                   >
                     {#if matchingData}
                       {#each matchingData as e, i}
@@ -673,7 +673,7 @@
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
                   <div
-                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-md`}
+                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-xl`}
                   >
                     {#if matchingData}
                       {#each matchingData as e, i}
@@ -703,7 +703,7 @@
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
                   <div
-                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-md`}
+                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"} hover:z-50 hover:backdrop-blur-xl`}
                   >
                     {#if matchingData}
                       {#each matchingData as e, i}
@@ -733,7 +733,7 @@
                     : "bg-[#fff] dark:bg-[#1b1b1b] w-full h-full min-h-screen relative"}
                 >
                   <div
-                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"}  hover:z-50 hover:backdrop-blur-md md:hover:-translate-x-40 2xl:hover:translate-x-0 ease-in duration-200`}
+                    class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px-80px)]"}  hover:z-50 hover:backdrop-blur-xl md:hover:-translate-x-40 2xl:hover:translate-x-0 ease-in duration-200`}
                   >
                     {#if matchingData}
                       {#each matchingData as e, i}
