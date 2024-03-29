@@ -93,35 +93,74 @@
     });
   }
 
-  const onFileUpload = async (e) => {
-    const file = e?.target.files[0];
-    if (file) {
-      try {
-        let base64String = await convertImageToBase64(file);
-        const result = await fetch("http://localhost:8083" + "/api/enroll", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            frame: base64String.replace(/^data:[^,]+,/, ""),
-          }),
-        });
-        console.log("first on file upload register", result.status);
-        if (!result.ok) {
-          const error = (await result.json()).error;
-          console.error("!@!!! ", error);
-          toast.error("Something went wrong. Please try another");
-          loading = false;
-          return;
-        }
-        const croppedImage = await result.json();
-        loading = false;
+  // const onFileUpload = async (e) => {
+  //   console.log(e.target.files);
+  //   const file = e?.target.files[0];
+  //   if (file) {
+  //     try {
+  //       let base64String = await convertImageToBase64(file);
+  //       const result = await fetch("http://localhost:8083" + "/api/enroll", {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({
+  //           frame: base64String.replace(/^data:[^,]+,/, ""),
+  //         }),
+  //       });
+  //       console.log("first on file upload register", result.status);
+  //       if (!result.ok) {
+  //         const error = (await result.json()).error;
+  //         console.error("!@!!! ", error);
+  //         toast.error("Something went wrong. Please try another");
+  //         loading = false;
+  //         return;
+  //       }
+  //       const croppedImage = await result.json();
+  //       loading = false;
 
-        registrationImages.update((images) => [...images, croppedImage]);
-      } catch (e) {
-        console.error(e);
-        toast.error("Something went wrong. Please try another file.");
+  //       registrationImages.update((images) => [...images, croppedImage]);
+  //     } catch (e) {
+  //       console.error(e);
+  //       toast.error("Something went wrong. Please try another file.");
+  //     }
+  //   }
+  // };
+
+  const onFileUpload = async (e) => {
+    console.log(e.target.files);
+    const files = Array.from(e.target.files).filter(
+      (file) => file.name !== ".DS_Store" && file.type !== "",
+    );
+    if (files.length > 0) {
+      for (const file of files) {
+        try {
+          let base64String = await convertImageToBase64(file);
+          const result = await fetch("http://localhost:8083" + "/api/enroll", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              frame: base64String.replace(/^data:[^,]+,/, ""),
+            }),
+          });
+          console.log("File upload status:", result.status);
+          if (!result.ok) {
+            const error = (await result.json()).error;
+            console.error("Error:", error);
+            toast.error("Something went wrong. Please try another");
+            loading = false;
+            return;
+          }
+          const croppedImage = await result.json();
+          loading = false;
+
+          registrationImages.update((images) => [...images, croppedImage]);
+        } catch (e) {
+          console.error(e);
+          toast.error("Something went wrong. Please try another file.");
+        }
       }
     }
   };
@@ -158,7 +197,7 @@
 
 <Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger><slot /></Dialog.Trigger>
-  <Dialog.Content class="sm:max-w-[720px]">
+  <Dialog.Content class="sm:max-w-[720px] xl:scale-95 2xl:scale-100">
     <Dialog.Header>
       <Dialog.Title>Register Face</Dialog.Title>
       <Dialog.Description
@@ -249,16 +288,16 @@
         accept="image/*"
         on:input={onFileUpload}
       /> -->
-      <p class="text-bold">Upload a folder</p>
+      <p class="text-[#00132B] dark:text-slate-100">Upload a folder</p>
       <input
-        class="cursor-pointer"
+        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-[#015A62] focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         type="file"
         multiple
         id="flder"
         webkitdirectory
         on:input={onFileUpload}
       />
-      <p class="text-bold">Upload single images</p>
+      <p class="text-[#00132B] dark:text-slate-100">Upload single images</p>
       <Input
         id="picture"
         type="file"

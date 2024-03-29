@@ -42,10 +42,7 @@
       class="relative flex w-full items-center justify-center"
       id={`container-${video}`}
     >
-      <!-- <video width="100%" height="100%" controls id={`playback-${video.id}`}>
-      <source src={`${video.url.replace("../static", "")}`} />
-      Your browser does not support the video tag.
-    </video> -->
+      <!-- svelte-ignore a11y-media-has-caption -->
       <video
         id="my-video"
         class="video-js"

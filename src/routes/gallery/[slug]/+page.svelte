@@ -3,6 +3,9 @@
   import { onMount } from "svelte";
   import type { Gallery } from "@/types";
   import PocketBase, { Record } from "pocketbase";
+  import RegisterDialog from "@/components/dialogs/RegisterDialog.svelte";
+  import { addUserLog } from "@/lib/addUserLog";
+  import { ScanFace } from "lucide-svelte";
 
   let gallery: Gallery[] = [];
   const PB = new PocketBase("http://127.0.0.1:5555");
@@ -27,10 +30,22 @@
 </script>
 
 <div class="container p-2 mx-auto">
-  <h1
-    class="text-xl font-bold dark:text-[#e0e0e0] text-[#212427] flex justify-center pt-2 pb-4"
-  >
-    Gallery
-  </h1>
+  <div class="flex flex-row items-center justify-between px-4">
+    <h1
+      class="text-2xl font-bold dark:text-[#e0e0e0] text-[#212427] flex justify-center pt-2 pb-4"
+    >
+      Gallery
+    </h1>
+    <RegisterDialog>
+      <button
+        class="flex items-center justify-center gap-2 cursor-pointer relative hover:text-primary"
+        on:click={() =>
+          addUserLog("user clicked on Register button, gallery panel")}
+      >
+        <ScanFace size={18} />
+        Register
+      </button>
+    </RegisterDialog>
+  </div>
   {#if gallery && gallery.length > 0}<DataTable data={gallery} />{/if}
 </div>

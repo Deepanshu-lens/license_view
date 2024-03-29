@@ -536,28 +536,29 @@
       Minimize all Fullscreen
     </span>
   {/if}
+  <!-- {#if !$alertPanelHide} -->
   <div
     class={`h-full border-solid 
-              border-l-[1px] 
-              transition-width ease-in-out duration-500 overflow-y-scroll
-              ${!$alertPanelHide ? "w-1/4" : "w-0"}
-              ${isAllFullScreen && "border-none"}`}
+           border-l-[1px] 
+           transition-width ease-in-out duration-500 overflow-y-scroll
+           ${!$alertPanelHide ? "w-1/4" : "w-0"}
+           ${isAllFullScreen && "border-none"}`}
   >
-    <header
+    <div
       class={`backdrop-filter  
-               z-10 trasition ease-in-out w-full max-w-md 
-              duration-200 ${
-                animateHeader
-                  ? "shadow-xl rounded-b-md backdrop-blur supports-[backdrop-filter]:bg-background/60 border-border/40 bg-background/95 "
-                  : "rounded-none border-b"
-              }
-              ${isAllFullScreen && "border-none"}`}
+            z-10 trasition ease-in-out w-full max-w-md 
+           duration-200 ${
+             animateHeader
+               ? "shadow-xl rounded-b-md backdrop-blur supports-[backdrop-filter]:bg-background/60 border-border/40 bg-background/95 "
+               : "rounded-none border-b"
+           }
+           ${isAllFullScreen && "border-none"}`}
     >
       <div
         class={`flex items-center w-full
-        justify-between  px-4  ${
-          animateHeader ? "my-3  text-sm " : "my-3 font-medium"
-        } trasition ease-in-out duration-200`}
+     justify-between  px-4  ${
+       animateHeader ? "my-3  text-sm " : "my-3 font-medium"
+     } trasition ease-in-out duration-200`}
       >
         <div
           class={`flex justify-center items-center gap-2 ${isAllFullScreen && "text-white text-xl"}`}
@@ -574,7 +575,7 @@
           <Filter size={18} />
         </div>
       </div>
-    </header>
+    </div>
     <div
       class="flex flex-row items-center justify-center 2xl:gap-4 gap-2 mt-4 px-2"
     >
@@ -626,10 +627,10 @@
             >
               <article
                 class={`relative items-center gap-4 m-4 p-4 bg-background
-                      flex flex-col 
-                  rounded-xl shadow-md text-base border 
-                  ${isAllFullScreen ? "bg-black text-white " : "hover:scale-[1.01] dark:shadow-slate-800 hover:shadow-lg "}
-                  `}
+                   flex flex-col 
+               rounded-xl shadow-md text-base border 
+               ${isAllFullScreen ? "bg-black text-white " : "hover:scale-[1.01] dark:shadow-slate-800 hover:shadow-lg "}
+               `}
               >
                 <img
                   class="object-cover w-24 h-24 rounded-md col-span-1"
@@ -692,6 +693,7 @@
       </ul>
     {/if}
   </div>
+  <!-- {/if} -->
 </div>
 
 {#if selectedEvent}

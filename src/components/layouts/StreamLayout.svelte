@@ -103,7 +103,6 @@
           videos[c.id].url = c.url;
           videos[c.id].src = new URL(
             `ws://${neededUrl}:8082/api/ws?src=${c.url
-              // `ws://10.20.30.89:8082/api/ws?src=${c.url
               ?.split("@")[1]
               ?.split(":")[0]
               ?.replace(/\./g, "_")}&camID=${c.id}&nodeID=${1}`,

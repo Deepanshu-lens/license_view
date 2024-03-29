@@ -4,6 +4,10 @@
   import { Input } from "../ui/input";
   import { toast } from "svelte-sonner";
   import { writable } from "svelte/store";
+  import en from "javascript-time-ago/locale/en";
+  import TimeAgo from "javascript-time-ago";
+  TimeAgo.addLocale(en);
+  const timeAgo = new TimeAgo("en-US");
 
   let dialogOpen = false;
   let captureMode = 1;
@@ -78,7 +82,7 @@
         if (x.gallery !== "") {
         }
 
-        if (x?.events?.length > 0) {
+        if (x.events.length > 0) {
           const events = await fetch("/api/events/getMany", {
             method: "POST",
             headers: {
@@ -99,7 +103,7 @@
           const eventsData = await events.json();
           searchResults.set([...eventsData.events]);
         } else {
-          toast.error("No recorded events found for this person");
+          toast("No recorded events of this person!");
         }
       } catch (e) {
         console.error(e);
@@ -150,6 +154,11 @@
     {/if}
 
     {#if $queryImage}
+      <span
+        class="font-bold text-slate-600 dark:text-slate-300 text-lg tracking-wide"
+      >
+        Query face
+      </span>
       <img
         src={"data:image/jpeg;base64," + $queryImage.bboxes[0].Image}
         alt="captured"
@@ -157,7 +166,17 @@
       />
     {/if}
 
-    <div class="flex flex-row items-center flex-wrap gap-x-2">
+    <!-- <div class="flex flex-row items-center flex-wrap gap-x-2 mx-auto"> -->
+    {#if $searchResults.length > 0}
+      <span
+        class="font-bold text-slate-600 dark:text-slate-300 text-lg tracking-wide"
+      >
+        Recent match items!
+      </span>
+    {/if}
+    <div
+      class="grid grid-cols-3 grid-rows-4 place-items-center gap-x-2 gap-y-2 mx-auto w-full"
+    >
       {#each $searchResults as result}
         <span class="flex flex-col items-start gap-y-2">
           <img
@@ -171,9 +190,10 @@
             </span>
           </p>
           <p class="text-sm font-semibold">
-            CreatedAt: <span class="font-bold text-primary"
-              >{result.created.split(".")[0]}</span
-            >
+            CreatedAt: <span class="font-bold text-primary">
+              <!-- {result.created.split(".")[0]} -->
+              {timeAgo?.format(new Date(result.created))}
+            </span>
           </p>
         </span>
       {/each}

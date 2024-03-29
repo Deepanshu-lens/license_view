@@ -11,7 +11,7 @@
   let nodes: Node[] = [];
   let batchedEvents: Event[] = [];
 
-  const PB = new PocketBase("http://10.20.30.60:5555");
+  const PB = new PocketBase("http://127.0.0.1:5555");
 
   async function getNodes(): Promise<Node[]> {
     if (session.node.length > 0) {

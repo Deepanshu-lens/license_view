@@ -36,7 +36,6 @@
       >
         {#if !data.url.includes("gallery") && !data.url?.includes("login")}
           <LeftPane
-            {user}
             {nodes}
             url={data.url ?? "/"}
             sessionId={session?.id ?? ""}
