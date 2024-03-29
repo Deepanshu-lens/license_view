@@ -15,7 +15,7 @@
   export let nodes: Node[];
   export let url: string;
   export let sessionId: string;
-  export let user;
+  // export let user;
   let showItems = true;
 
   const toggleVisibility = () => {

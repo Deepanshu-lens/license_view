@@ -78,7 +78,7 @@
         if (x.gallery !== "") {
         }
 
-        if (x.events.length > 0) {
+        if (x?.events?.length > 0) {
           const events = await fetch("/api/events/getMany", {
             method: "POST",
             headers: {
@@ -98,6 +98,8 @@
 
           const eventsData = await events.json();
           searchResults.set([...eventsData.events]);
+        } else {
+          toast.error("No recorded events found for this person");
         }
       } catch (e) {
         console.error(e);
