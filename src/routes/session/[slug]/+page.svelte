@@ -5,6 +5,7 @@
   import PocketBase from "pocketbase";
   import { leftPaneHide, selectedNode, events } from "@/lib/stores";
   import { onDestroy, onMount } from "svelte";
+  import AddNodeMob from "@/components/node/mobile/AddNodeMob.svelte";
 
   export let data;
   const session = data.session;
@@ -112,5 +113,8 @@
 {:else}
   <div class="hidden sm:flex">
     <AddNode />
+  </div>
+  <div class="sm:hidden block">
+    <AddNodeMob />
   </div>
 {/if}

@@ -45,6 +45,9 @@
   import ComfortableProfileCard from "../cards/ComfortableProfileCard.svelte";
   import * as Accordion from "@/components/ui/accordion";
   import { addUserLog } from "@/lib/addUserLog";
+  import TopBar from "../mobile/TopBar.svelte";
+  import StreamView from "../mobile/StreamView.svelte";
+  import MenuMob from "../mobile/MenuMob.svelte";
 
   let animateHeader = false;
   let comfort = true;
@@ -58,7 +61,6 @@
   let recordDropdownOpen = false;
   let snipDropDownOpen = false;
   let showSearchModal = false;
-  let activeStreamIndex;
   let captureRef: HTMLElement;
   let isAllFullScreen = false;
 
@@ -245,11 +247,21 @@
     setTimeout(updateGallery, 1000);
     setTimeout(updateUnknowns, 1000);
   });
+
+  //////
+  // mob
+  /////
+
+  let liveFullscreen = writable(false);
+  let showAlerts = writable(false);
+  let editMode = writable(false);
+  let landscape = writable(false);
+  let activeStreamIndex = writable(null);
 </script>
 
 {#if !$topPanelHide}
   <div
-    class="bg-background w-full flex flex-row items-center justify-end py-4 px-6 border-b z-10 relative"
+    class="bg-background w-full hidden sm:flex flex-row items-center justify-end py-4 px-6 border-b z-10 relative"
   >
     <div class="flex items-center justify-center gap-6 lg:gap-[14px] 2xl:gap-6">
       <SearchDialog>
@@ -346,14 +358,6 @@
                 </li>
                 <li class="w-full">
                   <button
-                    on:click={() => {
-                      if (activeStreamIndex !== null) {
-                        // recordSingle(activeStreamIndex);
-                        recording = true;
-                      } else {
-                        //   toast("No selected stream");
-                      }
-                    }}
                     class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
                   >
                     Selected Screen
@@ -484,7 +488,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
-  class={`relative w-full cursor-pointer`}
+  class={`relative w-full cursor-pointer hidden sm:block`}
   style={`${!$alertPanelHide && "width: 80%"}`}
   on:click={() => {
     !snipDropDownOpen &&
@@ -508,8 +512,8 @@
 </div>
 <div
   class={$topPanelHide
-    ? "w-full h-[calc(100vh-76px)] flex items-start justify-between relative"
-    : "w-full flex items-start justify-between h-[calc(100vh-134px)] z-0 relative"}
+    ? "w-full h-[calc(100vh-76px)] hidden sm:flex items-start justify-between relative"
+    : "w-full hidden sm:flex items-start justify-between h-[calc(100vh-134px)] z-0 relative"}
   bind:this={captureRef}
 >
   <div
@@ -666,8 +670,20 @@
                         (c) => c.id === event.camera,
                       )[0].name}
                   </p>
-                  <p class={`${isAllFullScreen ? "text-xl" : "text-xs"}`}>
+                  <!-- <p class={`${isAllFullScreen ? "text-xl" : "text-xs"}`}>
                     {event.score}
+                  </p> -->
+                  <p
+                    class={`${isAllFullScreen ? "text-xl font-bold" : "text-xs font-bold"}`}
+                  >
+                    Detection Score : {event?.score}
+                  </p>
+                  <p class={`${isAllFullScreen ? "text-xl" : "text-xs"}`}>
+                    {event.matchScore !== 0 &&
+                    event.matchScore !== undefined &&
+                    event.matchScore !== null
+                      ? `Matching Score : ${event?.matchScore}`
+                      : "No matches found"}
                   </p>
                 </div>
                 <div class="col-span-2 mx-auto">
@@ -699,3 +715,27 @@
 {#if selectedEvent}
   <EventModal {selectedEvent} on:close={() => (selectedEvent = null)} />
 {/if}
+
+<div class="mob min-h-screen w-full text-black relative sm:hidden bg-[#f5f6f7]">
+  {#if !$landscape}
+    <TopBar
+      displayIcons={true}
+      bind:liveFullscreen={$liveFullscreen}
+      bind:editMode={$editMode}
+      bind:landscape={$landscape}
+    />
+  {/if}
+  <StreamView
+    {galleryItems}
+    bind:landscape={$landscape}
+    bind:activeStreamIndex={$activeStreamIndex}
+    bind:liveFullscreen={$liveFullscreen}
+    bind:showAlerts={$showAlerts}
+    bind:editMode={$editMode}
+  />
+  <MenuMob
+    bind:landscape={$landscape}
+    bind:showAlerts={$showAlerts}
+    bind:activeStreamIndex={$activeStreamIndex}
+  />
+</div>

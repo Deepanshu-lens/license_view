@@ -1,6 +1,15 @@
 <script lang="ts">
   import type { User } from "@/types";
-  import { User as UserIcon, LogOut } from "lucide-svelte";
+  import {
+    User as UserIcon,
+    LogOut,
+    Radio,
+    CalendarRange,
+    PlayCircle,
+    Calendar,
+    Image,
+    SettingsIcon,
+  } from "lucide-svelte";
   export let user: User;
   export let sessionId: string | undefined;
   import { page } from "$app/stores";
@@ -32,6 +41,29 @@
       href: `/configuration/${sessionId}?section=Remote`,
     },
   ];
+
+  const menuListMob = [
+    {
+      text: "Live",
+      href: `/session/${sessionId}`,
+    },
+    {
+      text: "Playback",
+      href: `/playback/${sessionId}`,
+    },
+    {
+      text: "Events",
+      href: `/events/${sessionId}`,
+    },
+    {
+      text: "Gallery",
+      href: `/gallery/${sessionId}`,
+    },
+    {
+      text: "Configuration",
+      href: `/configuration/${sessionId}`,
+    },
+  ];
   let isOpen = false;
   function toggleOpen() {
     isOpen = !isOpen;
@@ -39,7 +71,7 @@
   }
 </script>
 
-<header class="flex border sticky top-0 left-0 w-full z-20 h-[75px]">
+<header class="sm:flex border sticky top-0 left-0 w-full z-20 h-[75px] hidden">
   <nav class="bg-background w-full flex flex-row items-center justify-center">
     <div class="flex w-full justify-between">
       <div
@@ -146,5 +178,85 @@
         {/if}
       </div>
     </div>
+  </nav>
+</header>
+
+<header
+  class="flex sm:hidden fixed bottom-0 left-0 w-full z-40 backdrop-blur-lg"
+  id="navMobile"
+>
+  <nav
+    class="bg-[white] dark:bg-[#1e1f25] flex flex-row items-center justify-between px-4 w-full pb-2 rounded-t-xl"
+  >
+    {#each menuListMob as menu, index}
+      <div
+        class={$page.url.pathname === menu.href.split("?")[0]
+          ? "-mt-6"
+          : "-mt-2"}
+      >
+        <a href={menu.href}>
+          <div class={`flex flex-col justify-center items-center pt-[8px] `}>
+            <span
+              class={`${
+                $page.url.pathname === menu.href.split("?")[0]
+                  ? "bg-white p-2 rounded-full"
+                  : "bg-transparent"
+              } `}
+            >
+              {#if menu.text === "Live"}
+                <Radio
+                  class={` h-[40px] w-[40px] p-2 ${
+                    $page.url.pathname === menu.href.split("?")[0]
+                      ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
+                      : "text-[#505050]"
+                  }`}
+                />
+              {:else if menu.text === "Playback"}
+                <PlayCircle
+                  class={` h-[40px] w-[40px] p-2 ${
+                    $page.url.pathname === menu.href.split("?")[0]
+                      ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
+                      : "text-[#505050]"
+                  }`}
+                />
+              {:else if menu.text === "Events"}
+                <Calendar
+                  class={` h-[40px] w-[40px] p-2 ${
+                    $page.url.pathname === menu.href.split("?")[0]
+                      ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
+                      : "text-[#505050]"
+                  }`}
+                />
+              {:else if menu.text === "Gallery"}
+                <Image
+                  class={` h-[40px] w-[40px] p-2 ${
+                    $page.url.pathname === menu.href.split("?")[0]
+                      ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
+                      : "text-[#505050]"
+                  }`}
+                />
+              {:else}
+                <SettingsIcon
+                  class={` h-[40px] w-[40px] p-2 ${
+                    $page.url.pathname === menu.href.split("?")[0]
+                      ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
+                      : "text-[#505050]"
+                  }`}
+                />
+              {/if}
+            </span>
+            <span
+              class={`text-[12px] font-medium ${
+                $page.url.pathname === menu.href.split("?")[0]
+                  ? "text-[#015a62]"
+                  : "text-[#505050] dark:text-[rgba(255,255,255,.6)"
+              }`}
+            >
+              {menu.text}
+            </span>
+          </div>
+        </a>
+      </div>
+    {/each}
   </nav>
 </header>

@@ -1,0 +1,573 @@
+<script lang="ts">
+  import type { Event } from "@/types";
+  import { events, selectedNode } from "@/lib/stores";
+  import {
+    Check,
+    ChevronDown,
+    Disc2,
+    EditIcon,
+    ListFilter,
+    Shrink,
+    X,
+  } from "lucide-svelte";
+  import Carousel from "../ui/carousel/carousel.svelte";
+  import { Drawer, DrawerContent, DrawerTrigger } from "../ui/drawer";
+  import Stream from "../stream/Stream.svelte";
+  import ComfortableProfileCard from "../cards/ComfortableProfileCard.svelte";
+  import CarDetailsDialog from "../dialogs/CarDetailsDialog.svelte";
+  import { addUserLog } from "@/lib/addUserLog";
+
+  let showInfoModal = false;
+  let allFullScreen = false;
+  let cameraCount = $selectedNode.camera.length;
+  let layoutValue = 1;
+  let newName = "";
+  let edit;
+  let comfort = true;
+  let videos: { [key: string]: HTMLElement } = {};
+
+  export let galleryItems: any;
+  export let landscape: boolean;
+  export let liveFullscreen: boolean;
+  export let activeStreamIndex: number | null;
+  export let editMode: boolean;
+  export let showAlerts: boolean;
+</script>
+
+<div
+  class={landscape
+    ? "grid place-items-center h-[calc(100vh-98px)] w-full bg-black relative"
+    : "flex flex-col items-start justify-center"}
+>
+  {#if !landscape}
+    <div class="top flex items-center justify-center px-4 w-full">
+      <button
+        class="flex items-center justify-center text-center gap-1 relative"
+        on:click={() => (showInfoModal = !showInfoModal)}
+      >
+        <p class="text-[#505050] font-semibold text-sm">
+          {`Node: ${$selectedNode?.name}`}
+        </p>
+        <ChevronDown class="scale-90" />
+        {#if showInfoModal}
+          <!-- <InfoModal
+            {session}
+            {setShowInfoModal}
+            {setShowCameraModal}
+            {selectedNode}
+            {setShowNvrModal}
+            showNvrModal={showNrvModal}
+            {showCameraModal}
+          /> -->
+          <p>something</p>
+        {/if}
+      </button>
+    </div>
+  {/if}
+
+  {#if cameraCount !== 0}
+    <div
+      class={allFullScreen
+        ? "z-[500] max-h-screen h-screen w-full fixed top-0 left-0 bg-[#f5f6f7]"
+        : !allFullScreen && landscape
+          ? "rotate-90 h-[100vw] w-[calc(100vh-200px)] absolute top-[6rem]"
+          : "h-full w-full"}
+    >
+      {#if allFullScreen}
+        <span
+          class="flex items-center justify-between text-black py-3 px-4 backdrop-blur-xl rounded-md bg-white/[.12] my-2 cursor-pointer w-full"
+        >
+          <span class="text-base">
+            Node:{" "}
+            <span class="font-semibold">{$selectedNode.name}</span>
+          </span>
+          <button
+            class="flex items-center gap-2"
+            on:click={() => {
+              liveFullscreen = false;
+            }}
+            ><Shrink />
+            Minimise
+          </button>
+        </span>
+      {/if}
+
+      {#if landscape}
+        <Carousel>
+          {#each Array.from( { length: cameraCount && cameraCount > 1 ? Math.ceil(cameraCount / (layoutValue !== 1 ? layoutValue : 1)) : 1 }, ) as _, slideIndex}
+            <div
+              class="grid place-items-center w-[calc(100vh-200px)] h-[100vw] grid-cols-{layoutValue}"
+              id={`slide-${slideIndex}`}
+            >
+              {#if cameraCount > 0}
+                {#each Array.from({ length: layoutValue }) as _, index}
+                  {@const cameraIdx = slideIndex * layoutValue + index}
+                  {#if cameraIdx < cameraCount}
+                    <div
+                      id={`stream-${$selectedNode.name}-${cameraIdx}`}
+                      class="relative z-10"
+                    >
+                      <!-- <StreamComponent
+                        {cameraIdx}
+                        streamUrl={selectedCameras?.[cameraIdx]?.url}
+                        {selectedNode}
+                        {session}
+                        {landscape}
+                        layout={layoutValue}
+                      /> -->
+                      stream
+
+                      <span
+                        class="flex gap-2 bg-[rgba(255,255,255,.68)] py-1 px-3 absolute -top-8 left-1/2 -translate-x-1/2 items-center rounded-xl scale-[.80] z-20 text-[#C20D02]"
+                      >
+                        <Disc2 />
+                        <span class="text-xs font-extrabold"> Rec </span>
+                      </span>
+                      <!-- <span
+                        class="p-3 grid place-items-center absolute left-0 -top-10 text-white"
+                        on:click={() => {
+                          const parent = document.getElementById(
+                            `video-stream-${selectedNode.nodeName}-${cameraIdx}`,
+                          );
+                          const ele = parent?.querySelector("video");
+                          if (ele) {
+                            if (ele.webkitSupportsFullscreen) {
+                              ele.webkitEnterFullscreen();
+                              return;
+                            }
+                            ele.requestFullscreen();
+                          } else {
+                            console.log("no fullscreen");
+                          }
+                        }}
+                      >
+                        <SvgComponent
+                          name="gridicons:fullscreen"
+                          height={24}
+                          width={24}
+                        />
+                      </span> -->
+                    </div>
+                  {/if}
+                {/each}
+              {/if}
+            </div>
+          {/each}</Carousel
+        >
+      {:else}
+        <div
+          class={allFullScreen && editMode
+            ? "mid overflow-y-scroll w-full max-h-screen flex px-4 flex-wrap gap-4 my-4 pb-6 scroll z-20"
+            : !allFullScreen && editMode
+              ? "mid overflow-y-scroll w-full max-h-[calc(100vh-300px)] flex px-4 flex-wrap gap-4 my-4 pb-20 scroll z-20"
+              : !allFullScreen && !editMode
+                ? `mid overflow-y-scroll w-full max-h-[calc(100vh-300px)] px-4 my-4 pb-20 z-20 grid grid-cols-${layoutValue} mx-auto scroll`
+                : `mid overflow-y-scroll w-full max-h-screen px-4 my-4 pb-6 z-20 grid grid-cols-${layoutValue} mx-auto scroll`}
+        >
+          {#if cameraCount > 0}
+            {#each $selectedNode.camera as item, index}
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              {#if editMode}
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <div
+                  on:click={() => {
+                    if (activeStreamIndex !== index) activeStreamIndex = index;
+                    else if (activeStreamIndex === index)
+                      activeStreamIndex = "";
+                  }}
+                  id={`stream-${selectedNode.nodeName}-${index}`}
+                  class={activeStreamIndex === index && layoutValue === 2
+                    ? "relative bg-white shadow-smol flex flex-col max-w-[47.5%] border-2 border-solid border-[#2952e1] z-10"
+                    : activeStreamIndex !== index && layoutValue === 2
+                      ? "relative bg-white shadow-smol flex flex-col max-w-[47.5%] z-10"
+                      : activeStreamIndex === index && layoutValue === 1
+                        ? "relative bg-white shadow-smol flex flex-col w-[98%] h-auto mx-auto  border-2 border-solid border-[#2952e1] z-10"
+                        : "relative bg-white shadow-smol flex flex-col w-[98%] h-auto mx-auto z-10"}
+                >
+                  <!-- <StreamComponent
+              cameraIdx={index}
+              streamUrl={item?.url}
+              selectedNode={selectedNode}
+              session={session}
+              landscape={landscape}
+              layout={layoutValue}
+            /> -->
+                  strteam
+
+                  <span
+                    class="flex gap-2 text-[#C20D02] bg-[rgba(255,255,255,.68)] py-1 px-3 absolute top-1 -left-2 items-center rounded-xl scale-75 z-30"
+                  >
+                    <Disc2 />
+                    <span class="text-xs font-extrabold">
+                      {item?.name} - Rec
+                    </span>
+                  </span>
+
+                  <div
+                    class={`absolute h-full w-full top-0 left-0 bg-black/[.27] backdrop-blur-sm z-40 flex flex-col items-center justify-center ${
+                      layoutValue === "1" ? "gap-6" : "gap-3"
+                    }`}
+                  >
+                    <span
+                      class={layoutValue === "1" ? "scale-125" : "scale-100"}
+                    >
+                      {#if edit === index}
+                        <input
+                          type="text"
+                          id={`newName-${index}`}
+                          placeholder={item?.name}
+                          class={`text-white placeholder-white px-2 ${
+                            layoutValue === "1"
+                              ? "scale-125 max-w-[150px] text-sm"
+                              : "scale-90 max-w-[100px] text-xs"
+                          } bg-transparent border-[1px] border-solid border-white`}
+                          on:change={(e) => (newName = e.target.value)}
+                          on:click={(e) => e.stopPropagation()}
+                        />
+                      {:else}
+                        <p class="text-white font-semibold text-xs text-center">
+                          {item?.name}
+                        </p>
+                      {/if}
+                    </span>
+
+                    <span
+                      class={` ${
+                        layoutValue === "1" ? "h-1" : "h-[2px]"
+                      } w-[90%] bg-white/[.26]`}
+                    />
+                    <span
+                      class={`flex items-center gap-6 ${
+                        layoutValue === "1" ? "scale-125" : "scale-100"
+                      }`}
+                    >
+                      {#if edit !== index}
+                        <span
+                          class="flex flex-col gap-1 items-center text-white"
+                          on:click={(e) => {
+                            e.stopPropagation();
+                            edit = index;
+                          }}
+                        >
+                          <span
+                            class="h-[26px] w-[26px] rounded-full bg-white/[.3] grid place-items-center"
+                          >
+                            <EditIcon class="scale-75" />
+                          </span>
+                          <p class="text-white text-[8px]">Rename</p>
+                        </span>
+                      {:else}
+                        <span
+                          class="flex flex-col gap-1 items-center text-white"
+                          on:click={(e) => {
+                            e.stopPropagation();
+                            const oldname = item?.name;
+
+                            // if (newName) {
+                            //   axios
+                            //     .patch(
+                            //       `/api/session/${session.id}/node/${selectedNode.id}/camera/${item?.id}`,
+                            //       {
+                            //         name: newName,
+                            //         url: item?.url,
+                            //         port: session.camera[index].port,
+                            //       },
+                            //     )
+                            //     .then((res) => {
+                            //       toast({
+                            //         title: `Camera ${oldname} renamed to ${newName}`,
+                            //       });
+                            //       setEdit(null);
+                            //       router.refresh();
+                            //     })
+                            //     .catch((err) => {
+                            //       console.log(err);
+                            //     });
+                            // } else {
+                            //   toast({
+                            //     title: `min 1 character needed`,
+                            //     variant: "destructive",
+                            //   });
+                            // }
+                          }}
+                        >
+                          <Check />
+                          <p class="text-white text-[8px]">Save</p>
+                        </span>
+                      {/if}
+
+                      {#if edit !== index}
+                        <span
+                          class="flex flex-col items-center gap-1 text-white"
+                        >
+                          <span
+                            class="h-[26px] w-[26px] p-[5px] rounded-full bg-white/[.3] flex justify-center items-center"
+                          >
+                            <!-- <CameraDeleteDialog
+                              view="mobile"
+                              name={item?.name}
+                              onDelete={(e) =>
+                                axios
+                                  .delete(
+                                    `/api/session/${session.id}/node/${selectedNode.id}/camera/${item?.id}`,
+                                  )
+                                  .then((res) => {
+                                    router.refresh();
+                                    axios
+                                      .post(
+                                        `http://${
+                                          dynamicUrl
+                                            ?.split("/")[2]
+                                            ?.split(":")[0]
+                                        }:1984/api/deleteStream`,
+                                        {
+                                          url: item?.url,
+                                          name: item?.name,
+                                        },
+                                        {
+                                          headers: {
+                                            "Content-Type": "application/json",
+                                          },
+                                        },
+                                      )
+                                      .then((response) => {
+                                        if (response) {
+                                          toast({
+                                            title: `Camera ${item?.name} deleted`,
+                                            variant: "destructive",
+                                          });
+                                          router.refresh();
+                                        }
+                                      })
+                                      .catch((err) =>
+                                        console.log(
+                                          err,
+                                          "not able to delete from server",
+                                        ),
+                                      );
+                                  })}
+                            /> -->
+                            cameraDeleteDialog
+                          </span>
+                          <p class="text-white text-[8px]">Delete</p>
+                        </span>
+                      {:else}
+                        <span
+                          class="flex flex-col gap-1 items-center text-white"
+                          on:click={(e) => {
+                            e.stopPropagation();
+                            edit = "";
+                          }}
+                        >
+                          <X class="text-white" />
+                          <p class="text-white text-[8px]">Discard</p>
+                        </span>
+                      {/if}
+                    </span>
+                  </div>
+                </div>
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+              {:else}
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <div
+                  id={`stream-${$selectedNode.name}-${index}`}
+                  on:click={() => {
+                    console.log("first", index, activeStreamIndex);
+                    if (activeStreamIndex !== index) {
+                      activeStreamIndex = index;
+                    } else if (activeStreamIndex === index) {
+                      activeStreamIndex = null;
+                    }
+                    console.log("first", index, activeStreamIndex, layoutValue);
+                  }}
+                  class={activeStreamIndex === index && layoutValue === 2
+                    ? "relative border-2 border-solid border-[#2952e1]"
+                    : activeStreamIndex !== index && layoutValue === 2
+                      ? "relative border-[1px] border-solid border-transparent"
+                      : activeStreamIndex === index && layoutValue === 1
+                        ? "relative border-2 border-solid border-[#2952e1] "
+                        : "relative border-2 border-solid border-transparent "}
+                >
+                  <!-- {$selectedNode.camera[index].id} -->
+                  <!-- {JSON.stringify($selectedNode.camera[index])} -->
+                  <Stream
+                    videoElement={videos[$selectedNode.camera[index].id]}
+                    camera={$selectedNode.camera[index]}
+                  />
+                  <span
+                    class="flex gap-2 bg-[rgba(255,255,255,.68)] text-[#C20D02] py-1 px-3 absolute top-2 left-0 items-center rounded-xl scale-75 z-10"
+                  >
+                    <Disc2 />
+                    <span class="text-xs font-extrabold">
+                      {item?.name} - Rec
+                    </span>
+                  </span>
+                </div>
+              {/if}
+            {/each}
+          {/if}
+        </div>
+      {/if}
+    </div>
+  {:else}
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div
+      class="absolute top-1/3 left-1/2 -translate-x-1/2 mix-blend-multiply flex flex-col justify-center items-center z-40"
+      on:click={() => (showCameraModal = true)}
+    >
+      <img
+        src="/images/plusLight.png"
+        alt={"darkvector"}
+        class="img-h-w mix-blend-multiply aspect-square h-[150px] w-[150px]"
+      />
+      <h2 class="text-[#333] font-semibold text-xl text-center -mt-8">
+        Add Camera
+      </h2>
+      <p class="text-[#333] text-base font-medium text-center w-[250px]">
+        Click here to add your first camera to Node {$selectedNode.name}
+      </p>
+    </div>
+  {/if}
+
+  <Drawer onOpenChange={() => (showAlerts = false)}>
+    <DrawerTrigger class="hidden" id="trigger">Open</DrawerTrigger>
+    <DrawerContent>
+      <div class={landscape ? "rotate-90" : "mx-auto w-[95%] max-w-sm"}>
+        <div
+          class={`flex items-center justify-center relative border-b border-solid border-[rgb(145,158,171)]/[.46] mt-2 ${
+            landscape ? "pt-12 gap-8" : "gap-4"
+          }`}
+        >
+          <button
+            class={`px-4 py-2 text-lg shrink-0 ${
+              comfort
+                ? " text-black font-medium dark:text-white"
+                : "text-black/[.4] font-medium dark:text-white/[.6]"
+            }`}
+            on:click={() => (comfort = true)}
+          >
+            Comfort
+          </button>
+          <button
+            class={`px-4 py-2 text-lg shrink-0  ${
+              !comfort
+                ? " text-black font-medium dark:text-white"
+                : "text-black/[.4] font-medium dark:text-white/[.6]"
+            }`}
+            on:click={() => (comfort = false)}
+          >
+            Informative
+          </button>
+        </div>
+        {#if comfort}
+          <div
+            class=" my-4 flex flex-col items-center justify-start gap-2 overflow-y-scroll whitespace-nowrap h-[350px] mx-auto pb-4 text-black text-sm dark:text-white"
+          >
+            {#if $events?.length > 0}
+              <div class="m-4 flex flex-col gap-2">
+                {#each galleryItems as galleryItem}
+                  <ComfortableProfileCard {galleryItem} />
+                {/each}
+              </div>
+            {:else}
+              No event records found.
+            {/if}
+          </div>
+        {:else}
+          <div
+            class=" my-4 flex flex-col items-center justify-start gap-2 overflow-y-scroll whitespace-nowrap h-[350px] mx-auto pb-4 text-black text-sm dark:text-white"
+          >
+            {#if $events.length > 0}
+              {#each $events as event}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                <button
+                  class="w-full fade-in-15 transition-all duration-200"
+                  on:click={() => {
+                    // openEventDialog(event);
+                    addUserLog(`user clicked on aler panel event`);
+                  }}
+                >
+                  <article
+                    class={`relative items-center gap-4 m-4 p-4 bg-background
+                   flex flex-col rounded-xl shadow-md text-base border}
+               `}
+                  >
+                    <img
+                      class="object-cover w-24 h-24 rounded-md col-span-1"
+                      src={"data:image/jpeg;base64," + event.frameImage}
+                      alt="Team Member"
+                    />
+                    {#if event.title.includes("car") && event.description !== ""}
+                      <CarDetailsDialog
+                        plateImage={event.videoUrl}
+                        plateNumber={event.description}
+                        carColor={event.title.replace(" car", "")}
+                        fullImage={event.frameImage}
+                        ><img
+                          class="object-cover w-64 h-16 rounded-md col-span-1"
+                          src={"data:image/jpeg;base64," + event.videoUrl}
+                          alt="Team Member"
+                        />
+                      </CarDetailsDialog>
+                    {/if}
+                    <div
+                      class="col-span-1 tex-center flex flex-col items-center"
+                    >
+                      <h3 class={`text-base`}>
+                        {#if event.title.includes("car") && event.description !== ""}
+                          {event.description} {event.title}
+                        {:else}
+                          {event.title}
+                        {/if}
+                      </h3>
+                      <p class={`text-xs`}>
+                        Camera {$selectedNode.camera.filter(
+                          (c) => c.id === event.camera,
+                        )[0] &&
+                          $selectedNode.camera.filter(
+                            (c) => c.id === event.camera,
+                          )[0].name}
+                      </p>
+                      <p class={`text-xs`}>
+                        {event.score}
+                      </p>
+                    </div>
+                    <div class="col-span-2 mx-auto">
+                      <p class={`text-sm`}>
+                        {event.created.toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                        })}
+                      </p>
+                      <p class={`text-sm`}>
+                        {event.created.toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </article>
+                </button>
+              {/each}
+            {:else}
+              No event records found.
+            {/if}
+          </div>
+        {/if}
+
+        <button
+          class={`absolute flex flex-col items-center justify-center text-[#015a62] rounded-full p-2 h-[48px] w-[48px] bg-white shadow-filter flex-shrink-0  ${
+            landscape ? "bottom-16 right-4" : "bottom-8 right-8"
+          }`}
+        >
+          <ListFilter class="flex-shrink-0 scale-90 text-[#015a62]" />
+          <span class="text-sm scale-95">Filter</span>
+        </button>
+      </div>
+    </DrawerContent>
+  </Drawer>
+</div>

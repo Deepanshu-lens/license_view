@@ -1,22 +1,5 @@
-<script lang="ts">
-  // export let data: PageData;
-
-  // let providers = data;
-
-  // const gotoAuthProvider = (name: string) => {
-  //   if (browser) {
-  //     if (providers[name]) {
-  //       document.cookie = `state=${providers[name].authProviderState}`;
-  //       document.cookie = `cv=${providers[name].authCodeVerifier}`;
-  //       document.cookie = `prov=${name}`;
-  //     }
-  //   }
-  //   window.location.href = providers[name].authProviderRedirect || "";
-  // };
-</script>
-
 <div
-  class="flex justify-center items-center w-full h-full relative flex-col sm:flex-row"
+  class="flex justify-center items-center w-full h-screen relative flex-col sm:flex-row"
 >
   <div
     class="left sm:w-1/2 w-full bg-forms-background dark:bg-dark-forms-background sm:h-screen h-2/3 bg-cover z-10"

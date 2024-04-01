@@ -1,10 +1,12 @@
 <script lang="ts">
+  import PlaybackView from "./../../../components/playback/mobile/PlaybackView.svelte";
   import PlaybackPanel from "@/components/playback/PlaybackPanel.svelte";
   import { convertedVideos, selectedNode } from "@/lib/stores";
   import type { Camera } from "@/types.d.ts";
   import PocketBase from "pocketbase";
   import type { PageServerData } from "./$types";
   import { onMount } from "svelte";
+  import { ChevronLeft } from "lucide-svelte";
 
   const PB = new PocketBase("http://127.0.0.1:5555");
 
@@ -47,4 +49,22 @@
   });
 </script>
 
-<PlaybackPanel webmFiles={data.webmFiles} />
+<main class="hidden sm:block">
+  <PlaybackPanel webmFiles={data.webmFiles} />
+</main>
+<main class="block sm:hidden">
+  <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">
+    <div class="top-config w-full">
+      <button
+        class="flex items-center justify-start text-black/[.7] pt-4"
+        on:click={() => {
+          window.location.href = `/session/${$selectedNode.session}`;
+        }}
+      >
+        <ChevronLeft class="h-[30px] w-[30px]" />
+        <p class="text-lg font-semibold">Playback</p>
+      </button>
+    </div>
+    <PlaybackView webmFiles={data.webmFiles} />
+  </div>
+</main>

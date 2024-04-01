@@ -59,7 +59,7 @@
 
 <div
   id="node-view"
-  class={`left flex flex-col parent  
+  class={`left hidden sm:flex flex-col parent  
       dark:border-[#292929]  border-r-[1px]  h-[calc(100vh-75px)]
       transition-width ease-in-out duration-300
       ${!$leftPaneHide ? "w-72" : "w-0"}`}
@@ -97,7 +97,7 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
   class={cn(
-    `relative cursor-pointer border-t border-b border-transparent`,
+    `relative hidden sm:block cursor-pointer border-t border-b border-transparent`,
     url === `/session/${sessionId}` && !$topPanelHide
       ? "h-[calc(100vh-75px-57px)] mt-[56px]"
       : "h-[calc(100vh-75px)]",

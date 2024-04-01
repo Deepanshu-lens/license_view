@@ -2,10 +2,10 @@
   class="flex justify-center items-center w-full h-screen relative flex-col sm:flex-row"
 >
   <div
-    class="left sm:w-1/2 w-full bg-forms-background dark:bg-dark-forms-background sm:h-screen h-2/3 bg-cover z-10"
+    class="left sm:w-1/2 w-full bg-forms-background dark:bg-dark-forms-background h-screen bg-cover z-10 fixed sm:static bg-top sm:bg-center"
   />
   <form
-    class="shadow-md right w-full sm:w-1/2 h-2/3 sm:h-screen bg-background rounded-tl-[100px] sm:rounded-none z-20 -mt-[15rem] sm:mt-0 pt-[1rem] pb-[5rem] sm:pb-0 sm:pt-0"
+    class="shadow-md right w-full sm:w-1/2 h-3/4 sm:h-screen bg-background rounded-tl-[100px] sm:rounded-none z-20 pt-[1rem] pb-[5rem] sm:pb-0 sm:pt-0 absolute bottom-5 sm:static"
     method="POST"
     action="?/signup"
   >
@@ -13,7 +13,7 @@
       class="form-cont flex flex-col h-full items-center justify-center gap-4 w-[350px] mx-auto scale-[.85] sm:scale-100 xl:scale-100 2xl:scale-125 lg:scale-90 md:scale-75"
     >
       <div
-        class="flex items-center sm:justify-start sm:self-start gap-4 sm:-ml-4"
+        class="flex items-center sm:justify-start sm:self-start gap-4 sm:-ml-4 pt-[2rem] sm:pt-0"
       >
         <img
           src={"/images/coreIp.jpg"}
