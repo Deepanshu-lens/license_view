@@ -80,7 +80,7 @@
                           <Carousel.Item class="pl-1 md:basis-1/2 lg:basis-1/3"
                             ><img
                               src={"data:image/jpeg;base64," + img}
-                              alt="image"
+                              alt="carousel-img"
                               width="100%"
                               height="100%"
                             />

@@ -2,7 +2,6 @@
   import PlaybackCard from "@/components/cards/mobile/PlaybackCard.svelte";
   import { ChevronRight } from "lucide-svelte";
   export let cam;
-  export let index;
 </script>
 
 <div class="h-[220px] flex flex-col mx-6 gap-2">

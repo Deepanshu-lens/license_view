@@ -26,13 +26,13 @@
       </div>
       <div class="grid grid-cols-2 items-center gap-4">
         <Label for="plate-image">Plate Image</Label>
-        <img src={"data:image/jpeg;base64," + plateImage} alt="plate-image" />
+        <img src={"data:image/jpeg;base64," + plateImage} alt="plate-img" />
       </div>
       <div class="grid grid-cols-2 items-center gap-4">
         <Label for="plate-image">Car Image</Label>
         <img
           src={"data:image/jpeg;base64," + fullImage}
-          alt="plate-image"
+          alt="plate-img"
           width="350px"
         />
       </div>

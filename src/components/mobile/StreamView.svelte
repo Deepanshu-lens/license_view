@@ -414,7 +414,6 @@
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div
       class="absolute top-1/3 left-1/2 -translate-x-1/2 mix-blend-multiply flex flex-col justify-center items-center z-40"
-      on:click={() => (showCameraModal = true)}
     >
       <img
         src="/images/plusLight.png"

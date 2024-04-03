@@ -48,8 +48,6 @@
         {#if showCalendar}
           <Calendar
             class="absolute w-[350px] bg-white top-10 -right-1 z-40 px-4 py-2 flex flex-col items-center justify-center rounded-md dark:bg-[#333333] border border-solid border-[#929292] text-black dark:text-white"
-            onChange={handleDateChange}
-            {value}
           />
         {/if}
       </span>
@@ -85,8 +83,8 @@
   </div>
   <div class="flex flex-col py-8 gap-2 mb-20">
     {#if $selectedNode && $selectedNode.camera.length > 0}
-      {#each $selectedNode.camera as cam, index}
-        <Records {cam} {index} />
+      {#each $selectedNode.camera as cam}
+        <Records {cam} />
       {/each}
     {/if}
   </div>
