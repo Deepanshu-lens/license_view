@@ -17,7 +17,7 @@
   let isEmailvalid;
   let loginEvents;
   let userEvents;
-  let is isEmailValid: boolean = false;
+  let isEmailValid: boolean = false;
 
   console.log(userData);
 </script>
