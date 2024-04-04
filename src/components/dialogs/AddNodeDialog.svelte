@@ -35,7 +35,7 @@
 <!-- markup (zero or more items) goes here -->
 <Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger><slot /></Dialog.Trigger>
-  <Dialog.Content class="sm:max-w-[720px]">
+  <Dialog.Content class="sm:max-w-[720px] z-[70] scale-90 sm:scale-100">
     <Dialog.Header>
       <Dialog.Title>Add Node</Dialog.Title>
       <Dialog.Description>

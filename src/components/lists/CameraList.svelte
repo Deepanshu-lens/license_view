@@ -60,7 +60,7 @@
 </script>
 
 {#if !$leftPaneHide}
-  {#if $selectedNode.camera.length === 0}
+  {#if $selectedNode?.camera?.length === 0}
     <div class="w-full py-24 flex justify-center items-center">
       <div class="flex flex-col space-y-6 mx-auto items-center">
         <Cctv size={64} />
@@ -75,7 +75,8 @@
     <!-- svelte-ignore a11y-no-static-element-interactions -->
 
     <div
-      class={`relative flex items-center px-4 py-4 gap-5 bg-background transition-all duration-100 
+      id="camera-list"
+      class={`relative flex items-center px-4 py-4 gap-5 bg-background transition-all duration-100  
           ${!showItems ? "opacity-0" : "opacity-100"}`}
       on:click={() => {
         addUserLog("user clicked on search cameralist");

@@ -1,18 +1,23 @@
 <script lang="ts">
   import { CameraIcon, ChevronUp, Search, X } from "lucide-svelte";
-
+  import { onDestroy, onMount } from "svelte";
+  import PocketBase from "pocketbase";
+  import { writable } from "svelte/store";
+  import type { User } from "@/types";
+  import { toast } from "svelte-sonner";
+  export let user: User;
   export let text;
   export let selected;
-  let nodeData = [];
+  const nodeData = writable([]);
   let filteredNodeNames = [];
   let filteredCameraNames = [];
-  let nodeModify = false;
+  let nodeModify: boolean = false;
   let showDeleteModal = false;
   let searchNode = "";
   let enable = false;
-  let modify = false;
-  let detailIndex = null;
-  let nodeIndex = null;
+  let modify: boolean = false;
+  let detailIndex: number | null = null;
+  let nodeIndex: number | null = null;
   let searchValue = "";
   let newName = "";
   let newNodeName = "";
@@ -24,6 +29,62 @@
     { length: newDataCount },
     (_, index: number) => index,
   );
+
+  const PB = new PocketBase("http://127.0.0.1:5555");
+
+  async function getNodeData() {
+    if (user?.session) {
+      const data = await fetch("/api/node/getMany", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          session: user?.session,
+        }),
+      });
+      if (!data.ok) {
+        toast.error("Something went wrong. Please try again");
+        return;
+      }
+      const result = await data.json();
+
+      nodeData.set([...result?.nodeData]);
+    } else {
+      console.log("no selected node");
+    }
+  }
+
+  onMount(() => {
+    getNodeData();
+
+    PB.collection("camera").subscribe("*", async (e) => {
+      console.log("change", e.action, e.record);
+      getNodeData();
+    });
+  });
+
+  onDestroy(() => {
+    PB.collection("camera").unsubscribe("*");
+  });
+
+  $: {
+    newData =
+      $nodeData.length > 0
+        ? $nodeData.filter((item: any) => {
+            return item.session === user.session;
+          })
+        : [];
+  }
+
+  $: {
+    if (searchNode.length === 0) {
+      filteredNodeNames = [];
+    }
+    if (searchValue.length === 0) {
+      filteredCameraNames = [];
+    }
+  }
 </script>
 
 <div
@@ -45,10 +106,29 @@
           autoComplete="off"
           placeholder="Search for node name or id "
           class="py-4 w-[220px] pl-3 rounded-md border border-solid border-[#979797] active:border-[#015a62] text-xs text-[#979797] dark:bg-[#242424] dark:border-[#333] dark:text-[#929292]"
+          bind:value={searchNode}
+          on:input={(e) => {
+            searchNode = e.target.value;
+            let filteredNodes = newData.filter((node) => {
+              return node.name
+                .toLowerCase()
+                .includes(e.target.value.toLowerCase());
+            });
+            filteredNodeNames = [...filteredNodes];
+            let exact = newData.filter((node) => {
+              return node.name.toLowerCase() === e.target.value.toLowerCase();
+            });
+            if (exact.length > 0) {
+              enable = true;
+            } else {
+              enable = false;
+            }
+          }}
         />
         <button
           disabled={!enable}
           class="disabled:cursor-not-allowed py-2.5 px-5 text-sm hover:bg-[#015A62] dark:hover:bg-[#015a62] dark:bg-[#828282] dark:text-white rounded-md text-[#4f4f4f] hover:text-white text-[4f4f4f] bg-[#d9d9d9]"
+          on:click={() => (nodeIndex = 0)}
         >
           Modify
         </button>
@@ -100,24 +180,19 @@
 
       <table class="w-full bg-white shadow-md rounded">
         <tbody>
-          {#if newDataCount > 0 && filteredNodeNames > 0}
+          {#if filteredNodeNames.length > 0}
             {#each filteredNodeNames as camera, index}
               <tr
-                key={index}
                 class={`dark:bg-[#1b1b1b] bg-[white] cursor-pointer border-b-[1px] border-solid dark:border-[#929292] ${
                   index === 0 ? "border-t-[1px]" : ""
                 } `}
-                onClick={(e) => {
+                on:click={() => {
                   if (nodeIndex === index) {
                     if (!nodeModify) {
                       nodeIndex = null;
                     }
                   } else {
                     nodeIndex = index;
-                    const mod = camera;
-                    const modData = { ...mod };
-                    delete modData.camera;
-                    // setSelectedNode(modData);
                   }
                 }}
               >
@@ -152,32 +227,24 @@
                       class="w-auto cursor-pointer"
                       type="checkbox"
                       checked={nodeIndex === index}
-                      onChange={(e) => {
-                        console.log("change");
-                      }}
                     />
                   </div>
                 </td>
               </tr>
             {/each}
           {:else}
-            {#each newDataIndices as _, index}
+            {#each $nodeData as data, index}
               <tr
-                key={index}
                 class={`dark:bg-[#1b1b1b] bg-[white] cursor-pointer border-b-[1px] border-solid dark:border-[#929292] ${
                   index === 0 ? "border-t-[1px]" : ""
                 } `}
-                onClick={() => {
+                on:click={() => {
                   if (nodeIndex === index) {
                     if (!nodeModify) {
-                      nodeIndex = "";
+                      nodeIndex = null;
                     }
                   } else {
                     nodeIndex = index;
-                    // const mod = newData[index];
-                    // const modData = { ...mod };
-                    // delete modData.camera;
-                    // setSelectedNode(modData);
                   }
                 }}
               >
@@ -189,7 +256,7 @@
                       type="text"
                       autoComplete="off"
                       name="node-name"
-                      placeholder={newData?.[index]?.nodeName}
+                      placeholder={data.name}
                       class="block border-0 px-1 py-1 text-gray-900
           placeholder:text-gray-400
             bg-transparent w-full
@@ -199,7 +266,7 @@
                     />
                   {:else}
                     <p class="text-medium text-sm text-gray-900">
-                      {newData?.[index]?.nodeName}
+                      {data.name}
                     </p>
                   {/if}
                 </td>
@@ -218,6 +285,7 @@
         </tbody>
       </table>
     </div>
+
     {#if nodeIndex !== null}
       <span class="px-6 text-sm dark:text-[#e0e0e0] text-black mb-4">
         Camera Details
@@ -233,6 +301,17 @@
               placeholder="Search camera by name"
               class="pl-10 pr-2 py-1 my-1 text-black rounded-md border border-solid dark:border-[#333] dark:bg-[#242424] w-[290px] h-[50px] placeholder-opacity-70 text-xs"
               value={searchValue}
+              on:input={(e) => {
+                searchValue = e.target.value;
+                let filteredNames = newData[nodeIndex].cameraData.filter(
+                  (camera) => {
+                    return camera[0].name
+                      .toLowerCase()
+                      .includes(e.target.value.toLowerCase());
+                  },
+                );
+                filteredCameraNames = [...filteredNames];
+              }}
             />
             <Search
               class="absolute top-1/2 -translate-y-1/2 left-2 text-black"
@@ -274,7 +353,7 @@
             {/if}
           </div>
         </div>
-        <table class="w-full bg-white shadow-md rounded scale-[.77] text-black">
+        <table class="w-full bg-white shadow-md rounded scale-90 text-black">
           <thead>
             <tr
               class="dark:bg-[#1b1b1b] bg-[#f2f2f2] border-t-[1px] border-solid dark:border-[#929292]"
@@ -292,11 +371,7 @@
               >
                 Camera name
               </th>
-              <th
-                class="text-left py-1 px-2 border-r-[1px] border-solid dark:border-[#929292]"
-              >
-                Camera Id
-              </th>
+
               <th
                 class="text-left py-1 px-2 border-r-[1px] border-solid dark:border-[#929292]"
               >
@@ -320,7 +395,7 @@
                   on:click={() => {
                     if (detailIndex === index) {
                       if (!modify) {
-                        detailIndex = "";
+                        detailIndex = null;
                       }
                     } else {
                       detailIndex = index;
@@ -339,7 +414,7 @@
                   <td
                     class="py-1 px-2 border-x-[1px] border-solid dark:border-[#929292]"
                   >
-                    {newData?.[nodeIndex]?.nodeName}
+                    {newData?.[nodeIndex]?.name}
                   </td>
                   <td
                     class="py-1 px-2 border-r-[1px] border-solid dark:border-[#929292]"
@@ -356,28 +431,25 @@
                             focus:border-b-2
                           focus:border-indigo-600
                           dark:text-[#979797] sm:text-sm sm:leading-6"
-                        on:change={(e) => {
+                        bind:value={newName}
+                        on:input={(e) => {
                           newName = e.target.value;
                         }}
                       />
                     {:else}
-                      {camera.name}
+                      {camera[0].name}
                     {/if}
                   </td>
+
                   <td
                     class="py-1 px-2 border-r-[1px] border-solid dark:border-[#929292]"
                   >
-                    {camera.id}
-                  </td>
-                  <td
-                    class="py-1 px-2 border-r-[1px] border-solid dark:border-[#929292]"
-                  >
-                    {camera?.url.split("@")[1].split(":")[0]}
+                    {camera?.[0].url.split("@")[1].split(":")[0]}
                   </td>
                 </tr>
               {/each}
             {:else if newData && newData[nodeIndex].camera.length > 0}
-              {#each newData?.[nodeIndex].camera as _, index}
+              {#each newData?.[nodeIndex].cameraData as item, index}
                 <tr
                   class={`${
                     index % 2 === 0
@@ -393,7 +465,7 @@
                   on:click={() => {
                     if (detailIndex === index) {
                       if (!modify) {
-                        detailIndex = "";
+                        detailIndex = null;
                       }
                     } else {
                       detailIndex = index;
@@ -412,7 +484,7 @@
                   <td
                     class="py-1 px-2 border-x-[1px] border-solid dark:border-[#929292]"
                   >
-                    {newData?.[nodeIndex].nodeName}
+                    {newData[nodeIndex].name}
                   </td>
                   <td
                     class="py-1 px-2 border-r-[1px] border-solid dark:border-[#929292]"
@@ -422,32 +494,26 @@
                         type="text"
                         name="node-name"
                         autoComplete="off"
-                        placeholder={newData?.[nodeIndex]?.camera[index].name}
+                        placeholder={item[0]?.name}
                         class="block border-0 px-1 py-1 text-gray-900
                             placeholder:text-gray-400
                               bg-transparent w-full
                               focus:border-b-2
                             focus:border-indigo-600
                             dark:text-[#979797] sm:text-sm sm:leading-6"
-                        on:change={(e) => {
+                        bind:value={newName}
+                        on:input={(e) => {
                           newName = e.target.value;
                         }}
                       />
                     {:else}
-                      {newData?.[nodeIndex]?.camera[index].name}
+                      {item[0].name}
                     {/if}
                   </td>
                   <td
                     class="py-1 px-2 border-r-[1px] border-solid dark:border-[#929292]"
                   >
-                    {newData?.[nodeIndex].camera[index].id}
-                  </td>
-                  <td
-                    class="py-1 px-2 border-r-[1px] border-solid dark:border-[#929292]"
-                  >
-                    {newData?.[nodeIndex]?.camera[index]?.url
-                      .split("@")[1]
-                      ?.split(":")[0]}
+                    {item[0].url.split("@")[1]?.split(":")[0]}
                   </td>
                 </tr>
               {/each}

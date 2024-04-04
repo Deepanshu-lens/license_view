@@ -5,6 +5,8 @@
   import PocketBase from "pocketbase";
   import { onDestroy, onMount } from "svelte";
   import EventPanel from "@/components/events/EventPanel.svelte";
+  import EventsView from "@/components/events/mobile/EventsView.svelte";
+  import { ChevronLeft } from "lucide-svelte";
 
   export let data: PageServerData;
   const session = data.session;
@@ -70,12 +72,41 @@
         created: new Date(e.record.created),
       } as unknown as Event);
     });
+    PB.collection("camera").subscribe("*", async (e) => {
+      console.log("CHANGE ", e.action, " ", e.record);
+      nodes = await getNodes();
+    });
+
+    PB.collection("node").subscribe("*", async (e) => {
+      console.log("CHANGE ", e.action, " ", e.record);
+      nodes = await getNodes();
+    });
     setTimeout(updateEvents, 1000);
   });
 
   onDestroy(() => {
+    PB.collection("node").unsubscribe("*");
     PB.collection("events").unsubscribe("*");
+    PB.collection("camera").unsubscribe("*");
   });
 </script>
 
-<EventPanel />
+<main class="hidden sm:block">
+  <EventPanel />
+</main>
+<main class="block sm:hidden">
+  <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">
+    <div class="top-config w-full">
+      <button
+        class="flex items-center justify-start text-black/[.7] pt-4"
+        on:click={() => {
+          window.location.href = `/session/${$selectedNode.session}`;
+        }}
+      >
+        <ChevronLeft class="h-[30px] w-[30px]" />
+        <p class="text-lg font-semibold">Events</p>
+      </button>
+    </div>
+    <EventsView {data} />
+  </div>
+</main>

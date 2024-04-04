@@ -76,7 +76,7 @@ const config = {
         "forms-background": "url('/images/9-min.png')",
         "dark-forms-background": "url('/images/9dark-min.png')",
         "dark-add-node": 'url("/images/addNodeDark1-min.png")',
-        "light-add-node": "url('/images/addNodeLight.png')",
+        "light-add-node": "url('/images/addNodeLight.jpg')",
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",

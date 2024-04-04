@@ -172,7 +172,7 @@
     {/if}
     {#if $activeSec === 1}
       <div class="z-30 absolute top-0 left-0">
-        <Configuration bind:activeSec={$activeSec} userData={data} />
+        <Configuration bind:activeSec={$activeSec} userData={data} {user} />
       </div>
     {/if}
     {#if $activeSec === 2}

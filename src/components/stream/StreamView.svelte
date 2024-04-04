@@ -49,6 +49,7 @@
   import StreamView from "../mobile/StreamView.svelte";
   import MenuMob from "../mobile/MenuMob.svelte";
 
+  export let data;
   let animateHeader = false;
   let comfort = true;
 
@@ -257,6 +258,8 @@
   let editMode = writable(false);
   let landscape = writable(false);
   let activeStreamIndex = writable(null);
+
+  $: console.log($showAlerts);
 </script>
 
 {#if !$topPanelHide}
@@ -732,6 +735,7 @@
     bind:liveFullscreen={$liveFullscreen}
     bind:showAlerts={$showAlerts}
     bind:editMode={$editMode}
+    {data}
   />
   <MenuMob
     bind:landscape={$landscape}

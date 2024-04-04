@@ -7,7 +7,7 @@
 
   let showCalendar: boolean = false;
   let selectedDate = "";
-  let automated: boolean = false;
+  let automated: boolean = true;
 
   const selectOption = [
     { value: "Motion Detection", label: "Motion Detection" },
@@ -42,7 +42,7 @@
     <span class="flex items-center gap-2">
       <Search />
       <span class="relative">
-        <button on:click={() => (showCalendar = true)}>
+        <button on:click={() => (showCalendar = !showCalendar)}>
           <CalendarRange />
         </button>
         {#if showCalendar}

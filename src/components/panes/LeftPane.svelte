@@ -73,7 +73,7 @@
   {#if $selectedNode}
     {#key url}
       <div>
-        <div class={`flex flex-row `}>
+        <div class={`flex flex-row `} id="left-pane-lists-sec">
           <div class="w-full">
             {#if url === `/session/${sessionId}`}
               <CameraList {showItems} />

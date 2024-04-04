@@ -39,7 +39,9 @@
     table.createViewModel(columns);
 </script>
 
-<div class="rounded-md border max-h-[600px] overflow-y-scroll">
+<div
+  class="rounded-md border max-h-[calc(100vh-210px)] sm:max-h-[600px] overflow-y-scroll"
+>
   <Table.Root {...$tableAttrs}>
     <Table.Header>
       {#each $headerRows as headerRow}

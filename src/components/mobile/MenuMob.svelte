@@ -1,4 +1,5 @@
 <script lang="ts">
+  import LayoutDialog from "./../dialogs/mobile/LayoutDialog.svelte";
   import { selectedNode } from "@/lib/stores";
   import { Bell, Mic, Podcast, RotateCcw } from "lucide-svelte";
   import { ImageDown, LayoutGrid, Save, Video } from "lucide-svelte";
@@ -15,16 +16,18 @@
   <div
     class="flex items-center justify-evenly px-2 fixed w-screen bottom-[66px] z-30 pb-4 pt-2 backdrop-blur-xl"
   >
-    <button class="flex flex-col items-center justify-center gap-1">
-      <LayoutGrid
-        class={`p-[11px] w-[46px] h-[46px] rounded-fullbg-[#e8e9ea] text-[#015a62]`}
-      />
-      <span
-        class="text-xs text-black/[.6] tracking-[-0.12px] font-medium text-center"
-      >
-        Layout
-      </span>
-    </button>
+    <LayoutDialog orientation="">
+      <button class="flex flex-col items-center justify-center gap-1">
+        <LayoutGrid
+          class={`p-[11px] w-[46px] h-[46px] rounded-full bg-[#e8e9ea] text-[#015a62]`}
+        />
+        <span
+          class="text-xs text-black/[.6] tracking-[-0.12px] font-medium text-center"
+        >
+          Layout
+        </span>
+      </button>
+    </LayoutDialog>
     <button
       class="flex flex-col items-center justify-center gap-1 relative"
       on:click={() =>
@@ -265,19 +268,18 @@
         </div>
       {/if}
     </button>
-    <button
-      class="flex flex-col items-center justify-center gap-1 rotate-90"
-      on:click={() => console.log("add show layout dialog")}
-    >
-      <LayoutGrid
-        class="p-[11px] w-[46px] h-[46px] rounded-full bg-[rgb(232,233,234)]/[.22] text-white"
-      />
-      <span
-        class="text-xs text-white/[.6] tracking-[-0.12px] font-medium text-center"
-      >
-        Layout
-      </span>
-    </button>
+    <LayoutDialog orientation="landscape">
+      <button class="flex flex-col items-center justify-center gap-1 rotate-90">
+        <LayoutGrid
+          class="p-[11px] w-[46px] h-[46px] rounded-full bg-[rgb(232,233,234)]/[.22] text-white"
+        />
+        <span
+          class="text-xs text-white/[.6] tracking-[-0.12px] font-medium text-center"
+        >
+          Layout
+        </span>
+      </button>
+    </LayoutDialog>
     <button
       class="flex flex-col items-center justify-center gap-1 rotate-90"
       on:click={() => {

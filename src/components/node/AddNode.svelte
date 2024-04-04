@@ -5,11 +5,11 @@
     items-start
     justify-center h-screen w-screen
     dark:bg-dark-add-node
-    bg-auto
     bg-no-repeat
     pl-32
     bg-light-add-node
-    bg-center
+    bg-contain
+    bg-right
     dark:bg-cover"
 >
   <h2 class="text-center text-2xl font-semibold mb-6">

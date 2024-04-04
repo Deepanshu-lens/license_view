@@ -109,7 +109,7 @@
 </script>
 
 {#if $selectedNode}
-  <StreamView />
+  <StreamView {data} />
 {:else}
   <div class="hidden sm:flex">
     <AddNode />

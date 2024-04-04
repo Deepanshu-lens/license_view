@@ -104,7 +104,7 @@
       </svg>
     </div>
   </div>
-  {#if url.includes(`/session/${$selectedNode?.session}`)}
+  {#if url.includes(`/session/`)}
     <AlertDeleteNode onDelete={onDeleteNode}
       ><Button
         variant="ghost"

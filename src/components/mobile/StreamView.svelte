@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { Event } from "@/types";
   import { events, selectedNode } from "@/lib/stores";
   import {
     Check,
     ChevronDown,
     Disc2,
     EditIcon,
+    Expand,
     ListFilter,
     Shrink,
     X,
@@ -16,11 +16,13 @@
   import ComfortableProfileCard from "../cards/ComfortableProfileCard.svelte";
   import CarDetailsDialog from "../dialogs/CarDetailsDialog.svelte";
   import { addUserLog } from "@/lib/addUserLog";
+  import InfoDialog from "../dialogs/mobile/InfoDialog.svelte";
+  import { onMount } from "svelte";
 
   let showInfoModal = false;
   let allFullScreen = false;
   let cameraCount = $selectedNode.camera.length;
-  let layoutValue = 1;
+  let layoutValue = "1";
   let newName = "";
   let edit;
   let comfort = true;
@@ -32,6 +34,14 @@
   export let activeStreamIndex: number | null;
   export let editMode: boolean;
   export let showAlerts: boolean;
+  export let data;
+
+  onMount(() => {
+    const layoutMob = localStorage.getItem("layoutSelectionMob");
+    if (layoutMob) {
+      layoutValue = layoutMob;
+    }
+  });
 </script>
 
 <div
@@ -41,27 +51,17 @@
 >
   {#if !landscape}
     <div class="top flex items-center justify-center px-4 w-full">
-      <button
-        class="flex items-center justify-center text-center gap-1 relative"
-        on:click={() => (showInfoModal = !showInfoModal)}
-      >
-        <p class="text-[#505050] font-semibold text-sm">
-          {`Node: ${$selectedNode?.name}`}
-        </p>
-        <ChevronDown class="scale-90" />
-        {#if showInfoModal}
-          <!-- <InfoModal
-            {session}
-            {setShowInfoModal}
-            {setShowCameraModal}
-            {selectedNode}
-            {setShowNvrModal}
-            showNvrModal={showNrvModal}
-            {showCameraModal}
-          /> -->
-          <p>something</p>
-        {/if}
-      </button>
+      <InfoDialog {data}>
+        <button
+          class="flex items-center justify-center text-center gap-1 relative"
+          on:click={() => (showInfoModal = !showInfoModal)}
+        >
+          <p class="text-[#505050] font-semibold text-sm">
+            {`Node: ${$selectedNode?.name}`}
+          </p>
+          <ChevronDown class="scale-90" />
+        </button>
+      </InfoDialog>
     </div>
   {/if}
 
@@ -94,27 +94,24 @@
 
       {#if landscape}
         <Carousel>
-          {#each Array.from( { length: cameraCount && cameraCount > 1 ? Math.ceil(cameraCount / (layoutValue !== 1 ? layoutValue : 1)) : 1 }, ) as _, slideIndex}
+          {#each Array.from( { length: cameraCount && cameraCount > 1 ? Math.ceil(cameraCount / (layoutValue !== "1" ? layoutValue : "1")) : "1" }, ) as _, slideIndex}
             <div
               class="grid place-items-center w-[calc(100vh-200px)] h-[100vw] grid-cols-{layoutValue}"
               id={`slide-${slideIndex}`}
             >
               {#if cameraCount > 0}
-                {#each Array.from({ length: layoutValue }) as _, index}
-                  {@const cameraIdx = slideIndex * layoutValue + index}
+                {#each Array.from( { length: parseInt(layoutValue) }, ) as _, index}
+                  {@const cameraIdx =
+                    slideIndex * parseInt(layoutValue) + index}
                   {#if cameraIdx < cameraCount}
                     <div
                       id={`stream-${$selectedNode.name}-${cameraIdx}`}
                       class="relative z-10"
                     >
-                      <!-- <StreamComponent
-                        {cameraIdx}
-                        streamUrl={selectedCameras?.[cameraIdx]?.url}
-                        {selectedNode}
-                        {session}
-                        {landscape}
-                        layout={layoutValue}
-                      /> -->
+                      <Stream
+                        videoElement={videos[$selectedNode.camera[index].id]}
+                        camera={$selectedNode.camera[index]}
+                      />
                       stream
 
                       <span
@@ -123,30 +120,11 @@
                         <Disc2 />
                         <span class="text-xs font-extrabold"> Rec </span>
                       </span>
-                      <!-- <span
+                      <span
                         class="p-3 grid place-items-center absolute left-0 -top-10 text-white"
-                        on:click={() => {
-                          const parent = document.getElementById(
-                            `video-stream-${selectedNode.nodeName}-${cameraIdx}`,
-                          );
-                          const ele = parent?.querySelector("video");
-                          if (ele) {
-                            if (ele.webkitSupportsFullscreen) {
-                              ele.webkitEnterFullscreen();
-                              return;
-                            }
-                            ele.requestFullscreen();
-                          } else {
-                            console.log("no fullscreen");
-                          }
-                        }}
                       >
-                        <SvgComponent
-                          name="gridicons:fullscreen"
-                          height={24}
-                          width={24}
-                        />
-                      </span> -->
+                        <Expand />
+                      </span>
                     </div>
                   {/if}
                 {/each}
@@ -176,23 +154,15 @@
                       activeStreamIndex = "";
                   }}
                   id={`stream-${selectedNode.nodeName}-${index}`}
-                  class={activeStreamIndex === index && layoutValue === 2
+                  class={activeStreamIndex === index && layoutValue === "2"
                     ? "relative bg-white shadow-smol flex flex-col max-w-[47.5%] border-2 border-solid border-[#2952e1] z-10"
-                    : activeStreamIndex !== index && layoutValue === 2
+                    : activeStreamIndex !== index && layoutValue === "2"
                       ? "relative bg-white shadow-smol flex flex-col max-w-[47.5%] z-10"
-                      : activeStreamIndex === index && layoutValue === 1
+                      : activeStreamIndex === index && layoutValue === "1"
                         ? "relative bg-white shadow-smol flex flex-col w-[98%] h-auto mx-auto  border-2 border-solid border-[#2952e1] z-10"
                         : "relative bg-white shadow-smol flex flex-col w-[98%] h-auto mx-auto z-10"}
                 >
-                  <!-- <StreamComponent
-              cameraIdx={index}
-              streamUrl={item?.url}
-              selectedNode={selectedNode}
-              session={session}
-              landscape={landscape}
-              layout={layoutValue}
-            /> -->
-                  strteam
+                  <Stream videoElement={videos[item.id]} camera={item} />
 
                   <span
                     class="flex gap-2 text-[#C20D02] bg-[rgba(255,255,255,.68)] py-1 px-3 absolute top-1 -left-2 items-center rounded-xl scale-75 z-30"
@@ -380,11 +350,11 @@
                     }
                     console.log("first", index, activeStreamIndex, layoutValue);
                   }}
-                  class={activeStreamIndex === index && layoutValue === 2
+                  class={activeStreamIndex === index && layoutValue === "2"
                     ? "relative border-2 border-solid border-[#2952e1]"
-                    : activeStreamIndex !== index && layoutValue === 2
+                    : activeStreamIndex !== index && layoutValue === "2"
                       ? "relative border-[1px] border-solid border-transparent"
-                      : activeStreamIndex === index && layoutValue === 1
+                      : activeStreamIndex === index && layoutValue === "1"
                         ? "relative border-2 border-solid border-[#2952e1] "
                         : "relative border-2 border-solid border-transparent "}
                 >
@@ -429,7 +399,7 @@
     </div>
   {/if}
 
-  <Drawer onOpenChange={() => (showAlerts = false)}>
+  <Drawer bind:open={showAlerts}>
     <DrawerTrigger class="hidden" id="trigger">Open</DrawerTrigger>
     <DrawerContent>
       <div class={landscape ? "rotate-90" : "mx-auto w-[95%] max-w-sm"}>

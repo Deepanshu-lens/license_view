@@ -160,7 +160,9 @@
 <!-- markup (zero or more items) goes here -->
 <Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger><slot /></Dialog.Trigger>
-  <Dialog.Content class="sm:max-w-[720px]">
+  <Dialog.Content
+    class="sm:max-w-[720px] scale-90 sm:scale-100 z-[70] max-h-[90%] sm:max-h-auto overflow-y-scroll"
+  >
     <Dialog.Header>
       <Dialog.Title>Add Camera</Dialog.Title>
       <Dialog.Description>
@@ -242,7 +244,7 @@
         </span>
         <div class="flex flex-row items-center gap-6 my-auto col-span-3">
           <label
-            class="flex items-center gap-1 text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
+            class="flex items-center gap-1 text-xs sm:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
           >
             <input
               type="checkbox"
@@ -261,7 +263,7 @@
             CP Plus
           </label>
           <label
-            class="flex items-center gap-1 text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
+            class="flex items-center gap-1 text-xs sm:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
           >
             <input
               type="checkbox"
@@ -280,7 +282,7 @@
             Hikvision
           </label>
           <label
-            class="flex items-center gap-1 text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
+            class="flex items-center gap-1 text-xs sm:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
           >
             <input
               type="checkbox"
@@ -307,7 +309,9 @@
         >
           Camera Features
         </span>
-        <div class="flex flex-row items-center gap-6 my-auto col-span-3">
+        <div
+          class="flex flex-row items-center gap-6 my-auto col-span-3 flex-wrap sm:flex-nowrap"
+        >
           <!-- svelte-ignore a11y-label-has-associated-control -->
           <label
             class=" text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"

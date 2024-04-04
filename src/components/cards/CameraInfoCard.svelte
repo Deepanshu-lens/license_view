@@ -138,7 +138,7 @@
           : ``}{" "}
         {name.length > 11 ? name.substring(0, 10) + "..." : name}
       </h3>
-      <p class="text-xs">{url.split("@")[1].split("/")[0]}</p>
+      <p class="text-xs">{url?.split("@")?.[1]?.split("/")?.[0]}</p>
     {/if}
   </div>
   {#if !editing}

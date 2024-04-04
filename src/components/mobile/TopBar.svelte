@@ -1,6 +1,7 @@
 <script lang="ts">
   import { EditIcon, Expand, PlusCircle, RefreshCwOff } from "lucide-svelte";
   import { page } from "$app/stores";
+  import AddCameraDialog from "../dialogs/AddCameraDialog.svelte";
 
   export let displayIcons: boolean;
   export let editMode: boolean;
@@ -21,12 +22,13 @@
       >
         <EditIcon class="scale-90" color={editMode ? "white" : "#015a62"} />
       </button>
-      <button
-        on:click={() => console.log("set show camera modal")}
-        class="h-[32px] w-[32px] grid place-content-center rounded-full bg-[#e8e9ea]"
-      >
-        <PlusCircle color={"#015a62"} class="scale-90" />
-      </button>
+      <AddCameraDialog sNode="">
+        <button
+          class="h-[32px] w-[32px] grid place-content-center rounded-full bg-[#e8e9ea]"
+        >
+          <PlusCircle color={"#015a62"} class="scale-90" />
+        </button>
+      </AddCameraDialog>
       <button
         on:click={() => (landscape = true)}
         class="h-[32px] w-[32px] bg-[#e8e9ea] rounded-full grid place-items-center"
@@ -46,12 +48,3 @@
     </span>
   {/if}
 </div>
-
-<!-- on:click={() => setEditMode(!editMode)} -->
-<!-- on:click={() => setShowCameraModal(true)} -->
-<!-- on:click={() => setLandscape(true)} -->
-<!-- on:click={() => {
-    if (!liveFullscreen && path.includes("/session")) {
-      setLiveFullscreen(true);
-    }
-  }} -->
