@@ -1,13 +1,15 @@
 <script lang="ts">
   import { Calendar } from "@/components/ui/calendar";
   import { selectedNode } from "@/lib/stores";
-  import { CalendarRange, Search } from "lucide-svelte";
+  import { CalendarRange, ChevronRight, Search } from "lucide-svelte";
   import Records from "./Records.svelte";
   import * as Select from "@/components/ui/select";
+  import { cn } from "@/lib";
 
   let showCalendar: boolean = false;
   let selectedDate = "";
   let automated: boolean = true;
+  export let webmFiles;
 
   const selectOption = [
     { value: "Motion Detection", label: "Motion Detection" },
@@ -82,10 +84,31 @@
     </p>
   </div>
   <div class="flex flex-col py-8 gap-2 mb-20">
-    {#if $selectedNode && $selectedNode.camera.length > 0}
+    <!-- {#if $selectedNode && $selectedNode.camera.length > 0}
       {#each $selectedNode.camera as cam}
         <Records {cam} />
       {/each}
-    {/if}
+    {/if} -->
+    <span
+      class="text-base flex items-center gap-2 font-medium dark:text-[#e0e0e0] text-[#212427] px-6 mb-2"
+    >
+      Files that got converted
+      <ChevronRight />
+    </span>
+    <div
+      class={cn(
+        "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-4 mb-6",
+      )}
+    >
+      {#if webmFiles.length > 0}
+        <Records {webmFiles} />
+      {:else}
+        <span
+          class="text-sm font-medium dark:text-[#e0e0e0] text-[#212427] px-6 py-4"
+        >
+          No items found
+        </span>
+      {/if}
+    </div>
   </div>
 </section>

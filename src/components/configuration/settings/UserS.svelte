@@ -312,6 +312,7 @@
               disabled={!showUpdatePasswordModal}
             />
             <button
+              type="submit"
               class="text-sm font-medium dark:text-white/[.7] flex gap-2 items-center w-[85px] h-[35px] px-3 py-2 bg-black/[.08] hover:bg-black/[0.18] dark:bg-white/[0.08] dark:hover:bg-white/[0.18] border-[1px] border-solid border-[rgb(145,158,171)]/[.24] rounded-md text-black/[.7]"
               on:click={() =>
                 addUserLog(

@@ -10,7 +10,7 @@
   let eventFullscreen: boolean = false;
   let isDropDownOpen: boolean = false;
   let showCalendar: boolean = false;
-  let count = writable(5);
+  // let count = writable(5);
   let value = null;
   let dates = [];
   let showMore = null;
@@ -300,23 +300,18 @@
             {@const filterAndMapItems = (items, startHour, endHour, period) => {
               return items
                 ?.filter((item) => {
-                  // console.log(item);
                   const date = item.created;
                   let hours = date.getHours();
-                  // console.log("12", hours);
                   const amPm = hours >= 12 ? "PM" : "AM";
                   if (period !== amPm) return false;
-                  // console.log(hours);
                   hours = hours % 12;
-                  // console.log(hours);
-                  // hours === 12 ? 0 : hours;
-                  // console.log(hours);
                   const start = parseInt(startHour, 10);
                   const end = parseInt(endHour, 10);
-                  // console.log(start, hours, end);
                   return hours >= start && hours <= end;
                 })
                 .map((filteredItem, index) => {
+                  console.log(filteredItem, index);
+
                   const rawDate = filteredItem.created;
                   const formattedTime = rawDate.toLocaleTimeString("en-US", {
                     hour: "2-digit",
@@ -524,7 +519,7 @@
         <span
           on:click={() => {
             showMore = showMore ? showMore + 2 : 7;
-            count = count + 2;
+            // count = count + 2;
           }}
           class="text-black dark:text-white fixed -right-5 -rotate-90 top-1/2 translate-y-1/2 cursor-pointer z-50"
         >

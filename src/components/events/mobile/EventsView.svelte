@@ -53,8 +53,6 @@
   }
   $: showMore, updateMapData();
   $: newData = $events;
-
-  newData = [];
   onMount(() => {
     const today = new Date();
     for (let i = 0; i < 100; i++) {
@@ -125,10 +123,15 @@
           class="absolute scale-[.85]  right-0 w-[300px] bg-white top-0 z-[999] px-4 py-2 flex flex-col items-center justify-center rounded-md dark:bg-[#333333] border border-solid border-[#929292] text-black dark:text-white"
         />
       {/if}
-      <ChevronRight
-        class="text-[#015a62] bg-[#e8e9ea] rounded-full h-[32px] w-[32px] p-1"
-        on:click={() => (showMore = showMore ? showMore + 2 : 7)}
-      />
+      <button
+        on:click={() => {
+          showMore = showMore ? showMore + 2 : 7;
+        }}
+      >
+        <ChevronRight
+          class="text-[#015a62] bg-[#e8e9ea] rounded-full h-[32px] w-[32px] p-1"
+        />
+      </button>
     </span>
   </div>
 
@@ -137,17 +140,93 @@
       <div
         class="h-[100px] flex items-start justify-start overflow-x-scroll overflow-y-clip relative w-full my-4"
       >
-        {#if newData?.message?.search("No") !== "0" && MapData}
+        {#if newData?.message?.search("No") !== "0"}
           {#each MapData as item}
             {@const itemDate = new Date(item.title)}
             {@const matchingDataItems = newData.filter((dateItem) => {
-              const dataItemDate = new Date(dateItem.date);
+              const dataItemDate = dateItem.created;
               return (
                 itemDate.getDate() === dataItemDate.getDate() &&
                 itemDate.getMonth() === dataItemDate.getMonth() &&
                 itemDate.getFullYear() === dataItemDate.getFullYear()
               );
             })}
+            {@const filterAndMapItems = (items, startHour, endHour, period) => {
+              return items?.filter((item) => {
+                const date = item.created;
+                let hours = date.getHours();
+                const amPm = hours >= 12 ? "PM" : "AM";
+                if (period !== amPm) return false;
+                hours = hours % 12;
+                const start = parseInt(startHour, 10);
+                const end = parseInt(endHour, 10);
+                return hours >= start && hours <= end;
+              }).length;
+              // .map((filteredItem, index) => {
+              //   const rawDate = filteredItem.created;
+              //   const formattedTime = rawDate.toLocaleTimeString("en-US", {
+              //     hour: "2-digit",
+              //     minute: "2-digit",
+              //     second: "2-digit",
+              //   });
+              //   const formattedDate = rawDate.toLocaleDateString("en-US", {
+              //     year: "numeric",
+              //     month: "long",
+              //     day: "numeric",
+              //   });
+              //   const divContent = `<div key={${index}} class="flex scale-[.95] items-start gap-4 rounded-lg py-4 px-4 w-[50px] border-l-4 border-solid border-[#DE4B63] informative-shadow bg-white dark:bg-[#1b1b1b]">
+              //       <img alt='team member' src='data:image/png;base64,${filteredItem.frameImage}' class='object-contain rounded-md h-12 w-12 aspect-square mt-1.5'/>
+              //                           <div class="flex flex-col">
+              //                               <span class="font-bold text-[#222] dark:text-white">
+              //                                   ${filteredItem.title}
+              //                               </span>
+              //                               <span class="font-bold text-[#0B8995]">${formattedDate}</span>
+              //                               <span class="font-medium text-[rgb(151,151,151)]">
+              //                               ${formattedTime}
+              //                               </span>
+              //                           </div>
+              //                           </div>`;
+              //   return divContent;
+              // })
+              // .join("");
+            }}
+
+            {@const morningAMItems = filterAndMapItems(
+              matchingDataItems,
+              "00",
+              "03",
+              "AM",
+            )}
+            {@const midAMItems = filterAndMapItems(
+              matchingDataItems,
+              "04",
+              "07",
+              "AM",
+            )}
+            {@const lateAMItems = filterAndMapItems(
+              matchingDataItems,
+              "08",
+              "11",
+              "AM",
+            )}
+            {@const morningPMItems = filterAndMapItems(
+              matchingDataItems,
+              "00",
+              "03",
+              "PM",
+            )}
+            {@const midPMItems = filterAndMapItems(
+              matchingDataItems,
+              "04",
+              "07",
+              "PM",
+            )}
+            {@const latePMItems = filterAndMapItems(
+              matchingDataItems,
+              "08",
+              "11",
+              "PM",
+            )}
             <div
               class="min-w-[75%] h-full border border-solid border-[#f3f2fb] dark:border-[#242424]"
             >
@@ -159,10 +238,10 @@
                 >
                   {item.title}
                 </span>
-                <span
+                <div
                   class="text-[#2c2c2c] dark:text-white flex items-start justify-evenly w-full h-full"
                 >
-                  <span
+                  <div
                     class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
                   >
                     <span
@@ -170,12 +249,15 @@
                     >
                       00
                     </span>
-                    <span
-                      class={"bg-[rgba(1,90,98)]/[.08] dark:bg-[#0f1118] w-full relative h-full"}
+                    <div
+                      class={"bg-[rgba(1,90,98)]/[.08] dark:bg-[#0f1118] w-full relative h-full flex items-center justify-center"}
                     >
-                    </span>
-                  </span>
-                  <span
+                      {@html morningAMItems
+                        ? `<span class="rounded-full p-1 text-sm bg-[#20BF86] h-[30px] w-[30px] flex items-center justify-center text-white font-bold">${morningAMItems}</span>`
+                        : ""}
+                    </div>
+                  </div>
+                  <div
                     class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
                   >
                     <span
@@ -183,11 +265,15 @@
                     >
                       04
                     </span>
-                    <span
-                      class={"bg-[#fff] dark:bg-[#1b1b1b] w-full relative h-full"}
-                    ></span>
-                  </span>
-                  <span
+                    <div
+                      class={"bg-[#fff] dark:bg-[#1b1b1b] w-full relative h-full flex items-center justify-center"}
+                    >
+                      {@html midAMItems
+                        ? `<span class="rounded-full p-1 text-sm bg-[#20BF86] h-[30px] w-[30px] flex items-center justify-center text-white font-bold">${midAMItems}</span>`
+                        : ""}
+                    </div>
+                  </div>
+                  <div
                     class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
                   >
                     <span
@@ -195,11 +281,15 @@
                     >
                       08
                     </span>
-                    <span
-                      class={"bg-[#fff] dark:bg-[#1b1b1b] w-full relative h-full"}
-                    ></span>
-                  </span>
-                  <span
+                    <div
+                      class={"bg-[#fff] dark:bg-[#1b1b1b] w-full relative h-full flex items-center justify-center"}
+                    >
+                      {@html lateAMItems
+                        ? `<span class="rounded-full p-1 text-sm bg-[#20BF86] h-[30px] w-[30px] flex items-center justify-center text-white font-bold">${lateAMItems}</span>`
+                        : ""}
+                    </div>
+                  </div>
+                  <div
                     class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
                   >
                     <span
@@ -207,11 +297,15 @@
                     >
                       12
                     </span>
-                    <span
-                      class={"bg-[#fff] dark:bg-[#1b1b1b] w-full relative h-full"}
-                    ></span>
-                  </span>
-                  <span
+                    <div
+                      class={"bg-[#fff] dark:bg-[#1b1b1b] w-full relative h-full flex items-center justify-center"}
+                    >
+                      {@html morningPMItems
+                        ? `<span class="rounded-full p-1 text-sm bg-[#20BF86] h-[30px] w-[30px] flex items-center justify-center text-white font-bold">${morningPMItems}</span>`
+                        : ""}
+                    </div>
+                  </div>
+                  <div
                     class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
                   >
                     <span
@@ -219,11 +313,15 @@
                     >
                       16
                     </span>
-                    <span
-                      class={"bg-[#fff] dark:bg-[#1b1b1b] w-full relative h-full"}
-                    ></span>
-                  </span>
-                  <span
+                    <div
+                      class={"bg-[#fff] dark:bg-[#1b1b1b] w-full relative h-full flex items-center justify-center"}
+                    >
+                      {@html midPMItems
+                        ? `<span class="rounded-full p-1 text-sm bg-[#20BF86] h-[30px] w-[30px] flex items-center justify-center text-white font-bold">${midPMItems}</span>`
+                        : ""}
+                    </div>
+                  </div>
+                  <div
                     class="flex flex-col items-start justify-start w-full border border-solid border-[#f3f2fb] dark:border-[#242424] h-full"
                   >
                     <span
@@ -231,11 +329,15 @@
                     >
                       20
                     </span>
-                    <span
-                      class={"bg-[#fff] dark:bg-[#1b1b1b] w-full relative h-full"}
-                    ></span>
-                  </span>
-                </span>
+                    <div
+                      class={"bg-[#fff] dark:bg-[#1b1b1b] w-full relative h-full flex items-center justify-center"}
+                    >
+                      {@html latePMItems
+                        ? `<span class="rounded-full p-1 text-sm bg-[#20BF86] h-[30px] w-[30px] flex items-center justify-center text-white font-bold">${latePMItems}</span>`
+                        : ""}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           {/each}
@@ -348,7 +450,7 @@
     </div>
     <div class="px-6 flex-col flex items-start gap-4 my-4 pb-20 w-full">
       {#if newData}
-        {#each newData as item, index}
+        {#each newData as item}
           <MobEventsAlerts {item} />
         {/each}
       {/if}

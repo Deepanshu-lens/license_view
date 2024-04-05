@@ -5,7 +5,9 @@
   import PocketBase, { Record } from "pocketbase";
   import RegisterDialog from "@/components/dialogs/RegisterDialog.svelte";
   import { addUserLog } from "@/lib/addUserLog";
-  import { ScanFace } from "lucide-svelte";
+  import { ChevronLeft, ScanFace } from "lucide-svelte";
+  import GalleryView from "@/components/gallery/mobile/GalleryView.svelte";
+  import { selectedNode } from "@/lib/stores";
 
   let gallery: Gallery[] = [];
   const PB = new PocketBase("http://127.0.0.1:5555");
@@ -29,7 +31,7 @@
   });
 </script>
 
-<div class="container p-2 mx-auto">
+<div class="container p-2 mx-auto hidden sm:block">
   <div class="flex flex-row items-center justify-between px-4">
     <h1
       class="text-2xl font-bold dark:text-[#e0e0e0] text-[#212427] flex justify-center pt-2 pb-4"
@@ -48,4 +50,20 @@
     </RegisterDialog>
   </div>
   {#if gallery && gallery.length > 0}<DataTable data={gallery} />{/if}
+</div>
+<div class="block sm:hidden">
+  <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">
+    <div class="top-config w-full">
+      <button
+        class="flex items-center justify-start text-black/[.7] pt-4"
+        on:click={() => {
+          window.location.href = `/session/${$selectedNode?.session}`;
+        }}
+      >
+        <ChevronLeft class="h-[30px] w-[30px]" />
+        <p class="text-lg font-semibold">Gallery</p>
+      </button>
+    </div>
+    <GalleryView data={gallery} />
+  </div>
 </div>

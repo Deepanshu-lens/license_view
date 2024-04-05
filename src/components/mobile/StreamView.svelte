@@ -7,6 +7,7 @@
     EditIcon,
     Expand,
     ListFilter,
+    ScanFace,
     Shrink,
     X,
   } from "lucide-svelte";
@@ -18,6 +19,7 @@
   import { addUserLog } from "@/lib/addUserLog";
   import InfoDialog from "../dialogs/mobile/InfoDialog.svelte";
   import { onMount } from "svelte";
+  import RegisterMobileDialog from "../dialogs/mobile/RegisterMobileDialog.svelte";
 
   let showInfoModal = false;
   let allFullScreen = false;
@@ -529,13 +531,23 @@
         {/if}
 
         <button
-          class={`absolute flex flex-col items-center justify-center text-[#015a62] rounded-full p-2 h-[48px] w-[48px] bg-white shadow-filter flex-shrink-0  ${
-            landscape ? "bottom-16 right-4" : "bottom-8 right-8"
+          class={`absolute shadow-big flex flex-col items-center justify-center text-[#015a62] rounded-full p-2 h-[60px] w-[60px] bg-white shadow-filter flex-shrink-0  ${
+            landscape ? "bottom-16 right-4" : "bottom-8 right-4"
           }`}
         >
           <ListFilter class="flex-shrink-0 scale-90 text-[#015a62]" />
           <span class="text-sm scale-95">Filter</span>
         </button>
+        <!-- <RegisterMobileDialog>
+          <button
+            class={`absolute informative-shadow flex flex-col items-center justify-center text-[#015a62] rounded-full p-2 h-[60px] w-[60px] bg-white shadow-filter flex-shrink-0  ${
+              landscape ? "bottom-16 right-4" : "bottom-[7rem] right-4"
+            }`}
+          >
+            <ScanFace class="flex-shrink-0 scale-90 text-[#015a62]" />
+            <span class="text-sm scale-95">Register</span>
+          </button>
+        </RegisterMobileDialog> -->
       </div>
     </DrawerContent>
   </Drawer>

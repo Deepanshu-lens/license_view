@@ -2,6 +2,7 @@
   import { EditIcon, Expand, PlusCircle, RefreshCwOff } from "lucide-svelte";
   import { page } from "$app/stores";
   import AddCameraDialog from "../dialogs/AddCameraDialog.svelte";
+  import { selectedNode } from "@/lib/stores";
 
   export let displayIcons: boolean;
   export let editMode: boolean;
@@ -15,8 +16,9 @@
   {#if displayIcons !== false}
     <span class="flex flex-row items-center gap-2">
       <button
+        disabled={$selectedNode.camera.length === 0}
         on:click={() => (editMode = !editMode)}
-        class={`h-[32px] w-[32px] grid place-items-center ${
+        class={`h-[32px] w-[32px] grid place-items-center disabled:opacity-70 ${
           editMode ? "bg-[#015a62]" : "bg-[#e8e9ea]"
         } rounded-full`}
       >
@@ -30,18 +32,22 @@
         </button>
       </AddCameraDialog>
       <button
-        on:click={() => (landscape = true)}
-        class="h-[32px] w-[32px] bg-[#e8e9ea] rounded-full grid place-items-center"
+        disabled={$selectedNode.camera.length === 0}
+        on:click={() => {
+          landscape = true;
+        }}
+        class="h-[32px] w-[32px] bg-[#e8e9ea] rounded-full grid place-items-center disabled:opacity-70"
       >
         <RefreshCwOff color="#015a62" class="scla-90" />
       </button>
       <button
+        disabled={$selectedNode.camera.length === 0}
         on:click={() => {
           if (!liveFullscreen && $page.url.pathname.includes("/session")) {
             liveFullscreen = true;
           }
         }}
-        class="h-[32px] w-[32px] bg-[#e8e9ea] rounded-full grid place-items-center"
+        class="h-[32px] w-[32px] bg-[#e8e9ea] rounded-full grid place-items-center disabled:opacity-70"
       >
         <Expand color="#015a62" class="scale-90" />
       </button>

@@ -30,6 +30,7 @@
   let selected = writable(null);
   export let userData;
   export let user;
+  export let records;
 </script>
 
 <div
@@ -61,7 +62,7 @@
         {:else if $selected === "Camera" && text === "Camera"}
           <Camera {text} bind:selected={$selected} {user} />
         {:else if $selected === "User" && text === "User"}
-          <User {text} bind:selected={$selected} {userData} />
+          <User {text} bind:selected={$selected} {userData} {records} />
         {:else}
           <button
             on:click={() => ($selected = text)}

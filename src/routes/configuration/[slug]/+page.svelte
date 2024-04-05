@@ -136,7 +136,6 @@
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <span
           on:click={() => {
-            console.log(index);
             $activeSec = index;
           }}
           class={` flex flex-row items-center w-[349px] scale-95 sm:scale-100 h-[45px] sm:h-[50px] px-[19px] py-[13px] rounded-[8px] border-b-[1px] border-solid ${
@@ -172,7 +171,12 @@
     {/if}
     {#if $activeSec === 1}
       <div class="z-30 absolute top-0 left-0">
-        <Configuration bind:activeSec={$activeSec} userData={data} {user} />
+        <Configuration
+          bind:activeSec={$activeSec}
+          userData={data}
+          {user}
+          records={data.records}
+        />
       </div>
     {/if}
     {#if $activeSec === 2}

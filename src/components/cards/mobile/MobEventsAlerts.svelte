@@ -2,7 +2,6 @@
   import { CircleEllipsis } from "lucide-svelte";
 
   export let item;
-  console.log(item);
   const formattedInput = item.created;
 
   const year = formattedInput.getFullYear();
@@ -21,10 +20,10 @@
     .padStart(2, "0")}:${seconds.toString().padStart(2, "0")} ${ampm}`;
 </script>
 
-<div class="flex flex-row items-center h-[85px] w-full gap-2">
+<div class="flex flex-row items-center h-[85px] w-full gap-2 pr-2 shadow-big">
   <span class="w-[4px] h-full bg-[#02C7DF]" />
   <img
-    src="/images/asd-min.png"
+    src={"data:image/jpeg;base64," + item.frameImage}
     alt="event-preview"
     class="object-contain h-[85px] w-[100px]"
   />

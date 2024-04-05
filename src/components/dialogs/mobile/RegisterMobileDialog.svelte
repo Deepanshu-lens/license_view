@@ -1,45 +1,48 @@
+<!-- <script lang="ts">
+  import { toast } from "svelte-sonner";
+  import * as Dialog from "@/components/ui/dialog";
+  import { Input } from "@/components/ui/input";
+  import { cn } from "@/lib";
+  import { writable } from "svelte/store";
+  let dialogOpen = false;
+  let captureMode = 1;
+  const registreationImages = writable<string[]>([]);
+  
+</script> -->
+
 <script lang="ts">
   import { toast } from "svelte-sonner";
   import * as Dialog from "@/components/ui/dialog";
   import { Input } from "@/components/ui/input";
-  import { Label } from "@/components/ui/label";
-  import { Button } from "@/components/ui/button";
-  import { onMount } from "svelte";
   import { cn } from "@/lib";
   import { writable } from "svelte/store";
+  import { Button } from "@/components/ui/button";
   import { ChevronDown } from "lucide-svelte";
+
   let dialogOpen = false;
   let captureMode = 1;
   let username: string = "";
   const registrationImages = writable<string[]>([]);
-
   let webcamSource: HTMLVideoElement;
   let webcamCanvas: HTMLCanvasElement;
   let stream: MediaStream;
+
   const openWebcam = async () => {
     try {
-      // loading = true;
       stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: { facingMode: "user" }, // This specifies the front camera
       });
       webcamSource.srcObject = stream;
-      webcamSource.play();
-
-      // loading = false;
+      await webcamSource.play();
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      toast.error("Could not access the camera");
     }
   };
 
-  const closeWebcam = async () => {
-    stream.getTracks().forEach((track) => {
-      console.log(track);
-      if (track.readyState == "live" && track.kind === "video") {
-        track.stop();
-        track.enabled = false;
-      }
-      webcamSource.srcObject = null;
-    });
+  const closeWebcam = () => {
+    stream.getTracks().forEach((track) => track.stop());
+    webcamSource.srcObject = null;
   };
 
   let loading = false;
@@ -55,26 +58,9 @@
         webcamSource.videoWidth,
         webcamSource.videoHeight,
       );
-      loading = true;
       let frame = webcamCanvas.toDataURL("image/jpeg");
-      const result = await fetch("http://localhost:8083" + "/api/enroll", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ frame: frame.replace(/^data:[^,]+,/, "") }),
-      });
-      if (!result.ok) {
-        const error = (await result.json()).error;
-        console.error(error);
-        toast.error("Something went wrong. Please try another");
-        loading = false;
-        return;
-      }
-      const croppedImage = await result.json();
-      loading = false;
-
-      registrationImages.update((images) => [...images, croppedImage]);
+      // Process the captured frame as needed, for example, by sending it to a server
+      registrationImages.update((images) => [...images, frame]);
     }
   }
 
@@ -132,18 +118,12 @@
     }
   };
 
-  $: {
-    if (dialogOpen && captureMode == 1) {
-      console.log("!");
-      openWebcam();
-    }
+  $: if (dialogOpen && captureMode === 1) {
+    openWebcam();
   }
 
-  $: {
-    if (!dialogOpen && stream) {
-      console.log("Closing");
-      closeWebcam();
-    }
+  $: if (!dialogOpen && stream) {
+    closeWebcam();
   }
 
   const onSubmit = () => {
@@ -164,8 +144,10 @@
 
 <Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger><slot /></Dialog.Trigger>
-  <Dialog.Content class="sm:max-w-[720px] xl:scale-95 2xl:scale-100">
-    <Dialog.Header>
+  <Dialog.Content
+    class="w-[90%] max-h-[70%] z-[60] overflow-y-scroll overflow-x-clip top-10 translate-y-0"
+  >
+    <Dialog.Header class="w-full">
       <Dialog.Title>Register Face</Dialog.Title>
       <Dialog.Description
         >Register a new person to the Gallery</Dialog.Description
@@ -175,11 +157,11 @@
       <p class="text-[#00132B] dark:text-slate-100">
         Choose from the options below to register your images
       </p>
-      <span class="flex items-center justify-between w-full gap-4">
+      <span class="flex items-center justify-start w-full gap-4">
         <button
           class={captureMode !== 1
-            ? "text-[#00132B] dark:text-slate-300 flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[rgb(145,158,171)]/[.24] font-semibold "
-            : " text-[#00132B] flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#136ad5] bg-[#ecf3fc] font-semibold "}
+            ? "text-[#00132B] dark:text-slate-300 flex-shrink-0 w-1/2 flex flex-row items-center h-[67px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[rgb(145,158,171)]/[.24] font-medium text-sm "
+            : " text-[#00132B] flex-shrink-0 w-1/2 flex flex-row items-center h-[67px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#136ad5] bg-[#ecf3fc] font-medium text-sm "}
           on:click={() => (captureMode = 1)}
         >
           <input type="radio" checked={captureMode === 1} />
@@ -187,8 +169,8 @@
         </button>
         <button
           class={captureMode !== 2
-            ? "text-[#00132B] dark:text-slate-300 flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[rgb(145,158,171)]/[.24] font-semibold"
-            : "text-[#00132B] flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#136ad5] bg-[#ecf3fc] font-semibold"}
+            ? "text-[#00132B] dark:text-slate-300 flex-shrink-0 w-1/2 flex flex-row items-center h-[67px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[rgb(145,158,171)]/[.24] font-medium text-sm"
+            : "text-[#00132B] flex-shrink-0 w-1/2 flex flex-row items-center h-[67px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#136ad5] bg-[#ecf3fc] font-medium text-sm"}
           on:click={() => (captureMode = 2)}
         >
           <input type="radio" checked={captureMode === 2} />
@@ -198,11 +180,11 @@
       <label for="username" class=" text-[#00132B] dark:text-slate-100">
         Username
       </label>
-      <span class="relative">
+      <span class="relative w-full">
         <input
           name="Person Name"
           type="text"
-          class="w-[655px] h-[48px] relative rounded-lg pl-4 border-[2px] border-solid border-[rgb(145,158,171)]/[.24] focus:border-[#136ad5] placeholder-[#939393] bg-background"
+          class="w-full h-[48px] relative rounded-lg pl-4 border-[2px] border-solid border-[rgb(145,158,171)]/[.24] focus:border-[#136ad5] placeholder-[#939393] bg-background"
           placeholder="Type or select name"
           bind:value={username}
         />
@@ -213,10 +195,9 @@
       </span>
     </div>
     {#if captureMode === 1}
-      <!-- svelte-ignore a11y-media-has-caption -->
       <video
         bind:this={webcamSource}
-        class="h-[420px] w-[650px] lg:w-[500px] lg:h-[290px] self-center mx-auto"
+        class=" w-[80%] aspect-square self-center mx-auto"
       />
       <div class="flex flex-wrap justify-center">
         {#each $registrationImages as image, index}
@@ -231,7 +212,6 @@
             />
           </div>
           {#if (index + 1) % 4 === 0}
-            <!-- Start a new row after every 4 images -->
             <div class="w-full"></div>
           {/if}
         {/each}
@@ -239,7 +219,7 @@
 
       <canvas bind:this={webcamCanvas} style="display: none;"></canvas>
       <Button
-        class="w-[650px] lg:w-[500px] mx-auto"
+        class="w-[70%] mx-auto"
         on:click={capturePhoto}
         disabled={loading || $registrationImages.length >= 8}
         >Capture photo</Button
@@ -275,7 +255,6 @@
             />
           </div>
           {#if (index + 1) % 4 === 0}
-            <!-- Start a new row after every 4 images -->
             <div class="w-full"></div>
           {/if}
         {/each}
@@ -289,6 +268,6 @@
         disabled={$registrationImages.length === 0 || username === ""}
         >Add Person</Button
       >
-    </Dialog.Footer></Dialog.Content
-  >
+    </Dialog.Footer>
+  </Dialog.Content>
 </Dialog.Root>
