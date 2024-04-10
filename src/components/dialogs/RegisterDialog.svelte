@@ -7,11 +7,13 @@
   import { onMount } from "svelte";
   import { cn } from "@/lib";
   import { writable } from "svelte/store";
-  import { ChevronDown } from "lucide-svelte";
+  import { ChevronDown, X } from "lucide-svelte";
   let dialogOpen = false;
   let captureMode = 1;
   let username: string = "";
   const registrationImages = writable<string[]>([]);
+  const imposterImages = writable<string[]>([]);
+  const avgFeatures = writable();
 
   let webcamSource: HTMLVideoElement;
   let webcamCanvas: HTMLCanvasElement;
@@ -123,7 +125,22 @@
           const croppedImage = await result.json();
           loading = false;
 
-          registrationImages.update((images) => [...images, croppedImage]);
+          if ($registrationImages.length === 0) {
+            registrationImages.update((images) => [...images, croppedImage]);
+            updateFeature(croppedImage);
+          } else {
+            // updateFeature(croppedImage);
+            const res = compareToGallery(
+              croppedImage.bboxes[0].Feature,
+              $avgFeatures,
+            );
+
+            if (res > 0.3) {
+              registrationImages.update((images) => [...images, croppedImage]);
+            } else {
+              imposterImages.update((image) => [...image, croppedImage]);
+            }
+          }
         } catch (e) {
           console.error(e);
           toast.error("Something went wrong. Please try another file.");
@@ -131,6 +148,51 @@
       }
     }
   };
+
+  export function averagefeatures1D(basefeatures, AverageFeatures) {
+    const averageValue = [];
+    for (let i = 0; i < AverageFeatures.length; i++) {
+      averageValue.push((AverageFeatures[i] + basefeatures[i]) / 2);
+    }
+    return averageValue;
+  }
+
+  function updateFeature(image) {
+    if ($avgFeatures) {
+      avgFeatures.set(averagefeatures1D(image.bboxes[0].Featue, $avgFeatures));
+    } else {
+      avgFeatures.set(image.bboxes[0].Feature);
+    }
+  }
+
+  function removeImage(index: number) {
+    registrationImages.update((images) => {
+      return images.filter((_, i) => i !== index);
+    });
+  }
+
+  function magnitude(vector) {
+    return Math.sqrt(vector.reduce((acc, val) => acc + val ** 2, 0));
+  }
+  function normalize(vector) {
+    const mag = magnitude(vector);
+    return vector.map((val) => val / mag);
+  }
+  function dotProduct(v1, v2) {
+    return v1.reduce((acc, val, i) => acc + val * v2[i], 0);
+  }
+
+  export function compareToGallery(queryVector, galleryVectors) {
+    // console.log("querygallery",queryVector,galleryVectors)
+    const queryVectorNormalized = normalize(queryVector);
+    const similarities = galleryVectors.map((galleryVector) => {
+      const galleryVectorNormalized = normalize(galleryVector);
+      const dot = dotProduct(queryVectorNormalized, galleryVectorNormalized);
+      return dot;
+    });
+    // console.log("similarities",similarities)
+    return similarities;
+  }
 
   $: {
     if (dialogOpen && captureMode == 1) {
@@ -253,6 +315,7 @@
         id="flder"
         webkitdirectory
         on:input={onFileUpload}
+        disabled={$registrationImages.length > 0}
       />
       <p class="text-[#00132B] dark:text-slate-100">Upload single images</p>
       <Input
@@ -272,10 +335,40 @@
               src={"data:image/jpeg;base64," + image.bboxes[0].Image}
               alt="captured"
               width="100px"
+              height="100px"
+              class="aspect-square"
             />
+            <button
+              class="abslute top-0 right-0 bg-white text-[red] p-1 rounded-full scale-75 grid place-items-center"
+              on:click={() => removeImage(index)}
+            >
+              <X />
+            </button>
           </div>
           {#if (index + 1) % 4 === 0}
-            <!-- Start a new row after every 4 images -->
+            <div class="w-full"></div>
+          {/if}
+        {/each}
+        {#each $imposterImages as image, index}
+          <div
+            class={cn("border-4 relative flex flex-row")}
+            style="margin: 5px;"
+          >
+            <img
+              src={"data:image/jpeg;base64," + image.bboxes[0].Image}
+              alt="captured"
+              width="100px"
+              height="100px"
+              class="aspect-square"
+            />
+            <button
+              class="abslute top-0 right-0 bg-white text-[red] p-1 rounded-full scale-75 grid place-items-center"
+              on:click={() => removeImage(index)}
+            >
+              <X />
+            </button>
+          </div>
+          {#if (index + 1) % 4 === 0}
             <div class="w-full"></div>
           {/if}
         {/each}

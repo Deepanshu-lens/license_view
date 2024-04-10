@@ -588,16 +588,16 @@
     >
       <button
         class={!comfort
-          ? "text-xs dark:text-white text-[#015A62] 2xl:px-8 xl:px-4 py-2 rounded-md w-full bg-[white] dark:bg-[#333] dark:border-none mb-2 border border-solid border-[#015A62]"
-          : "bg-[#015A62] text-xs 2xl:px-8 xl:px-3 py-2 rounded-md mb-2 text-white w-full"}
+          ? `text-xs 2xl:px-8 xl:px-4 py-2 rounded-md w-full ${isAllFullScreen ? "bg-[#333] text-white border-none" : "bg-[white] dark:bg-[#333] dark:text-white text-[#015A62]"}  dark:border-none mb-2 border border-solid border-[#015A62]`
+          : `bg-[#015A62] text-xs 2xl:px-8 xl:px-3 py-2 rounded-md mb-2 text-white w-full`}
         on:click={() => (comfort = true)}
       >
         Comfortable
       </button>
       <button
         class={comfort
-          ? "text-xs dark:text-white text-[#015A62] 2xl:px-8 xl:px-4 py-2 rounded-md w-full bg-[white] dark:bg-[#333] dark:border-none mb-2 border border-solid border-[#015A62]"
-          : "bg-[#015A62] text-xs 2xl:px-8 xl:px-3 py-2 rounded-md mb-2 text-white w-full"}
+          ? `text-xs  ${isAllFullScreen ? "bg-[#333] text-white border-none" : "bg-[white] dark:bg-[#333] dark:text-white text-[#015A62]"} 2xl:px-8 xl:px-4 py-2 rounded-md w-full bg-[white] dark:bg-[#333] dark:border-none mb-2 border border-solid border-[#015A62]`
+          : `bg-[#015A62] text-xs 2xl:px-8 xl:px-3 py-2 rounded-md mb-2 text-white w-full`}
         on:click={() => (comfort = false)}
       >
         Informative
@@ -606,7 +606,7 @@
     {#if comfort}
       <div class="m-4 flex flex-col gap-2">
         {#each galleryItems as galleryItem}
-          <ComfortableProfileCard {galleryItem} />
+          <ComfortableProfileCard {galleryItem} {isAllFullScreen} />
         {/each}
       </div>
       <Accordion.Root class="m-4">
@@ -614,7 +614,7 @@
           <Accordion.Trigger>Unknowns</Accordion.Trigger>
           <Accordion.Content>
             {#each unknownItems as galleryItem}
-              <ComfortableProfileCard {galleryItem} />
+              <ComfortableProfileCard {galleryItem} {isAllFullScreen} />
             {/each}
           </Accordion.Content>
         </Accordion.Item>
@@ -657,7 +657,9 @@
                     />
                   </CarDetailsDialog>
                 {/if}
-                <div class="col-span-1 tex-center flex flex-col items-center">
+                <div
+                  class="col-span-1 tex-center flex flex-col items-center gap-1"
+                >
                   <h3 class={`${isAllFullScreen ? "text-2xl" : "text-base"}`}>
                     {#if event.title.includes("car") && event.description !== ""}
                       {event.description} {event.title}
@@ -673,15 +675,14 @@
                         (c) => c.id === event.camera,
                       )[0].name}
                   </p>
-                  <!-- <p class={`${isAllFullScreen ? "text-xl" : "text-xs"}`}>
-                    {event.score}
-                  </p> -->
                   <p
-                    class={`${isAllFullScreen ? "text-xl font-bold" : "text-xs font-bold"}`}
+                    class={`text-center ${isAllFullScreen ? "text-xl font-bold" : "text-xs font-bold"}`}
                   >
                     Detection Score : {event?.score}
                   </p>
-                  <p class={`${isAllFullScreen ? "text-xl" : "text-xs"}`}>
+                  <p
+                    class={`text-center ${isAllFullScreen ? "text-xl" : "text-xs"}`}
+                  >
                     {event.matchScore !== 0 &&
                     event.matchScore !== undefined &&
                     event.matchScore !== null

@@ -34,7 +34,7 @@
           data.url?.includes("login") ? "h-screen" : "max-h-[calc(100vh-76px)]",
         )}
       >
-        {#if !data.url.includes("gallery") && !data.url?.includes("login")}
+        {#if !data.url.includes("gallery") && !data.url?.includes("login") && !data.url?.includes("reports")}
           <LeftPane
             {nodes}
             url={data.url ?? "/"}

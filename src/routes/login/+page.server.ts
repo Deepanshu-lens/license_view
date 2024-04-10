@@ -6,12 +6,11 @@ export const actions = {
     const data = await request.formData();
     const email = data.get("email")?.toString() || "";
     const password = data.get("password")?.toString() || "";
-
     try {
       const user = await locals.pb
         ?.collection("users")
         .authWithPassword(email, password);
-
+      console.log(user);
       const eventData = { email: email };
 
       const event = await locals.pb

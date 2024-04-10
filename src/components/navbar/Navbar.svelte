@@ -16,7 +16,6 @@
   import Separator from "../ui/separator/separator.svelte";
   import DarkModeSwitch from "../toggles/DarkModeSwitch.svelte";
   import { mode } from "mode-watcher";
-  import { alertPanelHide, topPanelHide } from "@/lib/stores";
   import { addUserLog } from "@/lib/addUserLog";
 
   const menuList = [
@@ -39,6 +38,10 @@
     {
       text: "Configuration",
       href: `/configuration/${sessionId}?section=Remote`,
+    },
+    {
+      text: "Reports",
+      href: `/reports/${sessionId}`,
     },
   ];
 
@@ -92,7 +95,7 @@
         />
       </div>
       <div
-        class={`flex flex-row items-center justify-center py-6 px-4  gap-14 `}
+        class={`flex flex-row items-center justify-center py-6 px-4 gap-14 `}
       >
         {#each menuList as item}
           <a

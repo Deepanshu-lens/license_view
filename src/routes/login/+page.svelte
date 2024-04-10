@@ -24,7 +24,7 @@
           class="block dark:hidden"
         />
         <img
-          src={"/images/CoreIP2.jpg"}
+          src={"/images/coreIP2.png"}
           alt="logo"
           height={80}
           width={140}

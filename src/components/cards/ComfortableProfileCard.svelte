@@ -8,9 +8,10 @@
   TimeAgo.addLocale(en);
   const timeAgo = new TimeAgo("en-US");
   // console.log(galleryItem.lastSeen, galleryItem.name);
+  export let isAllFullScreen: boolean;
 </script>
 
-<Card.Root>
+<Card.Root class={isAllFullScreen ? "bg-[#333] text-white border-none" : ""}>
   <Card.Header>
     <Card.Title>
       <div class="flex items-center justify-between">
@@ -34,12 +35,11 @@
     </Card.Description>
   </Card.Header>
   <Card.Content>
-    <!-- <div class="flex flex-col bg-[red]"> -->
     <div class="flex -space-x-2 overflow-hidden">
       {#each galleryItem.images as galleryImage}
         <img
           class={cn(
-            "inline-block h-10 w-10 rounded-full ring-2 ring-white",
+            `inline-block h-10 w-10 rounded-full ring-2 ${isAllFullScreen ? "ring-black" : "ring-white"}`,
             "lg:w-12",
             "3xl:w-16 3xl:h-16",
           )}
@@ -48,6 +48,5 @@
         />
       {/each}
     </div>
-    <!-- </div> -->
   </Card.Content>
 </Card.Root>

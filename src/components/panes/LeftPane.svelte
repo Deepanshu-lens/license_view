@@ -40,6 +40,7 @@
       // HIDE
       showItems = false;
       // localStorage.setItem("leftPaneHide", JSON.stringify($leftPaneHide));
+      // console.log(url);
       if (url === `/session/${sessionId}`) {
         const cameraItems = document.getElementById("camera-items");
         if (cameraItems)
@@ -75,20 +76,20 @@
       <div>
         <div class={`flex flex-row `} id="left-pane-lists-sec">
           <div class="w-full">
-            {#if url === `/session/${sessionId}`}
+            {#if url.includes(`/session/`)}
               <CameraList {showItems} />
-            {:else if url === `/playback/${sessionId}`}
+            {:else if url.includes(`/playback/`)}
               <PlaybackList />
-            {:else if url === `/configuration/${sessionId}`}
+            {:else if url.includes(`/configuration/`)}
               <SettingsList {sessionId} />
-            {:else if url === `/events/${sessionId}`}
+            {:else if url.includes(`/events/`)}
               <EventList />
             {/if}
           </div>
         </div>
       </div>
     {/key}
-    {#if url === `/session/${sessionId}`}
+    {#if url.includes(`/session/`)}
       <LayoutSelection {sessionId} />
     {/if}
   {/if}

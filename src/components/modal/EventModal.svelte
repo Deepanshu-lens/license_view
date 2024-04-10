@@ -28,27 +28,38 @@
       src={"data:image/jpeg;base64," + event.frameImage}
       alt="Team Member"
     />
-    <div class="col-span-1 text-center flex flex-col items-center">
-      <h3 class="text-base">
-        {event.title}
+    <div class="col-span-1 tex-center flex flex-col items-center gap-1">
+      <h3 class={"text-base"}>
+        {#if event.title.includes("car") && event.description !== ""}
+          {event.description} {event.title}
+        {:else}
+          {event.title}
+        {/if}
       </h3>
-      <p class="text-xs">
+      <p class={`text-xs`}>
         Camera {$selectedNode.camera.filter((c) => c.id === event.camera)[0] &&
           $selectedNode.camera.filter((c) => c.id === event.camera)[0].name}
       </p>
-      <p class="text-xs">
-        {event.score}
+      <p class={`text-center text-xs font-bold`}>
+        Detection Score : {event?.score}
+      </p>
+      <p class={`text-center "text-xs`}>
+        {event.matchScore !== 0 &&
+        event.matchScore !== undefined &&
+        event.matchScore !== null
+          ? `Matching Score : ${event?.matchScore}`
+          : "No matches found"}
       </p>
     </div>
     <div class="col-span-2 mx-auto">
-      <p class="text-sm">
+      <p class={`text-sm`}>
         {event.created.toLocaleTimeString("en-US", {
           hour: "2-digit",
           minute: "2-digit",
           second: "2-digit",
         })}
       </p>
-      <p class="text-sm">
+      <p class={"text-sm"}>
         {event.created.toLocaleDateString("en-US", {
           year: "numeric",
           month: "short",
