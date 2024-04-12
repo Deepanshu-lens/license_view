@@ -109,7 +109,7 @@
 </script>
 
 {#if $selectedNode}
-  <StreamView {data} />
+  <StreamView {data} url={data.url ?? "/"} />
 {:else}
   <div class="hidden sm:flex">
     <AddNode />

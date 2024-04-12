@@ -24,7 +24,11 @@
     Menu,
     Filter,
     Minimize,
+    Monitor,
+    X,
   } from "lucide-svelte";
+
+  import { Cctv, LayoutPanelLeft } from "lucide-svelte";
 
   import { cn } from "@/lib/utils";
   import PocketBase from "pocketbase";
@@ -48,8 +52,16 @@
   import TopBar from "../mobile/TopBar.svelte";
   import StreamView from "../mobile/StreamView.svelte";
   import MenuMob from "../mobile/MenuMob.svelte";
+  import NodeSelection from "../node/NodeSelection.svelte";
+  import CameraList from "../lists/CameraList.svelte";
+  import LayoutSelection from "../layouts/LayoutSelection.svelte";
+  import LayoutDialog from "../dialogs/LayoutDialog.svelte";
 
   export let data;
+  export let url;
+  const session = data.session;
+  const sessionId = session.id;
+  const nodes = data.nodes;
   let animateHeader = false;
   let comfort = true;
 
@@ -61,9 +73,10 @@
   let slideRecording = false;
   let recordDropdownOpen = false;
   let snipDropDownOpen = false;
-  let showSearchModal = false;
   let captureRef: HTMLElement;
   let isAllFullScreen = false;
+  let displayLayouts = false;
+  let nodeCameras = false;
 
   const PB = new PocketBase("http://127.0.0.1:5555");
 
@@ -235,6 +248,10 @@
     setTimeout(updateUnknowns, 1000);
   }
 
+  function toggleDisplayLayouts() {
+    displayLayouts = !displayLayouts;
+  }
+
   onMount(async () => {
     galleryItems = await getGallery();
     unknownItems = await getUnknowns();
@@ -248,6 +265,7 @@
     setTimeout(updateGallery, 1000);
     setTimeout(updateUnknowns, 1000);
   });
+  let selectedScreen = null;
 
   //////
   // mob
@@ -259,10 +277,10 @@
   let landscape = writable(false);
   let activeStreamIndex = writable(null);
 
-  $: console.log($showAlerts);
+  let currpanel = 2;
 </script>
 
-{#if !$topPanelHide}
+<!-- {#if !$topPanelHide}
   <div
     class="bg-background w-full hidden sm:flex flex-row items-center justify-end py-4 px-6 border-b z-10 relative"
   >
@@ -487,233 +505,534 @@
       </button>
     </div>
   </div>
-{/if}
+{/if} -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div
-  class={`relative w-full cursor-pointer hidden sm:block`}
-  style={`${!$alertPanelHide && "width: 80%"}`}
-  on:click={() => {
-    !snipDropDownOpen &&
-      !recordDropdownOpen &&
-      topPanelHide.set(!$topPanelHide);
-    localStorage.setItem("topPanelHide", JSON.stringify($topPanelHide));
-    addUserLog(`user set top panel hide to ${$topPanelHide} `);
-  }}
->
+
+<div class="flex">
   <div
-    class={`absolute  w-full rounded-tl-lg rounded-tr-xl pulse-blur
-                z-10  transition-all ease-in-out duration-500 
-                ${!snipDropDownOpen && !recordDropdownOpen ? "hover:backdrop-blur-lg cursor-pointer z-10" : "-z-10"}
-          `}
+    class=" flex flex-col gap-4 items-center justify-center px-4 h-full my-auto"
   >
-    <Menu
-      size={24}
-      class="dark:text-white text-black mx-auto z-20 cursor-pointer"
-    />
-  </div>
-</div>
-<div
-  class={$topPanelHide
-    ? "w-full h-[calc(100vh-76px)] hidden sm:flex items-start justify-between relative"
-    : "w-full hidden sm:flex items-start justify-between h-[calc(100vh-134px)] z-0 relative"}
-  bind:this={captureRef}
->
-  <div
-    class={isAllFullScreen
-      ? "w-full h-screen flex items-center justify-center"
-      : "w-full h-full flex items-center justify-center"}
-  >
-    <StreamLayout {handleSingleSS} {isAllFullScreen} />
-  </div>
-  {#if isAllFullScreen}
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <span
-      class="absolute top-2 left-2 flex items-center gap-2 cursor-pointer bg-[rgba(0,0,0,.5)] text-white z-20"
-      on:click={() => {
-        if (document.fullscreenElement) {
-          document.exitFullscreen();
-          isAllFullScreen = false;
-          addUserLog(`user clicked on minimize fullscreen `);
-        }
-      }}
+    <SearchDialog>
+      <span class="group flex-col flex items-center justify-center gap-1">
+        <button
+          on:click={() => {
+            addUserLog(`user clicked on Search button, top panel`);
+          }}
+          class={`text-black/[.23] h-[40px] w-[40px] rounded-full group border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`}
+          ><Search class="h-[22px] w-[22px]" />
+        </button>
+        <p class="text-xs text-[#015a62] hidden group-hover:block">Search</p>
+      </span>
+    </SearchDialog>
+    <RegisterDialog>
+      <span class="group flex-col flex items-center justify-center gap-1">
+        <button
+          on:click={() =>
+            addUserLog("user clicked on Register button, top panel")}
+          class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`}
+        >
+          <ScanFace class="h-[22px] w-[22px]" />
+        </button>
+        <p class="text-xs text-[#015a62] hidden group-hover:block">Register</p>
+      </span>
+    </RegisterDialog>
+    <a
+      href={fullURL}
+      target="_blank"
+      rel="noreferrer"
+      class="flex items-center justify-center gap-2 cursor-pointer relative lg:scale-95 2xl:scale-100 hover:text-primary"
+      on:click={() => addUserLog("user clicked on exted display, top panel")}
     >
-      <Minimize />
-      Minimize all Fullscreen
+      <span class="group flex-col flex items-center justify-center gap-1">
+        <button
+          on:click={() => (selectedScreen = 3)}
+          class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`}
+          ><Monitor class="h-[22px] w-[22px]" /></button
+        >
+        <p class="text-xs text-[#015a62] hidden group-hover:block">Extend</p>
+      </span>
+    </a>
+    <span class="group flex-col flex items-center justify-center gap-1">
+      <button
+        on:click={() => {
+          recordDropdownOpen = !recordDropdownOpen;
+          snipDropDownOpen = false;
+          addUserLog("user clicked on start recording, top panel ");
+        }}
+        class={!recordDropdownOpen
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`
+          : `relative border-none rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+        ><Disc2 class="h-[22px] w-[22px]" />
+        {#if recordDropdownOpen}
+          <div
+            id="dropdown"
+            class="z-50 dark:text-white text-black flex items-center border justify-center bg-background divide-y divide-gray-100 shadow-dropdown rounded-lg shadow w-40 absolute left-12"
+          >
+            <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
+              <li class="w-full">
+                <button
+                  on:click={() => {
+                    slideRecording = true;
+                  }}
+                  class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
+                >
+                  Current View
+                </button>
+              </li>
+              <li class="w-full">
+                <button
+                  class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
+                >
+                  Selected Screen
+                </button>
+              </li>
+              <li class="w-full">
+                <button
+                  on:click={() => {
+                    slideRecording = true;
+                  }}
+                  class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
+                >
+                  All Screens
+                </button>
+              </li>
+            </ul>
+          </div>
+        {/if}
+      </button>
+      <p
+        class={`text-xs text-[#015a62]  ${recordDropdownOpen ? "block" : "hidden group-hover:block"}`}
+      >
+        Record
+      </p>
     </span>
-  {/if}
-  <!-- {#if !$alertPanelHide} -->
+    <span class="group flex-col flex items-center justify-center gap-1">
+      <button
+        on:click={() => {
+          snipDropDownOpen = !snipDropDownOpen;
+          recordDropdownOpen = false;
+          addUserLog("user clicked on screen snip, top panel ");
+        }}
+        class={!snipDropDownOpen
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white  hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`
+          : ` border-none relative rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+        ><ImageDown class="h-[22px] w-[22px]" />
+        {#if snipDropDownOpen}
+          <div
+            id="dropdown"
+            class="z-50 dark:text-white text-black flex items-center border justify-center bg-background divide-y divide-gray-100 shadow-dropdown rounded-lg shadow w-40 absolute left-12"
+          >
+            <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
+              <li class="w-full">
+                <button
+                  class=" px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
+                  on:click={() => {
+                    captureSlideScreenshot(screens);
+                    addUserLog(
+                      "user selected option currentView for screen snip",
+                    );
+                  }}
+                >
+                  Current View
+                </button>
+              </li>
+              <li class="w-full">
+                <button
+                  class=" px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
+                  on:click={() => {
+                    if ($activeCamera === "") {
+                      toast.warning("Please select a stream to screen snip.");
+                    } else {
+                      handleSingleSS();
+                      addUserLog(
+                        "user selected option Selected Screen for screen snip",
+                      );
+                    }
+                  }}
+                >
+                  Selected Screen
+                </button>
+              </li>
+              <li class="w-full">
+                <button
+                  on:click={() => {
+                    captureAllScreenshot();
+                    addUserLog(
+                      "user selected option all Screen for screen snip",
+                    );
+                  }}
+                  class=" px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
+                >
+                  All Screens
+                </button>
+              </li>
+            </ul>
+          </div>
+        {/if}
+      </button>
+      <p
+        class={`text-xs text-[#015a62]  ${snipDropDownOpen ? "block" : "hidden group-hover:block"}`}
+      >
+        Snip
+      </p>
+    </span>
+    <span class="group flex-col flex items-center justify-center gap-1">
+      <button
+        on:click={() => {
+          alertPanelHide.set(!$alertPanelHide);
+          currpanel = 1;
+          localStorage.setItem(
+            "alertPanelHide",
+            JSON.stringify($alertPanelHide),
+          );
+          addUserLog(`user set alert panel hide to ${$alertPanelHide} `);
+        }}
+        class={$alertPanelHide
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white grid place-items-center`
+          : ` border-none rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+        ><Bell class="h-[22px] w-[22px]" /></button
+      >
+      <p
+        class={`text-xs text-[#015a62]  ${!$alertPanelHide ? "block" : "hidden group-hover:block"}`}
+      >
+        Alerts
+      </p>
+    </span>
+    <span class="group flex-col flex items-center justify-center gap-1">
+      <button
+        disabled={cameraCount === 0}
+        on:click={() => {
+          toggleFullscreen();
+          addUserLog(`user clicked on fulscreen, top panel`);
+        }}
+        class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`}
+        ><Expand class="h-[22px] w-[22px]" /></button
+      >
+      <p class="text-xs text-[#015a62] hidden group-hover:block">Fullscreen</p>
+    </span>
+    <span class="group flex-col flex items-center justify-center gap-1">
+      <button
+        on:click={() => {
+          displayLayouts = !displayLayouts;
+          nodeCameras = false;
+          addUserLog("user clicked display and layouts, left pane");
+        }}
+        class={!displayLayouts
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`
+          : ` border-none relative rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+        ><LayoutPanelLeft class="h-[22px] w-[22px]" />
+        {#if displayLayouts}
+          <span
+            class="z-40 w-[200px] border flex items-center justify-center bg-background dark:text-white text-black divide-y divide-gray-100 shadow-dropdown rounded-lg shadow absolute left-12"
+          >
+            <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
+              <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+              <li
+                class="w-full"
+                on:click={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
+              >
+                <LayoutDialog {toggleDisplayLayouts}>
+                  <button
+                    class="block rounded-md px-4 py-2 text-center hover:bg-[rgba(92,75,221,.1)] dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
+                  >
+                    Manage Screen layouts
+                  </button>
+                </LayoutDialog>
+              </li>
+              <li class="w-full">
+                <button
+                  class="rounded-md cursor-not-allowed text-center block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
+                >
+                  Manage Displays
+                </button>
+              </li>
+            </ul>
+          </span>
+        {/if}
+      </button>
+      <p
+        class={`text-xs text-[#015a62]  ${displayLayouts ? "block" : "hidden group-hover:block"}`}
+      >
+        Layouts
+      </p>
+    </span>
+    <span class="group flex-col flex items-center justify-center gap-1">
+      <button
+        on:click={() => {
+          nodeCameras = !nodeCameras;
+          displayLayouts = false;
+          addUserLog("user clicked nodes and cameras, left pane");
+        }}
+        class={!nodeCameras
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`
+          : ` border-none rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center relative`}
+        ><Cctv class="h-[22px] w-[22px]" />
+
+        {#if nodeCameras}
+          <span
+            class="z-40 border w-[200px] flex items-center justify-center bg-background dark:text-white text-black divide-y divide-gray-100 shadow-dropdown rounded-lg shadow absolute left-12"
+          >
+            <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
+              <li class="w-full">
+                <button
+                  on:click={() =>
+                    (window.location.href = `/configuration/${sessionId}?section=Camera`)}
+                  class="rounded-md block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
+                >
+                  Manage existing Nodes
+                </button>
+              </li>
+              <li class="w-full">
+                <button
+                  on:click={() =>
+                    (window.location.href = `/configuration/${sessionId}?section=Camera`)}
+                  class="rounded-md block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
+                >
+                  Manage existing Cameras
+                </button>
+              </li>
+            </ul>
+          </span>
+        {/if}
+      </button>
+      <p
+        class={`text-xs text-[#015a62]  ${nodeCameras ? "block" : "hidden group-hover:block"}`}
+      >
+        Manage
+      </p>
+    </span>
+  </div>
+
   <div
-    class={`h-full border-solid 
-           border-l-[1px] 
-           transition-width ease-in-out duration-500 overflow-y-scroll
-           ${!$alertPanelHide ? "w-1/4" : "w-0"}
-           ${isAllFullScreen && "border-none"}`}
+    class={"w-full h-[calc(100vh-76px)] hidden sm:flex items-start justify-end relative z-10"}
+    bind:this={captureRef}
   >
     <div
-      class={`backdrop-filter  
-            z-10 trasition ease-in-out w-full max-w-md 
-           duration-200 ${
-             animateHeader
-               ? "shadow-xl rounded-b-md backdrop-blur supports-[backdrop-filter]:bg-background/60 border-border/40 bg-background/95 "
-               : "rounded-none border-b"
-           }
-           ${isAllFullScreen && "border-none"}`}
+      class={isAllFullScreen
+        ? "w-full h-screen flex items-center justify-center"
+        : "w-full h-full flex items-center justify-center"}
     >
-      <div
-        class={`flex items-center w-full
-     justify-between  px-4  ${
-       animateHeader ? "my-3  text-sm " : "my-3 font-medium"
-     } trasition ease-in-out duration-200`}
-      >
-        <div
-          class={`flex justify-center items-center gap-2 ${isAllFullScreen && "text-white text-xl"}`}
-        >
-          <Bell size={18} />
-          <h3>Alerts</h3>
-        </div>
-        <div
-          class=" dark:text-white flex gap-2 items-center cursor-pointer text-sm relative"
-        >
-          <!-- <AlertSettings> -->
-          <Settings size={18} />
-          <!-- </AlertSettings> -->
-          <Filter size={18} />
-        </div>
-      </div>
+      <StreamLayout {handleSingleSS} {isAllFullScreen} />
     </div>
+
+    {#if isAllFullScreen}
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <span
+        class="absolute top-2 left-2 flex items-center gap-2 cursor-pointer bg-[rgba(0,0,0,.5)] text-white z-20"
+        on:click={() => {
+          if (document.fullscreenElement) {
+            document.exitFullscreen();
+            isAllFullScreen = false;
+            addUserLog(`user clicked on minimize fullscreen `);
+          }
+        }}
+      >
+        <Minimize />
+        Minimize all Fullscreen
+      </span>
+    {/if}
+
+    {#if !$alertPanelHide}
+      <span class=" -rotate-90 absolute right-[11.8rem] top-44 z-[999] flex">
+        <button
+          on:click={() => (currpanel = 1)}
+          class={`cursor-pointer bg-white dark:bg-black w-[100px] h-[32px] rounded-t-xl text-black dark:text-white z-[800] flex items-center justify-center gap-2 shad text-sm ${currpanel === 1 && "font-bold"}`}
+          >Alerts <button
+            on:click={() => {
+              currpanel = 2;
+              alertPanelHide.set(true);
+            }}><X class="h-4 w-4" /></button
+          >
+        </button>
+        <button
+          on:click={() => (currpanel = 2)}
+          class={` cursor-pointer bg-white dark:bg-black w-[100px] h-[32px] rounded-t-xl text-black dark:text-white shad z-[800] flex items-center justify-center gap-2 text-sm ${currpanel === 2 && "font-bold"}`}
+          >Cameras
+        </button>
+      </span>
+    {/if}
+
     <div
-      class="flex flex-row items-center justify-center 2xl:gap-4 gap-2 mt-4 px-2"
+      class={`h-full border-solid 
+         border-l-[1px] 
+         transition-width ease-in-out duration-500 overflow-y-scroll z-[998]
+         w-1/4 relative`}
     >
-      <button
-        class={!comfort
-          ? `text-xs 2xl:px-8 xl:px-4 py-2 rounded-md w-full ${isAllFullScreen ? "bg-[#333] text-white border-none" : "bg-[white] dark:bg-[#333] dark:text-white text-[#015A62]"}  dark:border-none mb-2 border border-solid border-[#015A62]`
-          : `bg-[#015A62] text-xs 2xl:px-8 xl:px-3 py-2 rounded-md mb-2 text-white w-full`}
-        on:click={() => (comfort = true)}
-      >
-        Comfortable
-      </button>
-      <button
-        class={comfort
-          ? `text-xs  ${isAllFullScreen ? "bg-[#333] text-white border-none" : "bg-[white] dark:bg-[#333] dark:text-white text-[#015A62]"} 2xl:px-8 xl:px-4 py-2 rounded-md w-full bg-[white] dark:bg-[#333] dark:border-none mb-2 border border-solid border-[#015A62]`
-          : `bg-[#015A62] text-xs 2xl:px-8 xl:px-3 py-2 rounded-md mb-2 text-white w-full`}
-        on:click={() => (comfort = false)}
-      >
-        Informative
-      </button>
-    </div>
-    {#if comfort}
-      <div class="m-4 flex flex-col gap-2">
-        {#each galleryItems as galleryItem}
-          <ComfortableProfileCard {galleryItem} {isAllFullScreen} />
-        {/each}
-      </div>
-      <Accordion.Root class="m-4">
-        <Accordion.Item value="item-1">
-          <Accordion.Trigger>Unknowns</Accordion.Trigger>
-          <Accordion.Content>
-            {#each unknownItems as galleryItem}
+      {#if !$alertPanelHide && currpanel === 1}
+        <div
+          class={`backdrop-filter  
+          z-10 trasition ease-in-out w-full max-w-md 
+         duration-200 ${
+           animateHeader
+             ? "shadow-xl rounded-b-md backdrop-blur supports-[backdrop-filter]:bg-background/60 border-border/40 bg-background/95 "
+             : "rounded-none border-b"
+         }
+         ${isAllFullScreen && "border-none"}`}
+        >
+          <div
+            class={`flex items-center w-full
+   justify-between  px-4  ${
+     animateHeader ? "my-3  text-sm " : "my-3 font-medium"
+   } trasition ease-in-out duration-200`}
+          >
+            <div
+              class={`flex justify-center items-center gap-2 ${isAllFullScreen && "text-white text-xl"}`}
+            >
+              <Bell size={18} />
+              <h3>Alerts</h3>
+            </div>
+            <div
+              class=" dark:text-white flex gap-2 items-center cursor-pointer text-sm relative"
+            >
+              <!-- <AlertSettings> -->
+              <Settings size={18} />
+              <!-- </AlertSettings> -->
+              <Filter size={18} />
+            </div>
+          </div>
+        </div>
+        <div
+          class="flex flex-row items-center justify-center 2xl:gap-4 gap-2 mt-4 px-2"
+        >
+          <button
+            class={!comfort
+              ? `text-xs 2xl:px-8 xl:px-4 py-2 rounded-md w-full ${isAllFullScreen ? "bg-[#333] text-white border-none" : "bg-[white] dark:bg-[#333] dark:text-white text-[#015A62]"}  dark:border-none mb-2 border border-solid border-[#015A62]`
+              : `bg-[#015A62] text-xs 2xl:px-8 xl:px-3 py-2 rounded-md mb-2 text-white w-full`}
+            on:click={() => (comfort = true)}
+          >
+            Comfortable
+          </button>
+          <button
+            class={comfort
+              ? `text-xs  ${isAllFullScreen ? "bg-[#333] text-white border-none " : "bg-[white] dark:bg-[#333] dark:text-white text-[#015A62]"} 2xl:px-8 xl:px-4 py-2 rounded-md w-full dark:border-none mb-2 border border-solid border-[#015A62]`
+              : `bg-[#015A62] text-xs 2xl:px-8 xl:px-3 py-2 rounded-md mb-2 text-white w-full`}
+            on:click={() => (comfort = false)}
+          >
+            Informative
+          </button>
+        </div>
+        {#if comfort}
+          <div class="m-4 flex flex-col gap-2">
+            {#each galleryItems as galleryItem}
               <ComfortableProfileCard {galleryItem} {isAllFullScreen} />
             {/each}
-          </Accordion.Content>
-        </Accordion.Item>
-      </Accordion.Root>
-    {:else}
-      <ul class="overflow-y-scroll h-[calc(100vh-75px]">
-        {#if $events.length > 0}
-          <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-          {#each $events as event}
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <li
-              class="w-full fade-in-15 transition-all duration-200"
-              on:click={() => {
-                openEventDialog(event);
-                addUserLog(`user clicked on aler panel event`);
-              }}
-            >
-              <article
-                class={`relative items-center gap-4 m-4 p-4 bg-background
-                   flex flex-col 
-               rounded-xl shadow-md text-base border 
-               ${isAllFullScreen ? "bg-black text-white " : "hover:scale-[1.01] dark:shadow-slate-800 hover:shadow-lg "}
-               `}
-              >
-                <img
-                  class="object-cover w-24 h-24 rounded-md col-span-1"
-                  src={"data:image/jpeg;base64," + event.frameImage}
-                  alt="Team Member"
-                />
-                {#if event.title.includes("car") && event.description !== ""}
-                  <CarDetailsDialog
-                    plateImage={event.videoUrl}
-                    plateNumber={event.description}
-                    carColor={event.title.replace(" car", "")}
-                    fullImage={event.frameImage}
-                    ><img
-                      class="object-cover w-64 h-16 rounded-md col-span-1"
-                      src={"data:image/jpeg;base64," + event.videoUrl}
+          </div>
+          <Accordion.Root class="m-4">
+            <Accordion.Item value="item-1">
+              <Accordion.Trigger>Unknowns</Accordion.Trigger>
+              <Accordion.Content>
+                {#each unknownItems as galleryItem}
+                  <ComfortableProfileCard {galleryItem} {isAllFullScreen} />
+                {/each}
+              </Accordion.Content>
+            </Accordion.Item>
+          </Accordion.Root>
+        {:else}
+          <ul class="overflow-y-scroll h-[calc(100vh-75px]">
+            {#if $events.length > 0}
+              <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+              {#each $events as event}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <li
+                  class="w-full fade-in-15 transition-all duration-200"
+                  on:click={() => {
+                    openEventDialog(event);
+                    addUserLog(`user clicked on aler panel event`);
+                  }}
+                >
+                  <article
+                    class={`relative items-center gap-4 m-4 p-4 bg-background
+                 flex flex-col 
+             rounded-xl shadow-md text-base border 
+             ${isAllFullScreen ? "bg-black text-white " : "hover:scale-[1.01] dark:shadow-slate-800 hover:shadow-lg "}
+             `}
+                  >
+                    <img
+                      class="object-cover w-24 h-24 rounded-md col-span-1"
+                      src={"data:image/jpeg;base64," + event.frameImage}
                       alt="Team Member"
                     />
-                  </CarDetailsDialog>
-                {/if}
-                <div
-                  class="col-span-1 tex-center flex flex-col items-center gap-1"
-                >
-                  <h3 class={`${isAllFullScreen ? "text-2xl" : "text-base"}`}>
                     {#if event.title.includes("car") && event.description !== ""}
-                      {event.description} {event.title}
-                    {:else}
-                      {event.title}
+                      <CarDetailsDialog
+                        plateImage={event.videoUrl}
+                        plateNumber={event.description}
+                        carColor={event.title.replace(" car", "")}
+                        fullImage={event.frameImage}
+                        ><img
+                          class="object-cover w-64 h-16 rounded-md col-span-1"
+                          src={"data:image/jpeg;base64," + event.videoUrl}
+                          alt="Team Member"
+                        />
+                      </CarDetailsDialog>
                     {/if}
-                  </h3>
-                  <p class={`${isAllFullScreen ? "text-xl" : "text-xs"}`}>
-                    Camera {$selectedNode.camera.filter(
-                      (c) => c.id === event.camera,
-                    )[0] &&
-                      $selectedNode.camera.filter(
-                        (c) => c.id === event.camera,
-                      )[0].name}
-                  </p>
-                  <p
-                    class={`text-center ${isAllFullScreen ? "text-xl font-bold" : "text-xs font-bold"}`}
-                  >
-                    Detection Score : {event?.score}
-                  </p>
-                  <p
-                    class={`text-center ${isAllFullScreen ? "text-xl" : "text-xs"}`}
-                  >
-                    {event.matchScore !== 0 &&
-                    event.matchScore !== undefined &&
-                    event.matchScore !== null
-                      ? `Matching Score : ${event?.matchScore}`
-                      : "No matches found"}
-                  </p>
-                </div>
-                <div class="col-span-2 mx-auto">
-                  <p class={`${isAllFullScreen ? "text-2xl" : "text-sm"}`}>
-                    {event.created.toLocaleTimeString("en-US", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                    })}
-                  </p>
-                  <p class={`${isAllFullScreen ? "text-2xl" : "text-sm"}`}>
-                    {event.created.toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-              </article>
-            </li>
-          {/each}
+                    <div
+                      class="col-span-1 tex-center flex flex-col items-center gap-1"
+                    >
+                      <h3
+                        class={`${isAllFullScreen ? "text-2xl" : "text-base"}`}
+                      >
+                        {#if event.title.includes("car") && event.description !== ""}
+                          {event.description} {event.title}
+                        {:else}
+                          {event.title}
+                        {/if}
+                      </h3>
+                      <p class={`${isAllFullScreen ? "text-xl" : "text-xs"}`}>
+                        Camera {$selectedNode.camera.filter(
+                          (c) => c.id === event.camera,
+                        )[0] &&
+                          $selectedNode.camera.filter(
+                            (c) => c.id === event.camera,
+                          )[0].name}
+                      </p>
+                      <p
+                        class={`text-center ${isAllFullScreen ? "text-xl font-bold" : "text-xs font-bold"}`}
+                      >
+                        Detection Score : {event?.score}
+                      </p>
+                      <p
+                        class={`text-center ${isAllFullScreen ? "text-xl" : "text-xs"}`}
+                      >
+                        {event.matchScore !== 0 &&
+                        event.matchScore !== undefined &&
+                        event.matchScore !== null
+                          ? `Matching Score : ${event?.matchScore}`
+                          : "No matches found"}
+                      </p>
+                    </div>
+                    <div class="col-span-2 mx-auto">
+                      <p class={`${isAllFullScreen ? "text-2xl" : "text-sm"}`}>
+                        {event.created.toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                        })}
+                      </p>
+                      <p class={`${isAllFullScreen ? "text-2xl" : "text-sm"}`}>
+                        {event.created.toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </article>
+                </li>
+              {/each}
+            {/if}
+          </ul>
         {/if}
-      </ul>
-    {/if}
+      {:else}
+        <NodeSelection {nodes} {url} />
+        <CameraList showItems={true} />
+      {/if}
+    </div>
   </div>
-  <!-- {/if} -->
 </div>
 
 {#if selectedEvent}
@@ -744,3 +1063,9 @@
     bind:activeStreamIndex={$activeStreamIndex}
   />
 </div>
+
+<style>
+  .shad {
+    box-shadow: -3px 3px 4px 0px #0000001f;
+  }
+</style>

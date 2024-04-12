@@ -92,7 +92,7 @@
 </script>
 
 <main class="hidden sm:block">
-  <EventPanel />
+  <EventPanel {data} />
 </main>
 <main class="block sm:hidden">
   <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">

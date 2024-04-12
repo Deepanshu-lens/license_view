@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Camera, SelectedNode } from "@/types";
-  import { Cctv, Search } from "lucide-svelte";
+  import { Cctv, Command, Search } from "lucide-svelte";
   import AddCameraDialog from "../dialogs/AddCameraDialog.svelte";
   import CameraInfoCard from "../cards/CameraInfoCard.svelte";
   import Sortable from "sortablejs";
@@ -34,6 +34,13 @@
   //   return array;
   // }
 
+  function handleEscape(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+      const input = document.getElementById("searchInput") as HTMLInputElement;
+      input.blur(); // Remove focus from the input
+    }
+  }
+
   onMount(async function () {
     if (cameraItems)
       Sortable.create(cameraItems, {
@@ -42,6 +49,23 @@
         dragClass: "dragged",
         handle: ".my-handle",
       });
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Check if Command + / or Ctrl + / is pressed
+      if ((event.metaKey || event.ctrlKey) && event.key === "/") {
+        event.preventDefault(); // Prevent the default action to avoid any conflicts
+        const input = document.getElementById("searchInput");
+        input?.focus();
+      }
+    };
+
+    // Add the event listener to the window object
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      // Cleanup the event listener when the component is destroyed
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   });
 
   $: {
@@ -88,13 +112,15 @@
       >
         <Search size={18} />
       </span>
-      <Input
-        type="text"
-        name="search-input"
-        placeholder="Search Cameras"
-        autocomplete="off"
-        autocapitalize="off"
-        class={`
+      <span class="relative">
+        <Input
+          id="searchInput"
+          type="text"
+          name="search-input"
+          placeholder="Search"
+          autocomplete="off"
+          autocapitalize="off"
+          class={`
                 bg-transparent transition-all duration-100
                 ${!showItems ? "opacity-0" : "opacity-100"}
                 border border-gray-300 
@@ -102,9 +128,16 @@
                 text-sm sm:text-[10px] md:text-xs lg:text-sm xl:text-md rounded-lg
                 block py-2.5 pl-10 box-border dark:focus:border-black
                 dark:active:border-black
-          `}
-        on:input={filterItems}
-      />
+                `}
+          on:input={filterItems}
+          on:keydown={handleEscape}
+        />
+        <span
+          class="flex absolute items-center gap-1 text-sm top-1/2 -translate-y-1/2 right-2 text-gray-900 dark:text-gray-300"
+        >
+          <Command class="h-4 w-4 text-gray-900 dark:text-gray-300" /> /
+        </span>
+      </span>
 
       <AddCameraDialog sNode={""}>
         <svg
@@ -130,7 +163,7 @@
     <!-- START Camera Cards -->
     {#if filteredCameras.length > 0}<div
         id="camera-items"
-        class={`flex flex-col gap-4 w-full max-w-screen-md mx-auto max-h-[calc(100vh-335px)] overflow-y-auto overflow-x-clip
+        class={`flex flex-col gap-4 w-full max-w-screen-md mx-auto max-h-[calc(100vh-205px)] overflow-y-auto overflow-x-clip
                   transition-all duration-100 fade-in-0
                   p-4 
                   rounded-lg 

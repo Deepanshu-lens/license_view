@@ -8,12 +8,12 @@
   import { ChevronLeft, ScanFace } from "lucide-svelte";
   import GalleryView from "@/components/gallery/mobile/GalleryView.svelte";
   import { selectedNode } from "@/lib/stores";
+  import GalleryPanel from "@/components/gallery/GalleryPanel.svelte";
 
   let gallery: Gallery[] = [];
   const PB = new PocketBase("http://127.0.0.1:5555");
   async function getData(): Promise<Gallery[]> {
     const data = await PB.collection("faceGallery").getFullList();
-    console.log(data[0]?.name);
 
     return data.map(
       (v) =>
@@ -31,8 +31,8 @@
   });
 </script>
 
-<div class="container p-2 mx-auto hidden sm:block">
-  <div class="flex flex-row items-center justify-between px-4">
+<!-- <div class="p-2 mx-auto hidden sm:block"> -->
+<!-- <div class="flex flex-row items-center justify-between px-4">
     <h1
       class="text-2xl font-bold dark:text-[#e0e0e0] text-[#212427] flex justify-center pt-2 pb-4"
     >
@@ -48,9 +48,14 @@
         Register
       </button>
     </RegisterDialog>
-  </div>
-  {#if gallery && gallery.length > 0}<DataTable data={gallery} />{/if}
+  </div> -->
+<div class="overflow-y-scroll max-h-[99vh] hidden sm:block w-full">
+  {#if gallery && gallery.length > 0}
+    <GalleryPanel {gallery} />
+    <!-- <DataTable data={gallery} /> -->
+  {/if}
 </div>
+<!-- </div> -->
 <div class="block sm:hidden">
   <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">
     <div class="top-config w-full">

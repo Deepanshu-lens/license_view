@@ -48,8 +48,8 @@
   class={cn(
     `mx-auto w-full h-full relative 
      rounded-lg  flex items-center justify-center`,
-    !videoStarted &&
-      "min-w-full  h-full flex-shrink-0 bg-gradient-to-r from-slate-300 via-slate-500 to-slate-700",
+    // !videoStarted &&
+    "min-w-full  h-full flex-shrink-0 bg-gradient-to-r from-slate-300 via-slate-500 to-slate-700",
     !$fullscreen &&
       ($activeCamera === camera.id
         ? `animate-gradient-border border-4`

@@ -13,8 +13,6 @@
   export let data: PageServerData;
   let nodes: Node[] = [];
 
-  console.log(data);
-
   async function getNodes(): Promise<Node[]> {
     if (data?.session?.node?.length > 0) {
       const nodes = await PB.collection("node").getFullList(200, {
@@ -49,8 +47,8 @@
   });
 </script>
 
-<main class="hidden sm:block">
-  <PlaybackPanel webmFiles={data.webmFiles} />
+<main class="hidden sm:block w-full h-screen">
+  <PlaybackPanel webmFiles={data.webmFiles} {data} />
 </main>
 <main class="block sm:hidden">
   <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">

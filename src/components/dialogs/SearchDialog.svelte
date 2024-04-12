@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import * as Dialog from "@/components/ui/dialog";
   import { Button } from "../ui/button";
   import { Input } from "../ui/input";
@@ -30,7 +30,6 @@
       reader.readAsDataURL(file);
     });
   }
-
   let loading = false;
   const onFileUpload = async (e) => {
     const file = e.target.files[0];

@@ -22,7 +22,7 @@
   let sb = 1;
 </script>
 
-<section class="flex items-center w-full justify-between p-4">
+<section class="flex items-center w-full justify-between pl-0 p-4">
   <div class="left">
     <h2 class="font-medium text-xl text-[#323232]">
       {selectedScreen === 1

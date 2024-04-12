@@ -18,7 +18,7 @@ export const activeCamera = writable("");
 
 export const fullscreen = persistedWritable("fullscreen", false);
 export const leftPaneHide = persistedWritable("leftPaneHide", true);
-export const topPanelHide = persistedWritable("topPanelHide", false);
+export const topPanelHide = persistedWritable("topPanelHide", true);
 export const alertPanelHide = persistedWritable("alertPanelHide", true);
 
 function persistedWritable(key: string, defaultValue: boolean) {

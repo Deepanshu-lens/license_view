@@ -7,7 +7,18 @@
   import { onMount } from "svelte";
   import { leftPaneHide, selectedNode, topPanelHide } from "@/lib/stores";
   import LayoutSelection from "../layouts/LayoutSelection.svelte";
-  import { Menu } from "lucide-svelte";
+  import {
+    Bell,
+    Cctv,
+    Disc2,
+    Expand,
+    ImageDown,
+    LayoutPanelLeft,
+    Menu,
+    Monitor,
+    ScanFace,
+    Search,
+  } from "lucide-svelte";
   import { cn } from "@/lib";
   import PlaybackList from "../lists/PlaybackList.svelte";
   import { addUserLog } from "@/lib/addUserLog";
@@ -17,6 +28,7 @@
   export let sessionId: string;
   // export let user;
   let showItems = true;
+  let selectedScreen = 1;
 
   const toggleVisibility = () => {
     console.log("Toggle Visibility", $leftPaneHide);
@@ -60,10 +72,9 @@
 
 <div
   id="node-view"
-  class={`left hidden sm:flex flex-col parent  
-      dark:border-[#292929]  border-r-[1px]  h-[calc(100vh-75px)]
+  class={`left hidden sm:flex flex-col parent h-[calc(100vh-75px)] ${!url.includes("session") ? "dark:border-[#292929]  border-r-[1px]" : "border-none"}
       transition-width ease-in-out duration-300
-      ${!$leftPaneHide ? "w-72" : "w-0"}`}
+      ${!$leftPaneHide ? `${url.includes("session") ? "w-[75px]" : "w-72"}` : "w-0"}`}
   in:fade={{ delay: 600, duration: 300 }}
   out:fade={{ delay: 0, duration: 300 }}
 >
@@ -73,19 +84,17 @@
 
   {#if $selectedNode}
     {#key url}
-      <div>
-        <div class={`flex flex-row `} id="left-pane-lists-sec">
-          <div class="w-full">
-            {#if url.includes(`/session/`)}
-              <CameraList {showItems} />
-            {:else if url.includes(`/playback/`)}
-              <PlaybackList />
-            {:else if url.includes(`/configuration/`)}
-              <SettingsList {sessionId} />
-            {:else if url.includes(`/events/`)}
-              <EventList />
-            {/if}
-          </div>
+      <div class={`flex flex-row h-full`} id="left-pane-lists-sec">
+        <div class="w-full h-full">
+          {#if url.includes(`/session/`)}
+            <CameraList {showItems} />
+          {:else if url.includes(`/playback/`)}
+            <PlaybackList />
+          {:else if url.includes(`/configuration/`)}
+            <SettingsList {sessionId} />
+          {:else if url.includes(`/events/`)}
+            <EventList />
+          {/if}
         </div>
       </div>
     {/key}
@@ -107,7 +116,7 @@
 >
   <div
     class={` ${url === `/session/${sessionId}` && "pulse-blur"} absolute -top-[1px] cursor-pointer  h-full flex items-center ${url.includes(`/configuration/${sessionId}`) && $leftPaneHide && "left-0"} ${url.includes(`/configuration/${sessionId}`) && !$leftPaneHide && "right-2"}
-     z-40 hover:backdrop-blur-lg transition-all ease-in-out duration-500 ${url === `/session/${sessionId}` && !$topPanelHide && "rounded-tl-lg rounded-bl-lg "}`}
+     z-40 hover:backdrop-blur-lg transition-all ease-in-out duration-400 ${url === `/session/${sessionId}` && !$topPanelHide && "rounded-tl-lg rounded-bl-lg "}`}
   >
     <Menu
       size={24}
