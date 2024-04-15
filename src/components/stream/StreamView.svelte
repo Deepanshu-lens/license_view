@@ -914,9 +914,7 @@
             <div
               class=" dark:text-white flex gap-2 items-center cursor-pointer text-sm relative"
             >
-              <!-- <AlertSettings> -->
               <Settings size={18} />
-              <!-- </AlertSettings> -->
               <Filter size={18} />
             </div>
           </div>
@@ -971,14 +969,14 @@
                   }}
                 >
                   <article
-                    class={`relative items-center gap-4 m-4 p-4 bg-background
-                 flex flex-col 
+                    class={`relative items-center gap-2 mx-2 my-4 p-2
+                 flex bg-[#f9f9f9]
              rounded-xl shadow-md text-base border 
              ${isAllFullScreen ? "bg-black text-white " : "hover:scale-[1.01] dark:shadow-slate-800 hover:shadow-lg "}
              `}
                   >
                     <img
-                      class="object-cover w-24 h-24 rounded-md col-span-1"
+                      class="object-cover w-16 h-16 rounded-md"
                       src={"data:image/jpeg;base64," + event.frameImage}
                       alt="Team Member"
                     />
@@ -995,11 +993,9 @@
                         />
                       </CarDetailsDialog>
                     {/if}
-                    <div
-                      class="col-span-1 tex-center flex flex-col items-center gap-1"
-                    >
+                    <div>
                       <h3
-                        class={`${isAllFullScreen ? "text-2xl" : "text-base"}`}
+                        class={`${isAllFullScreen ? "text-2xl" : "font-semibold text-sm"}`}
                       >
                         {#if event.title.includes("car") && event.description !== ""}
                           {event.description} {event.title}
@@ -1007,7 +1003,9 @@
                           {event.title}
                         {/if}
                       </h3>
-                      <p class={`${isAllFullScreen ? "text-xl" : "text-xs"}`}>
+                      <p
+                        class={`${isAllFullScreen ? "text-xl" : "text-xs text-black/.7"}`}
+                      >
                         Camera {$selectedNode.camera.filter(
                           (c) => c.id === event.camera,
                         )[0] &&
@@ -1015,36 +1013,38 @@
                             (c) => c.id === event.camera,
                           )[0].name}
                       </p>
-                      <p
-                        class={`text-center ${isAllFullScreen ? "text-xl font-bold" : "text-xs font-bold"}`}
+                      <span
+                        class="flex items-center justify-between border-b border-solid border-[#1c1c1c]/.1 gap-2"
                       >
-                        Detection Score : {event?.score}
-                      </p>
-                      <p
-                        class={`text-center ${isAllFullScreen ? "text-xl" : "text-xs"}`}
-                      >
-                        {event.matchScore !== 0 &&
-                        event.matchScore !== undefined &&
-                        event.matchScore !== null
-                          ? `Matching Score : ${event?.matchScore}`
-                          : "No matches found"}
-                      </p>
-                    </div>
-                    <div class="col-span-2 mx-auto">
-                      <p class={`${isAllFullScreen ? "text-2xl" : "text-sm"}`}>
-                        {event.created.toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
-                        })}
-                      </p>
-                      <p class={`${isAllFullScreen ? "text-2xl" : "text-sm"}`}>
-                        {event.created.toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </p>
+                        <p class="text-[10px] text-[#D28E3D] font-medium">
+                          {event.matchScore !== 0 &&
+                          event.matchScore !== undefined &&
+                          event.matchScore !== null
+                            ? `Match Score : ${event?.matchScore}`
+                            : "No matches found"}
+                        </p>
+                        <p class="text-[10px] font-semibold">{event?.score}</p>
+                      </span>
+                      <span class="flex items-center justify-between gap-2">
+                        <p
+                          class={`${isAllFullScreen ? "text-xl" : "text-[10px]"}`}
+                        >
+                          {event.created.toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </p>
+                        <p
+                          class={`${isAllFullScreen ? "text-2xl" : "text-[10px]"}`}
+                        >
+                          {event.created.toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit",
+                          })}
+                        </p>
+                      </span>
                     </div>
                   </article>
                 </li>

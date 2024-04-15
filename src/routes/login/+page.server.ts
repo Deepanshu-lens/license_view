@@ -10,7 +10,7 @@ export const actions = {
       const user = await locals.pb
         ?.collection("users")
         .authWithPassword(email, password);
-      console.log(user);
+      // console.log(user);
       const eventData = { email: email };
 
       const event = await locals.pb
