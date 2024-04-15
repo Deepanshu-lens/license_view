@@ -5,6 +5,7 @@
   import TimeAgo from "javascript-time-ago";
   import en from "javascript-time-ago/locale/en";
   import { ScanFace } from "lucide-svelte";
+  import RegisterDialog from "../dialogs/RegisterDialog.svelte";
   TimeAgo.addLocale(en);
   const timeAgo = new TimeAgo("en-US");
   export let gallery: Gallery;
@@ -15,17 +16,26 @@
     <div
       class="flex flex-col gap-4 items-center justify-center px-4 h-[calc(100vh-75px)] my-auto"
     >
-      <button
-        on:click={() => {
-          addUserLog(`user clicked on Search button, top panel`);
-        }}
-        class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`}
-        ><ScanFace class="h-[22px] w-[22px]" /></button
-      >
+      <RegisterDialog>
+        <span class="group flex-col flex items-center justify-center gap-0.5">
+          <button
+            on:click={() =>
+              addUserLog("user clicked on Register button, top panel")}
+            class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+          >
+            <ScanFace class="h-[22px] w-[22px]" />
+          </button>
+          <p class="text-xs group-hover:text-[#015a62] text-black/.23">
+            Register
+          </p>
+        </span>
+      </RegisterDialog>
     </div>
     <div class="flex flex-wrap gap-6 p-10 h-full">
       {#each gallery as person}
-        <div class="w-[285px] h-[170px] bg-white shad rounded-lg p-2">
+        <div
+          class="w-[300px] h-[190px] bg-white dark:bg-[#333] shad dark:shadow-none rounded-lg p-3"
+        >
           <span class="flex items-center justify-between">
             <p class="tex-tsm font-semibold">{person.name}</p>
             <span

@@ -123,17 +123,25 @@
     } else if (
       streamCount !== 0 &&
       maxStreamsPerPage !== 10 &&
-      maxStreamsPerPage !== 13
+      maxStreamsPerPage !== 13 &&
+      maxStreamsPerPage !== 5 &&
+      maxStreamsPerPage !== 7
     ) {
       const squareRoot = Math.ceil(Math.sqrt(maxStreamsPerPage));
       layoutColumns = squareRoot;
       layoutRows = squareRoot;
     } else if (
-      streamCount != 0 &&
-      (maxStreamsPerPage === 10 || maxStreamsPerPage === 13)
+      streamCount !== 0 &&
+      maxStreamsPerPage !== 5 &&
+      (maxStreamsPerPage === 10 ||
+        maxStreamsPerPage === 13 ||
+        maxStreamsPerPage === 7)
     ) {
       layoutColumns = 4;
       layoutRows = 4;
+    } else if (streamCount !== 0 && maxStreamsPerPage === 5) {
+      layoutColumns = 3;
+      layoutRows = 3;
     }
     totalPages =
       maxStreamsPerPage === 10
@@ -163,9 +171,11 @@
               `grid gap-1 w-full h-full ${$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : !$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-134px)]" : isAllFullScreen ? "max-h-screen" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
               $selectedNode.maxStreamsPerPage === 13 && "grid-area-13",
               $selectedNode.maxStreamsPerPage === 10 && "grid-area-10",
+              $selectedNode.maxStreamsPerPage === 5 && "grid-area-5",
+              $selectedNode.maxStreamsPerPage === 7 && "grid-area-7",
             )}
           >
-            {#each Array($selectedNode.maxStreamsPerPage !== 0 ? $selectedNode.maxStreamsPerPage : layoutRows * layoutColumns) as _, slotIndex}
+            {#each Array($selectedNode.maxStreamsPerPage !== 0 && $selectedNode.maxStreamsPerPage !== 5 && $selectedNode.maxStreamsPerPage !== 7 ? $selectedNode.maxStreamsPerPage : layoutRows * layoutColumns) as _, slotIndex}
               {#if pageIndex * $selectedNode.maxStreamsPerPage + slotIndex < streamCount}
                 <!-- svelte-ignore a11y-no-static-element-interactions -->
                 {#key pageIndex * $selectedNode.maxStreamsPerPage + slotIndex}
@@ -198,7 +208,13 @@
                         : $selectedNode.maxStreamsPerPage === 10 &&
                             slotIndex === 1
                           ? "grid-area: bigCell2"
-                          : ""}
+                          : $selectedNode.maxStreamsPerPage === 5 &&
+                              slotIndex === 0
+                            ? "grid-area: bigCell1"
+                            : $selectedNode.maxStreamsPerPage === 7 &&
+                                slotIndex === 0
+                              ? "grid-area: bigCell1"
+                              : ""}
                   >
                     <Stream
                       videoElement={videos[
@@ -325,7 +341,13 @@
                       : $selectedNode.maxStreamsPerPage === 10 &&
                           slotIndex === 1
                         ? "grid-area: bigCell2"
-                        : ""}
+                        : $selectedNode.maxStreamsPerPage === 5 &&
+                            slotIndex === 0
+                          ? "grid-area: bigCell1"
+                          : $selectedNode.maxStreamsPerPage === 7 &&
+                              slotIndex === 0
+                            ? "grid-area: bigCell1"
+                            : ""}
                 >
                   <AddCameraDialog sNode={""}>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -397,6 +419,21 @@
   .grid-rows-5 {
     grid-template-rows: repeat(5, 20%);
   }
+  .grid-rows-6 {
+    grid-template-rows: repeat(6, 16.66%);
+  }
+  .grid-rows-7 {
+    grid-template-rows: repeat(7, 14.285%);
+  }
+  .grid-rows-8 {
+    grid-template-rows: repeat(8, 12.5%);
+  }
+  .grid-rows-9 {
+    grid-template-rows: repeat(9, 11.11);
+  }
+  .grid-rows-10 {
+    grid-template-rows: repeat(10, 10%);
+  }
   .grid-cols-1 {
     grid-template-columns: repeat(1, 100%);
   }
@@ -427,36 +464,6 @@
   .grid-cols-10 {
     grid-template-columns: repeat(10, 10%);
   }
-  .grid-cols-11 {
-    grid-template-columns: repeat(11, minmax(0, 1fr));
-  }
-  .grid-cols-12 {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-  }
-  .grid-cols-13 {
-    grid-template-columns: repeat(13, minmax(0, 1fr));
-  }
-  .grid-cols-14 {
-    grid-template-columns: repeat(14, minmax(0, 1fr));
-  }
-  .grid-cols-15 {
-    grid-template-columns: repeat(15, minmax(0, 1fr));
-  }
-  .grid-cols-16 {
-    grid-template-columns: repeat(16, minmax(0, 1fr));
-  }
-  .grid-cols-17 {
-    grid-template-columns: repeat(17, minmax(0, 1fr));
-  }
-  .grid-cols-18 {
-    grid-template-columns: repeat(18, minmax(0, 1fr));
-  }
-  .grid-cols-19 {
-    grid-template-columns: repeat(19, minmax(0, 1fr));
-  }
-  .grid-cols-20 {
-    grid-template-columns: repeat(20, minmax(0, 1fr));
-  }
   .grid-area-13 {
     grid-template-columns: repeat(4, 25%);
     grid-template-rows: repeat(4, 25%);
@@ -473,6 +480,24 @@
       "bigCell1 bigCell1 bigCell2 bigCell2"
       "bigCell1 bigCell1 bigCell2 bigCell2"
       ". . . ."
+      ". . . .";
+  }
+
+  .grid-area-5 {
+    grid-template-columns: repeat(3, 33.3%);
+    grid-template-rows: repeat(3, 33.3%);
+    grid-template-areas:
+      "bigCell1 bigCell1 ."
+      "bigCell1 bigCell1 ."
+      ". . . ";
+  }
+  .grid-area-7 {
+    grid-template-columns: repeat(4, 25%);
+    grid-template-rows: repeat(4, 25%);
+    grid-template-areas:
+      "bigCell1 bigCell1 bigCell1  ."
+      "bigCell1 bigCell1 bigCell1  ."
+      "bigCell1 bigCell1 bigCell1  ."
       ". . . .";
   }
 </style>

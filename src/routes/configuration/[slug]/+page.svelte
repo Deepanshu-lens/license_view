@@ -94,14 +94,21 @@
 <main
   class="hidden sm:flex items-start justify-between w-full overflow-y-hidden min-h-[calc(100vh-75px)]"
 >
-  <ConfigPanel {user} records={data.records} logs={data.logs} />
+  <ConfigPanel
+    {user}
+    records={data.records}
+    logs={data.logs}
+    sessionId={data.session.id}
+  />
 </main>
 
 <main class="flex sm:hidden w-full bg-[#F5F6F7] h-screen z-10 relative">
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
   <div class="top-config w-full">
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
     <span
       class="flex items-center justify-start text-black/[.7] pt-4"
-      onClick={() => {
+      on:click={() => {
         window.location.href = `/session/${$selectedNode.session}`;
       }}
     >

@@ -175,23 +175,38 @@
   <div class="w-full">
     <div class="flex w-full h-[calc(100vh-75px)]">
       <div
-        class="flex flex-col gap-4 items-center justify-center px-4 h-full my-auto"
+        class="flex flex-col gap-4 items-center justify-center px-2 h-full my-auto"
       >
-        <button
-          on:click={() => {
-            addUserLog(`user clicked on Search button, top panel`);
-          }}
-          class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`}
-          ><Search class="h-[22px] w-[22px]" /></button
-        >
-        <button
-          class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`}
-          ><Filter class="h-[22px] w-[22px]" />
-        </button>
-        <button
-          class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`}
-          ><Expand class="h-[22px] w-[22px]" />
-        </button>
+        <span class="group flex flex-col gap-0.5 items-center justify-center">
+          <button
+            on:click={() => {
+              addUserLog(`user clicked on Search button, top panel`);
+            }}
+            class={`text-black/[.23] h-[40px] w-[40px] rounded-full group border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+            ><Search class="h-[22px] w-[22px]" /></button
+          >
+          <p class="text-xs group-hover:text-[#015a62] text-black/.23">
+            Search
+          </p>
+        </span>
+        <span class="group flex flex-col gap-0.5 items-center justify-center">
+          <button
+            class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+            ><Filter class="h-[22px] w-[22px]" />
+          </button>
+          <p class="text-xs group-hover:text-[#015a62] text-black/.23">
+            Filter
+          </p>
+        </span>
+        <span class="group flex flex-col gap-0.5 items-center justify-center">
+          <button
+            class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+            ><Expand class="h-[22px] w-[22px]" />
+          </button>
+          <p class="text-xs group-hover:text-[#015a62] text-black/.23">
+            Fullscreen
+          </p>
+        </span>
       </div>
       <div class="w-full h-full">
         <!-- <div
@@ -817,7 +832,9 @@
       </div>
     </div>
   </div>
-  <div class="h-[calc(100vh-75px)] w-1/4 dark:border-[#292929] border-l-[1px]">
+  <div
+    class="h-[calc(100vh-75px)] w-1/4 max-w-72 dark:border-[#292929] border-l-[1px]"
+  >
     <NodeSelection {nodes} url={data.url ?? "/"} />
     <EventList />
   </div>

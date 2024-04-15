@@ -10,7 +10,9 @@
 </script>
 
 <Card.Root class="w-[90%] rounded-md informative-shadow">
-  <Card.Header><Card.Title>{person.name}</Card.Title></Card.Header>
+  <Card.Header class="px-4 py-4"
+    ><Card.Title>{person.name}</Card.Title></Card.Header
+  >
   <Card.Description class="px-4">Created at: {person.created}</Card.Description>
   <Card.Content>
     <div class="pt-4 flex flex-col gap-y-2">

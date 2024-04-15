@@ -21,9 +21,9 @@
       </button>
     </RegisterMobileDialog>
   </div>
-  <h3 class="px-4 text-2xl font-medium">People:</h3>
+  <h3 class="px-4 pb-4 text-2xl font-medium">People:</h3>
   <div
-    class="flex flex-col gap-y-2 items-center w-full max-h-[calc(100vh-275px)] pb-10 overflow-y-scroll"
+    class="flex flex-col gap-y-2 items-center w-full max-h-[calc(100vh-155px)] pb-20 overflow-y-scroll"
   >
     {#each data as person, index}
       <GalleryInfoCard {person} />

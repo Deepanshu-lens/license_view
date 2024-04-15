@@ -11,13 +11,25 @@
       ? 7
       : $selectedNode.maxStreamsPerPage === 10
         ? 8
-        : Math.sqrt($selectedNode.maxStreamsPerPage);
+        : $selectedNode.maxStreamsPerPage === 5
+          ? 9
+          : $selectedNode.maxStreamsPerPage === 7
+            ? 10
+            : Math.sqrt($selectedNode.maxStreamsPerPage);
 
   const onSubmit = async () => {
     selectedNode.set({
       ...$selectedNode,
       maxStreamsPerPage:
-        selected === 7 ? 13 : selected === 8 ? 10 : selected * selected,
+        selected === 7
+          ? 13
+          : selected === 8
+            ? 10
+            : selected === 9
+              ? 5
+              : selected === 10
+                ? 7
+                : selected * selected,
     });
     dialogOpen = false;
     toggleDisplayLayouts();
@@ -29,7 +41,15 @@
       body: JSON.stringify({
         nodeId: $selectedNode.id,
         newValue:
-          selected === 7 ? 13 : selected === 8 ? 10 : selected * selected,
+          selected === 7
+            ? 13
+            : selected === 8
+              ? 10
+              : selected === 9
+                ? 5
+                : selected === 10
+                  ? 7
+                  : selected * selected,
       }),
     });
     if (!update.ok) {
@@ -43,16 +63,16 @@
 
 <Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger><slot /></Dialog.Trigger>
-  <Dialog.Content class="sm:max-w-[720px]">
+  <Dialog.Content class=" sm:max-w-[720px]">
     <Dialog.Header>
       <Dialog.Title>Screen Layout</Dialog.Title>
       <Dialog.Description>Change Screen Layout</Dialog.Description>
     </Dialog.Header>
     <div class="flex flex-wrap items-center justify-start w-full py-10 px-4">
-      {#each Array.from({ length: 6 }, (_, i) => i - 1).toReversed() as layout}
+      {#each Array.from({ length: 7 }, (_, i) => i - 1).toReversed() as layout}
         <div
           class={cn(
-            "flex flex-col items-center justify-evenly py-4 mt-2 w-1/3",
+            "flex flex-col items-center justify-evenly py-4 mt-2 w-1/3 gap-1",
             selected === layout + 1 &&
               "px-2 border border-solid border-[#015a62] rounded-md text-primary",
           )}
@@ -65,8 +85,8 @@
           >
             {#if layout != -1}
               <svg
-                width="100"
-                height="100"
+                width="60"
+                height="60"
                 viewBox="0 0 100 100"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -100,8 +120,8 @@
               <span>{layout + 1}:{layout + 1}</span>
             {:else}
               <svg
-                width="100"
-                height="100"
+                width="60"
+                height="60"
                 viewBox="0 0 25 25"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -123,7 +143,195 @@
       {/each}
       <button
         class={cn(
-          "flex flex-col items-center justify-evenly py-4 mt-2 w-1/3",
+          "flex flex-col items-center justify-evenly py-4 mt-2 w-1/3 gap-1",
+          selected === 9 &&
+            "px-2 border border-solid border-[#015a62] rounded-md text-primary",
+        )}
+        on:click={(e) => {
+          e.preventDefault();
+          selected = 9;
+        }}
+      >
+        <svg
+          width="60"
+          height="60"
+          class={cn(selected === 9 ? "text-primary" : "text-muted-foreground")}
+          id="Layer_2"
+          data-name="Layer 2"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 1068 1067.5"
+        >
+          <g id="Layer_1-2" data-name="Layer 1">
+            <rect
+              fill="currentColor"
+              width="708.33"
+              height="708.33"
+              rx="20"
+              ry="20"
+              transform="translate(708.33) rotate(90)"
+            />
+            <rect
+              fill="currentColor"
+              x="719.59"
+              y=".75"
+              width="349.16"
+              height="347.67"
+              rx="20"
+              ry="20"
+              transform="translate(1068.75 -719.59) rotate(90)"
+            />
+            <rect
+              fill="currentColor"
+              x="719.59"
+              y="359.92"
+              width="349.16"
+              height="347.67"
+              rx="20"
+              ry="20"
+              transform="translate(1427.92 -360.42) rotate(90)"
+            />
+            <rect
+              fill="currentColor"
+              x="719.59"
+              y="719.09"
+              width="349.16"
+              height="347.67"
+              rx="20"
+              ry="20"
+              transform="translate(1787.09 -1.24) rotate(90)"
+            />
+            <rect
+              fill="currentColor"
+              x="359.92"
+              y="719.09"
+              width="349.16"
+              height="347.67"
+              rx="20"
+              ry="20"
+              transform="translate(1427.42 358.42) rotate(90)"
+            />
+            <rect
+              fill="currentColor"
+              x=".25"
+              y="719.09"
+              width="349.16"
+              height="347.67"
+              rx="20"
+              ry="20"
+              transform="translate(1067.75 718.09) rotate(90)"
+            />
+          </g>
+        </svg>
+        <span>1 + 5</span>
+      </button>
+      <button
+        class={cn(
+          "flex flex-col items-center justify-evenly py-4 mt-2 w-1/3 gap-1",
+          selected === 10 &&
+            "px-2 border border-solid border-[#015a62] rounded-md text-primary",
+        )}
+        on:click={(e) => {
+          e.preventDefault();
+          selected = 10;
+        }}
+      >
+        <svg
+          width="60"
+          class={cn(selected === 10 ? "text-primary" : "text-muted-foreground")}
+          height="60"
+          id="Layer_2"
+          data-name="Layer 2"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 1068 1068"
+        >
+          <g id="Layer_1-2" data-name="Layer 1">
+            <rect
+              fill="currentColor"
+              x="-.19"
+              y=".19"
+              width="798.37"
+              height="798"
+              rx="20"
+              ry="20"
+              transform="translate(798.19 .19) rotate(90)"
+            />
+            <rect
+              fill="currentColor"
+              x="809.44"
+              y=".56"
+              width="259.12"
+              height="258"
+              rx="20"
+              ry="20"
+              transform="translate(1068.56 -809.44) rotate(90)"
+            />
+            <rect
+              fill="currentColor"
+              x="809.44"
+              y="270.19"
+              width="259.12"
+              height="258"
+              rx="20"
+              ry="20"
+              transform="translate(1338.19 -539.81) rotate(90)"
+            />
+            <rect
+              fill="currentColor"
+              x="809.44"
+              y="539.81"
+              width="259.12"
+              height="258"
+              rx="20"
+              ry="20"
+              transform="translate(1607.81 -270.19) rotate(90)"
+            />
+            <rect
+              fill="currentColor"
+              x="809.44"
+              y="809.44"
+              width="259.12"
+              height="258"
+              rx="20"
+              ry="20"
+              transform="translate(1877.44 -.56) rotate(90)"
+            />
+            <rect
+              fill="currentColor"
+              x="539.44"
+              y="809.44"
+              width="259.12"
+              height="258"
+              rx="20"
+              ry="20"
+              transform="translate(1607.44 269.44) rotate(90)"
+            />
+            <rect
+              fill="currentColor"
+              x="269.44"
+              y="809.44"
+              width="259.12"
+              height="258"
+              rx="20"
+              ry="20"
+              transform="translate(1337.44 539.44) rotate(90)"
+            />
+            <rect
+              fill="currentColor"
+              x="-.56"
+              y="809.44"
+              width="259.12"
+              height="258"
+              rx="20"
+              ry="20"
+              transform="translate(1067.44 809.44) rotate(90)"
+            />
+          </g>
+        </svg>
+        <span>1 + 7</span>
+      </button>
+      <button
+        class={cn(
+          "flex flex-col items-center justify-evenly py-4 mt-2 w-1/3 gap-1",
           selected === 7 &&
             "px-2 border border-solid border-[#015a62] rounded-md text-primary",
         )}
@@ -133,23 +341,154 @@
         }}
       >
         <svg
-          width="100"
-          height="100"
-          viewBox="0 0 2048 2048"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+          width="60"
+          height="60"
           class={cn(selected === 7 ? "text-primary" : "text-muted-foreground")}
+          id="Layer_2"
+          data-name="Layer 2"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 1067 1072.23"
         >
-          <path
-            fill="currentColor"
-            d="M896 1024H384V512h512zM512 640v256h256V640zm1152-128v512h-512V512zm-128 384V640h-256v256zM0 256h2048v768h-128V384H128v768h896v128H0zm1989 1113l49 119l-124 51q6 30 6 61t-6 61l124 51l-49 119l-124-52q-35 51-86 86l52 124l-119 49l-51-124q-30 6-61 6t-61-6l-51 124l-119-49l52-124q-51-35-86-86l-124 52l-49-119l124-51q-6-30-6-61t6-61l-124-51l49-119l124 52q35-51 86-86l-52-124l119-49l51 124q30-6 61-6t61 6l51-124l119 49l-52 124q51 35 86 86zm-197 231q0-40-15-75t-41-61t-61-41t-75-15q-40 0-75 15t-61 41t-41 61t-15 75q0 40 15 75t41 61t61 41t75 15q40 0 75-15t61-41t41-61t15-75"
-          />
+          <g id="Layer_1-2" data-name="Layer 1">
+            <g>
+              <rect
+                fill="currentColor"
+                x="808.69"
+                y=".56"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1067.56 -808.69) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="808.69"
+                y="271.8"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1338.81 -537.45) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="808.69"
+                y="542.68"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1609.68 -266.58) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="808.69"
+                y="813.92"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1880.92 4.67) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="538.94"
+                y=".56"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(797.81 -538.94) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="538.94"
+                y="271.8"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1069.06 -267.7) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="538.94"
+                y="542.68"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1339.93 3.17) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="538.94"
+                y="813.92"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1611.17 274.42) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="269.19"
+                y="542.68"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1070.18 272.92) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="269.19"
+                y="813.92"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1341.42 544.17) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="-.56"
+                y="542.68"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(800.43 542.68) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="-.56"
+                y="813.92"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1071.67 813.92) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="-1.31"
+                y="1.31"
+                width="530.12"
+                height="527.5"
+                rx="20"
+                ry="20"
+                transform="translate(-1.31 528.81) rotate(-90)"
+              />
+            </g>
+          </g>
         </svg>
-        <span>Custom 1</span>
+        <span>1 + 12</span>
       </button>
       <button
         class={cn(
-          "flex flex-col items-center justify-evenly py-4 mt-2 w-1/3",
+          "flex flex-col items-center justify-evenly py-4 mt-2 w-1/3 gap-1",
           selected === 8 &&
             "px-2 border border-solid border-[#015a62] rounded-md text-primary",
         )}
@@ -159,19 +498,117 @@
         }}
       >
         <svg
-          width="100"
-          height="100"
-          viewBox="0 0 2048 2048"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+          width="60"
           class={cn(selected === 8 ? "text-primary" : "text-muted-foreground")}
+          height="60"
+          id="Layer_2"
+          data-name="Layer 2"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 1068 1070.12"
         >
-          <path
-            fill="currentColor"
-            d="M896 1024H384V512h512zM512 640v256h256V640zm1152-128v512h-512V512zm-128 384V640h-256v256zM0 256h2048v768h-128V384H128v768h896v128H0zm1989 1113l49 119l-124 51q6 30 6 61t-6 61l124 51l-49 119l-124-52q-35 51-86 86l52 124l-119 49l-51-124q-30 6-61 6t-61-6l-51 124l-119-49l52-124q-51-35-86-86l-124 52l-49-119l124-51q-6-30-6-61t6-61l-124-51l49-119l124 52q35-51 86-86l-52-124l119-49l51 124q30-6 61-6t61 6l51-124l119 49l-52 124q51 35 86 86zm-197 231q0-40-15-75t-41-61t-61-41t-75-15q-40 0-75 15t-61 41t-41 61t-15 75q0 40 15 75t41 61t61 41t75 15q40 0 75-15t61-41t41-61t15-75"
-          />
+          <g id="Layer_1-2" data-name="Layer 1">
+            <g>
+              <rect
+                fill="currentColor"
+                x="809.19"
+                y="540.56"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1608.06 -269.19) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="809.19"
+                y="811.8"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1879.31 2.05) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="539.44"
+                y="540.56"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1338.31 .56) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="539.44"
+                y="811.8"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1609.56 271.8) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="269.69"
+                y="540.56"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1068.56 270.31) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="269.69"
+                y="811.8"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1339.8 541.56) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="-.06"
+                y="540.56"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(798.81 540.06) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                x="-.06"
+                y="811.8"
+                width="258.87"
+                height="257.75"
+                rx="20"
+                ry="20"
+                transform="translate(1070.05 811.31) rotate(90)"
+              />
+              <rect
+                fill="currentColor"
+                width="528"
+                height="528"
+                rx="20"
+                ry="20"
+                transform="translate(0 528) rotate(-90)"
+              />
+              <rect
+                fill="currentColor"
+                x="540"
+                width="528"
+                height="528"
+                rx="20"
+                ry="20"
+                transform="translate(540 1068) rotate(-90)"
+              />
+            </g>
+          </g>
         </svg>
-        <span>Custom 2</span>
+        <span>2 + 8</span>
       </button>
     </div>
     <Dialog.Footer>

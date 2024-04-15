@@ -8,9 +8,15 @@
   import UserS from "./settings/UserS.svelte";
   let search: string | null = null;
   import type { LoginEvent, User } from "@/types";
+  import SettingsList from "../lists/SettingsList.svelte";
+  import { addUserLog } from "@/lib/addUserLog";
+  import { goto } from "$app/navigation";
+
+  import { CameraIcon, Cast, Disc2, Radio, Router, User2 } from "lucide-svelte";
   export let user: User;
   export let records: LoginEvent;
   export let logs: UserLog;
+  export let sessionId;
 
   $: {
     const searchParams = new URLSearchParams($page.url.search);
@@ -21,20 +27,133 @@
       search = "Remote";
     }
   }
+
+  const handleButtonClick = (text) => {
+    goto(`/configuration/${sessionId}?section=${text}`);
+  };
 </script>
 
-<section class="right h-[calc(100vh-75px)] w-full flex-1 bg-background">
-  {#if search === "Remote"}
-    <Remote />
-  {:else if search === "Stream"}
-    <Stream />
-  {:else if search === "Recording"}
-    <Recording />
-  {:else if search === "System"}
-    <System />
-  {:else if search === "Camera"}
-    <Camera {user} />
-  {:else}
-    <UserS {user} {records} {logs} />
-  {/if}
+<section class="right h-[calc(100vh-75px)] w-full flex-1 bg-background flex">
+  <div
+    class="flex flex-col gap-4 items-center justify-center px-2 h-full my-auto"
+  >
+    <span class="group flex flex-col gap-0.5 items-center justify-center">
+      <button
+        on:click={() => {
+          addUserLog(`user clicked on Search button, top panel`);
+          handleButtonClick("Remote");
+        }}
+        class={search !== "Remote"
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+          : ` border-none relative rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+        ><Router class="h-[22px] w-[22px]" /></button
+      >
+      <p
+        class={`text-xs ${search !== "Remote" ? "group-hover:text-[#015a62] text-black/.23" : "text-[#015a62]"}`}
+      >
+        Remote
+      </p>
+    </span>
+    <span class="group flex flex-col gap-0.5 items-center justify-center">
+      <button
+        on:click={() => {
+          handleButtonClick("Stream");
+        }}
+        class={search !== "Stream"
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+          : ` border-none relative rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+        ><Radio class="h-[22px] w-[22px]" />
+      </button>
+      <p
+        class={`text-xs ${search !== "Stream" ? "group-hover:text-[#015a62] text-black/.23" : "text-[#015a62]"}`}
+      >
+        Stream
+      </p>
+    </span>
+    <span class="group flex flex-col gap-0.5 items-center justify-center">
+      <button
+        on:click={() => {
+          handleButtonClick("Recording");
+        }}
+        class={search !== "Recording"
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+          : ` border-none relative rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+        ><Disc2 class="h-[22px] w-[22px]" />
+      </button>
+      <p
+        class={`text-xs ${search !== "Remote" ? "group-hover:text-[#015a62] text-black/.23" : "text-[#015a62]"}`}
+      >
+        Remote
+      </p>
+    </span>
+    <span class="group flex flex-col gap-0.5 items-center justify-center">
+      <button
+        on:click={() => {
+          handleButtonClick("System");
+        }}
+        class={search !== "System"
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+          : ` border-none relative rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+        ><Cast class="h-[22px] w-[22px]" />
+      </button>
+      <p
+        class={`text-xs ${search !== "System" ? "group-hover:text-[#015a62] text-black/.23" : "text-[#015a62]"}`}
+      >
+        System
+      </p>
+    </span>
+    <span class="group flex flex-col gap-0.5 items-center justify-center">
+      <button
+        on:click={() => {
+          handleButtonClick("Camera");
+        }}
+        class={search !== "Camera"
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+          : ` border-none relative rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+        ><CameraIcon class="h-[22px] w-[22px]" />
+      </button>
+      <p
+        class={`text-xs ${search !== "Camera" ? "group-hover:text-[#015a62] text-black/.23" : "text-[#015a62]"}`}
+      >
+        Camera
+      </p>
+    </span>
+    <span class="group flex flex-col gap-0.5 items-center justify-center">
+      <button
+        on:click={() => {
+          handleButtonClick("User");
+        }}
+        class={search !== "User"
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+          : ` border-none relative rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+        ><User2 class="h-[22px] w-[22px]" />
+      </button>
+      <p
+        class={`text-xs ${search !== "User" ? "group-hover:text-[#015a62] text-black/.23" : "text-[#015a62]"}`}
+      >
+        User
+      </p>
+    </span>
+  </div>
+  <div class="w-full h-full">
+    {#if search === "Remote"}
+      <Remote />
+    {:else if search === "Stream"}
+      <Stream />
+    {:else if search === "Recording"}
+      <Recording />
+    {:else if search === "System"}
+      <System />
+    {:else if search === "Camera"}
+      <Camera {user} />
+    {:else}
+      <UserS {user} {records} {logs} />
+    {/if}
+  </div>
+
+  <!-- <div
+    class="h-[calc(100vh-75px)] w-1/4 max-w-72 dark:border-[#292929] border-l-[1px]"
+  >
+    <SettingsList {sessionId} />
+  </div> -->
 </section>

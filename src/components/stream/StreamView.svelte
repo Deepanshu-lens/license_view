@@ -26,6 +26,7 @@
     Minimize,
     Monitor,
     X,
+    Plus,
   } from "lucide-svelte";
 
   import { Cctv, LayoutPanelLeft } from "lucide-svelte";
@@ -56,6 +57,7 @@
   import CameraList from "../lists/CameraList.svelte";
   import LayoutSelection from "../layouts/LayoutSelection.svelte";
   import LayoutDialog from "../dialogs/LayoutDialog.svelte";
+  import AddCameraDialog from "../dialogs/AddCameraDialog.svelte";
 
   export let data;
   export let url;
@@ -278,6 +280,29 @@
   let activeStreamIndex = writable(null);
 
   let currpanel = 2;
+
+  // $: {
+  //   console.log("first");
+  //   if (window.matchMedia) {
+  //     const mql = window.matchMedia("(orientation: landscape)");
+  //     console.log(mql);
+  //     landscape.set(mql.matches);
+
+  //     mql.addListener((e) => landscape.set(e.matches));
+  //   } else {
+  //     const isLandscape = Math.abs(window.orientation) === 90;
+  //     console.log(isLandscape);
+  //     landscape.set(isLandscape);
+
+  //     window.addEventListener("orientationchange", () => {
+  //       const isLandscape = Math.abs(window.orientation) === 90;
+  //       console.log(isLandscape);
+  //       landscape.set(isLandscape);
+  //     });
+  //   }
+  // }
+
+  // $: if (window) console.log(window.matchMedia("(orientation: landscape)"));
 </script>
 
 <!-- {#if !$topPanelHide}
@@ -509,32 +534,46 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 
-<div class="flex">
+<div class="sm:flex hidden">
   <div
-    class=" flex flex-col gap-4 items-center justify-center px-4 h-full my-auto"
+    class=" flex flex-col gap-2.5 items-center justify-center px-2 h-full my-auto"
   >
+    <AddCameraDialog sNode="">
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <button
+          on:click={() => {
+            addUserLog(`user clicked on Add Camera button, top panel`);
+          }}
+          class={`text-black/[.23] h-[40px] w-[40px] rounded-full group border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+          ><Plus class="h-[22px] w-[22px]" />
+        </button>
+        <p class="text-xs group-hover:text-[#015a62] text-black/.23">Add</p>
+      </span>
+    </AddCameraDialog>
     <SearchDialog>
-      <span class="group flex-col flex items-center justify-center gap-1">
+      <span class="group flex-col flex items-center justify-center gap-0.5">
         <button
           on:click={() => {
             addUserLog(`user clicked on Search button, top panel`);
           }}
-          class={`text-black/[.23] h-[40px] w-[40px] rounded-full group border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`}
+          class={`text-black/[.23] h-[40px] w-[40px] rounded-full group border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
           ><Search class="h-[22px] w-[22px]" />
         </button>
-        <p class="text-xs text-[#015a62] hidden group-hover:block">Search</p>
+        <p class="text-xs group-hover:text-[#015a62] text-black/.23">Search</p>
       </span>
     </SearchDialog>
     <RegisterDialog>
-      <span class="group flex-col flex items-center justify-center gap-1">
+      <span class="group flex-col flex items-center justify-center gap-0.5">
         <button
           on:click={() =>
             addUserLog("user clicked on Register button, top panel")}
-          class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`}
+          class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
         >
           <ScanFace class="h-[22px] w-[22px]" />
         </button>
-        <p class="text-xs text-[#015a62] hidden group-hover:block">Register</p>
+        <p class="text-xs group-hover:text-[#015a62] text-black/.23">
+          Register
+        </p>
       </span>
     </RegisterDialog>
     <a
@@ -544,16 +583,16 @@
       class="flex items-center justify-center gap-2 cursor-pointer relative lg:scale-95 2xl:scale-100 hover:text-primary"
       on:click={() => addUserLog("user clicked on exted display, top panel")}
     >
-      <span class="group flex-col flex items-center justify-center gap-1">
+      <span class="group flex-col flex items-center justify-center gap-0.5">
         <button
           on:click={() => (selectedScreen = 3)}
-          class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`}
+          class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
           ><Monitor class="h-[22px] w-[22px]" /></button
         >
-        <p class="text-xs text-[#015a62] hidden group-hover:block">Extend</p>
+        <p class="text-xs group-hover:text-[#015a62] text-black/.23">Extend</p>
       </span>
     </a>
-    <span class="group flex-col flex items-center justify-center gap-1">
+    <span class="group flex-col flex items-center justify-center gap-0.5">
       <button
         on:click={() => {
           recordDropdownOpen = !recordDropdownOpen;
@@ -561,7 +600,7 @@
           addUserLog("user clicked on start recording, top panel ");
         }}
         class={!recordDropdownOpen
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
           : `relative border-none rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
         ><Disc2 class="h-[22px] w-[22px]" />
         {#if recordDropdownOpen}
@@ -601,13 +640,9 @@
           </div>
         {/if}
       </button>
-      <p
-        class={`text-xs text-[#015a62]  ${recordDropdownOpen ? "block" : "hidden group-hover:block"}`}
-      >
-        Record
-      </p>
+      <p class="text-xs group-hover:text-[#015a62] text-black/.23">Record</p>
     </span>
-    <span class="group flex-col flex items-center justify-center gap-1">
+    <span class="group flex-col flex items-center justify-center gap-0.5">
       <button
         on:click={() => {
           snipDropDownOpen = !snipDropDownOpen;
@@ -615,7 +650,7 @@
           addUserLog("user clicked on screen snip, top panel ");
         }}
         class={!snipDropDownOpen
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white  hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white  group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
           : ` border-none relative rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
         ><ImageDown class="h-[22px] w-[22px]" />
         {#if snipDropDownOpen}
@@ -671,13 +706,9 @@
           </div>
         {/if}
       </button>
-      <p
-        class={`text-xs text-[#015a62]  ${snipDropDownOpen ? "block" : "hidden group-hover:block"}`}
-      >
-        Snip
-      </p>
+      <p class="text-xs group-hover:text-[#015a62] text-black/.23">Snip</p>
     </span>
-    <span class="group flex-col flex items-center justify-center gap-1">
+    <span class="group flex-col flex items-center justify-center gap-0.5">
       <button
         on:click={() => {
           alertPanelHide.set(!$alertPanelHide);
@@ -689,29 +720,31 @@
           addUserLog(`user set alert panel hide to ${$alertPanelHide} `);
         }}
         class={$alertPanelHide
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white grid place-items-center`
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white grid place-items-center  group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none`
           : ` border-none rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
         ><Bell class="h-[22px] w-[22px]" /></button
       >
       <p
-        class={`text-xs text-[#015a62]  ${!$alertPanelHide ? "block" : "hidden group-hover:block"}`}
+        class={`text-xs ${$alertPanelHide ? "group-hover:text-[#015a62] text-black/.23" : "text-[#015a62]"}`}
       >
         Alerts
       </p>
     </span>
-    <span class="group flex-col flex items-center justify-center gap-1">
+    <span class="group flex-col flex items-center justify-center gap-0.5">
       <button
         disabled={cameraCount === 0}
         on:click={() => {
           toggleFullscreen();
           addUserLog(`user clicked on fulscreen, top panel`);
         }}
-        class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`}
+        class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
         ><Expand class="h-[22px] w-[22px]" /></button
       >
-      <p class="text-xs text-[#015a62] hidden group-hover:block">Fullscreen</p>
+      <p class="text-xs group-hover:text-[#015a62] text-black/.23">
+        Fullscreen
+      </p>
     </span>
-    <span class="group flex-col flex items-center justify-center gap-1">
+    <span class="group flex-col flex items-center justify-center gap-0.5">
       <button
         on:click={() => {
           displayLayouts = !displayLayouts;
@@ -719,7 +752,7 @@
           addUserLog("user clicked display and layouts, left pane");
         }}
         class={!displayLayouts
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
           : ` border-none relative rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
         ><LayoutPanelLeft class="h-[22px] w-[22px]" />
         {#if displayLayouts}
@@ -754,13 +787,9 @@
           </span>
         {/if}
       </button>
-      <p
-        class={`text-xs text-[#015a62]  ${displayLayouts ? "block" : "hidden group-hover:block"}`}
-      >
-        Layouts
-      </p>
+      <p class="text-xs group-hover:text-[#015a62] text-black/.23">Layouts</p>
     </span>
-    <span class="group flex-col flex items-center justify-center gap-1">
+    <span class="group flex-col flex items-center justify-center gap-0.5">
       <button
         on:click={() => {
           nodeCameras = !nodeCameras;
@@ -768,7 +797,7 @@
           addUserLog("user clicked nodes and cameras, left pane");
         }}
         class={!nodeCameras
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white hover:text-white hover:bg-[#015a62] hover:border-none grid place-items-center`
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
           : ` border-none rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center relative`}
         ><Cctv class="h-[22px] w-[22px]" />
 
@@ -799,11 +828,7 @@
           </span>
         {/if}
       </button>
-      <p
-        class={`text-xs text-[#015a62]  ${nodeCameras ? "block" : "hidden group-hover:block"}`}
-      >
-        Manage
-      </p>
+      <p class="text-xs group-hover:text-[#015a62] text-black/.23">Manage</p>
     </span>
   </div>
 
@@ -861,7 +886,7 @@
       class={`h-full border-solid 
          border-l-[1px] 
          transition-width ease-in-out duration-500 overflow-y-scroll z-[998]
-         w-1/4 relative`}
+         w-1/4 relative max-w-72`}
     >
       {#if !$alertPanelHide && currpanel === 1}
         <div
