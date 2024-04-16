@@ -15,7 +15,7 @@
   /**
    * Sortable Camera Info Cards
    */
-
+  export let isAllFullScreen: boolean;
   let filteredCameras: Camera[] = [];
   let cameraItems: HTMLDivElement;
   let filterText: string = "";
@@ -100,7 +100,7 @@
 
     <div
       id="camera-list"
-      class={`relative flex items-center px-4 py-4 gap-5 bg-background transition-all duration-100  
+      class={`relative flex items-center px-4 py-4 gap-5 bg-background transition-all duration-100 ${isAllFullScreen ? "bg-black" : ""}
           ${!showItems ? "opacity-0" : "opacity-100"}`}
       on:click={() => {
         addUserLog("user clicked on search cameralist");
@@ -110,7 +110,10 @@
         class={`absolute  top-1/2 -translate-y-1/2 left-6 transition-all duration-100 
           ${!showItems ? "opacity-0" : "opacity-100"}`}
       >
-        <Search size={18} />
+        <Search
+          size={18}
+          class={isAllFullScreen ? "text-white" : "text-black dark:text-white"}
+        />
       </span>
       <span class="relative">
         <Input
@@ -124,7 +127,7 @@
                 bg-transparent transition-all duration-100
                 ${!showItems ? "opacity-0" : "opacity-100"}
                 border border-gray-300 
-                dark:border-[#333] text-gray-900 dark:text-gray-300 capitalize
+                dark:border-[#333] ${isAllFullScreen ? "text-gray-300" : "text-gray-900 dark:text-gray-300 "} capitalize
                 text-sm sm:text-[10px] md:text-xs lg:text-sm xl:text-md rounded-lg
                 block py-2.5 pl-10 box-border dark:focus:border-black
                 dark:active:border-black
@@ -133,9 +136,15 @@
           on:keydown={handleEscape}
         />
         <span
-          class="flex absolute items-center gap-1 text-sm top-1/2 -translate-y-1/2 right-2 text-gray-900 dark:text-gray-300"
+          class={`flex absolute items-center gap-1 text-sm top-1/2 -translate-y-1/2 right-2 ${
+            isAllFullScreen
+              ? "text-gray-300"
+              : "text-gray-900 dark:text-gray-300"
+          }`}
         >
-          <Command class="h-4 w-4 text-gray-900 dark:text-gray-300" /> /
+          <Command
+            class={`h-4 w-4 ${isAllFullScreen ? "text-gray-300" : "text-gray-900 dark:text-gray-300"}`}
+          /> /
         </span>
       </span>
 
@@ -153,7 +162,9 @@
         >
           <path
             d="M12 1.5C9.22562 1.53347 6.57431 2.65047 4.61239 4.61239C2.65047 6.57431 1.53347 9.22562 1.5 12C1.53347 14.7744 2.65047 17.4257 4.61239 19.3876C6.57431 21.3495 9.22562 22.4665 12 22.5C14.7744 22.4665 17.4257 21.3495 19.3876 19.3876C21.3495 17.4257 22.4665 14.7744 22.5 12C22.4665 9.22562 21.3495 6.57431 19.3876 4.61239C17.4257 2.65047 14.7744 1.53347 12 1.5ZM18 12.75H12.75V18H11.25V12.75H6V11.25H11.25V6H12.75V11.25H18V12.75Z"
-            fill={$mode === "dark" ? "#FFF" : "#000"}
+            fill={$mode === "dark"
+              ? "#FFF"
+              : `${isAllFullScreen ? "#fff" : "#000"}`}
           />
         </svg>
       </AddCameraDialog>
@@ -186,12 +197,13 @@
               vehicleOCRThreshold={camera.vehicleOCRThresh}
               saveFolder={camera.saveFolder}
               saveDuration={camera.saveDuration}
+              {isAllFullScreen}
             />
           {/key}
         {/each}
       </div>
     {:else}<div
-        class="text-black/[.7] dark:text-slate-300 px-4 text-sm flex flex-row items-center gap-1 my-4"
+        class={`${isAllFullScreen ? "text-slate-300" : "text-black/[.7] dark:text-slate-300"} px-4 text-sm flex flex-row items-center gap-1 my-4`}
       >
         No cameras found with that name or URL.
       </div>

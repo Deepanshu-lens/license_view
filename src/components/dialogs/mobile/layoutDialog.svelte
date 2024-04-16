@@ -26,6 +26,7 @@
       target: { value: selectedValue, checked: true },
     });
     dialogOpen = false;
+    window.location.reload();
   }
 
   const handleCheckboxChange = (event) => {

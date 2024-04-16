@@ -9,9 +9,11 @@
     ListFilter,
     ScanFace,
     Shrink,
+    Trash2Icon,
     X,
   } from "lucide-svelte";
-  import Carousel from "../ui/carousel/carousel.svelte";
+  import * as Carousel from "@/components/ui/carousel/index.js";
+
   import { Drawer, DrawerContent, DrawerTrigger } from "../ui/drawer";
   import Stream from "../stream/Stream.svelte";
   import ComfortableProfileCard from "../cards/ComfortableProfileCard.svelte";
@@ -19,16 +21,67 @@
   import { addUserLog } from "@/lib/addUserLog";
   import InfoDialog from "../dialogs/mobile/InfoDialog.svelte";
   import { onMount } from "svelte";
-  import RegisterMobileDialog from "../dialogs/mobile/RegisterMobileDialog.svelte";
+  import { toast } from "svelte-sonner";
 
   let showInfoModal = false;
   let allFullScreen = false;
   let cameraCount = $selectedNode.camera.length;
   let layoutValue = "1";
-  let newName = "";
+  let newName: string = "";
   let edit;
   let comfort = true;
   let videos: { [key: string]: HTMLElement } = {};
+
+  const location = window?.location?.href;
+  const neededUrl =
+    location?.split("/")[2] === "localhost:3000"
+      ? "127.0.0.1"
+      : location?.split("/")[2]?.split(":")[0];
+
+  const initVideo = (camera: Camera) => {
+    if (videos[camera.id]) {
+      return;
+    }
+    let video = document.createElement("video-stream") as VideoStreamType;
+    video.id = `stream-${camera.id}`;
+    video.mode = "webrtc";
+    video.url = camera.url;
+    video.src = new URL(
+      `ws://${neededUrl}:8082/api/ws?src=${camera.url
+        // `ws://127.0.0.1:8082/api/ws?src=${camera.url
+        ?.split("@")[1]
+        ?.split(":")[0]
+        ?.replace(/\./g, "_")}&camID=${camera.id}&nodeID=${1}`,
+    );
+    video.style.position = "relative";
+    video.style.width = "100%";
+    video.style.height = "100%";
+    video.style.zIndex = "10";
+    video.background = true;
+    video.visibilityCheck = false;
+    videos[camera.id] = video;
+  };
+
+  const updateLayout = (maxStreamsPerPage: number) => {
+    $selectedNode.camera.map((c, i) => {
+      if (!videos[c.id]) {
+        console.log("initializing video ", c);
+        initVideo(c);
+      } else {
+        if (videos[c.id].url !== c.url) {
+          videos[c.id].url = c.url;
+          videos[c.id].src = new URL(
+            `ws://${neededUrl}:8082/api/ws?src=${c.url
+              ?.split("@")[1]
+              ?.split(":")[0]
+              ?.replace(/\./g, "_")}&camID=${c.id}&nodeID=${1}`,
+          );
+        }
+      }
+    });
+  };
+
+  $: updateLayout($selectedNode.maxStreamsPerPage);
 
   export let galleryItems: any;
   export let landscape: boolean;
@@ -44,6 +97,18 @@
       layoutValue = layoutMob;
     }
   });
+
+  // $: {
+  //   console.log(liveFullscreen);
+  //   console.log(cameraCount);
+  //   console.log(layoutValue);
+  //   console.log(
+  //     Math.ceil(
+  //       cameraCount / (parseInt(layoutValue) !== 1 ? parseInt(layoutValue) : 1),
+  //     ),
+  //   );
+  // }
+  // console.log(Math.ceil(cameraCount / parseInt(layoutValue)));
 </script>
 
 <div
@@ -95,45 +160,57 @@
       {/if}
 
       {#if landscape}
-        <Carousel>
-          {#each Array.from( { length: cameraCount && cameraCount > 1 ? Math.ceil(cameraCount / (layoutValue !== "1" ? layoutValue : "1")) : "1" }, ) as _, slideIndex}
-            <div
-              class="grid place-items-center w-[calc(100vh-200px)] h-[100vw] grid-cols-{layoutValue}"
-              id={`slide-${slideIndex}`}
-            >
-              {#if cameraCount > 0}
-                {#each Array.from( { length: parseInt(layoutValue) }, ) as _, index}
-                  {@const cameraIdx =
-                    slideIndex * parseInt(layoutValue) + index}
-                  {#if cameraIdx < cameraCount}
-                    <div
-                      id={`stream-${$selectedNode.name}-${cameraIdx}`}
-                      class="relative z-10"
-                    >
-                      <Stream
-                        videoElement={videos[$selectedNode.camera[index].id]}
-                        camera={$selectedNode.camera[index]}
-                      />
-                      stream
-
-                      <span
-                        class="flex gap-2 bg-[rgba(255,255,255,.68)] py-1 px-3 absolute -top-8 left-1/2 -translate-x-1/2 items-center rounded-xl scale-[.80] z-20 text-[#C20D02]"
-                      >
-                        <Disc2 />
-                        <span class="text-xs font-extrabold"> Rec </span>
-                      </span>
-                      <span
-                        class="p-3 grid place-items-center absolute left-0 -top-10 text-white"
-                      >
-                        <Expand />
-                      </span>
-                    </div>
+        <Carousel.Root class="w-full h-full flex justify-center items-center">
+          <Carousel.Content class="w-full h-full mx-0 px-0">
+            {#each Array.from( { length: cameraCount && cameraCount > 1 ? Math.ceil(cameraCount / (parseInt(layoutValue) !== 1 ? parseInt(layoutValue) : 1)) : 1 }, ) as _, slideIndex}
+              <Carousel.Item class="h-full w-full px-0 mx-0">
+                <div
+                  class="grid place-items-center ml-10 w-[calc(100vh-200px)] h-[100vw] grid-cols-{layoutValue}"
+                  id={`slide-${slideIndex}`}
+                >
+                  {#if cameraCount > 0}
+                    {#each Array.from( { length: parseInt(layoutValue) }, ) as _, index}
+                      {@const cameraIdx =
+                        slideIndex * parseInt(layoutValue) + index}
+                      {#if cameraIdx < cameraCount}
+                        <div
+                          id={`stream-${$selectedNode.name}-${cameraIdx}`}
+                          class="relative z-10 h-1/2 w-1/2"
+                        >
+                          <Stream
+                            videoElement={videos[
+                              $selectedNode.camera[index].id
+                            ]}
+                            camera={$selectedNode.camera[index]}
+                          />
+                          <span
+                            class="flex gap-2 bg-[rgba(255,255,255,.68)] py-1 px-3 absolute -top-8 left-1/2 -translate-x-1/2 items-center rounded-xl scale-[.80] z-20 text-[#C20D02]"
+                          >
+                            <Disc2 />
+                            <span class="text-xs font-extrabold"
+                              >{$selectedNode.camera[index].name} Rec
+                            </span>
+                          </span>
+                          <button
+                            on:click={() => {
+                              let cell = document.getElementById(
+                                `stream-${$selectedNode.name}-${cameraIdx}`,
+                              );
+                              cell?.requestFullscreen();
+                            }}
+                            class="p-3 grid place-items-center absolute left-0 -top-10 text-white"
+                          >
+                            <Expand />
+                          </button>
+                        </div>
+                      {/if}
+                    {/each}
                   {/if}
-                {/each}
-              {/if}
-            </div>
-          {/each}</Carousel
-        >
+                </div>
+              </Carousel.Item>
+            {/each}
+          </Carousel.Content>
+        </Carousel.Root>
       {:else}
         <div
           class={allFullScreen && editMode
@@ -188,7 +265,7 @@
                           type="text"
                           id={`newName-${index}`}
                           placeholder={item?.name}
-                          class={`text-white placeholder-white px-2 ${
+                          class={`text-white placeholder-slate-200 placeholder-opacity-70 px-2 ${
                             layoutValue === "1"
                               ? "scale-125 max-w-[150px] text-sm"
                               : "scale-90 max-w-[100px] text-xs"
@@ -214,7 +291,7 @@
                       }`}
                     >
                       {#if edit !== index}
-                        <span
+                        <button
                           class="flex flex-col gap-1 items-center text-white"
                           on:click={(e) => {
                             e.stopPropagation();
@@ -227,100 +304,68 @@
                             <EditIcon class="scale-75" />
                           </span>
                           <p class="text-white text-[8px]">Rename</p>
-                        </span>
+                        </button>
                       {:else}
-                        <span
+                        <button
                           class="flex flex-col gap-1 items-center text-white"
                           on:click={(e) => {
                             e.stopPropagation();
                             const oldname = item?.name;
-
-                            // if (newName) {
-                            //   axios
-                            //     .patch(
-                            //       `/api/session/${session.id}/node/${selectedNode.id}/camera/${item?.id}`,
-                            //       {
-                            //         name: newName,
-                            //         url: item?.url,
-                            //         port: session.camera[index].port,
-                            //       },
-                            //     )
-                            //     .then((res) => {
-                            //       toast({
-                            //         title: `Camera ${oldname} renamed to ${newName}`,
-                            //       });
-                            //       setEdit(null);
-                            //       router.refresh();
-                            //     })
-                            //     .catch((err) => {
-                            //       console.log(err);
-                            //     });
-                            // } else {
-                            //   toast({
-                            //     title: `min 1 character needed`,
-                            //     variant: "destructive",
-                            //   });
-                            // }
+                            if (newName) {
+                              fetch("/api/camera/editCamera", {
+                                method: "put",
+                                headers: {
+                                  "Content-type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                  cameraId: item.id,
+                                  nodeId: $selectedNode.id,
+                                  name: newName,
+                                  url: item.url,
+                                }),
+                              }).then(() => {
+                                edit = null;
+                                toast(`Camera name updated to ${newName}`);
+                                newName = "";
+                              });
+                            }
                           }}
                         >
                           <Check />
                           <p class="text-white text-[8px]">Save</p>
-                        </span>
+                        </button>
                       {/if}
 
                       {#if edit !== index}
                         <span
                           class="flex flex-col items-center gap-1 text-white"
                         >
-                          <span
+                          <button
                             class="h-[26px] w-[26px] p-[5px] rounded-full bg-white/[.3] flex justify-center items-center"
+                            on:click={() => {
+                              fetch("/api/camera/deleteCamera", {
+                                method: "delete",
+                                headers: {
+                                  "Content-type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                  cameraId: item.id,
+                                  nodeId: $selectedNode.id,
+                                  name: item.name,
+                                  url: item.url,
+                                }),
+                              })
+                                .then(() => {
+                                  document
+                                    .getElementById(`stream-${item.id}`)
+                                    ?.remove();
+                                  toast("camera deleted");
+                                })
+                                .catch((err) => console.log(err));
+                            }}
                           >
-                            <!-- <CameraDeleteDialog
-                              view="mobile"
-                              name={item?.name}
-                              onDelete={(e) =>
-                                axios
-                                  .delete(
-                                    `/api/session/${session.id}/node/${selectedNode.id}/camera/${item?.id}`,
-                                  )
-                                  .then((res) => {
-                                    router.refresh();
-                                    axios
-                                      .post(
-                                        `http://${
-                                          dynamicUrl
-                                            ?.split("/")[2]
-                                            ?.split(":")[0]
-                                        }:1984/api/deleteStream`,
-                                        {
-                                          url: item?.url,
-                                          name: item?.name,
-                                        },
-                                        {
-                                          headers: {
-                                            "Content-Type": "application/json",
-                                          },
-                                        },
-                                      )
-                                      .then((response) => {
-                                        if (response) {
-                                          toast({
-                                            title: `Camera ${item?.name} deleted`,
-                                            variant: "destructive",
-                                          });
-                                          router.refresh();
-                                        }
-                                      })
-                                      .catch((err) =>
-                                        console.log(
-                                          err,
-                                          "not able to delete from server",
-                                        ),
-                                      );
-                                  })}
-                            /> -->
-                            cameraDeleteDialog
-                          </span>
+                            <Trash2Icon />
+                          </button>
                           <p class="text-white text-[8px]">Delete</p>
                         </span>
                       {:else}
@@ -328,7 +373,7 @@
                           class="flex flex-col gap-1 items-center text-white"
                           on:click={(e) => {
                             e.stopPropagation();
-                            edit = "";
+                            edit = null;
                           }}
                         >
                           <X class="text-white" />
@@ -344,13 +389,11 @@
                 <div
                   id={`stream-${$selectedNode.name}-${index}`}
                   on:click={() => {
-                    console.log("first", index, activeStreamIndex);
                     if (activeStreamIndex !== index) {
                       activeStreamIndex = index;
                     } else if (activeStreamIndex === index) {
                       activeStreamIndex = null;
                     }
-                    console.log("first", index, activeStreamIndex, layoutValue);
                   }}
                   class={activeStreamIndex === index && layoutValue === "2"
                     ? "relative border-2 border-solid border-[#2952e1]"
@@ -436,9 +479,12 @@
             class=" my-4 flex flex-col items-center justify-start gap-2 overflow-y-scroll whitespace-nowrap h-[350px] mx-auto pb-4 text-black text-sm dark:text-white"
           >
             {#if $events?.length > 0}
-              <div class="m-4 flex flex-col gap-2">
+              <div class="m-4 flex flex-col sm:gap-2 w-[80%] gap-8 pb-10">
                 {#each galleryItems as galleryItem}
-                  <ComfortableProfileCard {galleryItem} />
+                  <ComfortableProfileCard
+                    isAllFullScreen={false}
+                    {galleryItem}
+                  />
                 {/each}
               </div>
             {:else}
@@ -453,76 +499,77 @@
               {#each $events as event}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                <button
-                  class="w-full fade-in-15 transition-all duration-200"
-                  on:click={() => {
-                    // openEventDialog(event);
-                    addUserLog(`user clicked on aler panel event`);
-                  }}
-                >
-                  <article
-                    class={`relative items-center gap-4 m-4 p-4 bg-background
-                   flex flex-col rounded-xl shadow-md text-base border}
+                <article
+                  class={`relative items-center gap-4 mx-4 p-2 bg-background w-full fade-in-15 transition-all duration-200
+                   flex rounded-xl shadow-md text-base border}
                `}
-                  >
-                    <img
-                      class="object-cover w-24 h-24 rounded-md col-span-1"
-                      src={"data:image/jpeg;base64," + event.frameImage}
-                      alt="Team Member"
-                    />
-                    {#if event.title.includes("car") && event.description !== ""}
-                      <CarDetailsDialog
-                        plateImage={event.videoUrl}
-                        plateNumber={event.description}
-                        carColor={event.title.replace(" car", "")}
-                        fullImage={event.frameImage}
-                        ><img
-                          class="object-cover w-64 h-16 rounded-md col-span-1"
-                          src={"data:image/jpeg;base64," + event.videoUrl}
-                          alt="Team Member"
-                        />
-                      </CarDetailsDialog>
-                    {/if}
-                    <div
-                      class="col-span-1 tex-center flex flex-col items-center"
-                    >
-                      <h3 class={`text-base`}>
-                        {#if event.title.includes("car") && event.description !== ""}
-                          {event.description} {event.title}
-                        {:else}
-                          {event.title}
-                        {/if}
-                      </h3>
-                      <p class={`text-xs`}>
-                        Camera {$selectedNode.camera.filter(
+                >
+                  <img
+                    class="object-cover w-24 h-24 rounded-md"
+                    src={"data:image/jpeg;base64," + event.frameImage}
+                    alt="Team Member"
+                  />
+                  {#if event.title.includes("car") && event.description !== ""}
+                    <CarDetailsDialog
+                      plateImage={event.videoUrl}
+                      plateNumber={event.description}
+                      carColor={event.title.replace(" car", "")}
+                      fullImage={event.frameImage}
+                      ><img
+                        class="object-cover w-64 h-16 rounded-md col-span-1"
+                        src={"data:image/jpeg;base64," + event.videoUrl}
+                        alt="Team Member"
+                      />
+                    </CarDetailsDialog>
+                  {/if}
+                  <div class="flex flex-col items-start">
+                    <h3 class={"font-semibold text-base"}>
+                      {#if event.title.includes("car") && event.description !== ""}
+                        {event.description} {event.title}
+                      {:else}
+                        {event.title}
+                      {/if}
+                    </h3>
+                    <p class={"text-sm text-black/.7"}>
+                      Camera {$selectedNode.camera.filter(
+                        (c) => c.id === event.camera,
+                      )[0] &&
+                        $selectedNode.camera.filter(
                           (c) => c.id === event.camera,
-                        )[0] &&
-                          $selectedNode.camera.filter(
-                            (c) => c.id === event.camera,
-                          )[0].name}
+                        )[0].name}
+                    </p>
+                    <span
+                      class="flex items-center justify-between border-b border-solid border-[#1c1c1c]/.1 gap-2 w-full"
+                    >
+                      <p class="text-sm text-[#D28E3D] font-medium">
+                        {event.matchScore !== 0 &&
+                        event.matchScore !== undefined &&
+                        event.matchScore !== null
+                          ? `Match Score : ${event?.matchScore}`
+                          : "No matches found"}
                       </p>
-                      <p class={`text-xs`}>
-                        {event.score}
-                      </p>
-                    </div>
-                    <div class="col-span-2 mx-auto">
-                      <p class={`text-sm`}>
-                        {event.created.toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
-                        })}
-                      </p>
-                      <p class={`text-sm`}>
+                      <p class="text-xs font-semibold">{event?.score}</p>
+                    </span>
+                    <span
+                      class="flex items-center justify-between gap-2 w-full"
+                    >
+                      <p class="text-xs">
                         {event.created.toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
                         })}
                       </p>
-                    </div>
-                  </article>
-                </button>
+                      <p class="text-xs">
+                        {event.created.toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                        })}
+                      </p>
+                    </span>
+                  </div>
+                </article>
               {/each}
             {:else}
               No event records found.

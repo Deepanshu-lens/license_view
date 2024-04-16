@@ -11,6 +11,7 @@
   // import * as Select from "../ui/select";
   export let url: string;
   export let nodes: Node[];
+  export let isAllFullScreen: boolean;
   let showAddNode = false;
 
   const onDeleteNode = () => {
@@ -72,9 +73,11 @@
   class={`flex justify-between items-center py-0.5 px-4 border-b-[1px] 
   ${!$leftPaneHide ? "w-full" : "w-0 hidden"}`}
 >
-  <div class={`relative inline-block w-full ${$leftPaneHide && "hidden"}`}>
+  <div
+    class={`relative inline-block w-full ${$leftPaneHide && "hidden"} ${isAllFullScreen && "bg-black"}`}
+  >
     <select
-      class={`block text-primary outline-none capitalize border-none font-semibold appearance-none w-full bg-background border py-4 pr-8 rounded leading-tight `}
+      class={`block text-primary outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 pr-8 rounded leading-tight `}
       value={$selectedNode && $selectedNode.name}
       on:change={handleNodeSelect}
     >
@@ -109,7 +112,8 @@
       ><Button
         variant="ghost"
         size="icon"
-        class={`${$leftPaneHide && "hidden"}`}><Trash size={18} /></Button
+        class={`${$leftPaneHide && "hidden"} ${isAllFullScreen && "text-primary"}`}
+        ><Trash size={18} /></Button
       ></AlertDeleteNode
     >{/if}
   <AddNodeModal {showAddNode} />

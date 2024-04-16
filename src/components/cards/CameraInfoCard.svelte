@@ -1,16 +1,16 @@
 <script lang="ts">
-  // your script goes here
   import { toast } from "svelte-sonner";
   import { Edit, Settings, Trash, Menu } from "lucide-svelte";
   import type { SelectedNode } from "@/types";
   import { hoveredCamera, leftPaneHide, selectedNode } from "@/lib/stores";
   import { activeCamera } from "@/lib/stores";
-  import { fade, scale } from "svelte/transition";
   import { cubicOut } from "svelte/easing";
   import Input from "../ui/input/input.svelte";
   import Button from "../ui/button/button.svelte";
   import CameraSettingsDialog from "../dialogs/CameraSettingsDialog.svelte";
   import { addUserLog } from "@/lib/addUserLog";
+
+  export let isAllFullScreen: boolean;
 
   export let cameraId: string;
   export let name: string;
@@ -106,9 +106,9 @@
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <article
   class={`flex border items-center gap-4 p-4 
-              hover:border-primary 
+              hover:border-primary ${isAllFullScreen && "text-slate-100"}
               rounded-xl shadow-sm text-base z-10 ${!$leftPaneHide ? "w-full px-4" : "w-0 px-0"}
-          ${cameraId === $activeCamera ? "animate-gradient-border " : "bg-background"}
+          ${cameraId === $activeCamera ? `animate-gradient-border  ${isAllFullScreen ? "bg-black" : "bg-background"}` : `${isAllFullScreen ? "bg-black" : "bg-background"}`}
         `}
   on:mouseover={() => {
     hoveredCamera.set(cameraId);

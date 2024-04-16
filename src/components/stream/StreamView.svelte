@@ -863,10 +863,12 @@
     {/if}
 
     {#if !$alertPanelHide}
-      <span class=" -rotate-90 absolute right-[11.8rem] top-44 z-[999] flex">
+      <span
+        class={`-rotate-90 absolute top-44 z-[999] flex ${isAllFullScreen ? "right-[12.7rem]" : "right-[11.8rem]"}`}
+      >
         <button
           on:click={() => (currpanel = 1)}
-          class={`cursor-pointer bg-white dark:bg-black w-[100px] h-[32px] rounded-t-xl text-black dark:text-white z-[800] flex items-center justify-center gap-2 shad text-sm ${currpanel === 1 && "font-bold"}`}
+          class={`cursor-pointer w-[100px] h-[32px] rounded-t-xl ${isAllFullScreen ? "text-white bg-slate-800" : "text-black dark:text-white bg-white dark:bg-slate-800"} z-[800] flex items-center justify-center gap-2 shad text-sm ${currpanel === 1 && "font-bold"}`}
           >Alerts <button
             on:click={() => {
               currpanel = 2;
@@ -876,7 +878,7 @@
         </button>
         <button
           on:click={() => (currpanel = 2)}
-          class={` cursor-pointer bg-white dark:bg-black w-[100px] h-[32px] rounded-t-xl text-black dark:text-white shad z-[800] flex items-center justify-center gap-2 text-sm ${currpanel === 2 && "font-bold"}`}
+          class={` cursor-pointer w-[100px] h-[32px] rounded-t-xl ${isAllFullScreen ? "text-white bg-slate-800" : "text-black dark:text-white bg-white dark:bg-slate-800"} shad z-[800] flex items-center justify-center gap-2 text-sm ${currpanel === 2 && "font-bold"}`}
           >Cameras
         </button>
       </span>
@@ -920,24 +922,22 @@
           </div>
         </div>
         <div
-          class="flex flex-row items-center justify-center 2xl:gap-4 gap-2 mt-4 px-2"
+          class={`flex flex-row items-center justify-center gap-4 ${isAllFullScreen ? "bg-[#333]" : "bg-[#f9f9f9] dark:bg-[#333]"} p-2`}
         >
           <button
-            class={!comfort
-              ? `text-xs 2xl:px-8 xl:px-4 py-2 rounded-md w-full ${isAllFullScreen ? "bg-[#333] text-white border-none" : "bg-[white] dark:bg-[#333] dark:text-white text-[#015A62]"}  dark:border-none mb-2 border border-solid border-[#015A62]`
-              : `bg-[#015A62] text-xs 2xl:px-8 xl:px-3 py-2 rounded-md mb-2 text-white w-full`}
             on:click={() => (comfort = true)}
+            class={!comfort
+              ? `bg-transparent font-medium ${isAllFullScreen ? "text-slate-50" : "text-[#afafaf]"} text-sm`
+              : `font-medium text-sm px-4 py-2 rounded-md ${isAllFullScreen ? "bg-black text-slate-200" : "bg-white text-[#727272] dark:bg-black dark:text-slate-200"}`}
+            >Comfortable</button
           >
-            Comfortable
-          </button>
           <button
-            class={comfort
-              ? `text-xs  ${isAllFullScreen ? "bg-[#333] text-white border-none " : "bg-[white] dark:bg-[#333] dark:text-white text-[#015A62]"} 2xl:px-8 xl:px-4 py-2 rounded-md w-full dark:border-none mb-2 border border-solid border-[#015A62]`
-              : `bg-[#015A62] text-xs 2xl:px-8 xl:px-3 py-2 rounded-md mb-2 text-white w-full`}
             on:click={() => (comfort = false)}
+            class={comfort
+              ? `bg-transparent font-medium ${isAllFullScreen ? "text-slate-50" : "text-[#afafaf]"} text-sm`
+              : `font-medium text-sm px-4 py-2 rounded-md ${isAllFullScreen ? "bg-black text-slate-200" : "bg-white text-[#727272] dark:bg-black dark:text-slate-200"}`}
+            >Informative</button
           >
-            Informative
-          </button>
         </div>
         {#if comfort}
           <div class="m-4 flex flex-col gap-2">
@@ -994,18 +994,14 @@
                       </CarDetailsDialog>
                     {/if}
                     <div>
-                      <h3
-                        class={`${isAllFullScreen ? "text-2xl" : "font-semibold text-sm"}`}
-                      >
+                      <h3 class={"font-semibold text-sm"}>
                         {#if event.title.includes("car") && event.description !== ""}
                           {event.description} {event.title}
                         {:else}
                           {event.title}
                         {/if}
                       </h3>
-                      <p
-                        class={`${isAllFullScreen ? "text-xl" : "text-xs text-black/.7"}`}
-                      >
+                      <p class={"text-xs text-black/.7"}>
                         Camera {$selectedNode.camera.filter(
                           (c) => c.id === event.camera,
                         )[0] &&
@@ -1026,18 +1022,14 @@
                         <p class="text-[10px] font-semibold">{event?.score}</p>
                       </span>
                       <span class="flex items-center justify-between gap-2">
-                        <p
-                          class={`${isAllFullScreen ? "text-xl" : "text-[10px]"}`}
-                        >
+                        <p class={"text-[10px]"}>
                           {event.created.toLocaleDateString("en-US", {
                             year: "numeric",
                             month: "short",
                             day: "numeric",
                           })}
                         </p>
-                        <p
-                          class={`${isAllFullScreen ? "text-2xl" : "text-[10px]"}`}
-                        >
+                        <p class={"text-[10px]"}>
                           {event.created.toLocaleTimeString("en-US", {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -1053,8 +1045,8 @@
           </ul>
         {/if}
       {:else}
-        <NodeSelection {nodes} {url} />
-        <CameraList showItems={true} />
+        <NodeSelection {isAllFullScreen} {nodes} {url} />
+        <CameraList showItems={true} {isAllFullScreen} />
       {/if}
     </div>
   </div>
