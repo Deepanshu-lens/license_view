@@ -27,6 +27,7 @@
     Monitor,
     X,
     Plus,
+    ChevronRight,
   } from "lucide-svelte";
 
   import { Cctv, LayoutPanelLeft } from "lucide-svelte";
@@ -268,6 +269,7 @@
     setTimeout(updateUnknowns, 1000);
   });
   let selectedScreen = null;
+  let showRightPanel = true;
 
   //////
   // mob
@@ -280,6 +282,7 @@
   let activeStreamIndex = writable(null);
 
   let currpanel = 2;
+  let showItems = true;
 
   // $: {
   //   console.log("first");
@@ -303,6 +306,45 @@
   // }
 
   // $: if (window) console.log(window.matchMedia("(orientation: landscape)"));
+
+  const toggleVisibility = () => {
+    console.log("Toggle Visibility", $leftPaneHide);
+    addUserLog(
+      `user clicked to switch left pane visibility to ${$leftPaneHide}`,
+    );
+    if ($leftPaneHide) {
+      // SHOW
+      leftPaneHide.set(!$leftPaneHide);
+      // localStorage.setItem("leftPaneHide", JSON.stringify($leftPaneHide));
+      const cameraItems = document.getElementById("node-view");
+      if (cameraItems)
+        cameraItems.addEventListener(
+          "transitionend",
+          () => {
+            showItems = !$leftPaneHide;
+          },
+          { once: true },
+        );
+    } else {
+      // HIDE
+      showItems = false;
+      // localStorage.setItem("leftPaneHide", JSON.stringify($leftPaneHide));
+      // console.log(url);
+      if (url === `/session/${sessionId}`) {
+        const cameraItems = document.getElementById("camera-items");
+        if (cameraItems)
+          cameraItems.addEventListener(
+            "transitionend",
+            () => {
+              leftPaneHide.set(true);
+            },
+            { once: true },
+          );
+      } else {
+        leftPaneHide.set(true);
+      }
+    }
+  };
 </script>
 
 <!-- {#if !$topPanelHide}
@@ -544,7 +586,7 @@
           on:click={() => {
             addUserLog(`user clicked on Add Camera button, top panel`);
           }}
-          class={`text-black/[.23] h-[40px] w-[40px] rounded-full group border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+          class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
           ><Plus class="h-[22px] w-[22px]" />
         </button>
         <p class="text-xs group-hover:text-[#015a62] text-black/.23">Add</p>
@@ -556,7 +598,7 @@
           on:click={() => {
             addUserLog(`user clicked on Search button, top panel`);
           }}
-          class={`text-black/[.23] h-[40px] w-[40px] rounded-full group border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+          class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
           ><Search class="h-[22px] w-[22px]" />
         </button>
         <p class="text-xs group-hover:text-[#015a62] text-black/.23">Search</p>
@@ -567,7 +609,7 @@
         <button
           on:click={() =>
             addUserLog("user clicked on Register button, top panel")}
-          class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+          class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
         >
           <ScanFace class="h-[22px] w-[22px]" />
         </button>
@@ -586,7 +628,7 @@
       <span class="group flex-col flex items-center justify-center gap-0.5">
         <button
           on:click={() => (selectedScreen = 3)}
-          class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+          class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
           ><Monitor class="h-[22px] w-[22px]" /></button
         >
         <p class="text-xs group-hover:text-[#015a62] text-black/.23">Extend</p>
@@ -600,8 +642,8 @@
           addUserLog("user clicked on start recording, top panel ");
         }}
         class={!recordDropdownOpen
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-          : `relative border-none rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+          : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
         ><Disc2 class="h-[22px] w-[22px]" />
         {#if recordDropdownOpen}
           <div
@@ -650,8 +692,8 @@
           addUserLog("user clicked on screen snip, top panel ");
         }}
         class={!snipDropDownOpen
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white  group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-          : ` border-none relative rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] bg-white  group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+          : ` border-none relative rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
         ><ImageDown class="h-[22px] w-[22px]" />
         {#if snipDropDownOpen}
           <div
@@ -720,8 +762,8 @@
           addUserLog(`user set alert panel hide to ${$alertPanelHide} `);
         }}
         class={$alertPanelHide
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white grid place-items-center  group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none`
-          : ` border-none rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] bg-white grid place-items-center  group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none`
+          : ` border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
         ><Bell class="h-[22px] w-[22px]" /></button
       >
       <p
@@ -737,7 +779,7 @@
           toggleFullscreen();
           addUserLog(`user clicked on fulscreen, top panel`);
         }}
-        class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+        class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
         ><Expand class="h-[22px] w-[22px]" /></button
       >
       <p class="text-xs group-hover:text-[#015a62] text-black/.23">
@@ -752,8 +794,8 @@
           addUserLog("user clicked display and layouts, left pane");
         }}
         class={!displayLayouts
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-          : ` border-none relative rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+          : ` border-none relative rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
         ><LayoutPanelLeft class="h-[22px] w-[22px]" />
         {#if displayLayouts}
           <span
@@ -797,8 +839,8 @@
           addUserLog("user clicked nodes and cameras, left pane");
         }}
         class={!nodeCameras
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-          : ` border-none rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center relative`}
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+          : ` border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center relative`}
         ><Cctv class="h-[22px] w-[22px]" />
 
         {#if nodeCameras}
@@ -864,7 +906,7 @@
 
     {#if !$alertPanelHide}
       <span
-        class={`-rotate-90 absolute top-44 z-[999] flex ${isAllFullScreen ? "right-[12.7rem]" : "right-[11.8rem]"}`}
+        class={`-rotate-90 absolute top-44 z-[999] transition-position ease-in-out duration-500 flex ${isAllFullScreen && showRightPanel ? "right-[12.7rem]" : showRightPanel && !isAllFullScreen ? "2xl:right-[12.7rem] right-[11.8rem]" : !showRightPanel ? "-right-20 opacity-0" : "-right-20"}`}
       >
         <button
           on:click={() => (currpanel = 1)}
@@ -884,12 +926,27 @@
       </span>
     {/if}
 
+    <button
+      on:click={() => (showRightPanel = !showRightPanel)}
+      class={`absolute ${showRightPanel ? "right-[17rem]" : "right-0"} py-1 rounded-l-md bg-[#f9f9f9] top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
+    >
+      <ChevronRight
+        class={`${showRightPanel ? "rotate-0" : "rotate-180"} transition-transform ease-in-out duration-700`}
+      />
+    </button>
+
     <div
       class={`h-full border-solid 
          border-l-[1px] 
          transition-width ease-in-out duration-500 overflow-y-scroll z-[998]
-         w-1/4 relative max-w-72`}
+        ${showRightPanel ? "w-1/4" : "w-0"} relative max-w-72`}
     >
+      <!-- <button
+        on:click={() => (showRightPanel = false)}
+        class="absolute top-1/2 -translate-y-1/2 bg-[#f9f9f9] grid place-items-center py-1 z-[99999] shadow-md"
+      >
+        <ChevronRight />
+      </button> -->
       {#if !$alertPanelHide && currpanel === 1}
         <div
           class={`backdrop-filter  
@@ -1046,7 +1103,7 @@
         {/if}
       {:else}
         <NodeSelection {isAllFullScreen} {nodes} {url} />
-        <CameraList showItems={true} {isAllFullScreen} />
+        <CameraList {isAllFullScreen} {showItems} />
       {/if}
     </div>
   </div>

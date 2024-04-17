@@ -105,10 +105,10 @@
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <article
-  class={`flex border items-center gap-4 p-4 
-              hover:border-primary ${isAllFullScreen && "text-slate-100"}
-              rounded-xl shadow-sm text-base z-10 ${!$leftPaneHide ? "w-full px-4" : "w-0 px-0"}
-          ${cameraId === $activeCamera ? `animate-gradient-border  ${isAllFullScreen ? "bg-black" : "bg-background"}` : `${isAllFullScreen ? "bg-black" : "bg-background"}`}
+  class={`flex  items-center gap-4 p-4 dark:border
+              hover:border hover:border-primary ${isAllFullScreen && "text-slate-100"}
+              rounded-xl shadow-md text-base z-10 ${!$leftPaneHide ? "w-full px-4" : "w-0 px-0"}
+          ${cameraId === $activeCamera ? ` border animate-gradient-border  ${isAllFullScreen ? "bg-black" : "bg-[#f9f9f9] dark:bg-black"}` : `${isAllFullScreen ? "bg-black" : "bg-[#f9f9f9] dark:bg-black"}`}
         `}
   on:mouseover={() => {
     hoveredCamera.set(cameraId);

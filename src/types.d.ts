@@ -55,6 +55,7 @@ export type Node = {
   recording_quality: number;
   recording_buffer: number;
   recording_sound: boolean;
+  mobileLayout: number;
 };
 
 export type SelectedNode = Node;

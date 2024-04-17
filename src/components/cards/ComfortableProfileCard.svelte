@@ -14,7 +14,7 @@
 <Card.Root
   class={isAllFullScreen
     ? "bg-[#333] text-white border-none"
-    : "bg-[#f9f9f9] h-[90px] dark:bg-[#333] scale-[1.2] sm:scale-100"}
+    : "bg-[#f9f9f9] h-[95px] dark:bg-[#333] scale-[1.2] sm:scale-100"}
 >
   <Card.Content class=" h-full w-full flex items-start px-2 py-1 gap-4">
     {#if galleryItem?.savedData?.length > 0}
@@ -24,7 +24,7 @@
         class=" h-16 w-16 aspect-square object-contain rounded-md my-auto"
       />
     {/if}
-    <span class="flex flex-col gap-1 w-full">
+    <span class="flex flex-col gap-1.5 w-full">
       <span class="font-semibold">{galleryItem.name}</span>
       <div class="flex -space-x-2 overflow-hidden">
         {#each galleryItem.images as galleryImage}

@@ -9,6 +9,7 @@
     Shrink,
     Filter,
     Search,
+    ChevronRight,
   } from "lucide-svelte";
   import { Calendar } from "@/components/ui/calendar";
   import { writable } from "svelte/store";
@@ -22,9 +23,7 @@
   const nodes = data.nodes;
 
   let eventFullscreen: boolean = false;
-  let isDropDownOpen: boolean = false;
   let showCalendar: boolean = false;
-  // let count = writable(5);
   let value = null;
   let dates = [];
   let showMore = null;
@@ -60,7 +59,6 @@
       year: "numeric",
     });
 
-    console.log(formattedDate);
     searchDate = formattedDate;
     queryDate = formattedDate;
     formattedDate = null;
@@ -169,6 +167,9 @@
       document.removeEventListener("fullscreenchange", onFullscreenChange);
     }
   }
+
+  let showRightPanel: boolean = true;
+  let showFilters: boolean = false;
 </script>
 
 <section class="right flex-1 flex h-screen w-full justify-between">
@@ -182,25 +183,106 @@
             on:click={() => {
               addUserLog(`user clicked on Search button, top panel`);
             }}
-            class={`text-black/[.23] h-[40px] w-[40px] rounded-full group border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+            class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
             ><Search class="h-[22px] w-[22px]" /></button
           >
           <p class="text-xs group-hover:text-[#015a62] text-black/.23">
             Search
           </p>
         </span>
-        <span class="group flex flex-col gap-0.5 items-center justify-center">
+        <span
+          class="group flex flex-col gap-0.5 items-center justify-center relative"
+        >
           <button
-            class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+            on:click={() => (showFilters = !showFilters)}
+            class={!showFilters
+              ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+              : ` border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
             ><Filter class="h-[22px] w-[22px]" />
           </button>
           <p class="text-xs group-hover:text-[#015a62] text-black/.23">
             Filter
           </p>
+          {#if showFilters}
+            <div
+              id="dropdownDefaultCheckbox"
+              class="z-20 flex w-48 bg-white divide-y divide-gray-100 rounded-lg shadow-md dark:bg-[#242424] dark:divide-gray-600 absolute left-14"
+            >
+              <ul
+                class="p-3 space-y-3 text-sm text-gray-700 dark:text-gray-200"
+                aria-labelledby="dropdownCheckboxButton"
+              >
+                <li>
+                  <label
+                    for="checkbox-item-1"
+                    class=" text-sm font-medium text-gray-900 dark:text-gray-100"
+                  >
+                    <input
+                      id="checkbox-item-1"
+                      type="checkbox"
+                      class="w-4 h-4 mr-2"
+                    />
+                    Object Detection
+                  </label>
+                </li>
+                <li>
+                  <label
+                    for="checkbox-item-2"
+                    class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-100"
+                  >
+                    <input
+                      id="checkbox-item-2"
+                      type="checkbox"
+                      class="w-4 h-4 mr-2"
+                    />
+                    Fire Detection
+                  </label>
+                </li>
+                <li>
+                  <label
+                    for="checkbox-item-3"
+                    class=" text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center"
+                  >
+                    <input
+                      id="checkbox-item-3"
+                      type="checkbox"
+                      class="w-4 h-4 mr-2"
+                    />
+                    24 hour feed
+                  </label>
+                </li>
+                <li>
+                  <label
+                    class=" flex items-center text-sm font-medium text-gray-900 dark:text-gray-100"
+                  >
+                    <input
+                      id="checkbox-item-4"
+                      type="checkbox"
+                      class="w-4 h-4 mr-2"
+                    />
+                    Action Detection
+                  </label>
+                </li>
+                <li>
+                  <label
+                    for="checkbox-item-5"
+                    class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-100"
+                  >
+                    <input
+                      id="checkbox-item-5"
+                      type="checkbox"
+                      class="w-4 h-4 mr-2"
+                    />
+                    All
+                  </label>
+                </li>
+              </ul>
+            </div>
+          {/if}
         </span>
         <span class="group flex flex-col gap-0.5 items-center justify-center">
           <button
-            class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+            class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
             ><Expand class="h-[22px] w-[22px]" />
           </button>
           <p class="text-xs group-hover:text-[#015a62] text-black/.23">
@@ -348,7 +430,7 @@
               id="scrollEle"
               class={eventFullscreen
                 ? "min-h-screen h-full flex items-start justify-start overflow-x-scroll overflow-y-clip relative"
-                : `min-h-[calc(100vh-75px)] h-[calc(100vh-75px)] flex items-start ${$leftPaneHide ? "w-full" : "max-w-[calc(100vw-300px)]"} justify-start overflow-x-scroll overflow-y-clip  relative`}
+                : `min-h-[calc(100vh-75px)] h-[calc(100vh-75px)] flex items-start ${!showRightPanel ? "w-full" : "max-w-[calc(100vw-300px)]"} justify-start overflow-x-scroll overflow-y-clip  relative`}
             >
               {#if data?.message?.search("No") !== 0}
                 {#each MapData as item}
@@ -600,7 +682,7 @@
                   showMore = showMore ? showMore + 2 : 7;
                   // count = count + 2;
                 }}
-                class="text-black dark:text-white fixed right-64 -rotate-90 top-1/2 translate-y-1/2 cursor-pointer z-50"
+                class={`text-black dark:text-white fixed ${showRightPanel ? "right-64" : "-right-6"} transition-position duration-700 ease-in-out -rotate-90 top-1/3 translate-y-1/3 cursor-pointer z-50 backdrop-blur-sm`}
               >
                 Show more
               </span>
@@ -832,10 +914,22 @@
       </div>
     </div>
   </div>
-  <div
-    class="h-[calc(100vh-75px)] w-1/4 max-w-72 dark:border-[#292929] border-l-[1px]"
+  <button
+    on:click={() => (showRightPanel = !showRightPanel)}
+    class={`absolute ${showRightPanel ? "right-72" : "right-0"} py-1 rounded-l-md bg-[#f9f9f9] top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
   >
-    <NodeSelection {nodes} url={data.url ?? "/"} />
+    <ChevronRight
+      class={`${showRightPanel ? "rotate-0" : "rotate-180"} transition-transform ease-in-out duration-700`}
+    />
+  </button>
+  <div
+    class={`h-[calc(100vh-75px)] ${showRightPanel ? "w-1/4 max-w-72 opacity-100" : "opacity-0 w-0"} transition-width ease-in-out duration-500 dark:border-[#292929] border-l-[1px]`}
+  >
+    <NodeSelection
+      {nodes}
+      url={data.url ?? "/"}
+      isAllFullScreen={eventFullscreen}
+    />
     <EventList />
   </div>
 </section>

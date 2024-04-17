@@ -184,13 +184,12 @@
             width="100px"
           />
           <p class="text-sm font-semibold">
-            CameraId: <span class="font-bold text-primary">
-              {result.camera}
+            Camera Name: <span class="font-bold text-primary">
+              {result?.expand?.camera?.name}
             </span>
           </p>
           <p class="text-sm font-semibold">
-            CreatedAt: <span class="font-bold text-primary">
-              <!-- {result.created.split(".")[0]} -->
+            Last seen: <span class="font-bold text-primary">
               {timeAgo?.format(new Date(result.created))}
             </span>
           </p>

@@ -21,7 +21,7 @@
           <button
             on:click={() =>
               addUserLog("user clicked on Register button, top panel")}
-            class={`text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+            class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
           >
             <ScanFace class="h-[22px] w-[22px]" />
           </button>

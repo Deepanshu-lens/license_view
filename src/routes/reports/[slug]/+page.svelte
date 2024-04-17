@@ -19,8 +19,8 @@
         <button
           on:click={() => (selectedScreen = 1)}
           class={selectedScreen !== 1
-            ? `text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-            : ` border-none rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+            ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+            : ` border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
           ><LineChart class="h-[22px] w-[22px]" /></button
         >
         <p
@@ -33,8 +33,8 @@
         <button
           on:click={() => (selectedScreen = 2)}
           class={selectedScreen !== 2
-            ? `text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-            : ` border-none rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+            ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+            : ` border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
           ><BarChartBig class="h-[22px] w-[22px]" /></button
         >
         <p
@@ -47,8 +47,8 @@
         <button
           on:click={() => (selectedScreen = 3)}
           class={selectedScreen !== 3
-            ? `text-black/[.23] h-[40px] w-[40px] rounded-full border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-            : ` border-none rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+            ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+            : ` border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
           ><KeyRound class="h-[22px] w-[22px]" /></button
         >
         <p
@@ -61,8 +61,8 @@
         <button
           on:click={() => (selectedScreen = 4)}
           class={selectedScreen !== 4
-            ? `text-black/[.23] h-[40px] w-[40px] rounded-full  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-            : ` border-none rounded-full h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+            ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
+            : ` border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
           ><CarFront class="h-[22px] w-[22px]" />
         </button>
         <p

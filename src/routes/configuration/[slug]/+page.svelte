@@ -28,6 +28,7 @@
       const nodes = await PB.collection("node").getFullList(200, {
         sort: "-created",
         expand: "camera",
+        filter: `session~"${session.id}"`,
       });
       return nodes.map(
         (node) =>

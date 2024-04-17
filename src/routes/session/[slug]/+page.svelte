@@ -6,8 +6,9 @@
   import { leftPaneHide, selectedNode, events } from "@/lib/stores";
   import { onDestroy, onMount } from "svelte";
   import AddNodeMob from "@/components/node/mobile/AddNodeMob.svelte";
+  import type { PageServerData } from "./$types";
 
-  export let data;
+  export let data: PageServerData;
   const session = data.session;
   let nodes: Node[] = [];
   let batchedEvents: Event[] = [];
@@ -21,6 +22,7 @@
       const nodes = await PB.collection("node").getFullList(200, {
         sort: "-created",
         expand: "camera",
+        filter: `session~"${session.id}"`,
       });
 
       return nodes.map(

@@ -11,6 +11,7 @@
   const PB = new PocketBase("http://127.0.0.1:5555");
 
   export let data: PageServerData;
+  const session = data.session;
   let nodes: Node[] = [];
 
   async function getNodes(): Promise<Node[]> {
@@ -18,6 +19,7 @@
       const nodes = await PB.collection("node").getFullList(200, {
         sort: "-created",
         expand: "camera",
+        filter: `session~"${session.id}"`,
       });
       return nodes.map(
         (node) =>

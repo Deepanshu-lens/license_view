@@ -26,7 +26,6 @@
   let showInfoModal = false;
   let allFullScreen = false;
   let cameraCount = $selectedNode.camera.length;
-  let layoutValue = "1";
   let newName: string = "";
   let edit;
   let comfort = true;
@@ -90,25 +89,6 @@
   export let editMode: boolean;
   export let showAlerts: boolean;
   export let data;
-
-  onMount(() => {
-    const layoutMob = localStorage.getItem("layoutSelectionMob");
-    if (layoutMob) {
-      layoutValue = layoutMob;
-    }
-  });
-
-  // $: {
-  //   console.log(liveFullscreen);
-  //   console.log(cameraCount);
-  //   console.log(layoutValue);
-  //   console.log(
-  //     Math.ceil(
-  //       cameraCount / (parseInt(layoutValue) !== 1 ? parseInt(layoutValue) : 1),
-  //     ),
-  //   );
-  // }
-  // console.log(Math.ceil(cameraCount / parseInt(layoutValue)));
 </script>
 
 <div
@@ -162,16 +142,16 @@
       {#if landscape}
         <Carousel.Root class="w-full h-full flex justify-center items-center">
           <Carousel.Content class="w-full h-full mx-0 px-0">
-            {#each Array.from( { length: cameraCount && cameraCount > 1 ? Math.ceil(cameraCount / (parseInt(layoutValue) !== 1 ? parseInt(layoutValue) : 1)) : 1 }, ) as _, slideIndex}
+            {#each Array.from( { length: cameraCount && cameraCount > 1 ? Math.ceil(cameraCount / ($selectedNode.mobileLayout !== 1 ? $selectedNode.mobileLayout : 1)) : 1 }, ) as _, slideIndex}
               <Carousel.Item class="h-full w-full px-0 mx-0">
                 <div
-                  class="grid place-items-center ml-10 w-[calc(100vh-200px)] h-[100vw] grid-cols-{layoutValue}"
+                  class="grid place-items-center ml-10 w-[calc(100vh-200px)] h-[100vw] grid-cols-{$selectedNode.mobileLayout}"
                   id={`slide-${slideIndex}`}
                 >
                   {#if cameraCount > 0}
-                    {#each Array.from( { length: parseInt(layoutValue) }, ) as _, index}
+                    {#each Array.from( { length: $selectedNode.mobileLayout }, ) as _, index}
                       {@const cameraIdx =
-                        slideIndex * parseInt(layoutValue) + index}
+                        slideIndex * $selectedNode.mobileLayout + index}
                       {#if cameraIdx < cameraCount}
                         <div
                           id={`stream-${$selectedNode.name}-${cameraIdx}`}
@@ -218,8 +198,8 @@
             : !allFullScreen && editMode
               ? "mid overflow-y-scroll w-full max-h-[calc(100vh-300px)] flex px-4 flex-wrap gap-4 my-4 pb-20 scroll z-20"
               : !allFullScreen && !editMode
-                ? `mid overflow-y-scroll w-full max-h-[calc(100vh-300px)] px-4 my-4 pb-20 z-20 grid grid-cols-${layoutValue} mx-auto scroll`
-                : `mid overflow-y-scroll w-full max-h-screen px-4 my-4 pb-6 z-20 grid grid-cols-${layoutValue} mx-auto scroll`}
+                ? `mid overflow-y-scroll w-full max-h-[calc(100vh-300px)] px-4 my-4 pb-20 z-20 grid grid-cols-${$selectedNode.mobileLayout} mx-auto scroll`
+                : `mid overflow-y-scroll w-full max-h-screen px-4 my-4 pb-6 z-20 grid grid-cols-${$selectedNode.mobileLayout} mx-auto scroll`}
         >
           {#if cameraCount > 0}
             {#each $selectedNode.camera as item, index}
@@ -233,11 +213,14 @@
                       activeStreamIndex = "";
                   }}
                   id={`stream-${selectedNode.nodeName}-${index}`}
-                  class={activeStreamIndex === index && layoutValue === "2"
+                  class={activeStreamIndex === index &&
+                  $selectedNode.mobileLayout === 2
                     ? "relative bg-white shadow-smol flex flex-col max-w-[47.5%] border-2 border-solid border-[#2952e1] z-10"
-                    : activeStreamIndex !== index && layoutValue === "2"
+                    : activeStreamIndex !== index &&
+                        $selectedNode.mobileLayout === 2
                       ? "relative bg-white shadow-smol flex flex-col max-w-[47.5%] z-10"
-                      : activeStreamIndex === index && layoutValue === "1"
+                      : activeStreamIndex === index &&
+                          $selectedNode.mobileLayout === 1
                         ? "relative bg-white shadow-smol flex flex-col w-[98%] h-auto mx-auto  border-2 border-solid border-[#2952e1] z-10"
                         : "relative bg-white shadow-smol flex flex-col w-[98%] h-auto mx-auto z-10"}
                 >
@@ -254,11 +237,13 @@
 
                   <div
                     class={`absolute h-full w-full top-0 left-0 bg-black/[.27] backdrop-blur-sm z-40 flex flex-col items-center justify-center ${
-                      layoutValue === "1" ? "gap-6" : "gap-3"
+                      $selectedNode.mobileLayout === 1 ? "gap-6" : "gap-3"
                     }`}
                   >
                     <span
-                      class={layoutValue === "1" ? "scale-125" : "scale-100"}
+                      class={$selectedNode.mobileLayout === 1
+                        ? "scale-125"
+                        : "scale-100"}
                     >
                       {#if edit === index}
                         <input
@@ -266,7 +251,7 @@
                           id={`newName-${index}`}
                           placeholder={item?.name}
                           class={`text-white placeholder-slate-200 placeholder-opacity-70 px-2 ${
-                            layoutValue === "1"
+                            $selectedNode.mobileLayout === 1
                               ? "scale-125 max-w-[150px] text-sm"
                               : "scale-90 max-w-[100px] text-xs"
                           } bg-transparent border-[1px] border-solid border-white`}
@@ -282,12 +267,14 @@
 
                     <span
                       class={` ${
-                        layoutValue === "1" ? "h-1" : "h-[2px]"
+                        $selectedNode.mobileLayout === 1 ? "h-1" : "h-[2px]"
                       } w-[90%] bg-white/[.26]`}
                     />
                     <span
                       class={`flex items-center gap-6 ${
-                        layoutValue === "1" ? "scale-125" : "scale-100"
+                        $selectedNode.mobileLayout === 1
+                          ? "scale-125"
+                          : "scale-100"
                       }`}
                     >
                       {#if edit !== index}
@@ -395,11 +382,14 @@
                       activeStreamIndex = null;
                     }
                   }}
-                  class={activeStreamIndex === index && layoutValue === "2"
+                  class={activeStreamIndex === index &&
+                  $selectedNode.mobileLayout === 2
                     ? "relative border-2 border-solid border-[#2952e1]"
-                    : activeStreamIndex !== index && layoutValue === "2"
+                    : activeStreamIndex !== index &&
+                        $selectedNode.mobileLayout === 2
                       ? "relative border-[1px] border-solid border-transparent"
-                      : activeStreamIndex === index && layoutValue === "1"
+                      : activeStreamIndex === index &&
+                          $selectedNode.mobileLayout === 1
                         ? "relative border-2 border-solid border-[#2952e1] "
                         : "relative border-2 border-solid border-transparent "}
                 >

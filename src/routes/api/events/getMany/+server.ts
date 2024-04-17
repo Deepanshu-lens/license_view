@@ -9,6 +9,7 @@ export const POST: RequestHandler = async ({
 
   const events = await locals.pb?.collection("events").getFullList({
     filter: requestData.ids.map((id) => `id="${id}"`).join("||"),
+    expand: "camera",
   });
 
   //   console.log("Events: " + JSON.stringify(events));

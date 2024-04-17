@@ -9,9 +9,6 @@
     day: "numeric",
   };
 
-  console.log($playbackVideos);
-  console.log($convertedVideos);
-
   let uniqueDates: string[];
   let selectedDate: string;
   $: uniqueDates = [
