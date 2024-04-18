@@ -1,5 +1,5 @@
 import PocketBase from "pocketbase";
-import { VITE_POCKETBASE_URL } from "$env/static/private";
+import { VITE_POCKETBASE_URL, VITE_BASE_URL } from "$env/static/private";
 
 export const handle = async ({ event, resolve }) => {
   event.locals.pb = new PocketBase(VITE_POCKETBASE_URL);
@@ -28,7 +28,7 @@ export const handle = async ({ event, resolve }) => {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? "none" : "lax",
-      domain: isProd ? ".yoursite.tld" : "localhost",
+      domain: isProd ? ".yoursite.tld" : `${VITE_BASE_URL}`,
     }),
   );
   // response.headers.set(

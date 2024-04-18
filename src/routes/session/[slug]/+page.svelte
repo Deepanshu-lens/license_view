@@ -7,13 +7,14 @@
   import { onDestroy, onMount } from "svelte";
   import AddNodeMob from "@/components/node/mobile/AddNodeMob.svelte";
   import type { PageServerData } from "./$types";
+  import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
 
   export let data: PageServerData;
   const session = data.session;
   let nodes: Node[] = [];
   let batchedEvents: Event[] = [];
 
-  const PB = new PocketBase("http://127.0.0.1:5555");
+  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
 
   async function getNodes(): Promise<Node[]> {
     // console.log("session", session.node);
@@ -100,14 +101,37 @@
     });
     setTimeout(updateEvents, 1000);
   });
+
   onDestroy(() => {
     PB.collection("node").unsubscribe("*");
     PB.collection("events").unsubscribe("*");
     PB.collection("camera").unsubscribe("*");
   });
 
-  $: leftPaneHide.set(!$selectedNode ? true : false);
-  // $: console.log("slected", $selectedNode);
+  // let voices = [];
+  // let text = "Hello Awesome!";
+  // let selectedVoice;
+
+  // onMount(() => {
+  //   speechSynthesis.onvoiceschanged = () => {
+  //     voices = speechSynthesis.getVoices();
+  //     console.log(voices);
+  //     selectedVoice = voices[0];
+  //   };
+  // });
+
+  // function play() {
+  //   console.log(selectedVoice);
+  //   speechSynthesis.cancel();
+
+  //   const utterance = new SpeechSynthesisUtterance(text);
+
+  //   utterance.rate = 1;
+  //   utterance.pitch = 1;
+  //   utterance.voice = selectedVoice;
+  //   utterance.volume = 1;
+  //   speechSynthesis.speak(utterance);
+  // }
 </script>
 
 {#if $selectedNode}

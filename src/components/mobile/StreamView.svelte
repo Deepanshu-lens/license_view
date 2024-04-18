@@ -22,6 +22,7 @@
   import InfoDialog from "../dialogs/mobile/InfoDialog.svelte";
   import { onMount } from "svelte";
   import { toast } from "svelte-sonner";
+  import { PUBLIC_BASE_URL } from "$env/static/public";
 
   let showInfoModal = false;
   let allFullScreen = false;
@@ -34,7 +35,7 @@
   const location = window?.location?.href;
   const neededUrl =
     location?.split("/")[2] === "localhost:3000"
-      ? "127.0.0.1"
+      ? PUBLIC_BASE_URL
       : location?.split("/")[2]?.split(":")[0];
 
   const initVideo = (camera: Camera) => {
@@ -47,7 +48,6 @@
     video.url = camera.url;
     video.src = new URL(
       `ws://${neededUrl}:8082/api/ws?src=${camera.url
-        // `ws://127.0.0.1:8082/api/ws?src=${camera.url
         ?.split("@")[1]
         ?.split(":")[0]
         ?.replace(/\./g, "_")}&camID=${camera.id}&nodeID=${1}`,
@@ -81,6 +81,15 @@
   };
 
   $: updateLayout($selectedNode.maxStreamsPerPage);
+
+  onMount(() => {
+    if ($selectedNode.mobileLayout === 0) {
+      selectedNode.set({
+        ...$selectedNode,
+        mobileLayout: 1,
+      });
+    }
+  });
 
   export let galleryItems: any;
   export let landscape: boolean;

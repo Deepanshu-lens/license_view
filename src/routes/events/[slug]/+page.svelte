@@ -7,13 +7,14 @@
   import EventPanel from "@/components/events/EventPanel.svelte";
   import EventsView from "@/components/events/mobile/EventsView.svelte";
   import { ChevronLeft } from "lucide-svelte";
+  import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
 
   export let data: PageServerData;
   const session = data.session;
   let nodes: Node[] = [];
   let batchedEvents: Event[] = [];
 
-  const PB = new PocketBase("http://127.0.0.1:5555");
+  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
 
   async function getNodes(): Promise<Node[]> {
     if (session.node.length > 0) {

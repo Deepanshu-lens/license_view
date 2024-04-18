@@ -22,6 +22,7 @@
   import { toast } from "svelte-sonner";
   import LayoutDialog from "../dialogs/LayoutDialog.svelte";
   import RegisterDialog from "../dialogs/RegisterDialog.svelte";
+  import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
 
   let showCalendar: boolean = false;
   let showRightPanel: boolean = true;
@@ -64,7 +65,7 @@
     value = null;
   }
 
-  const PB = new PocketBase("http://127.0.0.1:5555");
+  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
 
   PB.collection("playback").subscribe("*", async (e) => {
     playbackVideos.set(await getPlaybackData());

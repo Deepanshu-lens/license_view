@@ -11,6 +11,7 @@
   import { toast } from "svelte-sonner";
   import { addUserLog } from "@/lib/addUserLog";
   import { writable } from "svelte/store";
+  import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
 
   let selected = 1;
   let detailIndex: number | null = null;
@@ -27,7 +28,7 @@
   let newData = [];
   let change = "";
 
-  const PB = new PocketBase("http://127.0.0.1:5555");
+  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
 
   const nodeData = writable([]);
 

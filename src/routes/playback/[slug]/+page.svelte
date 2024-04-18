@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
   import PlaybackView from "./../../../components/playback/mobile/PlaybackView.svelte";
   import PlaybackPanel from "@/components/playback/PlaybackPanel.svelte";
   import { convertedVideos, selectedNode } from "@/lib/stores";
@@ -8,7 +9,7 @@
   import { onMount } from "svelte";
   import { ChevronLeft } from "lucide-svelte";
 
-  const PB = new PocketBase("http://127.0.0.1:5555");
+  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
 
   export let data: PageServerData;
   const session = data.session;

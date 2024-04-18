@@ -10,6 +10,7 @@
   import { Disc2, Expand, ImageDown, VolumeX } from "lucide-svelte";
   import { Shrink } from "lucide-svelte";
   import { addUserLog } from "@/lib/addUserLog";
+  import { PUBLIC_BASE_URL } from "$env/static/public";
 
   export let handleSingleSS: () => void;
   export let isAllFullScreen: boolean;
@@ -24,7 +25,7 @@
   const location = window?.location?.href;
   const neededUrl =
     location?.split("/")[2] === "localhost:3000"
-      ? "127.0.0.1"
+      ? PUBLIC_BASE_URL
       : location?.split("/")[2]?.split(":")[0];
 
   const initVideo = (camera: Camera) => {
@@ -37,7 +38,6 @@
     video.url = camera.url;
     video.src = new URL(
       `ws://${neededUrl}:8082/api/ws?src=${camera.url
-        // `ws://127.0.0.1:8082/api/ws?src=${camera.url
         ?.split("@")[1]
         ?.split(":")[0]
         ?.replace(/\./g, "_")}&camID=${camera.id}&nodeID=${1}`,
