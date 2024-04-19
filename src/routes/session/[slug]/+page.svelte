@@ -87,13 +87,36 @@
     }
   }
 
+  let voices = [];
+  let selectedVoice;
+
+  function play(text: string) {
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.voice = selectedVoice;
+    utterance.volume = 1;
+    speechSynthesis.speak(utterance);
+  }
+
   onMount(async () => {
     nodes = await getNodes();
-    // console.log("nodes[0]", nodes[0]);
     selectedNode.set(nodes[0]);
     let x = await getEvents();
     events.set(x);
+    speechSynthesis.onvoiceschanged = () => {
+      voices = speechSynthesis.getVoices();
+      console.log(voices);
+      selectedVoice = voices[0];
+    };
     PB.collection("events").subscribe("*", async (e) => {
+      if (e.record.title === "Pranit") {
+        const title = e.record.title;
+        console.log(`event detect with title: ${title}`);
+        // play(`Event detected with title: ${title}`);
+      }
       batchedEvents.push({
         ...e.record,
         created: new Date(e.record.created),
@@ -107,31 +130,6 @@
     PB.collection("events").unsubscribe("*");
     PB.collection("camera").unsubscribe("*");
   });
-
-  // let voices = [];
-  // let text = "Hello Awesome!";
-  // let selectedVoice;
-
-  // onMount(() => {
-  //   speechSynthesis.onvoiceschanged = () => {
-  //     voices = speechSynthesis.getVoices();
-  //     console.log(voices);
-  //     selectedVoice = voices[0];
-  //   };
-  // });
-
-  // function play() {
-  //   console.log(selectedVoice);
-  //   speechSynthesis.cancel();
-
-  //   const utterance = new SpeechSynthesisUtterance(text);
-
-  //   utterance.rate = 1;
-  //   utterance.pitch = 1;
-  //   utterance.voice = selectedVoice;
-  //   utterance.volume = 1;
-  //   speechSynthesis.speak(utterance);
-  // }
 </script>
 
 {#if $selectedNode}

@@ -3,7 +3,6 @@
   import { VideoStream } from "@/lib/video-stream";
   import { activeCamera, hoveredCamera, fullscreen } from "@/lib/stores";
   import { cn } from "@/lib";
-  import { onDestroy, onMount } from "svelte";
   export let camera: Camera;
   export let videoElement: HTMLElement;
 
@@ -32,13 +31,6 @@
     }
   };
 
-  // onMount(() => {
-  //   console.log(videoElement.wsURL, camera.id);
-  // });
-  // onDestroy(() => {
-  //   console.log("Getting killed ", videoElement);
-  // });
-
   $: document && parentDiv && videoElement && attachVideo(videoElement);
 </script>
 
@@ -47,7 +39,7 @@
 <div
   class={cn(
     `mx-auto w-full h-full relative 
-     rounded-lg  flex items-center justify-center bg-[red]`,
+     rounded-lg  flex items-center justify-center`,
     // !videoStarted &&
     "min-w-full  h-full flex-shrink-0 bg-gradient-to-r from-slate-300 via-slate-500 to-slate-700",
     !$fullscreen &&

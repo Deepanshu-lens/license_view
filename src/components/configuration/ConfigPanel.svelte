@@ -33,9 +33,11 @@
   };
 </script>
 
-<section class="right h-[calc(100vh-75px)] w-full flex-1 bg-background flex">
+<section
+  class="right h-[calc(100vh-75px)] w-full flex-1 bg-background flex flex-row-reverse"
+>
   <div
-    class="flex flex-col gap-4 items-center justify-center px-2 h-full my-auto"
+    class="flex flex-col gap-4 items-center justify-center pl-2 pr-4 h-full my-auto"
   >
     <span class="group flex flex-col gap-0.5 items-center justify-center">
       <button

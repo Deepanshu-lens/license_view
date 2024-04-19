@@ -10,11 +10,13 @@
   let selectedScreen = 1;
 </script>
 
-<main class="flex items-start w-full h-[calc(100vh-75px)]">
+<main
+  class="flex items-start flex-row-reverse px-4 w-full h-[calc(100vh-75px)]"
+>
   <section
     class="left flex flex-col justify-center items-center h-[calc(100vh-75px)]"
   >
-    <div class="flex flex-col gap-6 items-center justify-center px-2">
+    <div class="flex flex-col gap-6 items-center justify-center pl-2">
       <span class="group flex items-center justify-center gap-0.5 flex-col">
         <button
           on:click={() => (selectedScreen = 1)}

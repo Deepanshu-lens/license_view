@@ -286,7 +286,7 @@
   let showItems = true;
 </script>
 
-<div class="sm:flex hidden">
+<div class="sm:flex flex-row-reverse hidden">
   <div
     class=" flex flex-col gap-2.5 items-center justify-center px-2 h-full my-auto"
   >
@@ -358,7 +358,7 @@
         {#if recordDropdownOpen}
           <div
             id="dropdown"
-            class="z-50 dark:text-white text-black flex items-center border justify-center bg-background divide-y divide-gray-100 shadow-dropdown rounded-lg shadow w-40 absolute left-12"
+            class="z-50 dark:text-white text-black flex items-center border justify-center bg-background divide-y divide-gray-100 shadow-dropdown rounded-lg shadow w-40 absolute right-12"
           >
             <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
               <li class="w-full">
@@ -408,7 +408,7 @@
         {#if snipDropDownOpen}
           <div
             id="dropdown"
-            class="z-50 dark:text-white text-black flex items-center border justify-center bg-background divide-y divide-gray-100 shadow-dropdown rounded-lg shadow w-40 absolute left-12"
+            class="z-50 dark:text-white text-black flex items-center border justify-center bg-background divide-y divide-gray-100 shadow-dropdown rounded-lg shadow w-40 absolute right-12"
           >
             <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
               <li class="w-full">
@@ -509,7 +509,7 @@
         ><LayoutPanelLeft class="h-[22px] w-[22px]" />
         {#if displayLayouts}
           <span
-            class="z-40 w-[200px] border flex items-center justify-center bg-background dark:text-white text-black divide-y divide-gray-100 shadow-dropdown rounded-lg shadow absolute left-12"
+            class="z-40 w-[200px] border flex items-center justify-center bg-background dark:text-white text-black divide-y divide-gray-100 shadow-dropdown rounded-lg shadow absolute right-12"
           >
             <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
               <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
@@ -556,7 +556,7 @@
 
         {#if nodeCameras}
           <span
-            class="z-40 border w-[200px] flex items-center justify-center bg-background dark:text-white text-black divide-y divide-gray-100 shadow-dropdown rounded-lg shadow absolute left-12"
+            class="z-40 border w-[200px] flex items-center justify-center bg-background dark:text-white text-black divide-y divide-gray-100 shadow-dropdown rounded-lg shadow absolute right-12"
           >
             <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
               <li class="w-full">
@@ -611,7 +611,7 @@
         }}
       >
         <Minimize />
-        Minimize all Fullscreen
+        Exit Fullscreen
       </span>
     {/if}
 
@@ -639,7 +639,7 @@
 
     <button
       on:click={() => (showRightPanel = !showRightPanel)}
-      class={`absolute ${showRightPanel ? "right-[17rem]" : "right-0"} py-1 rounded-l-md bg-[#f9f9f9] top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
+      class={`absolute ${showRightPanel ? "right-[17rem] 2xl:right-[18rem]" : "right-0"} py-1 rounded-l-md bg-[#f9f9f9] top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
     >
       <ChevronRight
         class={`${showRightPanel ? "rotate-0" : "rotate-180"} transition-transform ease-in-out duration-700`}
@@ -648,7 +648,7 @@
 
     <div
       class={`h-full border-solid 
-         border-l-[1px] 
+         border-x-[1px] 
          transition-width ease-in-out duration-500 overflow-y-scroll z-[998]
         ${showRightPanel ? "w-1/4" : "w-0"} relative max-w-72`}
     >

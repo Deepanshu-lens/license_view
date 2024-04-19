@@ -11,59 +11,57 @@
   export let gallery: Gallery;
 </script>
 
-<section class="w-full h-full flex">
-  <div class="flex h-full">
-    <div
-      class="flex flex-col gap-4 items-center justify-center px-4 h-[calc(100vh-75px)] my-auto"
-    >
-      <RegisterDialog>
-        <span class="group flex-col flex items-center justify-center gap-0.5">
-          <button
-            on:click={() =>
-              addUserLog("user clicked on Register button, top panel")}
-            class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
-          >
-            <ScanFace class="h-[22px] w-[22px]" />
-          </button>
-          <p class="text-xs group-hover:text-[#015a62] text-black/.23">
-            Register
-          </p>
-        </span>
-      </RegisterDialog>
-    </div>
-    <div class="flex flex-wrap gap-6 p-10 h-full">
-      {#each gallery as person}
-        <div
-          class="w-[300px] h-[190px] bg-white dark:bg-[#333] shad dark:shadow-none rounded-lg p-3"
+<section class="w-full h-full flex flex-row-reverse">
+  <div
+    class="flex flex-col gap-4 items-center justify-center px-4 h-[calc(100vh-75px)] my-auto"
+  >
+    <RegisterDialog>
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <button
+          on:click={() =>
+            addUserLog("user clicked on Register button, top panel")}
+          class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
         >
-          <span class="flex items-center justify-between">
-            <p class="tex-tsm font-semibold">{person.name}</p>
-            <span
-              class="text-[#559C36] bg-[#559C36] bg-opacity-15 px-2 py-1 rounded-md text-sm"
-              >Active</span
-            >
-          </span>
-          <span class="text-xs">
-            Created at: {person.created}
-          </span>
-          <div class="flex -space-x-2 overflow-hidden my-2">
-            {#each person.images as galleryImage}
-              <img
-                class={cn(
-                  `inline-block h-10 w-10 rounded-full ring-2 ring-white`,
-                  "3xl:w-16 3xl:h-16",
-                )}
-                src={"data:image/jpeg;base64," + galleryImage}
-                alt=""
-              />
-            {/each}
-          </div>
-          <span class="text-sm">
-            Updated {timeAgo?.format(new Date(person.updated))}
-          </span>
+          <ScanFace class="h-[22px] w-[22px]" />
+        </button>
+        <p class="text-xs group-hover:text-[#015a62] text-black/.23">
+          Register
+        </p>
+      </span>
+    </RegisterDialog>
+  </div>
+  <div class="flex flex-wrap gap-6 p-10 h-full w-full">
+    {#each gallery as person}
+      <div
+        class="w-[300px] h-[190px] bg-white dark:bg-[#333] shad dark:shadow-none rounded-lg p-3"
+      >
+        <span class="flex items-center justify-between">
+          <p class="tex-tsm font-semibold">{person.name}</p>
+          <span
+            class="text-[#559C36] bg-[#559C36] bg-opacity-15 px-2 py-1 rounded-md text-sm"
+            >Active</span
+          >
+        </span>
+        <span class="text-xs">
+          Created at: {person.created}
+        </span>
+        <div class="flex -space-x-2 overflow-hidden my-2">
+          {#each person.images as galleryImage}
+            <img
+              class={cn(
+                `inline-block h-10 w-10 rounded-full ring-2 ring-white`,
+                "3xl:w-16 3xl:h-16",
+              )}
+              src={"data:image/jpeg;base64," + galleryImage}
+              alt=""
+            />
+          {/each}
         </div>
-      {/each}
-    </div>
+        <span class="text-sm">
+          Updated {timeAgo?.format(new Date(person.updated))}
+        </span>
+      </div>
+    {/each}
   </div>
 </section>
 

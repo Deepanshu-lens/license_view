@@ -180,9 +180,27 @@
                 <!-- svelte-ignore a11y-no-static-element-interactions -->
                 {#key pageIndex * $selectedNode.maxStreamsPerPage + slotIndex}
                   <!-- svelte-ignore a11y-click-events-have-key-events -->
+                  <!-- draggable="true"
+                  on:dragstart={(event) => {
+                    event.dataTransfer.setData("text/plain", event.target.id);
+                  }}
+                    on:dragover={(event) => {
+                      event.preventDefault();
+                    }}
+                    on:drop={(event) => {
+                      event.preventDefault();
+                      const id = event.dataTransfer.getData("text/plain");
+                      const draggedElement = document.getElementById(id);
+                      const dropTarget = event.target.closest(".grid-cell");
+                      if (!dropTarget || !draggedElement) return;
+                      
+                      let temp = draggedElement.innerHTML;
+                      console.log(temp);
+                      draggedElement.innerHTML = dropTarget.innerHTML;
+                      dropTarget.innerHTML = temp;
+                    }} -->
                   <div
-                    on:click={(event) => {
-                      //  const isClickInsideMenu = event.target.closest(`${$activeCamera}`);
+                    on:click={() => {
                       addUserLog(
                         `user clicked camera ${
                           $selectedNode.camera[
@@ -376,14 +394,14 @@
       class="left-8 disabled:invisible text-bold text-[#015a62] dark:text-white"
     />
     <Carousel.Next
-      class="right-4 disabled:invisible text-bold text-[#015a62] dark:text-white"
+      class="right-8 disabled:invisible text-bold text-[#015a62] dark:text-white"
     />
   </Carousel.Root>
 {:else}
   <div
     class={`h-full w-full ${streamCount === 0 ? "flex justify-center items-center" : "relative"}`}
   >
-    <AddCameraDialog>
+    <AddCameraDialog sNode={""}>
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
       <img
