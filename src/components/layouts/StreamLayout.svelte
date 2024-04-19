@@ -172,7 +172,7 @@
         <Carousel.Item class="h-full w-full px-0 mx-0">
           <div
             class={cn(
-              `grid gap-1 w-full h-full ${$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-376px)]" : !$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : isAllFullScreen ? "max-h-screen" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
+              `grid gap-1 w-full h-full ${$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : !$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : isAllFullScreen ? "max-h-screen" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
               $selectedNode.maxStreamsPerPage === 13 && "grid-area-13",
               $selectedNode.maxStreamsPerPage === 10 && "grid-area-10",
               $selectedNode.maxStreamsPerPage === 5 && "grid-area-5",
