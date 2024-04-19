@@ -639,7 +639,7 @@
 
     <button
       on:click={() => (showRightPanel = !showRightPanel)}
-      class={`absolute ${showRightPanel ? "right-[17rem] 2xl:right-[18rem]" : "right-0"} py-1 rounded-l-md bg-[#f9f9f9] top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
+      class={`absolute ${showRightPanel ? "right-[17rem] 2xl:right-[18rem]" : "right-0"} py-1 rounded-l-md bg-[#f9f9f9] dark:bg-slate-800 top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
     >
       <ChevronRight
         class={`${showRightPanel ? "rotate-0" : "rotate-180"} transition-transform ease-in-out duration-700`}
@@ -738,7 +738,7 @@
                 >
                   <article
                     class={`relative items-center gap-2 mx-2 my-4 p-2
-                 flex bg-[#f9f9f9]
+                 flex bg-[#f9f9f9] dark:bg-black
              rounded-xl shadow-md text-base border 
              ${isAllFullScreen ? "bg-black text-white " : "hover:scale-[1.01] dark:shadow-slate-800 hover:shadow-lg "}
              `}

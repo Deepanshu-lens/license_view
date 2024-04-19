@@ -14,7 +14,7 @@
   import { Calendar } from "@/components/ui/calendar";
   import { writable } from "svelte/store";
   import { onMount } from "svelte";
-  import { events, leftPaneHide } from "@/lib/stores";
+  import { events } from "@/lib/stores";
   import InformativeEventCard from "../cards/InformativeEventCard.svelte";
   import { toast } from "svelte-sonner";
   import { addUserLog } from "@/lib/addUserLog";
@@ -660,7 +660,7 @@
   >
     <button
       on:click={() => (showRightPanel = !showRightPanel)}
-      class={`absolute -left-6 py-1 rounded-l-md bg-[#f9f9f9] top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
+      class={`absolute -left-6 py-1 rounded-l-md bg-[#f9f9f9] dark:bg-slate-800  top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
     >
       <ChevronRight
         class={`${showRightPanel ? "rotate-0" : "rotate-180"} transition-transform ease-in-out duration-700`}

@@ -1,7 +1,6 @@
 <script>
   import { ChevronDown, ChevronUp } from "lucide-svelte";
   import LayoutDialog from "../dialogs/LayoutDialog.svelte";
-  import { leftPaneHide } from "@/lib/stores";
   import { addUserLog } from "@/lib/addUserLog";
 
   let displayLayouts = false;
@@ -13,9 +12,7 @@
   }
 </script>
 
-<div
-  class={`absolute bottom-[58px] w-72 border-t ${$leftPaneHide && "hidden"} `}
->
+<div class={`absolute bottom-[58px] w-72 border-t `}>
   <button
     class="flex w-64 cursor-pointer relative py-4 font-semibold px-4 outline-none capitalize bg-background select min-h-[57px]"
     on:click={() => {
@@ -56,7 +53,7 @@
   {/if}
 </div>
 
-<div class={`absolute bottom-0 w-72 border-t ${$leftPaneHide && "hidden"} `}>
+<div class={`absolute bottom-0 w-72 border-t `}>
   <button
     class="flex w-64 cursor-pointer relative py-4 font-semibold px-4 outline-none capitalize bg-background select min-h-[57px]"
     on:click={() => {

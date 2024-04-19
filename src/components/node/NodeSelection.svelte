@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Node } from "@/types";
   import { Trash } from "lucide-svelte";
-  import { leftPaneHide, selectedNode } from "@/lib/stores";
+  import {  selectedNode } from "@/lib/stores";
   import Button from "../ui/button/button.svelte";
   import { toast } from "svelte-sonner";
   import AlertDeleteNode from "../dialogs/alerts/AlertDeleteNode.svelte";
@@ -70,11 +70,10 @@
 </script>
 
 <div
-  class={`flex justify-between items-center py-0.5 px-4 border-b-[1px] 
-  ${!$leftPaneHide ? "w-full" : "w-0 hidden"}`}
+  class={`flex justify-between items-center py-0.5 px-4 border-b-[1px] w-full`}
 >
   <div
-    class={`relative inline-block w-full ${$leftPaneHide && "hidden"} ${isAllFullScreen && "bg-black"}`}
+    class={`relative inline-block w-full ${isAllFullScreen && "bg-black"}`}
   >
     <select
       class={`block text-primary outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 pr-8 rounded leading-tight `}
@@ -89,7 +88,7 @@
     <div
       class={cn(
         `pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 py-4 text-primary`,
-        $leftPaneHide && "hidden",
+       ,
       )}
     >
       <svg
@@ -112,7 +111,7 @@
       ><Button
         variant="ghost"
         size="icon"
-        class={`${$leftPaneHide && "hidden"} ${isAllFullScreen && "text-primary"}`}
+        class={` ${isAllFullScreen && "text-primary"}`}
         ><Trash size={18} /></Button
       ></AlertDeleteNode
     >{/if}

@@ -1,9 +1,9 @@
 <script lang="ts">
   import AddNode from "@/components/node/AddNode.svelte";
-  import type { SelectedNode, Node, Camera, User, Event } from "@/types.d.ts";
+  import type { Node, Camera, Event } from "@/types.d.ts";
   import StreamView from "@/components/stream/StreamView.svelte";
   import PocketBase from "pocketbase";
-  import { leftPaneHide, selectedNode, events } from "@/lib/stores";
+  import { selectedNode, events } from "@/lib/stores";
   import { onDestroy, onMount } from "svelte";
   import AddNodeMob from "@/components/node/mobile/AddNodeMob.svelte";
   import type { PageServerData } from "./$types";

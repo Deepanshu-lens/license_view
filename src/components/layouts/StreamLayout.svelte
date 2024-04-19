@@ -148,7 +148,11 @@
         ? Math.ceil(streamCount / 10)
         : maxStreamsPerPage === 13
           ? Math.ceil(streamCount / 13)
-          : Math.ceil(streamCount / (layoutRows * layoutColumns));
+          : maxStreamsPerPage === 5
+            ? Math.ceil(streamCount / 6)
+            : maxStreamsPerPage === 7
+              ? Math.ceil(streamCount / 8)
+              : Math.ceil(streamCount / (layoutRows * layoutColumns));
   };
 
   $: updateLayout($selectedNode.maxStreamsPerPage);
@@ -168,14 +172,14 @@
         <Carousel.Item class="h-full w-full px-0 mx-0">
           <div
             class={cn(
-              `grid gap-1 w-full h-full ${$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : !$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-134px)]" : isAllFullScreen ? "max-h-screen" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
+              `grid gap-1 w-full h-full ${$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-376px)]" : !$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : isAllFullScreen ? "max-h-screen" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
               $selectedNode.maxStreamsPerPage === 13 && "grid-area-13",
               $selectedNode.maxStreamsPerPage === 10 && "grid-area-10",
               $selectedNode.maxStreamsPerPage === 5 && "grid-area-5",
               $selectedNode.maxStreamsPerPage === 7 && "grid-area-7",
             )}
           >
-            {#each Array($selectedNode.maxStreamsPerPage !== 0 && $selectedNode.maxStreamsPerPage !== 5 && $selectedNode.maxStreamsPerPage !== 7 ? $selectedNode.maxStreamsPerPage : layoutRows * layoutColumns) as _, slotIndex}
+            {#each Array($selectedNode.maxStreamsPerPage !== 0 && $selectedNode.maxStreamsPerPage !== 5 && $selectedNode.maxStreamsPerPage !== 7 ? $selectedNode.maxStreamsPerPage : $selectedNode.maxStreamsPerPage === 5 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : layoutRows * layoutColumns) as _, slotIndex}
               {#if pageIndex * $selectedNode.maxStreamsPerPage + slotIndex < streamCount}
                 <!-- svelte-ignore a11y-no-static-element-interactions -->
                 {#key pageIndex * $selectedNode.maxStreamsPerPage + slotIndex}

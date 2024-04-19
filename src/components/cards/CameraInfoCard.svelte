@@ -2,7 +2,7 @@
   import { toast } from "svelte-sonner";
   import { Edit, Settings, Trash, Menu } from "lucide-svelte";
   import type { SelectedNode } from "@/types";
-  import { hoveredCamera, leftPaneHide, selectedNode } from "@/lib/stores";
+  import { hoveredCamera, , selectedNode } from "@/lib/stores";
   import { activeCamera } from "@/lib/stores";
   import { cubicOut } from "svelte/easing";
   import Input from "../ui/input/input.svelte";
@@ -107,7 +107,7 @@
 <article
   class={`flex  items-center gap-4 p-4 dark:border
               hover:border hover:border-primary ${isAllFullScreen && "text-slate-100"}
-              rounded-xl shadow-md text-base z-10 ${!$leftPaneHide ? "w-full px-4" : "w-0 px-0"}
+              rounded-xl shadow-md text-base z-10 w-full px-4
           ${cameraId === $activeCamera ? ` border animate-gradient-border  ${isAllFullScreen ? "bg-black" : "bg-[#f9f9f9] dark:bg-black"}` : `${isAllFullScreen ? "bg-black" : "bg-[#f9f9f9] dark:bg-black"}`}
         `}
   on:mouseover={() => {

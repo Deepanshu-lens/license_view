@@ -5,7 +5,6 @@
   import { fade } from "svelte/transition";
   import { setContext } from "svelte";
   import Navbar from "@/components/navbar/Navbar.svelte";
-  import LeftPane from "@/components/panes/LeftPane.svelte";
   import type { User } from "@/types.d.ts";
   import { cn } from "@/lib";
 
@@ -34,13 +33,6 @@
           data.url?.includes("login") ? "h-screen" : "max-h-[calc(100vh-76px)]",
         )}
       >
-        <!-- {#if !data.url.includes("gallery") && !data.url?.includes("events") && !data.url?.includes("login") && !data.url?.includes("reports") && !data.url?.includes("session") && !data.url?.includes("playback")}
-          <LeftPane
-            {nodes}
-            url={data.url ?? "/"}
-            sessionId={session?.id ?? ""}
-          />
-        {/if} -->
         <div
           class={`
                 right
