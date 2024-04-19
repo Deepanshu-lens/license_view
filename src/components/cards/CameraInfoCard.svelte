@@ -2,7 +2,7 @@
   import { toast } from "svelte-sonner";
   import { Edit, Settings, Trash, Menu } from "lucide-svelte";
   import type { SelectedNode } from "@/types";
-  import { hoveredCamera, , selectedNode } from "@/lib/stores";
+  import { hoveredCamera, selectedNode } from "@/lib/stores";
   import { activeCamera } from "@/lib/stores";
   import { cubicOut } from "svelte/easing";
   import Input from "../ui/input/input.svelte";
