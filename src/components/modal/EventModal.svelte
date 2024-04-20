@@ -17,12 +17,59 @@
 <div class="modal-backdrop" on:click={closeModal}>
   <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
   <article
-    class={`modal-content relative items-center gap-4 m-4 p-4 bg-background
+    class={`modal-content relative items-center m-4 p-4 bg-background
             flex flex-col rounded-xl shadow-md text-base border hover:scale-[1.01] dark:shadow-slate-800 hover:shadow-lg
         `}
     on:click|stopPropagation
   >
-    <button class="close-button" on:click={closeModal}>✖</button>
+    <button class="close-button text-rose-700" on:click={closeModal}>✖</button>
+    <img
+      class="obejct-contain w-[200px] h-[150px] rounded-sm"
+      alt="portrait alert"
+      src={"data:image/jpeg;base64," + event.frameImage}
+    />
+    <div class="flex items-center w-full pt-2">
+      <h3 class={"text-lg font-medium"}>
+        {#if event.title.includes("car") && event.description !== ""}
+          {event.description} {event.title}
+        {:else}
+          {event.title}
+        {/if}
+      </h3>
+    </div>
+    <p class={`text-base w-full`}>
+      Camera {$selectedNode.camera.filter((c) => c.id === event.camera)[0] &&
+        $selectedNode.camera.filter((c) => c.id === event.camera)[0].name}
+    </p>
+    <div class="flex items-center justify-between w-full pt-2">
+      <p class={`text-xs text-[#D28E3D]`}>
+        {event.matchScore !== 0 &&
+        event.matchScore !== undefined &&
+        event.matchScore !== null
+          ? `Match Score : ${event?.matchScore.toFixed(3)}`
+          : "No matches found"}
+      </p>
+      <p class={`text-center text-xs font-bold`}>
+        Detect Score : {event?.score.toFixed(3)}
+      </p>
+    </div>
+    <div class="flex flex-row-reverse w-full items-center justify-between pt-2">
+      <p class={`text-xs`}>
+        {event.created.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        })}
+      </p>
+      <p class={"text-xs"}>
+        {event.created.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })}
+      </p>
+    </div>
+    <!-- <button class="close-button" on:click={closeModal}>✖</button>
     <img
       class="object-cover w-24 h-24 rounded-md col-span-1"
       src={"data:image/jpeg;base64," + event.frameImage}
@@ -66,7 +113,7 @@
           day: "numeric",
         })}
       </p>
-    </div>
+    </div> -->
   </article>
 </div>
 
@@ -84,8 +131,8 @@
     z-index: 1000;
   }
   .modal-content {
-    min-width: 200px;
-    min-height: auto;
+    width: 280px;
+    height: 300px;
     position: relative;
     max-width: 500px;
     margin: auto;
