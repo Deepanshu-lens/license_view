@@ -22,7 +22,7 @@
 {#if !user}
   <slot />
 {:else}
-  {#if !data.url.includes("login")}
+  {#if !data.url.includes("login") && !data.url?.includes("register")}
     <Navbar {user} sessionId={session?.id} />
   {/if}
   {#if session && user}
@@ -30,7 +30,9 @@
       <main
         class={cn(
           "flex items-start justify-between bg-background w-full overflow-y-hidden",
-          data.url?.includes("login") ? "h-screen" : "max-h-[calc(100vh-76px)]",
+          data.url?.includes("login") || data.url?.includes("register")
+            ? "h-screen"
+            : "max-h-[calc(100vh-76px)]",
         )}
       >
         <div
