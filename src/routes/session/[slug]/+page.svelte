@@ -55,6 +55,7 @@
   }
 
   async function getEvents(): Promise<Event[]> {
+    console.log("getting events");
     const events = await PB.collection("events").getList(1, 40, {
       sort: "-created",
     });
@@ -81,42 +82,44 @@
 
   function updateEvents() {
     if (batchedEvents.length !== $events.length) {
+      console.log("updating events");
       events.set([...batchedEvents, ...$events].slice(0, 200));
       batchedEvents = [];
       setTimeout(updateEvents, 1000);
     }
   }
 
-  let voices = [];
-  let selectedVoice;
+  // let voices = [];
+  // let selectedVoice;
 
-  function play(text: string) {
-    speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
+  // function play(text: string) {
+  //   speechSynthesis.cancel();
+  //   const utterance = new SpeechSynthesisUtterance(text);
 
-    utterance.rate = 1;
-    utterance.pitch = 1;
-    utterance.voice = selectedVoice;
-    utterance.volume = 1;
-    speechSynthesis.speak(utterance);
-  }
+  //   utterance.rate = 1;
+  //   utterance.pitch = 1;
+  //   utterance.voice = selectedVoice;
+  //   utterance.volume = 1;
+  //   speechSynthesis.speak(utterance);
+  // }
 
   onMount(async () => {
     nodes = await getNodes();
     selectedNode.set(nodes[0]);
     let x = await getEvents();
     events.set(x);
-    speechSynthesis.onvoiceschanged = () => {
-      voices = speechSynthesis.getVoices();
-      console.log(voices);
-      selectedVoice = voices[0];
-    };
+    console.log("events session page", x.length);
+    // speechSynthesis.onvoiceschanged = () => {
+    //   voices = speechSynthesis.getVoices();
+    //   console.log(voices);
+    //   selectedVoice = voices[0];
+    // };
     PB.collection("events").subscribe("*", async (e) => {
-      if (e.record.title === "Pranit") {
-        const title = e.record.title;
-        console.log(`event detect with title: ${title}`);
-        // play(`Event detected with title: ${title}`);
-      }
+      // if (e.record.title === "Pranit") {
+      //   const title = e.record.title;
+      //   console.log(`event detect with title: ${title}`);
+      //   // play(`Event detected with title: ${title}`);
+      // }
       batchedEvents.push({
         ...e.record,
         created: new Date(e.record.created),
