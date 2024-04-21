@@ -65,7 +65,8 @@
     value = null;
   }
 
-  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  const PB = new PocketBase("http://127.0.0.1:5555");
 
   PB.collection("playback").subscribe("*", async (e) => {
     playbackVideos.set(await getPlaybackData());

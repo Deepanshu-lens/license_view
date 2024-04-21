@@ -82,7 +82,8 @@
   let displayLayouts = false;
   let nodeCameras = false;
 
-  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  const PB = new PocketBase("http://127.0.0.1:5555");
 
   const searchParams = new URLSearchParams(window.location.search);
 

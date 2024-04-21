@@ -14,7 +14,8 @@
   let nodes: Node[] = [];
   let batchedEvents: Event[] = [];
 
-  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  const PB = new PocketBase("http://127.0.0.1:5555");
 
   async function getNodes(): Promise<Node[]> {
     // console.log("session", session.node);
@@ -58,6 +59,8 @@
     console.log("getting events");
     const events = await PB.collection("events").getList(1, 40, {
       sort: "-created",
+      fields:
+        "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
     });
     return events.items.map(
       (event) =>
@@ -107,6 +110,7 @@
     nodes = await getNodes();
     selectedNode.set(nodes[0]);
     let x = await getEvents();
+    console.log(x);
     events.set(x);
     console.log("events session page", x.length);
     // speechSynthesis.onvoiceschanged = () => {

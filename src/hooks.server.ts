@@ -28,7 +28,7 @@ export const handle = async ({ event, resolve }) => {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? "none" : "lax",
-      domain: isProd ? ".yoursite.tld" : `${VITE_BASE_URL}`,
+      domain: isProd ? ".yoursite.tld" : "localhost",
     }),
   );
   // response.headers.set(

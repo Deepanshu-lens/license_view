@@ -13,7 +13,8 @@
 
   let gallery: Gallery[] = [];
 
-  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  const PB = new PocketBase("http://127.0.0.1:5555");
 
   async function getData(): Promise<Gallery[]> {
     const data = await PB.collection("faceGallery").getFullList();
