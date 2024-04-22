@@ -56,13 +56,15 @@
   }
 
   async function getEvents(): Promise<Event[]> {
-    console.log("getting events");
-    const events = await PB.collection("events").getList(1, 40, {
-      sort: "-created",
-      fields:
-        "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
-    });
-    return events.items.map(
+    // console.log("getting events");
+    // const events = await PB.collection("events").getList(1, 40, {
+    //   sort: "-created",
+    //   fields:
+    //     "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
+    // });
+    console.log(data.props.events);
+    const events = data.props.events;
+    return events.map(
       (event) =>
         ({
           ...event,
