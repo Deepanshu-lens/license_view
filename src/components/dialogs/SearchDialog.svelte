@@ -5,6 +5,7 @@
   import { toast } from "svelte-sonner";
   import { writable } from "svelte/store";
   import en from "javascript-time-ago/locale/en";
+  import { PUBLIC_BASE_URL } from "$env/static/public";
   import TimeAgo from "javascript-time-ago";
   TimeAgo.addLocale(en);
   const timeAgo = new TimeAgo("en-US");
@@ -14,6 +15,13 @@
 
   const queryImage = writable();
   const searchResults = writable([]);
+  const location = window?.location?.href;
+  const neededUrl =
+    location?.split("/")[2] === "localhost:5173"
+      ? PUBLIC_BASE_URL
+      : location?.split("/")[2]?.split(":")[0];
+
+  console.log(neededUrl);
 
   async function convertImageToBase64(file) {
     return new Promise((resolve, reject) => {
@@ -37,7 +45,7 @@
       try {
         loading = true;
         let base64String = await convertImageToBase64(file);
-        const result = await fetch("http://localhost:8083" + "/api/enroll", {
+        const result = await fetch(`http://${neededUrl}:8083` + "/api/enroll", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

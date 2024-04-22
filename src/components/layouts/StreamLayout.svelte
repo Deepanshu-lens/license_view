@@ -24,9 +24,11 @@
   let videos: { [key: string]: HTMLElement } = {};
   const location = window?.location?.href;
   const neededUrl =
-    location?.split("/")[2] === "localhost:3000"
+    location?.split("/")[2] === "localhost:5173"
       ? PUBLIC_BASE_URL
       : location?.split("/")[2]?.split(":")[0];
+
+  console.log("needed url", neededUrl);
 
   const initVideo = (camera: Camera) => {
     if (videos[camera.id]) {
@@ -37,10 +39,7 @@
     video.mode = "webrtc";
     video.url = camera.url;
     video.src = new URL(
-      `ws://${neededUrl}:8082/api/ws?src=${camera.url
-        ?.split("@")[1]
-        ?.split(":")[0]
-        ?.replace(/\./g, "_")}&camID=${camera.id}&nodeID=${1}`,
+      `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
     );
     video.style.position = "relative";
     video.style.width = "100%";
@@ -102,10 +101,7 @@
         if (videos[c.id].url !== c.url) {
           videos[c.id].url = c.url;
           videos[c.id].src = new URL(
-            `ws://${neededUrl}:8082/api/ws?src=${c.url
-              ?.split("@")[1]
-              ?.split(":")[0]
-              ?.replace(/\./g, "_")}&camID=${c.id}&nodeID=${1}`,
+            `ws://${neededUrl}:8082/api/ws?src=${c.id}&camID=${c.id}&nodeID=${1}`,
           );
         }
       }

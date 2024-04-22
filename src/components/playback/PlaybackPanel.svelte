@@ -65,8 +65,8 @@
     value = null;
   }
 
-  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
-  const PB = new PocketBase("http://127.0.0.1:5555");
+  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  // const PB = new PocketBase("http://127.0.0.1:5555");
 
   PB.collection("playback").subscribe("*", async (e) => {
     playbackVideos.set(await getPlaybackData());
@@ -183,7 +183,9 @@
       id="scrollableEle"
       class={cn(
         "flex flex-col overflow-y-scroll pr-6 bg-white dark:bg-black relative ml-2",
-        playbackFullscreen ? "max-h-screen py-8" : "max-h-[calc(100vh-200px)]",
+        playbackFullscreen
+          ? "max-h-screen py-8 px-4"
+          : "max-h-[calc(100vh-200px)]",
       )}
     >
       {#if playbackFullscreen}
@@ -272,10 +274,14 @@
         on:click={() => {
           addUserLog(`user clicked on Search button, top panel`);
         }}
-        class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+        class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
         ><Search class="h-[22px] w-[22px]" /></button
       >
-      <p class="text-xs group-hover:text-[#015a62] text-black/.23">Search</p>
+      <p
+        class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
+      >
+        Search
+      </p>
     </span>
     <span
       class="group flex flex-col gap-0.5 items-center justify-center relative"
@@ -283,11 +289,15 @@
       <button
         on:click={() => (showFilters = !showFilters)}
         class={!showFilters
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-          : ` border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+          : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
         ><Filter class="h-[22px] w-[22px]" />
       </button>
-      <p class="text-xs group-hover:text-[#015a62] text-black/.23">Filter</p>
+      <p
+        class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
+      >
+        Filter
+      </p>
       {#if showFilters}
         <div
           id="dropdownDefaultCheckbox"
@@ -367,10 +377,13 @@
     </span>
     <span class="group flex flex-col gap-0.5 items-center justify-center">
       <button
-        class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`}
+        on:click={() => singleFullscreen()}
+        class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
         ><Expand class="h-[22px] w-[22px]" />
       </button>
-      <p class="text-xs group-hover:text-[#015a62] text-black/.23">
+      <p
+        class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
+      >
         Fullscreen
       </p>
     </span>

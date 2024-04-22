@@ -46,12 +46,12 @@
           handleButtonClick("Remote");
         }}
         class={search !== "Remote"
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md   border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-          : ` border-none relative rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+          : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
         ><Router class="h-[22px] w-[22px]" /></button
       >
       <p
-        class={`text-xs ${search !== "Remote" ? "group-hover:text-[#015a62] text-black/.23" : "text-[#015a62]"}`}
+        class={`text-xs ${search !== "Remote" ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
       >
         Remote
       </p>
@@ -62,12 +62,12 @@
           handleButtonClick("Stream");
         }}
         class={search !== "Stream"
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md   border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-          : ` border-none relative rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+          : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
         ><Radio class="h-[22px] w-[22px]" />
       </button>
       <p
-        class={`text-xs ${search !== "Stream" ? "group-hover:text-[#015a62] text-black/.23" : "text-[#015a62]"}`}
+        class={`text-xs ${search !== "Stream" ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
       >
         Stream
       </p>
@@ -78,12 +78,12 @@
           handleButtonClick("Recording");
         }}
         class={search !== "Recording"
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-          : ` border-none relative rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+          : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
         ><Disc2 class="h-[22px] w-[22px]" />
       </button>
       <p
-        class={`text-xs ${search !== "Remote" ? "group-hover:text-[#015a62] text-black/.23" : "text-[#015a62]"}`}
+        class={`text-xs ${search !== "Recording" ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
       >
         Remote
       </p>
@@ -94,12 +94,12 @@
           handleButtonClick("System");
         }}
         class={search !== "System"
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-          : ` border-none relative rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+          : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
         ><Cast class="h-[22px] w-[22px]" />
       </button>
       <p
-        class={`text-xs ${search !== "System" ? "group-hover:text-[#015a62] text-black/.23" : "text-[#015a62]"}`}
+        class={`text-xs ${search !== "System" ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
       >
         System
       </p>
@@ -110,12 +110,12 @@
           handleButtonClick("Camera");
         }}
         class={search !== "Camera"
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-          : ` border-none relative rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+          : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
         ><CameraIcon class="h-[22px] w-[22px]" />
       </button>
       <p
-        class={`text-xs ${search !== "Camera" ? "group-hover:text-[#015a62] text-black/.23" : "text-[#015a62]"}`}
+        class={`text-xs ${search !== "Camera" ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
       >
         Camera
       </p>
@@ -126,12 +126,12 @@
           handleButtonClick("User");
         }}
         class={search !== "User"
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] bg-white group-hover:text-white group-hover:bg-[#015a62] group-hover:border-none grid place-items-center`
-          : ` border-none relative rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center`}
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+          : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
         ><User2 class="h-[22px] w-[22px]" />
       </button>
       <p
-        class={`text-xs ${search !== "User" ? "group-hover:text-[#015a62] text-black/.23" : "text-[#015a62]"}`}
+        class={`text-xs ${search !== "User" ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
       >
         User
       </p>

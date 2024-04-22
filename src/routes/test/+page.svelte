@@ -1,18 +1,18 @@
 <script lang="ts">
-	import Stream from './../../components/stream/Stream.svelte';
+  import Stream from "./../../components/stream/Stream.svelte";
+  import { PUBLIC_BASE_URL } from "$env/static/public";
 
-let videos: { [key: string] } = {};
+  let videos: { [key: string] } = {};
   const location = window?.location?.href;
   const neededUrl =
-    location?.split("/")[2] === "localhost:3000"
+    location?.split("/")[2] === "localhost:5173"
       ? PUBLIC_BASE_URL
       : location?.split("/")[2]?.split(":")[0];
 
-
-const testCameras =  {
-    name: '2',
-    id: 'ctdkoq9wyuzuro3',
-    url: 'rtsp://admin:Admin7890@116.68.244.147',
+  const testCameras = {
+    name: "2",
+    id: "ctdkoq9wyuzuro3",
+    url: "rtsp://admin:Admin7890@116.68.244.147",
     save: false,
     face: false,
     vehicle: false,
@@ -21,9 +21,9 @@ const testCameras =  {
     vehicleDetThresh: undefined,
     vehiclePlateThresh: undefined,
     vehicleOCRThresho: undefined,
-    saveFolder: './PlayBack/',
-    saveDuration: ''
-  }
+    saveFolder: "./PlayBack/",
+    saveDuration: "",
+  };
 
   const initVideo = (camera: Camera) => {
     if (videos[camera.id]) {
@@ -49,20 +49,21 @@ const testCameras =  {
   };
 
   const updateLayout = () => {
-
-    if((!videos[testCameras.id])) {
-initVideo(testCameras)
+    if (!videos[testCameras.id]) {
+      initVideo(testCameras);
     } else {
-        videos[testCameras.id].src = new URl( `ws://${neededUrl}:8082/api/ws?src=${testCameras.url
-              ?.split("@")[1]
-              ?.split(":")[0]
-              ?.replace(/\./g, "_")}&camID=${testCameras.id}&nodeID=${1}`,)
+      videos[testCameras.id].src = new URl(
+        `ws://${neededUrl}:8082/api/ws?src=${testCameras.url
+          ?.split("@")[1]
+          ?.split(":")[0]
+          ?.replace(/\./g, "_")}&camID=${testCameras.id}&nodeID=${1}`,
+      );
     }
   };
 
-  $: updateLayout()
+  $: updateLayout();
 </script>
 
 <div class=" h-1/2 w-1/2 grid place-items-center">
-<Stream videoElement={videos[testCameras.id]} camera={testCameras}/>
+  <Stream videoElement={videos[testCameras.id]} camera={testCameras} />
 </div>

@@ -2,22 +2,32 @@
   import { toast } from "svelte-sonner";
   import * as Dialog from "@/components/ui/dialog";
   import { Input } from "@/components/ui/input";
-  import { Label } from "@/components/ui/label";
   import { Button } from "@/components/ui/button";
-  import { onMount } from "svelte";
   import { cn } from "@/lib";
   import { writable } from "svelte/store";
   import { ChevronDown, X } from "lucide-svelte";
+  import { PUBLIC_BASE_URL } from "$env/static/public";
+
   let dialogOpen = false;
   let captureMode = 1;
   let username: string = "";
+
   const registrationImages = writable<string[]>([]);
   const imposterImages = writable<string[]>([]);
   const avgFeatures = writable();
 
+  const location = window?.location?.href;
+  const neededUrl =
+    location?.split("/")[2] === "localhost:5173"
+      ? PUBLIC_BASE_URL
+      : location?.split("/")[2]?.split(":")[0];
+
+  console.log("neededurl", neededUrl);
+
   let webcamSource: HTMLVideoElement;
   let webcamCanvas: HTMLCanvasElement;
   let stream: MediaStream;
+
   const openWebcam = async () => {
     try {
       // loading = true;
@@ -45,6 +55,7 @@
   };
 
   let loading = false;
+
   async function capturePhoto() {
     const context = webcamCanvas.getContext("2d");
     if (context) {
@@ -59,7 +70,7 @@
       );
       loading = true;
       let frame = webcamCanvas.toDataURL("image/jpeg");
-      const result = await fetch("http://localhost:8083" + "/api/enroll", {
+      const result = await fetch(`http://${neededUrl}:8083` + "/api/enroll", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -105,15 +116,18 @@
       for (const file of files) {
         try {
           let base64String = await convertImageToBase64(file);
-          const result = await fetch("http://localhost:8083" + "/api/enroll", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+          const result = await fetch(
+            `http://${neededUrl}:8083` + "/api/enroll",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                frame: base64String.replace(/^data:[^,]+,/, ""),
+              }),
             },
-            body: JSON.stringify({
-              frame: base64String.replace(/^data:[^,]+,/, ""),
-            }),
-          });
+          );
           console.log("File upload status:", result.status);
           if (!result.ok) {
             const error = (await result.json()).error;
@@ -134,10 +148,12 @@
               croppedImage.bboxes[0].Feature,
               $avgFeatures,
             );
-
+            console.log(res);
             if (res > 0.3) {
+              console.log("image added to registration");
               registrationImages.update((images) => [...images, croppedImage]);
             } else {
+              console.log("image added to imposter set");
               imposterImages.update((image) => [...image, croppedImage]);
             }
           }
@@ -150,6 +166,8 @@
   };
 
   export function averagefeatures1D(basefeatures, AverageFeatures) {
+    console.log("averageFeatures getting called");
+
     const averageValue = [];
     for (let i = 0; i < AverageFeatures.length; i++) {
       averageValue.push((AverageFeatures[i] + basefeatures[i]) / 2);
@@ -165,8 +183,13 @@
     }
   }
 
-  function removeImage(index: number) {
+  function removeImageReg(index: number) {
     registrationImages.update((images) => {
+      return images.filter((_, i) => i !== index);
+    });
+  }
+  function removeImageImp(index: number) {
+    imposterImages.update((images) => {
       return images.filter((_, i) => i !== index);
     });
   }
@@ -182,15 +205,15 @@
     return v1.reduce((acc, val, i) => acc + val * v2[i], 0);
   }
 
-  export function compareToGallery(queryVector, galleryVectors) {
+  export function compareToGallery(queryVector1, queryVector2) {
     // console.log("querygallery",queryVector,galleryVectors)
-    const queryVectorNormalized = normalize(queryVector);
-    const similarities = galleryVectors.map((galleryVector) => {
-      const galleryVectorNormalized = normalize(galleryVector);
-      const dot = dotProduct(queryVectorNormalized, galleryVectorNormalized);
-      return dot;
-    });
-    // console.log("similarities",similarities)
+    const queryVectorNormalized = normalize(queryVector1);
+    const galleryVectorNormalized = normalize(queryVector2);
+    const similarities = dotProduct(
+      queryVectorNormalized,
+      galleryVectorNormalized,
+    );
+    console.log("similarities", similarities);
     return similarities;
   }
 
@@ -218,6 +241,8 @@
     }).then(() => {
       toast.success(`${username} successfully added to gallery`);
       registrationImages.set([]);
+      imposterImages.set([]);
+      avgFeatures.set(null);
       username = "";
       dialogOpen = false;
     });
@@ -339,8 +364,8 @@
               class="aspect-square"
             />
             <button
-              class="abslute top-0 right-0 bg-white text-[red] p-1 rounded-full scale-75 grid place-items-center"
-              on:click={() => removeImage(index)}
+              class="absolute top-0 right-0 bg-white text-[red] p-1 rounded-full scale-75 grid place-items-center"
+              on:click={() => removeImageReg(index)}
             >
               <X />
             </button>
@@ -359,11 +384,11 @@
               alt="captured"
               width="100px"
               height="100px"
-              class="aspect-square"
+              class="aspect-square blur-md"
             />
             <button
-              class="abslute top-0 right-0 bg-white text-[red] p-1 rounded-full scale-75 grid place-items-center"
-              on:click={() => removeImage(index)}
+              class="absolute top-0 right-0 bg-white text-[red] p-1 rounded-full scale-75 grid place-items-center"
+              on:click={() => removeImageImp(index)}
             >
               <X />
             </button>
