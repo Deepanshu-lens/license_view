@@ -21,9 +21,9 @@ export const actions = {
         "loginEvents+": [event?.id],
       });
     } catch (err: any) {
-      console.log("Error: ", err);
-
-      throw error(err.status || 500, err.message || "An error occurred");
+      console.log("login error", err.message);
+      // throw error(err.status || 500, err.message || "An error occurred");
+      throw redirect(303, `/login?message=${err.message}`);
     }
     throw redirect(303, "/");
   },

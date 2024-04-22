@@ -26,10 +26,16 @@
           ><MoreVertical class="h-5 w-5" /></span
         ></span
       >
-      <span class="bg-[red] h-full w-full flex">graph 1</span>
+      <span class="h-full w-full overflow-hidden"
+        ><img
+          src="/images/Graph08.png"
+          class="max-h-[250px] mx-auto max-w-[350px] object-contain"
+          alt="8"
+        /></span
+      >
     </div>
     <div
-      class="col-span-3 border-2 border-black/.23 border-solid p-2 rounded-lg flex flex-col items-start justify-normal"
+      class="col-span-3 border-2 gap-4 border-black/.23 border-solid p-2 rounded-lg flex flex-col items-start justify-normal"
     >
       <span class="flex items-center justify-between w-full">
         <span class="text-lg font-bold">Average Face Recognition</span>
@@ -55,7 +61,9 @@
         </span>
       </span>
       <span>Average active cameras</span>
-      <span class="bg-[red] h-full w-full">Graph 2</span>
+      <span class="h-full w-full"
+        ><img src="/images/Graph07.png" alt="9" /></span
+      >
     </div>
     <div class="col-span-2 grid grid-cols-1 grid-rows-2 gap-4">
       <div
@@ -71,7 +79,9 @@
             Up from past week
           </span>
         </span>
-        <span class="bg-[red] h-full w-full"> graph </span>
+        <span class="h-full w-full">
+          <img src="/images/Graph8.png" alt="8" />
+        </span>
       </div>
       <div
         class="col-span-1 border border-black/.23 border-solid rounded-lg p-2 flex items-center gap-1"
@@ -86,7 +96,9 @@
             Up from past week
           </span>
         </span>
-        <span class="bg-[red] h-full w-full"> graph </span>
+        <span class=" h-full w-full">
+          <img src="/images/Graph9.png" alt="10" />
+        </span>
       </div>
     </div>
   </div>

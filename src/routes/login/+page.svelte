@@ -1,3 +1,19 @@
+<script>
+  import { toast } from "svelte-sonner";
+  import { onMount } from "svelte";
+  import { browser } from "$app/environment";
+
+  onMount(() => {
+    if (browser) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const message = urlParams.get("message");
+      if (message) {
+        toast.error(`${message} Please try again.`);
+      }
+    }
+  });
+</script>
+
 <div
   class="flex justify-center items-center w-full h-screen relative flex-col sm:flex-row"
 >

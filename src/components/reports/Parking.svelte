@@ -117,7 +117,13 @@
         >
       </span>
     </span>
-    <span class="bg-[red] h-full w-full"> graph </span>
+    <span class=" w-full h-full overflow-hidden">
+      <img
+        src="/images/Graph06.png"
+        alt="6"
+        class="object-contain max-w-full max-h-full mx-auto"
+      />
+    </span>
   </span>
   <span
     class="col-span-4 bg-white shadow-lg rounded-lg h-64 p-2 flex flex-col gap-2"
@@ -129,7 +135,9 @@
         <span><MoreVertical /></span>
       </span>
     </span>
-    <span class="bg-[red] h-full w-full"> graph </span>
+    <span class="h-full w-full">
+      <img src="/images/Graph04.png" alt="graph4" />
+    </span>
   </span>
 </div>
 <div class="flex items-center justify-between px-4 pb-4 mt-52">

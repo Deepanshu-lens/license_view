@@ -43,7 +43,9 @@
       </span></span
     >
     <span>Average Anomaly detection rate</span>
-    <span class="bg-[red] h-full w-full">graph</span>
+    <span class="h-full w-full overflow-clip"
+      ><img src="/images/Graph01.png" alt="garph" class="h-full w-full" /></span
+    >
   </div>
   <div
     class="col-span-2 p-2 rounded-lg border-2 border-black/.23 border-solid gap-2 grid grid-cols-3 grid-rows-2"
@@ -144,7 +146,7 @@
     </div>
   </div>
   <div class="col-span-3 rounded-lg border-2 border-black/.23 border-solid p-2">
-    <div class="flex">
+    <div class="flex h-1/2">
       <span class="w-2/5">
         <p class="text-xl font-semibold text-[#323232]">Reports & Analytics</p>
         <span class="flex items-center gap-2 tex-lg font-medium">
@@ -155,9 +157,15 @@
         </span>
         <p class="tex-xs text-[#727272]">Average Anomaly detection rate</p>
       </span>
-      <span class="bg-[red] w-3/5">Graph</span>
+      <span class="w-3/5 h-full"
+        ><img
+          src="/images/Graph03.png"
+          class="h-auto w-full"
+          alt="graph2"
+        /></span
+      >
     </div>
-    <div class="flex items-center justify-end h-full">
+    <div class="flex items-center justify-end h-1/2">
       <span class="flex items-center w-full gap-1">
         <span class="h-full flex gap-2">
           <span
@@ -307,7 +315,9 @@
           >
         </span>
       </span>
-      <span class="w-1/2 bg-[red] flex h-full">graph</span>
+      <span class="w-1/2 flex h-full"
+        ><img src="/images/Graph02.png" alt="graph3" /></span
+      >
     </div>
   </div>
 </div>
