@@ -7,6 +7,7 @@
   import { writable } from "svelte/store";
   import { ChevronDown, X } from "lucide-svelte";
   import { PUBLIC_BASE_URL } from "$env/static/public";
+  import { onDestroy, onMount } from "svelte";
 
   let dialogOpen = false;
   let captureMode = 1;
@@ -105,6 +106,13 @@
 
       reader.readAsDataURL(file);
     });
+  }
+
+  $: if (!dialogOpen) {
+    console.log("dialog not open");
+    registrationImages.set([]);
+    imposterImages.set([]);
+    avgFeatures.set(null);
   }
 
   const onFileUpload = async (e) => {
