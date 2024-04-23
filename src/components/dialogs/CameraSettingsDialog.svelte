@@ -61,6 +61,7 @@
   ];
 
   const editCamera = () => {
+    console.log("edit camrea motion", motion);
     fetch("/api/camera/editCamera", {
       method: "put",
       headers: {
@@ -81,15 +82,14 @@
         vehicleOCRThreshold,
         saveDuration,
         saveFolder,
-        motionThresh: motion === 0 ? 1000 : motion === 0.5 ? 2500 : 5000,
+        motionThresh: motion === 0 ? 1000 : motion,
+        priority,
       }),
     }).then(() => {
       toast("Camera settings updated.");
       dialogOpen = false;
     });
   };
-
-  console.log(motion);
 </script>
 
 <!-- markup (zero or more items) goes here -->
