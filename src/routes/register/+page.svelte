@@ -1,3 +1,23 @@
+<script>
+  import { toast } from "svelte-sonner";
+  import { onMount } from "svelte";
+  import { browser } from "$app/environment";
+
+  onMount(() => {
+    if (browser) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const message = urlParams.get("message");
+      if (message) {
+        toast.error(`${message} Please try again.`);
+        setTimeout(() => {
+          const newUrl = window.location.pathname;
+          window.history.pushState({ path: newUrl }, "", newUrl);
+        }, 1000);
+      }
+    }
+  });
+</script>
+
 <div
   class="flex justify-center items-center w-full h-screen relative flex-col sm:flex-row"
 >
@@ -125,7 +145,7 @@
           name="password"
           placeholder="***********"
           required
-          minLength={6}
+          minLength={8}
         />
       </div>
       <div class="mb-4 relative w-[350px] max-h-[40px]">
@@ -151,7 +171,7 @@
           name="confirm-password"
           type="password"
           placeholder="***********"
-          minLength={6}
+          minLength={8}
           required
         />
       </div>

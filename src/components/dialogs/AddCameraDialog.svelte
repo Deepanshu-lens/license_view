@@ -5,6 +5,7 @@
   import { Label } from "@/components/ui/label";
   import { Button } from "@/components/ui/button";
   import { selectedNode } from "@/lib/stores";
+  import { Slider } from "@/components/ui/slider";
   import Switch from "../ui/switch/switch.svelte";
 
   let cameraName = "";
@@ -18,9 +19,12 @@
   let dialogOpen: boolean = false;
   let company: number = 0;
   let disabled: string | null = null;
+  let priority: boolean = true;
+  let motionThresh: number = 0;
   export let sNode;
 
   const onSubmit = () => {
+    console.log(motionThresh);
     if (cameraURL && cameraURL.length > 0) {
       let modifiedCameraURL = cameraURL;
       const urlParts = cameraURL.split("@");
@@ -52,6 +56,9 @@
           vehicleDetThresh: 0.4,
           vehiclePlateThresh: 0.5,
           vehicleOCRThresh: 0.6,
+          priority,
+          motionThresh:
+            motionThresh === 0 ? 1000 : motionThresh === 50 ? 2500 : 5000,
         }),
       }).then((response) => {
         if (response.ok) {
@@ -90,6 +97,9 @@
             vehicleOCRThresh: 0.6,
             saveFolder: "./PlayBack/",
             saveDuration: 30 * 60 * 24,
+            priority,
+            motionThresh:
+              motionThresh === 0 ? 1000 : motionThresh === 50 ? 2500 : 5000,
           }),
         }).then((response) => {
           if (response.ok) {
@@ -128,6 +138,9 @@
             vehicleOCRThresh: 0.6,
             saveFolder: "./PlayBack/",
             saveDuration: 30 * 60 * 24,
+            priority,
+            motionThresh:
+              motionThresh === 0 ? 1000 : motionThresh === 50 ? 2500 : 5000,
           }),
         }).then((response) => {
           if (response.ok) {
@@ -310,29 +323,57 @@
           Camera Features
         </span>
         <div
-          class="flex flex-row items-center gap-6 my-auto col-span-3 flex-wrap sm:flex-nowrap"
+          class="flex flex-row items-center gap-3 my-auto col-span-3 flex-wrap sm:flex-nowrap"
         >
           <!-- svelte-ignore a11y-label-has-associated-control -->
           <label
-            class=" text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
+            class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
           >
             <Switch bind:checked={saving} class="scale-90" />
             Feed Saving
           </label>
           <!-- svelte-ignore a11y-label-has-associated-control -->
           <label
-            class=" text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
+            class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
           >
             <Switch bind:checked={vehicle} class="scale-90" />
             Vehicle Scan
           </label>
           <!-- svelte-ignore a11y-label-has-associated-control -->
           <label
-            class=" text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
+            class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
           >
             <Switch bind:checked={face} class="scale-90" />
             Face Scan
           </label>
+
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label
+            class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
+          >
+            <Switch bind:checked={priority} class="scale-90" />
+            Priority
+          </label>
+        </div>
+      </div>
+      <div class="grid grid-cols-4 items-center gap-4 py-2">
+        <span
+          class="block text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
+        >
+          Motion Sensitivity
+        </span>
+        <div class="flex items-center gap-4 grid-cols-3">
+          <Slider
+            min={0}
+            value={[motionThresh]}
+            max={100}
+            step={50}
+            class="w-32"
+            onValueChange={(e) => {
+              motionThresh = e[0];
+            }}
+          />
+          {motionThresh === 0 ? "Low" : motionThresh === 50 ? "Mid" : "High"}
         </div>
       </div>
 

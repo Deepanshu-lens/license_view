@@ -25,6 +25,8 @@
   export let vehicleOCRThreshold: number;
   export let saveDuration: number;
   export let saveFolder: string;
+  export let motion: number;
+  export let priority: boolean;
   let editing = false;
   // CODE
 
@@ -125,7 +127,7 @@
   }}
 >
   {#if !editing}
-    <Menu size={18} class="my-handle cursor-grab" />
+    <Menu size={18} class="my-handle cursor-grab flex-shrink-0" />
   {/if}
   <div class="grid gap-1">
     {#if editing}
@@ -144,8 +146,8 @@
   {#if !editing}
     <ul class="flex flex-row gap-2 ml-auto p-0 list-none cursor-pointer">
       <li class="cursor-pointer hover:scale-125">
-        <button on:click={() => (editing = !editing)}
-          ><Edit class="h-4 w-4" /></button
+        <button on:click={() => (editing = !editing)}>
+          <Edit class="h-4 w-4" /></button
         >
       </li>
       <li
@@ -169,6 +171,8 @@
           {vehicleOCRThreshold}
           {saveFolder}
           {saveDuration}
+          {motion}
+          {priority}
           cameraURL={url}><Settings class="h-4 w-4" /></CameraSettingsDialog
         >
       </li>

@@ -23,6 +23,8 @@ export const POST: RequestHandler = async ({
     vehicleOCRThresho: data.vehOCRThresh,
     saveDuration: data.saveDuration,
     saveFolder: data.saveFolder,
+    priority: data.priority,
+    motionThresh: data.motionThresh,
   });
 
   console.log("CAMERA ADDED ", camera);

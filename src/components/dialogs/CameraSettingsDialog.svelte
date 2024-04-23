@@ -2,7 +2,6 @@
   import { toast } from "svelte-sonner";
   import * as Dialog from "@/components/ui/dialog";
   import { Input } from "@/components/ui/input";
-  import { Label } from "@/components/ui/label";
   import { Button } from "@/components/ui/button";
   import { selectedNode } from "@/lib/stores";
   import { Switch } from "@/components/ui/switch";
@@ -11,15 +10,16 @@
   import { Slider } from "@/components/ui/slider";
 
   import {
-    Bell,
     Car,
     FileVideo2,
     Merge,
     FolderSearch,
     Pipette,
+    ScanFace,
+    Activity,
+    Siren,
   } from "lucide-svelte";
-  import { ScanFace } from "lucide-svelte";
-  import { cn } from "@/lib";
+
   export let cameraName = "";
   export let cameraURL = "";
   export let cameraId = "";
@@ -33,7 +33,8 @@
   export let vehicleOCRThreshold: number = 0.6;
   export let saveDuration: number;
   export let saveFolder: string;
-
+  export let motion: number;
+  export let priority: boolean;
   let dialogOpen = false;
 
   const items = [
@@ -80,13 +81,15 @@
         vehicleOCRThreshold,
         saveDuration,
         saveFolder,
+        motionThresh: motion === 0 ? 1000 : motion === 0.5 ? 2500 : 5000,
       }),
     }).then(() => {
       toast("Camera settings updated.");
       dialogOpen = false;
     });
   };
-  console.log();
+
+  console.log(motion);
 </script>
 
 <!-- markup (zero or more items) goes here -->
@@ -314,6 +317,37 @@
             </div>
           </div>
         {/if}
+      </div>
+    </div>
+
+    <div class="rounded-md flex items-center justify-between border p-4 my-2">
+      <div class="flex items-center space-x-4">
+        <Siren />
+        <p class="text-sm font-medium leading-none">Priority</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <Switch bind:checked={priority} />
+      </div>
+    </div>
+
+    <div class="rounded-md border p-4 my-2 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <Activity />
+        <p class="text-sm font-medium leading-none">Motion Sensitivity</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <Slider
+          min={0}
+          value={[motion === 1000 ? 0 : motion]}
+          max={5000}
+          step={2500}
+          class="w-32"
+          onValueChange={(e) => {
+            motion = e[0];
+          }}
+        />
+        <!-- {motion} -->
+        {motion === 1000 ? "Low" : motion === 2500 ? "Mid" : "High"}
       </div>
     </div>
 

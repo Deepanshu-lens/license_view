@@ -47,6 +47,8 @@
                     vehicleOCRThresho: cam.vehicleOCRThresh,
                     saveFolder: cam.saveFolder,
                     saveDuration: cam.saveDuration,
+                    motionThresh: cam.motionThresh,
+                    priority: cam.priority,
                   })) as Camera[])
                 : [],
           }) as unknown as Node,
@@ -62,7 +64,6 @@
     //   fields:
     //     "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
     // });
-    console.log(data.props.events);
     const events = data.props.events;
     return events.map(
       (event) =>
@@ -87,8 +88,6 @@
 
   function updateEvents() {
     if (batchedEvents.length !== $events.length) {
-      console.log("updating events");
-      events.set([...batchedEvents, ...$events].slice(0, 200));
       batchedEvents = [];
       setTimeout(updateEvents, 1000);
     }

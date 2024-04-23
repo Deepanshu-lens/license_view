@@ -1,11 +1,10 @@
 import { fail, redirect, type Cookies } from "@sveltejs/kit";
-import { createId } from "@paralleldrive/cuid2";
 
 const loginWithEmailPassword = async (
   locals: App.Locals,
   cookies: Cookies,
   email: string,
-  password: string
+  password: string,
 ) => {
   try {
     await locals.pb?.collection("users").authWithPassword(email, password);
@@ -17,24 +16,29 @@ const loginWithEmailPassword = async (
           secure: isProd,
           sameSite: "lax",
           httpOnly: true,
-        })
+        }),
       );
       return { success: true };
     }
   } catch (e: any) {
     if (e.status >= 400 && e.status <= 500) {
-      return fail(e.status, {
-        email,
-        error: true,
-        message: "failed to authenticate",
-      });
+      const message = "Failed to Authenticate.";
+      // return fail(e.status, {
+      //   email,
+      //   error: true,
+      //   message: "failed to authenticate",
+      // });
+      throw redirect(303, `/register?message=${message}`);
     }
     if (e.status >= 500) {
-      return fail(e.status, {
-        email,
-        error: true,
-        message: "authentication server could not be reached",
-      });
+      const message = "Auth Server not Reachable.";
+
+      // return fail(e.status, {
+      //   email,
+      //   error: true,
+      //   message: "authentication server could not be reached",
+      // });
+      throw redirect(303, `/register?message=${message}`);
     }
   }
 };
@@ -48,11 +52,14 @@ export const actions = {
     const passwordConfirm = data.get("confirm-password")?.toString() || "";
 
     if (password !== passwordConfirm) {
-      return fail(422, {
-        email,
-        error: true,
-        message: "password and password confirm must match",
-      });
+      // return fail(422, {
+      //   email,
+      //   error: true,
+      //   message: "password and password confirm must match",
+      // });
+      const message = "Passwords dont Match.";
+
+      throw redirect(303, `/register?message=${message}`);
     }
     try {
       // Create a session
@@ -73,8 +80,12 @@ export const actions = {
         session: session?.id,
       });
     } catch (e: any) {
-      console.error("[Signup Error]: ", e.response.data);
-      return fail(422, { error: true, message: e.response.data });
+      const message = e.message;
+      console.log(message);
+      // return fail(422, { error: true, message: e.response.data });
+      // const message = "Passwords dont Match";
+
+      throw redirect(303, `/register?message=${message}`);
     }
     await loginWithEmailPassword(locals, cookies, email, password);
     throw redirect(303, "/login");

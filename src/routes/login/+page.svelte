@@ -9,6 +9,10 @@
       const message = urlParams.get("message");
       if (message) {
         toast.error(`${message} Please try again.`);
+        setTimeout(() => {
+          const newUrl = window.location.pathname;
+          window.history.pushState({ path: newUrl }, "", newUrl);
+        }, 2000);
       }
     }
   });

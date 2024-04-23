@@ -29,6 +29,8 @@ export const PUT: RequestHandler = async ({
     vehOCRThresh: data.vehicleOCRThreshold,
     saveDuration: data.saveDuration,
     saveFolder: data.saveFolder,
+    motionThresh: data.motionThresh,
+    priority: data.priority,
   });
 
   if (oldUrl !== data.url) {

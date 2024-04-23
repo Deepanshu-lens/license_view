@@ -194,6 +194,8 @@
             vehicleOCRThreshold={camera.vehicleOCRThresh}
             saveFolder={camera.saveFolder}
             saveDuration={camera.saveDuration}
+            motion={camera.motionThresh}
+            priority={camera.priority}
             {isAllFullScreen}
           />
         {/key}

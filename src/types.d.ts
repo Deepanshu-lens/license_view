@@ -20,6 +20,8 @@ export type Camera = {
   vehicleDetThresh: number;
   vehiclePlateThresh: number;
   vehicleOCRThresh: number;
+  motionThresh: number;
+  priority: boolean;
 };
 
 export type Playback = {
