@@ -30,7 +30,7 @@ export const PUT: RequestHandler = async ({
     saveDuration: data.saveDuration,
     saveFolder: data.saveFolder,
     motionThresh: data.motionThresh,
-    priority: data.priority,
+    priority: data.priority === true ? 1 : 0,
   });
 
   if (oldUrl !== data.url) {

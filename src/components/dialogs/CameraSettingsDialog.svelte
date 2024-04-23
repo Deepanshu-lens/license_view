@@ -347,7 +347,7 @@
           }}
         />
         <!-- {motion} -->
-        {motion === 1000 ? "Low" : motion === 2500 ? "Mid" : "High"}
+        {motion === 5000 ? "High" : motion === 2500 ? "Mid" : "Low"}
       </div>
     </div>
 
