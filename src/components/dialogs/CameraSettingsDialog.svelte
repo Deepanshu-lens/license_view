@@ -150,7 +150,6 @@
               </Select.Trigger>
               <Select.Content>
                 <Select.Group>
-                  <!-- <Select.Label>Fruits</Select.Label> -->
                   {#each items as fruit}
                     <Select.Item value={fruit.value} label={fruit.label}
                       >{fruit.label}</Select.Item
@@ -193,7 +192,7 @@
                 min={10}
                 value={[faceDetectionThreshold * 100]}
                 max={95}
-                step={10}
+                step={1}
                 class="w-32"
                 onValueChange={(e) => {
                   faceDetectionThreshold = e[0] / 100;

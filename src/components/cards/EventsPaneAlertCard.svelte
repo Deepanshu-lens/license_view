@@ -1,37 +1,74 @@
 <script lang="ts">
-  import { ChevronRight, MoreVertical } from "lucide-svelte";
+  import { selectedNode } from "@/lib/stores";
+  import CarDetailsDialog from "../dialogs/CarDetailsDialog.svelte";
 
   export let data;
 </script>
 
-<div
-  class="relative flex items-start gap-6 pl-4 pr-2 py-3 border border-solid border-[#d9d9d9] dark:border-[#333] rounded-md w-[260px]"
+<article
+  class={`relative items-center gap-2 p-2 bg-[#f9f9f9] dark:bg-black w-full fade-in-15 transition-all duration-200
+ flex rounded-xl shadow-md text-base border hover:scale-[1.01] dark:shadow-slate-800 hover:shadow-lg
+`}
 >
-  <div
-    class={data.severity === "medium"
-      ? "absolute w-1 h-full top-0 left-0 bg-[#F0C01A] rounded-l-md"
-      : data.severity === "high" || data.severity === "critical"
-        ? "absolute w-1 h-full top-0 left-0 bg-[#DE4B63] rounded-l-md"
-        : data.severity === "information"
-          ? "absolute w-1 h-full top-0 left-0 bg-[#3EC195] rounded-l-md"
-          : "absolute w-1 h-full top-0 left-0  bg-[#02C7DF] rounded-l-md"}
+  <img
+    class="object-cover w-16 h-16 rounded-md"
+    src={"data:image/jpeg;base64," + data.frameImage}
+    alt="Team Member"
   />
-  <ChevronRight />
-  <div class="flex flex-col items-start justify-center gap-2">
-    <span class="text-sm font-semibold text-[rgba(0,0,0,.7)] dark:text-white">
-      {data?.title}
+  {#if data.title.includes("car") && data.description !== ""}
+    <CarDetailsDialog
+      plateImage={data.videoUrl}
+      plateNumber={data.description}
+      carColor={data.title.replace(" car", "")}
+      fullImage={data.frameImage}
+      ><img
+        class="object-cover w-64 h-16 rounded-md col-span-1"
+        src={"data:image/jpeg;base64," + data.videoUrl}
+        alt="Team Member"
+      />
+    </CarDetailsDialog>
+  {/if}
+  <div class="flex flex-col items-start">
+    <h3 class={"font-semibold text-base"}>
+      {#if data.title.includes("car") && data.description !== ""}
+        {data.description} {data.title}
+      {:else}
+        {data.title}
+      {/if}
+    </h3>
+    <p class={"text-sm text-black/.7"}>
+      Camera {$selectedNode.camera.filter((c) => c.id === data.camera)[0] &&
+        $selectedNode.camera.filter((c) => c.id === data.camera)[0].name}
+    </p>
+    <span
+      class="flex items-center justify-between border-b border-solid border-[#1c1c1c]/.1 gap-2"
+    >
+      <p class="text-[10px] text-[#D28E3D] font-medium">
+        {data.matchScore !== 0 &&
+        data.matchScore !== undefined &&
+        data.matchScore !== null
+          ? `Match Score : ${data?.matchScore.toFixed(3)}`
+          : "No matches found"}
+      </p>
+      <p class="text-[10px] font-semibold">
+        {data?.score.toFixed(3)}
+      </p>
     </span>
-    <span class="text-xs font-semibold text-[#0b8995]">
-      {data.formattedDate}
+    <span class="flex items-center justify-between gap-2">
+      <p class={"text-[10px]"}>
+        {data.created.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })}
+      </p>
+      <p class={"text-[10px]"}>
+        {data.created.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        })}
+      </p>
     </span>
-    <span class="text-sm text-[#979797]">{data.formattedTime}</span>
   </div>
-  <MoreVertical class="ml-auto" />
-</div>
-
-<!-- const alertColors = {
-  blue: "#02C7DF",
-  green: "#3EC195",
-  red: "#DE4B63",
-  yellow: "#F0C01A",
-}; -->
+</article>

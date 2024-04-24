@@ -88,43 +88,19 @@
 
   function updateEvents() {
     if (batchedEvents.length !== $events.length) {
+      events.set([...batchedEvents, ...$events].slice(0, 200));
       batchedEvents = [];
       setTimeout(updateEvents, 1000);
     }
   }
 
-  // let voices = [];
-  // let selectedVoice;
-
-  // function play(text: string) {
-  //   speechSynthesis.cancel();
-  //   const utterance = new SpeechSynthesisUtterance(text);
-
-  //   utterance.rate = 1;
-  //   utterance.pitch = 1;
-  //   utterance.voice = selectedVoice;
-  //   utterance.volume = 1;
-  //   speechSynthesis.speak(utterance);
-  // }
-
   onMount(async () => {
     nodes = await getNodes();
     selectedNode.set(nodes[0]);
     let x = await getEvents();
-    console.log(x);
     events.set(x);
-    console.log("events session page", x.length);
-    // speechSynthesis.onvoiceschanged = () => {
-    //   voices = speechSynthesis.getVoices();
-    //   console.log(voices);
-    //   selectedVoice = voices[0];
-    // };
+
     PB.collection("events").subscribe("*", async (e) => {
-      // if (e.record.title === "Pranit") {
-      //   const title = e.record.title;
-      //   console.log(`event detect with title: ${title}`);
-      //   // play(`Event detected with title: ${title}`);
-      // }
       batchedEvents.push({
         ...e.record,
         created: new Date(e.record.created),

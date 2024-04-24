@@ -30,14 +30,11 @@ export async function load({ locals }) {
       "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
   });
 
-  // Convert events to a serializable format
-  // console.log(events.items);
-  const serializableEvents = events.items.map((event) => ({
-    // Assuming these are the fields you want to keep and are serializable
+  const serializableEvents = events?.items.map((event) => ({
     title: event.title,
     description: event.description,
-    created: event.created.toString(), // Convert Date objects to string if necessary
-    updated: event.updated.toString(), // Convert Date objects to string if necessary
+    created: event.created.toString(),
+    updated: event.updated.toString(),
     frameImage: event.frameImage,
     score: event.score,
     matchScore: event.matchScore,

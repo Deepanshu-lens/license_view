@@ -32,9 +32,7 @@
       const atIndex = cameraURL.indexOf("@");
       if (urlParts.length > 2) {
         console.log(atIndex);
-        modifiedCameraURL =
-          // urlParts.slice(0, -1).join("@") + "%40" + urlParts.slice(-1);
-          urlParts[0] + "%40" + urlParts.slice(1).join("@");
+        modifiedCameraURL = urlParts[0] + "%40" + urlParts.slice(1).join("@");
       }
       console.log(modifiedCameraURL);
       fetch("/api/camera/addCamera", {
@@ -51,7 +49,7 @@
           saveFolder: "./PlayBack/",
           saveDuration: 30 * 60 * 24,
           vehicle: vehicle,
-          faceDetThresh: 0.6,
+          faceDetThresh: 0.93,
           faceMatchThresh: 0.3,
           vehicleDetThresh: 0.4,
           vehiclePlateThresh: 0.5,
@@ -90,7 +88,7 @@
             face: face,
             save: saving,
             vehicle: vehicle,
-            faceDetThresh: 0.6,
+            faceDetThresh: 0.93,
             faceMatchThresh: 0.3,
             vehicleDetThresh: 0.4,
             vehiclePlateThresh: 0.5,
@@ -131,7 +129,7 @@
             face: face,
             save: saving,
             vehicle: vehicle,
-            faceDetThresh: 0.6,
+            faceDetThresh: 0.93,
             faceMatchThresh: 0.3,
             vehicleDetThresh: 0.4,
             vehiclePlateThresh: 0.5,

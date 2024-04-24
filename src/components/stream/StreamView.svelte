@@ -765,7 +765,7 @@
                   class="w-full fade-in-15 transition-all duration-200"
                   on:click={() => {
                     openEventDialog(event);
-                    addUserLog(`user clicked on aler panel event`);
+                    addUserLog(`user clicked on alert panel event`);
                   }}
                 >
                   <article
@@ -816,10 +816,12 @@
                           {event.matchScore !== 0 &&
                           event.matchScore !== undefined &&
                           event.matchScore !== null
-                            ? `Match Score : ${event?.matchScore}`
+                            ? `Match Score : ${event?.matchScore.toFixed(3)}`
                             : "No matches found"}
                         </p>
-                        <p class="text-[10px] font-semibold">{event?.score}</p>
+                        <p class="text-[10px] font-semibold">
+                          {event?.score.toFixed(3)}
+                        </p>
                       </span>
                       <span class="flex items-center justify-between gap-2">
                         <p class={"text-[10px]"}>

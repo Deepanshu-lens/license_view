@@ -1,41 +1,9 @@
 <script lang="ts">
   export let video: string;
-  // onMount(() => {
-  //   let videoElement = document.createElement("video") as HTMLMediaElement;
-  //   videoElement.width = "512";
-  //   videoElement.height = "512";
-  //   videoElement.controls = true;
-  //   videoElement.id = `playback-${video.id}`;
-  //   let parentDiv = document.getElementById(`container-${video.id}`);
-  //   if (parentDiv) {
-  //     parentDiv.appendChild(videoElement);
-  //     console.log(videoElement);
-  //     console.log(video.url);
-  //     if (mpegts.getFeatureList().mseLivePlayback) {
-  //       var player = mpegts.createPlayer({
-  //         type: "mpegts", // could also be mpegts, m2ts, flv
-  //         isLive: true,
-  //         url: `${video.url.replace("../static", "")}`,
-  //       });
-  //       player.attachMediaElement(videoElement);
-  //       player.load();
-  //       player.play();
-  //     }
-
-  //     // if (Hls.isSupported()) {
-  //     //   var hls = new Hls();
-  //     //   hls.loadSource(`${video.url.replace("../static", "")}`);
-  //     //   hls.attachMedia(videoElement);
-  //     //   hls.on(Hls.Events.MANIFEST_PARSED, function () {
-  //     //     videoElement.play();
-  //     //   });
-  //     // }
-  //   }
-  // });
 </script>
 
 <div
-  class="flex flex-col gap-5 w-[320px] playback-card-shadow p-4 dark:bg-[#242424] items-center justify-center rounded-lg"
+  class="flex flex-col gap-5 w-[320px] playback-card-shadow p-0.5 pb-4 border border-solid border-[#e4e4e4] dark:bg-[#242424] dark:border-none items-center justify-center rounded-lg"
 >
   {#if typeof video === "string"}
     <div
@@ -54,21 +22,25 @@
         <source src={`/PlayBack/${video}`} type="video/webm" />
       </video>
     </div>
-    <div class="flex flex-col items-center justify-center w-full px-1 gap-2">
-      <span class="text-sm text-[#828282]">
+    <div class="flex flex-col w-full px-4 gap-2">
+      <span class="text-base text-[#16192C] font-semibold dark:text-[#828282]">
         {" "}
-        Recording from camera:{" "}
-        <span class="text-[#fb9a2e] font-semibold"
-          >{video.split("_").slice(0, 4).join("_")}</span
-        >
+        Camera:{" "}
+
+        {video.split("_").slice(0, 4).join("_")}
       </span>
-      <span class="text-xs text-[#828282]">
+      <span class="text-sm text-[#828282]">
         Date: {video.split("_").slice(4, 7).join("_")}, Time: {video
           .split("_")
           .slice(7, 10)
           .join("_")
           .split(".webm")[0]}
       </span>
+      <button
+        class="text-white bg-[#015a62] rounded-md px-3 py-1.5 w-[100px] text-sm"
+      >
+        View Feed
+      </button>
     </div>
   {:else}
     <div
@@ -87,15 +59,20 @@
         <source src={`/PlayBack/${video[0].webmFile}`} type="video/webm" />
       </video>
     </div>
-    <div class="flex flex-col items-center justify-center w-full px-1 gap-2">
-      <span class="text-sm text-[#828282]">
+    <div class="flex flex-col w-full px-4 gap-2">
+      <span class="text-base text-[#16192C] font-semibold dark:text-[#828282]">
         {" "}
-        Recording from camera:{" "}
-        <span class="text-[#fb9a2e] font-semibold">{video[0].id}</span>
+        Camera:
+        {video[0].id}
       </span>
-      <span class="text-xs text-[#828282]">
+      <span class="text-xsm text-[#828282]">
         Date: {video[0].startTime}, Time: {video[0].startTime}
       </span>
+      <button
+        class="text-white bg-[#015a62] rounded-md px-3 py-1.5 w-[100px] text-sm"
+      >
+        View Feed
+      </button>
     </div>
   {/if}
 </div>

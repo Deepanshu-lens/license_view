@@ -47,38 +47,46 @@
       class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
     >
       <Table.Row class="bg-transparent flex items-center justify-between p-3">
-        <Table.Head class="text-[#727272] w-full h-full">
+        <Table.Head
+          class="text-[#727272] w-full h-full flex items-center justify-center"
+        >
           <span class="flex items-center gap-1">
             S.No
             <ChevronsUpDown class="scale-75" />
           </span>
         </Table.Head>
-        <Table.Head class="text-[#727272] w-full h-full">
+        <Table.Head
+          class="text-[#727272] w-full h-full flex items-center justify-center"
+        >
           <span class="flex items-center gap-1">
             Name <ChevronsUpDown class="scale-75" />
           </span>
         </Table.Head>
-        <Table.Head class="text-[#727272] w-full h-full">
+        <Table.Head
+          class="text-[#727272] w-full h-full flex items-center justify-center"
+        >
           <span class="flex items-center gap-1">
             Images <ChevronsUpDown class="scale-75" />
           </span>
         </Table.Head>
-        <Table.Head class="text-[#727272] w-full h-full">
+        <Table.Head
+          class="text-[#727272] w-full h-full flex items-center justify-center"
+        >
           <span class="flex items-center gap-1">
             Created on <ChevronsUpDown class="scale-75" />
           </span></Table.Head
         >
-        <Table.Head class="text-[#727272] w-full h-full">
+        <Table.Head
+          class="text-[#727272] w-full h-full flex items-center justify-center"
+        >
           <span class="flex items-center gap-1">
             Last Updated <ChevronsUpDown class="scale-75" />
           </span></Table.Head
         >
-        <Table.Head class="text-[#727272] w-full h-full">
-          <span class="flex items-center gap-1">
-            Last Seen <ChevronsUpDown class="scale-75" />
-          </span></Table.Head
+        <Table.Head
+          class="text-[#727272] w-full h-full flex items-center justify-center"
+          >Update</Table.Head
         >
-        <Table.Head class="text-[#727272] w-full h-full">Update</Table.Head>
       </Table.Row>
     </Table.Header>
     <Table.Body>
@@ -86,13 +94,18 @@
         <Table.Row
           class="bg-transparent flex items-center justify-between mt-4 rounded-lg  border-2 border-solid border-[#e4e4e4]"
         >
-          <Table.Cell class="text-[#727272] w-full h-full">
+          <Table.Cell
+            class="text-[#727272] w-full h-full flex items-center justify-center"
+          >
             <span> {index} </span>
           </Table.Cell>
-          <Table.Cell class="text-[#727272] w-full h-full text-sm ml-2"
+          <Table.Cell
+            class="text-[#727272] w-full h-full flex items-center justify-center text-sm"
             ><span>{person.name}</span></Table.Cell
           >
-          <Table.Cell class="text-[#727272] w-full h-full text-sm">
+          <Table.Cell
+            class="text-[#727272] w-full h-full flex items-center justify-center text-sm"
+          >
             <span class="flex -space-x-2 overflow-hidden my-2">
               {#each person.images as img}
                 <img
@@ -103,17 +116,19 @@
               {/each}
             </span></Table.Cell
           >
-          <Table.Cell class="text-[#727272] w-full h-full text-sm"
+          <Table.Cell
+            class="text-[#727272] w-full h-full flex items-center justify-center text-sm"
             ><span>{person.created}</span></Table.Cell
           >
-          <Table.Cell class="text-[#727272] w-full h-full text-sm"
-            ><span>{person.updated}</span></Table.Cell
+          <Table.Cell
+            class="text-[#727272] w-full h-full flex items-center justify-center text-sm"
+            ><span>
+              {timeAgo?.format(new Date(person?.updated))}
+            </span></Table.Cell
           >
-          <Table.Cell class="text-[#727272] w-full h-full text-sm"
-            ><span>{timeAgo?.format(new Date(person.lastSeen))}</span
-            ></Table.Cell
+          <Table.Cell
+            class="text-[#727272] w-full h-full flex items-center justify-center text-sm"
           >
-          <Table.Cell class="text-[#727272] w-full h-full text-sm">
             <button
               class="text-[#D28E3D] bg-[#D28E3D] bg-opacity-15 font-medium text-sm rounded-xl flex items-center p-2 gap-2"
               ><span class="h-2 w-2 rounded-full bg-[#D28E3D]" /> update now

@@ -149,7 +149,7 @@
   class="right-playback flex-1 flex w-full h-screen justify-between px-2"
 >
   <div class="w-full h-full">
-    <div class="top2 flex items-center justify-between pr-6 py-2.5">
+    <!-- <div class="top2 flex items-center justify-between pr-6 py-2.5">
       <div class="flex items-center justify-center gap-4">
         <button
           class={!manual
@@ -177,7 +177,7 @@
       <div class="text-[#015A62]">
         {queryDate.length === 0 ? "Date" : queryDate}
       </div>
-    </div>
+    </div> -->
 
     <div
       id="scrollableEle"
@@ -185,7 +185,7 @@
         "flex flex-col overflow-y-scroll pr-6 bg-white dark:bg-black relative ml-2",
         playbackFullscreen
           ? "max-h-screen py-8 px-4"
-          : "max-h-[calc(100vh-200px)]",
+          : "max-h-[calc(100vh-200px)] py-4",
       )}
     >
       {#if playbackFullscreen}
@@ -202,7 +202,7 @@
         </span>
       {/if}
       <span
-        class="text-base font-medium dark:text-[#e0e0e0] text-[#212427] pr-6 mb-2"
+        class="text-lg font-medium dark:text-[#e0e0e0] text-[#212427] pr-6 mb-3"
       >
         Files that got converted
       </span>
@@ -224,7 +224,7 @@
         {/if}
       </div>
       <span
-        class="text-base font-medium dark:text-[#e0e0e0] text-[#212427] pr-6 mb-2"
+        class="text-lg font-medium dark:text-[#e0e0e0] text-[#212427] pr-6 mb-3"
       >
         Files that match db
       </span>

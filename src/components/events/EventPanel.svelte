@@ -10,6 +10,9 @@
     Filter,
     Search,
     ChevronRight,
+    LucideCalendarDays,
+    FilterIcon,
+    Settings,
   } from "lucide-svelte";
   import { Calendar } from "@/components/ui/calendar";
   import { writable } from "svelte/store";
@@ -18,6 +21,7 @@
   import InformativeEventCard from "../cards/InformativeEventCard.svelte";
   import { toast } from "svelte-sonner";
   import { addUserLog } from "@/lib/addUserLog";
+  import EventGrid from "./EventGrid.svelte";
 
   export let data;
   const nodes = data.nodes;
@@ -65,8 +69,6 @@
     handleDateInput();
     showCalendar = false;
     value = null;
-    // searchDate = `${value.day} ${value.month} ${value.year}`;
-    // queryDate = `${value.month} ${value.day} ${value.year}`;
   }
 
   function updateMapData() {
@@ -112,10 +114,6 @@
           }
           matchingData = matchingEvents;
         }
-        // if (matchingEvents.length === 0) {
-        //   (queryDate = ""), (searchDate = ""), (value = null);
-        //   toast("no events on that date!");
-        // } else showCalendar = false;
       }
     }
   }
@@ -158,9 +156,11 @@
 </script>
 
 <section class="right flex-1 flex h-screen w-full justify-between">
-  <div class="w-full h-full">
+  <div class="w-full h-full px-4">
+    <!-- <EventGrid /> -->
     <div class="bot w-full">
       {#if queryDate.length === 0}
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div
           id="scrollEle"
           class={eventFullscreen
@@ -212,17 +212,17 @@
                       day: "numeric",
                     });
                     const divContent = `<div key={${index}} class="flex scale-[.95] items-start gap-4 rounded-lg py-4 px-4 w-[255px] border-l-4 border-solid border-[#DE4B63] informative-shadow bg-white dark:bg-[#1b1b1b]">
-                    <img alt='team member' src='data:image/png;base64,${filteredItem.frameImage}' class='object-contain rounded-md h-12 w-12 aspect-square mt-1.5'/>
-                                        <div class="flex flex-col">
-                                            <span class="font-bold text-[#222] dark:text-white">
-                                                ${filteredItem.title}
-                                            </span>
-                                            <span class="font-bold text-[#0B8995]">${formattedDate}</span>
-                                            <span class="font-medium text-[rgb(151,151,151)]">
-                                            ${formattedTime}
-                                            </span>
-                                        </div>
-                                        </div>`;
+                <img alt='team member' src='data:image/png;base64,${filteredItem.frameImage}' class='object-contain rounded-md h-12 w-12 aspect-square mt-1.5'/>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-[#222] dark:text-white">
+                                            ${filteredItem.title}
+                                        </span>
+                                        <span class="font-bold text-[#0B8995]">${formattedDate}</span>
+                                        <span class="font-medium text-[rgb(151,151,151)]">
+                                        ${formattedTime}
+                                        </span>
+                                    </div>
+                                    </div>`;
                     return divContent;
                   })
                   .join("");
@@ -402,20 +402,20 @@
               </div>
             {/each}
           {/if}
+
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <!-- svelte-ignore a11y-no-static-element-interactions -->
           <span
             on:click={() => {
               showMore = showMore ? showMore + 2 : 7;
-              // count = count + 2;
             }}
             class={`text-black dark:text-white fixed ${showRightPanel ? ` ${eventFullscreen ? "-right-5" : "right-[20rem] 2xl:right-[20.75rem]"}` : ` ${eventFullscreen ? "-right-5" : "right-[2.8rem]"}'`} transition-position duration-700 ease-in-out -rotate-90 top-1/3 translate-y-1/3 cursor-pointer z-50 backdrop-blur-sm`}
           >
             Show more
           </span>
           {#if eventFullscreen}
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
             <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
             <span on:click={handleExitFullscreen}>
               <Shrink
                 class="fixed right-4 top-4 cursor-pointer text-black dark:text-white z-20  backdrop-blur-md bg-white dark:bg-black"
@@ -431,8 +431,8 @@
             : "min-h-[calc(100vh-75px-55px)] h-full flex items-start justify-start relative min-w-full bg-white dark:bg-black"}
         >
           {#if eventFullscreen}
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
             <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
             <span on:click={handleExitFullscreen}>
               <Shrink
                 class="fixed right-4 top-4 cursor-pointer text-black dark:text-white z-20  backdrop-blur-md bg-white dark:bg-black"
@@ -464,7 +464,6 @@
                       ? "bg-[rgba(1,90,98)]/[.08] dark:bg-[#0f1118] w-full min-h-[calc(100vh-75px-55px-50px)] relative h-full"
                       : "bg-[rgba(1,90,98)]/[.08] dark:bg-[#0f1118] w-full min-h-screen h-full relative"}
                   >
-                    <!-- class=" fixed top-[5rem] z-20 scale-90 -my-10" -->
                     <div
                       class={`flex flex-col absolute -my-20 scale-90 top-[5rem] z-20 overflow-scroll ${eventFullscreen ? "max-h-[calc(100vh-25px)]" : "max-h-[calc(100vh-75px)]"} hover:z-50 hover:backdrop-blur-xl`}
                     >
@@ -659,6 +658,46 @@
         url={data.url ?? "/"}
         isAllFullScreen={eventFullscreen}
       />
+      <div class="relative w-full p-1 bg-[#f9f9f9] dark:bg-[#333333]">
+        <input
+          id="search-input"
+          type="text"
+          class="bg-transparent text-[#020202] font-medium dark:text-white capitalize text-sm sm:text-[8px] md:text-[10px] lg:text-sm xl:text-md rounded-lg block px-10 py-2 box-border dark:focus:border-black dark:active:border-black w-full"
+          placeholder="Enter Date  DD MONTH YY"
+          bind:value={searchDate}
+          on:input={handleDateInput}
+        />
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <span
+          class="absolute top-1/2 -translate-y-1/2 left-[10px] cursor-pointer z-20"
+        >
+          <LucideCalendarDays class="text-[#727272] h-4 w-4 dark:text-white" />
+        </span>
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <span
+          class="absolute top-1/2 -translate-y-1/2 right-[10px] cursor-pointer scale-90"
+        >
+          <X class="text-[#727272] h-4 w-4 dark:text-white" />
+        </span>
+        {#if showCalendar}
+          <Calendar
+            bind:value
+            class=" bg-white dark:bg-black absolute top-14 z-40 px-4 py-2 flex flex-col items-center justify-center rounded-md border border-solid border-[#929292]"
+          />
+        {/if}
+      </div>
+      <span
+        class="text-black dark:text-white font-semibold text-base leading-tight w-[90%] mx-auto flex items-center justify-between py-4"
+        >Live Events
+        <span class="flex items-center gap-4"
+          ><FilterIcon
+            class="h-6 w-6 p-1 bg-[#f9f9f9] rounded-full text-[#727272] dark:bg-[#333] dark:text-white"
+          />
+          <Settings
+            class="h-6 w-6 p-1 bg-[#f9f9f9] rounded-full text-[#727272] dark:bg-[#333] dark:text-white"
+          /></span
+        >
+      </span>
       <EventList />
     </div>
   </div>
@@ -785,3 +824,5 @@
     </span>
   </div>
 </section>
+
+<!--  -->
