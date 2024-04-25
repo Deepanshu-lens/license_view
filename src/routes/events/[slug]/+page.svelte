@@ -13,6 +13,7 @@
   const session = data.session;
   let nodes: Node[] = [];
   let batchedEvents: Event[] = [];
+  let isMobile: boolean = false;
 
   const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
   // const PB = new PocketBase("http://127.0.0.1:5555");
@@ -73,6 +74,11 @@
     let x = await getEvents();
     events.set(x);
 
+    isMobile = window.innerWidth < 700;
+    window.addEventListener("resize", () => {
+      isMobile = window.innerWidth < 700;
+    });
+
     PB.collection("events").subscribe("*", async (e) => {
       batchedEvents.push({
         ...e.record,
@@ -98,22 +104,25 @@
   });
 </script>
 
-<main class="hidden sm:block">
-  <EventPanel {data} />
-</main>
-<main class="block sm:hidden">
-  <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">
-    <div class="top-config w-full">
-      <button
-        class="flex items-center justify-start text-black/[.7] pt-4"
-        on:click={() => {
-          window.location.href = `/session/${$selectedNode.session}`;
-        }}
-      >
-        <ChevronLeft class="h-[30px] w-[30px]" />
-        <p class="text-lg font-semibold">Events</p>
-      </button>
+{#if !isMobile}
+  <main class="hidden sm:block">
+    <EventPanel {data} />
+  </main>
+{:else}
+  <main class="block sm:hidden">
+    <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">
+      <div class="top-config w-full">
+        <button
+          class="flex items-center justify-start text-black/[.7] pt-4"
+          on:click={() => {
+            window.location.href = `/session/${$selectedNode.session}`;
+          }}
+        >
+          <ChevronLeft class="h-[30px] w-[30px]" />
+          <p class="text-lg font-semibold">Events</p>
+        </button>
+      </div>
+      <EventsView {data} />
     </div>
-    <EventsView {data} />
-  </div>
-</main>
+  </main>
+{/if}

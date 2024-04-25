@@ -7,7 +7,7 @@
   import type { Camera } from "@/types.d.ts";
   import * as Carousel from "@/components/ui/carousel/index.js";
   import AddCameraDialog from "../dialogs/AddCameraDialog.svelte";
-  import { Disc2, Expand, ImageDown, VolumeX } from "lucide-svelte";
+  import { Disc2, Expand, ImageDown, RefreshCcw, VolumeX } from "lucide-svelte";
   import { Shrink } from "lucide-svelte";
   import { addUserLog } from "@/lib/addUserLog";
   import { PUBLIC_BASE_URL } from "$env/static/public";
@@ -71,25 +71,22 @@
     }
   };
 
-  // const playVideo = () => {
-  //   const realVideo = video.querySelector("video");
-  //   if (!realVideo) {
-  //     console.error("could not find real video");
-  //     return;
-  //   }
-  //   realVideo.controls = false;
-  //   realVideo.style.maxWidth = "100%";
-  //   realVideo.style.objectFit = "fill";
-  //   realVideo.style.zIndex = "10";
-  //   realVideo.className = "rounded-lg";
-  //   realVideo.addEventListener(
-  //     "play",
-  //     () => {
-  //       videoStarted = true;
-  //     },
-  //     { once: true },
-  //   );
-  // }
+  const refreshVideoStream = (cameraId: string) => {
+    const videoElement = videos[cameraId];
+    if (videoElement) {
+      // Remove the video element from the DOM and from the videos object
+      console.log(videoElement);
+      videoElement.remove();
+      delete videos[cameraId];
+
+      // Re-initialize the video for the camera
+      const camera = $selectedNode.camera.find((c) => c.id === cameraId);
+      console.log(camera.name);
+      if (camera) {
+        initVideo(camera);
+      }
+    }
+  };
 
   const updateLayout = (maxStreamsPerPage: number) => {
     $selectedNode.camera.map((c, i) => {
@@ -106,7 +103,9 @@
         }
       }
     });
+
     streamCount = $selectedNode.camera.length;
+
     if (maxStreamsPerPage === 0) {
       // Automatic Layout
       const squareRoot = Math.ceil(Math.sqrt(streamCount));
@@ -314,10 +313,21 @@
                           class="rounded bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
                           ><ImageDown size={18} />
                         </button>
-                        <span
+                        <button
+                          on:click={() => {
+                            const cameraId =
+                              $selectedNode.camera[
+                                pageIndex * $selectedNode.maxStreamsPerPage +
+                                  slotIndex
+                              ].id;
+                            // console.log(cameraId);
+                            refreshVideoStream(cameraId);
+                            // addUserLog(`user refreshed video stream for camera ${cameraId}`);
+                          }}
                           class="rounded bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
-                          ><VolumeX size={18} />
-                        </span>
+                        >
+                          <RefreshCcw size={18} />
+                        </button>
                       </div>
                     {:else}
                       <button

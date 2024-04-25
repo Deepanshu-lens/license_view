@@ -15,6 +15,7 @@
   export let data: PageServerData;
   const session = data.session;
   let nodes: Node[] = [];
+  let isMobile: boolean = false;
 
   async function getNodes(): Promise<Node[]> {
     if (data?.session?.node?.length > 0) {
@@ -44,6 +45,12 @@
   onMount(async () => {
     nodes = await getNodes();
     selectedNode.set(nodes[0]);
+
+    isMobile = window.innerWidth < 700;
+    window.addEventListener("resize", () => {
+      isMobile = window.innerWidth < 700;
+    });
+
     if (data) {
       console.log(data.webmFiles);
       convertedVideos.set(data.webmFiles);
@@ -51,22 +58,25 @@
   });
 </script>
 
-<main class="hidden sm:block w-full h-screen">
-  <PlaybackPanel webmFiles={data.webmFiles} {data} />
-</main>
-<main class="block sm:hidden">
-  <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">
-    <div class="top-config w-full">
-      <button
-        class="flex items-center justify-start text-black/[.7] pt-4"
-        on:click={() => {
-          window.location.href = `/session/${$selectedNode.session}`;
-        }}
-      >
-        <ChevronLeft class="h-[30px] w-[30px]" />
-        <p class="text-lg font-semibold">Playback</p>
-      </button>
+{#if !isMobile}
+  <main class="hidden sm:block w-full h-screen">
+    <PlaybackPanel webmFiles={data.webmFiles} {data} />
+  </main>
+{:else}
+  <main class="block sm:hidden">
+    <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">
+      <div class="top-config w-full">
+        <button
+          class="flex items-center justify-start text-black/[.7] pt-4"
+          on:click={() => {
+            window.location.href = `/session/${$selectedNode.session}`;
+          }}
+        >
+          <ChevronLeft class="h-[30px] w-[30px]" />
+          <p class="text-lg font-semibold">Playback</p>
+        </button>
+      </div>
+      <PlaybackView webmFiles={data.webmFiles} />
     </div>
-    <PlaybackView webmFiles={data.webmFiles} />
-  </div>
-</main>
+  </main>
+{/if}

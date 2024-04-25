@@ -30,7 +30,6 @@
       });
     }
   };
-
   $: document && parentDiv && videoElement && attachVideo(videoElement);
 </script>
 

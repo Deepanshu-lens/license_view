@@ -12,7 +12,7 @@
   import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
 
   let gallery: Gallery[] = [];
-
+  let isMobile: boolean = false
   const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
   // const PB = new PocketBase("http://127.0.0.1:5555");
 
@@ -32,16 +32,20 @@
   }
   onMount(async () => {
     gallery = await getData();
+    isMobile = window.innerWidth < 700;
+    window.addEventListener('resize', () => {
+      isMobile = window.innerWidth < 700;
+    });
   });
 </script>
-
+{#!isMobile}
 <div class="overflow-y-scroll max-h-[99vh] hidden sm:block w-full">
   {#if gallery && gallery.length > 0}
     <GalleryPanel {gallery} />
     <!-- <DataTable data={gallery} /> -->
   {/if}
 </div>
-
+{:else}
 <div class="block sm:hidden">
   <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">
     <div class="top-config w-full">
@@ -58,3 +62,4 @@
     <GalleryView data={gallery} />
   </div>
 </div>
+{/if}

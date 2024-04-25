@@ -74,7 +74,7 @@
     });
   };
 
-  $: updateLayout($selectedNode.maxStreamsPerPage);
+  $: updateLayout();
 
   onMount(() => {
     if ($selectedNode.mobileLayout === 0) {
@@ -199,10 +199,10 @@
           class={allFullScreen && editMode
             ? "mid overflow-y-scroll w-full max-h-screen flex px-4 flex-wrap gap-4 my-4 pb-6 scroll z-20"
             : !allFullScreen && editMode
-              ? "mid overflow-y-scroll w-full max-h-[calc(100vh-300px)] flex px-4 flex-wrap gap-4 my-4 pb-20 scroll z-20"
+              ? "mid overflow-y-scroll w-full max-h-[calc(100vh-260px)] flex px-4 flex-wrap gap-4 my-4 pb-20 scroll z-20"
               : !allFullScreen && !editMode
-                ? `mid overflow-y-scroll w-full max-h-[calc(100vh-300px)] px-4 my-4 pb-20 z-20 grid grid-cols-${$selectedNode.mobileLayout} mx-auto scroll`
-                : `mid overflow-y-scroll w-full max-h-screen px-4 my-4 pb-6 z-20 grid grid-cols-${$selectedNode.mobileLayout} mx-auto scroll`}
+                ? `mid overflow-y-scroll w-full max-h-[calc(100vh-260px)] px-4 my-4 pb-20 z-20 grid grid-cols-${$selectedNode.mobileLayout} gap-1 mx-auto scroll`
+                : `mid overflow-y-scroll w-full max-h-screen px-4 my-4 pb-6 z-20 grid grid-cols-${$selectedNode.mobileLayout} gap-1 mx-auto scroll`}
         >
           {#if cameraCount > 0}
             {#each $selectedNode.camera as item, index}
@@ -469,7 +469,7 @@
         </div>
         {#if comfort}
           <div
-            class=" my-4 flex flex-col items-center justify-start gap-2 overflow-y-scroll whitespace-nowrap h-[350px] mx-auto pb-4 text-black text-sm dark:text-white"
+            class=" my-4 flex flex-col items-center justify-start gap-2 overflow-y-scroll whitespace-nowrap overflow-x-clip h-[350px] mx-auto pb-4 text-black text-sm dark:text-white"
           >
             {#if $events?.length > 0}
               <div class="m-4 flex flex-col sm:gap-2 w-[80%] gap-8 pb-10">
@@ -486,7 +486,7 @@
           </div>
         {:else}
           <div
-            class=" my-4 flex flex-col items-center justify-start gap-2 overflow-y-scroll whitespace-nowrap h-[350px] mx-auto pb-4 text-black text-sm dark:text-white"
+            class=" my-4 flex flex-col items-center justify-start gap-2 overflow-y-scroll whitespace-nowrap overflow-x-clip h-[350px] mx-auto pb-4 text-black text-sm dark:text-white"
           >
             {#if $events.length > 0}
               {#each $events as event}
@@ -515,7 +515,7 @@
                       />
                     </CarDetailsDialog>
                   {/if}
-                  <div class="flex flex-col items-start">
+                  <div class="flex flex-col items-start w-full">
                     <h3 class={"font-semibold text-base"}>
                       {#if event.title.includes("car") && event.description !== ""}
                         {event.description} {event.title}
@@ -538,10 +538,12 @@
                         {event.matchScore !== 0 &&
                         event.matchScore !== undefined &&
                         event.matchScore !== null
-                          ? `Match Score : ${event?.matchScore}`
+                          ? `Match Score : ${event?.matchScore.toFixed(3)}`
                           : "No matches found"}
                       </p>
-                      <p class="text-xs font-semibold">{event?.score}</p>
+                      <p class="text-xs font-semibold">
+                        {event?.score.toFixed(3)}
+                      </p>
                     </span>
                     <span
                       class="flex items-center justify-between gap-2 w-full"

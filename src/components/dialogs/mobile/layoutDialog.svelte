@@ -72,7 +72,7 @@
             }}
             class={layoutValue === 2 && !selectedValue
               ? "px-2 border border-solid border-[#015a62] w-full rounded-md text-[#015a62]"
-              : selectedValue === 2 || selectedValue === 2
+              : selectedValue === 2
                 ? "px-2 border border-solid border-[#015a62] w-full rounded-md text-[#015a62]"
                 : ""}
           >
@@ -93,7 +93,7 @@
             }}
             class={layoutValue === 1 && !selectedValue
               ? "px-2 border border-solid border-[#015a62] w-full rounded-md text-[#015a62]"
-              : selectedValue === 1 || selectedValue === 1
+              : selectedValue === 1
                 ? "px-2 border border-solid border-[#015a62] w-full rounded-md text-[#015a62]"
                 : ""}
           >
