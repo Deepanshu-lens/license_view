@@ -71,7 +71,7 @@
   }}
 >
   <Menu class=" h-4 w-4 my-handle cursor-grab flex-shrink-0" />
-  <div class="grid gap-1 overflow-x-scroll">
+  <div class="grid gap-1">
     <h3 class="text-base">
       {!isNaN(parseInt(name)) && String(parseInt(name)) === name
         ? "Camera"
