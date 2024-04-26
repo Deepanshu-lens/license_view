@@ -1,8 +1,8 @@
-import type { SelectedNode, Playback, Event } from "@/types";
+import type { SelectedNode, Playback, Event, Gallery } from "@/types";
 import { writable } from "svelte/store";
 
 export const events = writable<Event[]>([]);
-
+export const gallery = writable<Gallery[]>([]);
 export const selectedNode = writable<SelectedNode>();
 export const selectedPlaybackDate = writable("");
 export const playbackVideos = writable<Playback[]>([]);

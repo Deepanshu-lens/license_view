@@ -11,6 +11,7 @@
     topPanelHide,
     alertPanelHide,
     events,
+    gallery,
   } from "@/lib/stores";
   import {
     Search,
@@ -77,9 +78,9 @@
   let displayLayouts = false;
   let nodeCameras = false;
   let selectedEvent = null;
-  let galleryItems = [];
+  let galleryItems: Gallery[] = [];
   let unknownItems = [];
-  let batchedGallery = [];
+  let batchedGallery: Gallery[] = [];
   let batchedUnknownGallery = [];
   let selectedScreen = null;
   let showRightPanel = true;
@@ -220,28 +221,29 @@
   //   }));
   // }
 
-  // async function getUnknowns(): Promise<Gallery[]> {
-  //   const galleryItem = await PB.collection("impostors").getList(1, 10, {
-  //     sort: "-lastSeen",
-  //     expand: "events",
-  //     fields: "name,lastSeen,expand.events.frameImage",
-  //   });
+  async function getUnknowns(): Promise<Gallery[]> {
+    const galleryItem = await PB.collection("impostors").getList(1, 10, {
+      sort: "-lastSeen",
+      expand: "events",
+      fields: "name,lastSeen,expand.events.frameImage",
+    });
 
-  //   return galleryItem.items.map((e) => ({
-  //     name: "Unknown",
-  //     lastSeen: e.lastSeen,
-  //     images: e.expand.events
-  //       .map((f) => f.frameImage)
-  //       .slice(-8)
-  //       .reverse(),
-  //     created: new Date(),
-  //     updated: new Date(),
-  //   }));
-  // }
+    return galleryItem.items.map((e) => ({
+      name: "Unknown",
+      lastSeen: e.lastSeen,
+      images: e.expand.events
+        .map((f) => f.frameImage)
+        .slice(-8)
+        .reverse(),
+      created: new Date(),
+      updated: new Date(),
+    }));
+  }
 
   async function updateGallery() {
     if (batchedGallery.length > 0) {
-      galleryItems = data.props.gallerItems;
+      // galleryItems = await getGallery();
+      gallery.set([...batchedGallery, ...$gallery].slice(0, 200));
       batchedGallery = [];
     }
     setTimeout(updateGallery, 1000);
@@ -249,7 +251,7 @@
 
   async function updateUnknowns() {
     if (batchedUnknownGallery.length > 0) {
-      unknownItems = data.props.imposterItems;
+      unknownItems = await getUnknowns();
       batchedUnknownGallery = [];
     }
     setTimeout(updateUnknowns, 1000);
@@ -261,10 +263,11 @@
 
   onMount(async () => {
     galleryItems = data.props.galleryItems;
+    gallery.set(galleryItems);
     unknownItems = data.props.imposterItems;
     PB.collection("faceGallery").subscribe("*", async (e) => {
-      console.log("New change ", e.action, e.record);
-      batchedGallery.push(e.record.id);
+      console.log("New change in gallery ", e.action, e.record);
+      batchedGallery.push(e.record);
     });
     PB.collection("impostors").subscribe("*", async (e) => {
       batchedUnknownGallery.push(e.record.id);
