@@ -56,6 +56,6 @@
         >
         <Button on:click={editCamera}>Save Changes</Button>
       </span>
-    </Dialog.Footer></Dialog.Content
-  >
+    </Dialog.Footer>
+  </Dialog.Content>
 </Dialog.Root>

@@ -56,6 +56,7 @@
 
   export let data;
   export let url;
+
   let isMobile: boolean = false;
   const session = data.session;
   const sessionId = session.id;
@@ -197,52 +198,50 @@
     selectedEvent = eventData;
   }
 
-  async function getGallery(): Promise<Gallery[]> {
-    const galleryItem = await PB.collection("faceGallery").getFullList({
-      sort: "-lastSeen",
-      expand: "events",
-      fields: "name,lastSeen,expand.events.frameImage,images",
-    });
+  // async function getGallery(): Promise<Gallery[]> {
+  //   const galleryItem = await PB.collection("faceGallery").getFullList({
+  //     sort: "-lastSeen",
+  //     expand: "events",
+  //     fields: "name,lastSeen,expand.events.frameImage,images",
+  //   });
 
-    // console.log(galleryItem);
+  //   return galleryItem.map((e) => ({
+  //     name: e.name,
+  //     lastSeen: e.lastSeen,
+  //     savedData: e.images,
+  //     images: e.expand.events
+  //       ? e.expand.events
+  //           .map((f) => f.frameImage)
+  //           .slice(-8)
+  //           .reverse()
+  //       : [],
+  //     created: new Date(),
+  //     updated: new Date(),
+  //   }));
+  // }
 
-    return galleryItem.map((e) => ({
-      name: e.name,
-      lastSeen: e.lastSeen,
-      savedData: e.images,
-      images: e.expand.events
-        ? e.expand.events
-            .map((f) => f.frameImage)
-            .slice(-8)
-            .reverse()
-        : [],
-      created: new Date(),
-      updated: new Date(),
-    }));
-  }
+  // async function getUnknowns(): Promise<Gallery[]> {
+  //   const galleryItem = await PB.collection("impostors").getList(1, 10, {
+  //     sort: "-lastSeen",
+  //     expand: "events",
+  //     fields: "name,lastSeen,expand.events.frameImage",
+  //   });
 
-  async function getUnknowns(): Promise<Gallery[]> {
-    const galleryItem = await PB.collection("impostors").getList(1, 10, {
-      sort: "-lastSeen",
-      expand: "events",
-      fields: "name,lastSeen,expand.events.frameImage",
-    });
-
-    return galleryItem.items.map((e) => ({
-      name: "Unknown",
-      lastSeen: e.lastSeen,
-      images: e.expand.events
-        .map((f) => f.frameImage)
-        .slice(-8)
-        .reverse(),
-      created: new Date(),
-      updated: new Date(),
-    }));
-  }
+  //   return galleryItem.items.map((e) => ({
+  //     name: "Unknown",
+  //     lastSeen: e.lastSeen,
+  //     images: e.expand.events
+  //       .map((f) => f.frameImage)
+  //       .slice(-8)
+  //       .reverse(),
+  //     created: new Date(),
+  //     updated: new Date(),
+  //   }));
+  // }
 
   async function updateGallery() {
     if (batchedGallery.length > 0) {
-      galleryItems = await getGallery();
+      galleryItems = data.props.gallerItems;
       batchedGallery = [];
     }
     setTimeout(updateGallery, 1000);
@@ -250,7 +249,7 @@
 
   async function updateUnknowns() {
     if (batchedUnknownGallery.length > 0) {
-      unknownItems = await getUnknowns();
+      unknownItems = data.props.imposterItems;
       batchedUnknownGallery = [];
     }
     setTimeout(updateUnknowns, 1000);
@@ -261,8 +260,8 @@
   }
 
   onMount(async () => {
-    galleryItems = await getGallery();
-    unknownItems = await getUnknowns();
+    galleryItems = data.props.galleryItems;
+    unknownItems = data.props.imposterItems;
     PB.collection("faceGallery").subscribe("*", async (e) => {
       console.log("New change ", e.action, e.record);
       batchedGallery.push(e.record.id);

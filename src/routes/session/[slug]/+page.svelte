@@ -15,12 +15,9 @@
   let batchedEvents: Event[] = [];
 
   const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
-  // const PB = new PocketBase("http://127.0.0.1:5555");
 
   async function getNodes(): Promise<Node[]> {
-    // console.log("session", session.node);
     if (session?.node.length > 0) {
-      // console.log("first");
       const nodes = await PB.collection("node").getFullList(200, {
         sort: "-created",
         expand: "camera",
@@ -57,39 +54,11 @@
     return [];
   }
 
-  async function getEvents(): Promise<Event[]> {
-    // console.log("getting events");
-    // const events = await PB.collection("events").getList(1, 40, {
-    //   sort: "-created",
-    //   fields:
-    //     "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
-    // });
-    const events = data.props.events;
-    return events.map(
-      (event) =>
-        ({
-          ...event,
-          created: new Date(event.created),
-        }) as unknown as Event,
-    );
-  }
-
-  PB.collection("camera").subscribe("*", async (e) => {
-    console.log("CHANGE ", e.action, " ", e.record);
-    nodes = await getNodes();
-    selectedNode.set(nodes[0]);
-  });
-
-  PB.collection("node").subscribe("*", async (e) => {
-    console.log("CHANGE ", e.action, " ", e.record);
-    nodes = await getNodes();
-    selectedNode.set(nodes[0]);
-  });
-
   function updateEvents() {
     if (batchedEvents.length !== $events.length) {
       events.set([...batchedEvents, ...$events].slice(0, 200));
       batchedEvents = [];
+
       setTimeout(updateEvents, 1000);
     }
   }
@@ -97,7 +66,7 @@
   onMount(async () => {
     nodes = await getNodes();
     selectedNode.set(nodes[0]);
-    let x = await getEvents();
+    let x = data.props.events;
     events.set(x);
 
     PB.collection("events").subscribe("*", async (e) => {
@@ -106,6 +75,17 @@
         created: new Date(e.record.created),
       } as unknown as Event);
     });
+
+    PB.collection("camera").subscribe("*", async (e) => {
+      nodes = await getNodes();
+      selectedNode.set(nodes[0]);
+    });
+
+    PB.collection("node").subscribe("*", async (e) => {
+      nodes = await getNodes();
+      selectedNode.set(nodes[0]);
+    });
+
     setTimeout(updateEvents, 1000);
   });
 

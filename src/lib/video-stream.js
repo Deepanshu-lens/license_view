@@ -5,36 +5,12 @@ import { VideoRTC } from "./video-rtc.js";
  * Also you can check this example: https://github.com/AlexxIT/WebRTC
  */
 export class VideoStream extends VideoRTC {
-  constructor() {
-    super();
-    this.lastReceivedTimestamp = null;
-    this.checkInterval = null;
-  }
   /**
    * Custom GUI
    */
   oninit() {
     console.debug("stream.oninit");
     super.oninit();
-    this.startReceivingCheck();
-  }
-
-  startReceivingCheck() {
-    this.checkInterval = setInterval(() => {
-      if (
-        this.lastReceivedTimestamp &&
-        Date.now() - this.lastReceivedTimestamp > 10000
-      ) {
-        // 10 seconds timeout
-        console.error("No data received for 10 seconds.");
-        this.onNoDataReceived();
-      }
-    }, 5000); // check every 5 seconds
-  }
-
-  onNoDataReceived() {
-    console.error("Socket is not receiving data.");
-    // Handle the case when no data is received
   }
 
   onconnect() {

@@ -1,5 +1,6 @@
 <script lan="ts">
   import { selectedNode } from "@/lib/stores";
+  import { X } from "lucide-svelte";
   import { createEventDispatcher } from "svelte";
 
   export let selectedEvent;
@@ -22,7 +23,13 @@
         `}
     on:click|stopPropagation
   >
-    <button class="close-button text-rose-700" on:click={closeModal}>✖</button>
+    <button
+      on:click={closeModal}
+      class="absolute top-2 right-2 grid place-items-center"
+    >
+      <X size={20} />
+    </button>
+
     <img
       class="obejct-contain w-[200px] h-[150px] rounded-sm"
       alt="portrait alert"
@@ -137,15 +144,5 @@
     max-width: 500px;
     margin: auto;
     z-index: 1001;
-  }
-  .close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-size: 1.5rem;
-    color: #333;
   }
 </style>
