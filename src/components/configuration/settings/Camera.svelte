@@ -12,6 +12,7 @@
   import { addUserLog } from "@/lib/addUserLog";
   import { writable } from "svelte/store";
   import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
+  import * as Select from "@/components/ui/select";
 
   let selected = 1;
   let detailIndex: number | null = null;
@@ -103,6 +104,7 @@
     }
     if (searchValue.length === 0) {
       filteredCameraNames = [];
+      detailIndex = null;
     }
   }
 </script>
@@ -442,7 +444,12 @@
               }}
             />
             <Search class="absolute top-1/2 -translate-y-1/2 left-2" />
-            <X class="absolute top-1/2 -translate-y-1/2 right-2" />
+            <button
+              class="absolute top-1/2 -translate-y-1/2 right-2"
+              on:click={() => (searchValue = "")}
+            >
+              <X />
+            </button>
           </div>
           <div class="flex gap-4">
             <AddCameraDialog sNode={newData[nodeIndex]}>
@@ -571,24 +578,29 @@
               <th
                 class="text-left py-3 px-4 border-r-[1px] border-solid dark:border-[#929292]"
               >
-                Status
-              </th>
-              <th
-                class="text-left py-3 px-4 border-r-[1px] border-solid dark:border-[#929292]"
-              >
                 Protocol
               </th>
               <th
                 class="text-left py-3 px-4 border-r-[1px] border-solid dark:border-[#929292]"
               >
-                Resolution
+                Priority
               </th>
               <th
                 class="text-left py-3 px-4 border-r-[1px] border-solid dark:border-[#929292]"
               >
-                Frame rate
+                Motion Thresh
               </th>
-              <th class="text-left py-3 px-4">Bitrate</th>
+              <th
+                class="text-left py-3 px-4 border-r-[1px] border-solid dark:border-[#929292]"
+              >
+                Face
+              </th>
+              <th
+                class="text-left py-3 px-4 border-r-[1px] border-solid dark:border-[#929292]"
+              >
+                Vechile
+              </th>
+              <th class="text-left py-3 px-4">Save</th>
             </tr>
           </thead>
           <tbody>
@@ -666,24 +678,127 @@
                   <td
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
                   >
-                    status
-                  </td>
-                  <td
-                    class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
-                  >
                     {item?.[0].url.slice(0, 4)}
                   </td>
                   <td
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
                   >
-                    Resolution
+                    {#if modify && index === detailIndex}
+                      <Select.Root portal={null}>
+                        <Select.Trigger class="text-sm ">
+                          <Select.Value placeholder={item[0].priority} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          <Select.Group>
+                            <Select.Item value={0} label={"0"}>0</Select.Item>
+                            <Select.Item value={1} label={"1"}>1</Select.Item>
+                          </Select.Group>
+                        </Select.Content>
+                      </Select.Root>
+                    {:else}
+                      {item?.[0].priority}{/if}
                   </td>
                   <td
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
                   >
-                    Frame rate
+                    {#if modify && index === detailIndex}
+                      <Select.Root portal={null}>
+                        <Select.Trigger class="text-sm ">
+                          <Select.Value
+                            placeholder={item?.[0].motionThresh === 5000
+                              ? "High"
+                              : item?.[0].motionThresh === "2500"
+                                ? "Mid"
+                                : "Low"}
+                          />
+                        </Select.Trigger>
+                        <Select.Content>
+                          <Select.Group>
+                            <Select.Item value={1000} label={"low"}
+                              >Low</Select.Item
+                            >
+                            <Select.Item value={2500} label={"mid"}
+                              >Mid</Select.Item
+                            >
+                            <Select.Item value={5000} label={"high"}
+                              >High</Select.Item
+                            >
+                          </Select.Group>
+                        </Select.Content>
+                      </Select.Root>
+                    {:else}
+                      {item?.[0].motionThresh === 5000
+                        ? "High"
+                        : item?.[0].motionThresh === "2500"
+                          ? "Mid"
+                          : "Low"}
+                    {/if}
                   </td>
-                  <td class="py-2 px-4">Bitrate</td>
+                  <td
+                    class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
+                  >
+                    {#if modify && index === detailIndex}
+                      <Select.Root portal={null}>
+                        <Select.Trigger class="text-sm ">
+                          <Select.Value placeholder={item[0].face} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          <Select.Group>
+                            <Select.Item value={true} label={"true"}
+                              >True</Select.Item
+                            >
+                            <Select.Item value={false} label={"False"}
+                              >False</Select.Item
+                            >
+                          </Select.Group>
+                        </Select.Content>
+                      </Select.Root>
+                    {:else}
+                      {item?.[0].face}
+                    {/if}
+                  </td>
+                  <td
+                    class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
+                  >
+                    {#if modify && index === detailIndex}
+                      <Select.Root portal={null}>
+                        <Select.Trigger class="text-sm ">
+                          <Select.Value placeholder={item[0].vehicle} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          <Select.Group>
+                            <Select.Item value={true} label={"true"}
+                              >True</Select.Item
+                            >
+                            <Select.Item value={false} label={"False"}
+                              >False</Select.Item
+                            >
+                          </Select.Group>
+                        </Select.Content>
+                      </Select.Root>
+                    {:else}
+                      {item?.[0].vehicle}
+                    {/if}
+                  </td>
+                  <td class="py-2 px-4">
+                    {#if modify && index === detailIndex}
+                      <Select.Root portal={null}>
+                        <Select.Trigger class="text-sm ">
+                          <Select.Value placeholder={item[0].save} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          <Select.Group>
+                            <Select.Item value={true} label={"true"}
+                              >True</Select.Item
+                            >
+                            <Select.Item value={false} label={"False"}
+                              >False</Select.Item
+                            >
+                          </Select.Group>
+                        </Select.Content>
+                      </Select.Root>
+                    {:else}{item[0].save}{/if}</td
+                  >
                 </tr>
               {/each}
             {:else if newData && newData?.[nodeIndex]?.camera?.length > 0}
@@ -761,24 +876,131 @@
                   >
                   <td
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
-                    >Status</td
-                  >
-                  <td
-                    class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
                   >
                     {item?.[0].url.slice(0, 4)}</td
                   >
                   <td
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
-                    >Resolution</td
+                  >
+                    {#if modify && index === detailIndex}
+                      <Select.Root portal={null}>
+                        <Select.Trigger class="text-sm ">
+                          <Select.Value placeholder={item[0].priority} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          <Select.Group>
+                            <Select.Item value={0} label={"0"}>0</Select.Item>
+                            <Select.Item value={1} label={"1"}>1</Select.Item>
+                          </Select.Group>
+                        </Select.Content>
+                      </Select.Root>
+                    {:else}
+                      {item?.[0].priority}{/if}</td
                   >
                   <td
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
-                    >Frame rate</td
+                  >
+                    {#if modify && index === detailIndex}
+                      <Select.Root portal={null}>
+                        <Select.Trigger class="text-sm ">
+                          <Select.Value
+                            placeholder={item?.[0].motionThresh === 5000
+                              ? "High"
+                              : item?.[0].motionThresh === "2500"
+                                ? "Mid"
+                                : "Low"}
+                          />
+                        </Select.Trigger>
+                        <Select.Content>
+                          <Select.Group>
+                            <Select.Item value={1000} label={"low"}
+                              >Low</Select.Item
+                            >
+                            <Select.Item value={2500} label={"mid"}
+                              >Mid</Select.Item
+                            >
+                            <Select.Item value={5000} label={"high"}
+                              >High</Select.Item
+                            >
+                          </Select.Group>
+                        </Select.Content>
+                      </Select.Root>
+                    {:else}
+                      {item?.[0].motionThresh === 5000
+                        ? "High"
+                        : item?.[0].motionThresh === "2500"
+                          ? "Mid"
+                          : "Low"}
+                    {/if}
+                  </td>
+
+                  <td
+                    class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
+                  >
+                    {#if modify && index === detailIndex}
+                      <Select.Root portal={null}>
+                        <Select.Trigger class="text-sm ">
+                          <Select.Value placeholder={item[0].face} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          <Select.Group>
+                            <Select.Item value={true} label={"true"}
+                              >True</Select.Item
+                            >
+                            <Select.Item value={false} label={"False"}
+                              >False</Select.Item
+                            >
+                          </Select.Group>
+                        </Select.Content>
+                      </Select.Root>
+                    {:else}
+                      {item?.[0].face}
+                    {/if}
+                  </td>
+
+                  <td
+                    class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
+                  >
+                    {#if modify && index === detailIndex}
+                      <Select.Root portal={null}>
+                        <Select.Trigger class="text-sm ">
+                          <Select.Value placeholder={item[0].vehicle} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          <Select.Group>
+                            <Select.Item value={true} label={"true"}
+                              >True</Select.Item
+                            >
+                            <Select.Item value={false} label={"False"}
+                              >False</Select.Item
+                            >
+                          </Select.Group>
+                        </Select.Content>
+                      </Select.Root>
+                    {:else}
+                      {item[0].vehicle}
+                    {/if}</td
                   >
                   <td
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
-                    >Bitrate</td
+                  >
+                    {#if modify && index === detailIndex}
+                      <Select.Root portal={null}>
+                        <Select.Trigger class="text-sm ">
+                          <Select.Value placeholder={item[0].save} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          <Select.Group>
+                            <Select.Item value={true} label={"true"}
+                              >True</Select.Item
+                            >
+                            <Select.Item value={false} label={"False"}
+                              >False</Select.Item
+                            >
+                          </Select.Group>
+                        </Select.Content>
+                      </Select.Root>
+                    {:else}{item[0].save}{/if}</td
                   >
                 </tr>
               {/each}
