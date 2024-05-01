@@ -23,6 +23,7 @@
   import { onMount } from "svelte";
   import { toast } from "svelte-sonner";
   import { PUBLIC_BASE_URL } from "$env/static/public";
+  import { page } from "$app/stores";
 
   let showInfoModal = false;
   let allFullScreen = false;
@@ -32,11 +33,12 @@
   let comfort = true;
   let videos: { [key: string]: HTMLElement } = {};
 
-  const location = window?.location?.href;
-  const neededUrl =
-    location?.split("/")[2] === "localhost:5173"
-      ? PUBLIC_BASE_URL
-      : location?.split("/")[2]?.split(":")[0];
+  // const location = window?.location?.href;
+  // const neededUrl =
+  //   location?.split("/")[2] === "localhost:5173"
+  //     ? PUBLIC_BASE_URL
+  //     : location?.split("/")[2]?.split(":")[0];
+  const neededUrl = $page.url.hostname;
 
   const initVideo = (camera: Camera) => {
     if (videos[camera.id]) {

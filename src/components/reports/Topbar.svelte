@@ -31,7 +31,9 @@
           ? "Reports"
           : selectedScreen === 3
             ? "Access Control"
-            : "Parking Management"}
+            : selectedScreen === 4
+              ? "Parking Management"
+              : "System Health"}
     </h2>
     <h5 class="text-sm text-black/.5">
       {selectedScreen === 1
@@ -68,46 +70,48 @@
       >
     </div>
   {/if}
-  <div class="right">
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div class="flex items-center gap-4">
-      <span
-        class="relative"
-        on:click={() => addUserLog("user clicked on date input playback")}
-      >
-        <input
-          id="search-input"
-          type="text"
-          class="bg-transparent border border-gray-300 text-gray-900 dark:text-white capitalize text-sm sm:text-[8px] md:text-[10px] lg:text-sm xl:text-md rounded-lg block px-10 py-2 box-border dark:focus:border-black dark:active:border-black w-[260px]"
-          placeholder="Enter Date  DD/MM/YYYY"
-          bind:value={searchDate}
-          on:input={handleDateInput}
-        />
+  {#if selectedScreen !== 5}
+    <div class="right">
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <div class="flex items-center gap-4">
         <span
-          class="absolute top-1/2 -translate-y-1/2 left-[10px] text-[#4f4f4f] dark:text-white cursor-pointer scale-90 z-20"
-          on:click={() => {
-            showCalendar = !showCalendar;
-          }}
+          class="relative"
+          on:click={() => addUserLog("user clicked on date input playback")}
         >
-          <CalendarDays />
-        </span>
-        <span
-          on:click={() => ((searchDate = ""), (queryDate = ""))}
-          class="absolute top-1/2 -translate-y-1/2 right-[10px] text-[#4f4f4f] dark:text-white cursor-pointer scale-75"
-        >
-          <X />
-        </span>
-        {#if showCalendar}
-          <Calendar
-            bind:value
-            class=" bg-white dark:bg-black absolute top-14 z-40 px-4 py-2 flex flex-col items-center justify-center rounded-md border border-solid border-[#929292]"
+          <input
+            id="search-input"
+            type="text"
+            class="bg-transparent border border-gray-300 text-gray-900 dark:text-white capitalize text-sm sm:text-[8px] md:text-[10px] lg:text-sm xl:text-md rounded-lg block px-10 py-2 box-border dark:focus:border-black dark:active:border-black w-[260px]"
+            placeholder="Enter Date  DD/MM/YYYY"
+            bind:value={searchDate}
+            on:input={handleDateInput}
           />
-        {/if}
-      </span>
-      <button class="bg-[#015a62] rounded-md text-white px-6 py-1.5">
-        Export
-      </button>
+          <span
+            class="absolute top-1/2 -translate-y-1/2 left-[10px] text-[#4f4f4f] dark:text-white cursor-pointer scale-90 z-20"
+            on:click={() => {
+              showCalendar = !showCalendar;
+            }}
+          >
+            <CalendarDays />
+          </span>
+          <span
+            on:click={() => ((searchDate = ""), (queryDate = ""))}
+            class="absolute top-1/2 -translate-y-1/2 right-[10px] text-[#4f4f4f] dark:text-white cursor-pointer scale-75"
+          >
+            <X />
+          </span>
+          {#if showCalendar}
+            <Calendar
+              bind:value
+              class=" bg-white dark:bg-black absolute top-14 z-40 px-4 py-2 flex flex-col items-center justify-center rounded-md border border-solid border-[#929292]"
+            />
+          {/if}
+        </span>
+        <button class="bg-[#015a62] rounded-md text-white px-6 py-1.5">
+          Export
+        </button>
+      </div>
     </div>
-  </div>
+  {/if}
 </section>

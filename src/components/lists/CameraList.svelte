@@ -11,6 +11,7 @@
   import Button from "../ui/button/button.svelte";
   export let showItems: boolean;
   import { addUserLog } from "@/lib/addUserLog";
+  import { writable } from "svelte/store";
 
   /**
    * Sortable Camera Info Cards
@@ -19,6 +20,8 @@
   let filteredCameras: Camera[] = [];
   let cameraItems: HTMLDivElement;
   let filterText: string = "";
+
+  let cameraOrder = writable<number[]>([]);
 
   // function swap(array, i, j) {
   //   // Check if indices are valid
@@ -40,15 +43,28 @@
       input.blur(); // Remove focus from the input
     }
   }
-
-  onMount(async function () {
-    if (cameraItems)
+  onMount(function () {
+    if (cameraItems) {
       Sortable.create(cameraItems, {
         animation: 250,
         chosenClass: "chosen",
         dragClass: "dragged",
         handle: ".my-handle",
       });
+    }
+
+    // if (cameraItems) {
+    //   const sortable = Sortable.create(cameraItems, {
+    //     animation: 250,
+    //     chosenClass: "chosen",
+    //     dragClass: "dragged",
+    //     handle: ".my-handle",
+    //     onEnd: (event) => {
+    //       console.log(event);
+    //       cameraOrder.set(sortable.toArray().map(Number)); // Update the order in the writable store
+    //     },
+    //   });
+    // }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       // Check if Command + / or Ctrl + / is pressed

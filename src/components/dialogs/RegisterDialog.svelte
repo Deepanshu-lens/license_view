@@ -6,8 +6,7 @@
   import { cn } from "@/lib";
   import { writable } from "svelte/store";
   import { ChevronDown, X } from "lucide-svelte";
-  import { PUBLIC_BASE_URL } from "$env/static/public";
-  import { onDestroy, onMount } from "svelte";
+  import { page } from "$app/stores";
 
   let dialogOpen = false;
   let captureMode = 1;
@@ -17,13 +16,12 @@
   const imposterImages = writable<string[]>([]);
   const avgFeatures = writable();
 
-  const location = window?.location?.href;
-  const neededUrl =
-    location?.split("/")[2] === "localhost:5173"
-      ? PUBLIC_BASE_URL
-      : location?.split("/")[2]?.split(":")[0];
-
-  console.log("neededurl", neededUrl);
+  // const location = window?.location?.href;
+  // const neededUrl =
+  //   location?.split("/")[2] === "localhost:5173"
+  //     ? PUBLIC_BASE_URL
+  //     : location?.split("/")[2]?.split(":")[0];
+  const neededUrl = $page.url.hostname;
 
   let webcamSource: HTMLVideoElement;
   let webcamCanvas: HTMLCanvasElement;

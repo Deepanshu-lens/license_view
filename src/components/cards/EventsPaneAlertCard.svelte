@@ -3,6 +3,8 @@
   import CarDetailsDialog from "../dialogs/CarDetailsDialog.svelte";
 
   export let data;
+  console.log(data);
+  const date = new Date(data.created);
 </script>
 
 <article
@@ -56,14 +58,14 @@
     </span>
     <span class="flex items-center justify-between gap-2">
       <p class={"text-[10px]"}>
-        {data.created.toLocaleDateString("en-US", {
+        {date.toLocaleDateString("en-US", {
           year: "numeric",
           month: "short",
           day: "numeric",
         })}
       </p>
       <p class={"text-[10px]"}>
-        {data.created.toLocaleTimeString("en-US", {
+        {date.toLocaleTimeString("en-US", {
           hour: "2-digit",
           minute: "2-digit",
           second: "2-digit",

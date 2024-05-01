@@ -1,7 +1,7 @@
 export const ssr = false;
 
 export async function load({ locals }) {
-  const events = await locals.pb?.collection("events").getList(1, 100, {
+  const events = await locals.pb?.collection("events").getList(1, 25, {
     sort: "-created",
     fields:
       "title,description,created,updated,frameImage,score,matchScore,session,node,camera",

@@ -24,16 +24,10 @@ export const actions = {
 };
 
 export async function load({ locals }) {
-  const events = await locals.pb?.collection("events").getList(1, 40, {
+  const events = await locals.pb?.collection("events").getList(1, 20, {
     sort: "-created",
     fields:
       "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
-  });
-
-  const galleryItems = await locals.pb?.collection("faceGallery").getFullList({
-    sort: "-lastSeen",
-    expand: "events",
-    fields: "name,lastSeen,expand.events.frameImage,images",
   });
 
   const imposterItems = await locals.pb
@@ -51,6 +45,26 @@ export async function load({ locals }) {
         created: new Date(event.created),
       }) as unknown as Event,
   );
+
+  const galleryItems = await locals.pb?.collection("faceGallery").getFullList({
+    sort: "-lastSeen",
+    fields: "name,lastSeen,images",
+  });
+
+  // console.log(galleryItems);
+
+  // const galleryItems = await locals.pb?.collection("faceGallery").getFullList({
+  //   sort: "-lastSeen",
+  //   expand: {
+  //     events: {
+  //       take: 8,
+  //       select: {
+  //         frameImage: true,
+  //       },
+  //     },
+  //   },
+  //   fields: "name,lastSeen,expand.events.frameImage,images",
+  // });
 
   const serializableGalleryItems = galleryItems.map((e) => ({
     name: e.name,

@@ -1,13 +1,20 @@
 <script lang="ts">
-  import { BarChartBig, KeyRound, CarFront, LineChart } from "lucide-svelte";
+  import {
+    BarChartBig,
+    KeyRound,
+    CarFront,
+    LineChart,
+    HeartPulse,
+  } from "lucide-svelte";
   import Topbar from "@/components/reports/Topbar.svelte";
   import { Select } from "bits-ui";
   import Analytics from "@/components/reports/Analytics.svelte";
   import Access from "@/components/reports/Access.svelte";
   import Parking from "@/components/reports/Parking.svelte";
   import Reports from "@/components/reports/Reports.svelte";
+  import Health from "@/components/reports/Health.svelte";
 
-  let selectedScreen = 1;
+  let selectedScreen = 5;
 </script>
 
 <main
@@ -54,7 +61,7 @@
           ><KeyRound class="h-[22px] w-[22px]" /></button
         >
         <p
-          class={`text-xs ${selectedScreen !== 2 ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
+          class={`text-xs ${selectedScreen !== 3 ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
         >
           Access
         </p>
@@ -68,9 +75,23 @@
           ><CarFront class="h-[22px] w-[22px]" />
         </button>
         <p
-          class={`text-xs ${selectedScreen !== 2 ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
+          class={`text-xs ${selectedScreen !== 4 ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
         >
           Parking
+        </p>
+      </span>
+      <span class="group flex items-center justify-center gap-0.5 flex-col">
+        <button
+          on:click={() => (selectedScreen = 5)}
+          class={selectedScreen !== 5
+            ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+            : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
+          ><HeartPulse class="h-[22px] w-[22px]" />
+        </button>
+        <p
+          class={`text-xs ${selectedScreen !== 5 ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
+        >
+          Health
         </p>
       </span>
     </div>
@@ -91,6 +112,11 @@
     {#if selectedScreen === 4}
       <div class="overflow-y-scroll max-h-[calc(100vh-160px)]">
         <Parking />
+      </div>
+    {/if}
+    {#if selectedScreen === 5}
+      <div class="overflow-y-scroll max-h-[calc(100vh-160px)]">
+        <Health />
       </div>
     {/if}
   </section>

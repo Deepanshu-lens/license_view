@@ -77,12 +77,12 @@
       </p>
     </span>
   </div>
-  <div class="flex flex-col p-8 h-full w-full gap-4">
+  <div class="flex flex-col px-8 pt-8 h-full w-full gap-4">
     <h1 class="text-2xl font-semibold text-black/[.87] dark:text-white/[.87]">
       Gallery / Registered People
     </h1>
     {#if view === 1}
-      <div class="flex flex-wrap gap-6 h-full w-full">
+      <div class="flex flex-wrap gap-6 h-full w-full overflow-y-scroll pb-10">
         {#each gallery as person}
           <div
             class={`w-[290px] h-[190px] bg-white dark:bg-[#333] ${$mode !== "dark" && "shad"} rounded-lg p-3`}

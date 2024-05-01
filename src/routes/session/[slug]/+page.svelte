@@ -7,14 +7,27 @@
   import { onDestroy, onMount } from "svelte";
   import AddNodeMob from "@/components/node/mobile/AddNodeMob.svelte";
   import type { PageServerData } from "./$types";
-  import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
+  // import { PUBLIC_BASE_URL, PUBLIC_POCKETBASE_URL } from "$env/static/public";
+  import { page } from "$app/stores";
 
   export let data: PageServerData;
   const session = data.session;
   let nodes: Node[] = [];
   let batchedEvents: Event[] = [];
+  // let neededUrl;
 
-  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  // onMount(() => {
+  //   const location = window?.location.href;
+  //   neededUrl =
+  //     location?.split("/")[2] === "localhost:5173" ||
+  //     location?.split("/")[2] === PUBLIC_BASE_URL
+  //       ? PUBLIC_BASE_URL
+  //       : location?.split("/")[2]?.split(":")[0];
+  // });
+  // console.log(`http://${neededUrl}:5555`);
+
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
 
   async function getNodes(): Promise<Node[]> {
     if (session?.node.length > 0) {

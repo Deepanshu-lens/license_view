@@ -2,6 +2,7 @@
   import { events } from "@/lib/stores";
   import EventHeading from "../cards/EventHeading.svelte";
   import EventCard from "../cards/EventCard.svelte";
+  export let data;
 </script>
 
 <section class="grid w-full h-full grid-cols-4 gap-x-8 px-4 py-4">
@@ -45,7 +46,7 @@
     <div
       class="w-full flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-175px)] h-full"
     >
-      {#each $events as event}
+      {#each data as event}
         <EventCard {event} />
       {/each}
     </div>
@@ -60,7 +61,7 @@
     <div
       class="w-full flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-175px)] h-full"
     >
-      {#each $events as event}
+      {#each data as event}
         <EventCard {event} />
       {/each}
     </div>

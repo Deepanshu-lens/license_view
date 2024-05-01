@@ -11,26 +11,33 @@
   import { toast } from "svelte-sonner";
   import { addUserLog } from "@/lib/addUserLog";
   import { writable } from "svelte/store";
-  import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
+  // import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
+  import { page } from "$app/stores";
   import * as Select from "@/components/ui/select";
+  import CameraDeleteDialog from "@/components/dialogs/CameraDeleteDialog.svelte";
 
   let selected = 1;
   let detailIndex: number | null = null;
   let nodeIndex: number | null = null;
   let modify: boolean = false;
   let nodeModify: boolean = false;
-  let newName = "";
+  let newName: null | string = null;
   let searchNode = "";
   let newNodeName = "";
   let searchValue = "";
+  let updatedPriority = null;
+  let updatedFace = null;
+  let updatedVehicle = null;
+  let updatedSave = null;
+  let updatedMotionThres = null;
   let filteredCameraNames = [];
   let filteredNodeNames = [];
   let enable = false;
   let newData = [];
   let change = "";
 
-  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
-  // const PB = new PocketBase("http://127.0.0.1:5555");
+  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
   const nodeData = writable([]);
 
@@ -492,11 +499,24 @@
                     body: JSON.stringify({
                       cameraId: newData[nodeIndex].cameraData[0][0].id,
                       nodeId: newData[nodeIndex].id,
-                      name: newName,
+                      name: newName ?? newData[nodeIndex].cameraData[0][0].name,
                       url: newData[nodeIndex].cameraData[0][0].url,
+                      priority:
+                        updatedPriority ??
+                        newData[nodeIndex].cameraData[0][0].priority,
+                      face:
+                        updatedFace ?? newData[nodeIndex].cameraData[0][0].face,
+                      vehicle:
+                        updatedVehicle ??
+                        newData[nodeIndex].cameraData[0][0].vehicle,
+                      save:
+                        updatedSave ?? newData[nodeIndex].cameraData[0][0].save,
+                      motionThresh:
+                        updatedMotionThres ??
+                        newData[nodeIndex].cameraData[0][0].motionThresh,
                     }),
-                  }).then((res) => {
-                    toast("Camera edited");
+                  }).then(() => {
+                    toast("Camera updated!");
                     modify = false;
                     addUserLog(
                       `user clicked on save changes button after modification, camera table`,
@@ -520,31 +540,20 @@
                 Discard
               </button>
             {/if}
-            <button
-              disabled={detailIndex === null}
-              class="dark:text-[#cac4d0] text-[#4f4f4f] font-xs bg-[#d9d9d9] border-none dark:bg-[#242424] rounded-md px-3 py-1.5 border-[#333] border dark:border-solid"
-              on:click={() => {
-                fetch("/api/camera/deleteCamera", {
-                  method: "delete",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    cameraId: newData[nodeIndex].cameraData[detailIndex][0].id,
-                    nodeId: newData[nodeIndex].id,
-                    url: newData[nodeIndex].cameraData[detailIndex][0].url,
-                  }),
-                }).then(() => {
-                  detailIndex = null;
-                  toast("Selected camera Deleted!");
-                  addUserLog(
-                    `user deleted camera with name ${newData[nodeIndex].cameradata[detailIndex][0].name} & url ${newData[nodeIndex].cameraData[detailIndex][0].url}`,
-                  );
-                });
-              }}
+            <CameraDeleteDialog
+              cameraId={newData?.[nodeIndex]?.cameraData?.[detailIndex]?.[0]
+                ?.id}
+              nodeId={newData?.[nodeIndex]?.id}
+              url={newData?.[nodeIndex]?.cameraData?.[detailIndex]?.[0]?.url}
+              name={newData?.[nodeIndex]?.cameraData?.[detailIndex]?.[0]?.name}
             >
-              Delete
-            </button>
+              <button
+                disabled={detailIndex === null}
+                class="dark:text-[#cac4d0] text-[#4f4f4f] font-xs bg-[#d9d9d9] border-none dark:bg-[#242424] rounded-md px-3 py-1.5 border-[#333] border dark:border-solid"
+              >
+                Delete
+              </button>
+            </CameraDeleteDialog>
           </div>
         </div>
         <table class="w-full bg-white shadow-md rounded">
@@ -684,14 +693,22 @@
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
                   >
                     {#if modify && index === detailIndex}
-                      <Select.Root portal={null}>
+                      <Select.Root
+                        portal={null}
+                        onSelectedChange={(e) => (updatedPriority = e?.value)}
+                      >
                         <Select.Trigger class="text-sm ">
+                          class='pl-6'
                           <Select.Value placeholder={item[0].priority} />
                         </Select.Trigger>
                         <Select.Content>
                           <Select.Group>
-                            <Select.Item value={0} label={"0"}>0</Select.Item>
-                            <Select.Item value={1} label={"1"}>1</Select.Item>
+                            <Select.Item class="pl-6" value={0} label="0"
+                              >0</Select.Item
+                            >
+                            <Select.Item class="pl-6" value={1} label="1"
+                              >1</Select.Item
+                            >
                           </Select.Group>
                         </Select.Content>
                       </Select.Root>
@@ -702,7 +719,11 @@
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
                   >
                     {#if modify && index === detailIndex}
-                      <Select.Root portal={null}>
+                      <Select.Root
+                        portal={null}
+                        onSelectedChange={(e) =>
+                          (updatedMotionThres = e?.value)}
+                      >
                         <Select.Trigger class="text-sm ">
                           <Select.Value
                             placeholder={item?.[0].motionThresh === 5000
@@ -738,17 +759,24 @@
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
                   >
                     {#if modify && index === detailIndex}
-                      <Select.Root portal={null}>
+                      <Select.Root
+                        portal={null}
+                        onSelectedChange={(e) => (updatedFace = e?.value)}
+                      >
                         <Select.Trigger class="text-sm ">
                           <Select.Value placeholder={item[0].face} />
                         </Select.Trigger>
                         <Select.Content>
                           <Select.Group>
-                            <Select.Item value={true} label={"true"}
-                              >True</Select.Item
+                            <Select.Item
+                              value={true}
+                              label={"true"}
+                              class="pl-6">True</Select.Item
                             >
-                            <Select.Item value={false} label={"False"}
-                              >False</Select.Item
+                            <Select.Item
+                              value={false}
+                              label={"False"}
+                              class="pl-6">False</Select.Item
                             >
                           </Select.Group>
                         </Select.Content>
@@ -761,17 +789,24 @@
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
                   >
                     {#if modify && index === detailIndex}
-                      <Select.Root portal={null}>
+                      <Select.Root
+                        portal={null}
+                        onSelectedChange={(e) => (updatedVehicle = e?.value)}
+                      >
                         <Select.Trigger class="text-sm ">
                           <Select.Value placeholder={item[0].vehicle} />
                         </Select.Trigger>
                         <Select.Content>
                           <Select.Group>
-                            <Select.Item value={true} label={"true"}
-                              >True</Select.Item
+                            <Select.Item
+                              value={true}
+                              label={"true"}
+                              class="pl-6">True</Select.Item
                             >
-                            <Select.Item value={false} label={"False"}
-                              >False</Select.Item
+                            <Select.Item
+                              value={false}
+                              label={"False"}
+                              class="pl-6">False</Select.Item
                             >
                           </Select.Group>
                         </Select.Content>
@@ -782,17 +817,24 @@
                   </td>
                   <td class="py-2 px-4">
                     {#if modify && index === detailIndex}
-                      <Select.Root portal={null}>
+                      <Select.Root
+                        portal={null}
+                        onSelectedChange={(e) => (updatedSave = e?.value)}
+                      >
                         <Select.Trigger class="text-sm ">
                           <Select.Value placeholder={item[0].save} />
                         </Select.Trigger>
                         <Select.Content>
                           <Select.Group>
-                            <Select.Item value={true} label={"true"}
-                              >True</Select.Item
+                            <Select.Item
+                              value={true}
+                              label={"true"}
+                              class="pl-6">True</Select.Item
                             >
-                            <Select.Item value={false} label={"False"}
-                              >False</Select.Item
+                            <Select.Item
+                              value={false}
+                              label={"False"}
+                              class="pl-6">False</Select.Item
                             >
                           </Select.Group>
                         </Select.Content>
@@ -804,7 +846,6 @@
             {:else if newData && newData?.[nodeIndex]?.camera?.length > 0}
               {#each newData?.[nodeIndex].cameraData as item, index}
                 <tr
-                  key={index}
                   class={`${
                     index % 2 === 0
                       ? "dark:bg-[#333] bg-white cursor-pointer"
@@ -883,14 +924,21 @@
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
                   >
                     {#if modify && index === detailIndex}
-                      <Select.Root portal={null}>
+                      <Select.Root
+                        portal={null}
+                        onSelectedChange={(e) => (updatedPriority = e?.value)}
+                      >
                         <Select.Trigger class="text-sm ">
                           <Select.Value placeholder={item[0].priority} />
                         </Select.Trigger>
                         <Select.Content>
                           <Select.Group>
-                            <Select.Item value={0} label={"0"}>0</Select.Item>
-                            <Select.Item value={1} label={"1"}>1</Select.Item>
+                            <Select.Item class="pl-6" value={0} label={"0"}
+                              >0</Select.Item
+                            >
+                            <Select.Item class="pl-6" value={1} label={"1"}
+                              >1</Select.Item
+                            >
                           </Select.Group>
                         </Select.Content>
                       </Select.Root>
@@ -901,7 +949,11 @@
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
                   >
                     {#if modify && index === detailIndex}
-                      <Select.Root portal={null}>
+                      <Select.Root
+                        portal={null}
+                        onSelectedChange={(e) =>
+                          (updatedMotionThres = e?.value)}
+                      >
                         <Select.Trigger class="text-sm ">
                           <Select.Value
                             placeholder={item?.[0].motionThresh === 5000
@@ -938,17 +990,24 @@
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
                   >
                     {#if modify && index === detailIndex}
-                      <Select.Root portal={null}>
+                      <Select.Root
+                        portal={null}
+                        onSelectedChange={(e) => (updatedFace = e?.value)}
+                      >
                         <Select.Trigger class="text-sm ">
                           <Select.Value placeholder={item[0].face} />
                         </Select.Trigger>
                         <Select.Content>
                           <Select.Group>
-                            <Select.Item value={true} label={"true"}
-                              >True</Select.Item
+                            <Select.Item
+                              value={true}
+                              label={"true"}
+                              class="pl-6">True</Select.Item
                             >
-                            <Select.Item value={false} label={"False"}
-                              >False</Select.Item
+                            <Select.Item
+                              value={false}
+                              label={"False"}
+                              class="pl-6">False</Select.Item
                             >
                           </Select.Group>
                         </Select.Content>
@@ -962,17 +1021,24 @@
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
                   >
                     {#if modify && index === detailIndex}
-                      <Select.Root portal={null}>
+                      <Select.Root
+                        portal={null}
+                        onSelectedChange={(e) => (updatedVehicle = e?.value)}
+                      >
                         <Select.Trigger class="text-sm ">
                           <Select.Value placeholder={item[0].vehicle} />
                         </Select.Trigger>
                         <Select.Content>
                           <Select.Group>
-                            <Select.Item value={true} label={"true"}
-                              >True</Select.Item
+                            <Select.Item
+                              value={true}
+                              label={"true"}
+                              class="pl-6">True</Select.Item
                             >
-                            <Select.Item value={false} label={"False"}
-                              >False</Select.Item
+                            <Select.Item
+                              value={false}
+                              label={"False"}
+                              class="pl-6">False</Select.Item
                             >
                           </Select.Group>
                         </Select.Content>
@@ -985,17 +1051,24 @@
                     class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
                   >
                     {#if modify && index === detailIndex}
-                      <Select.Root portal={null}>
+                      <Select.Root
+                        portal={null}
+                        onSelectedChange={(e) => (updatedSave = e?.value)}
+                      >
                         <Select.Trigger class="text-sm ">
                           <Select.Value placeholder={item[0].save} />
                         </Select.Trigger>
                         <Select.Content>
                           <Select.Group>
-                            <Select.Item value={true} label={"true"}
-                              >True</Select.Item
+                            <Select.Item
+                              value={true}
+                              label={"true"}
+                              class="pl-6">True</Select.Item
                             >
-                            <Select.Item value={false} label={"False"}
-                              >False</Select.Item
+                            <Select.Item
+                              value={false}
+                              label={"False"}
+                              class="pl-6">False</Select.Item
                             >
                           </Select.Group>
                         </Select.Content>

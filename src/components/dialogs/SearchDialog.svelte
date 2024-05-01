@@ -7,6 +7,8 @@
   import en from "javascript-time-ago/locale/en";
   import { PUBLIC_BASE_URL } from "$env/static/public";
   import TimeAgo from "javascript-time-ago";
+  import { page } from "$app/stores";
+
   TimeAgo.addLocale(en);
   const timeAgo = new TimeAgo("en-US");
 
@@ -15,13 +17,13 @@
 
   const queryImage = writable();
   const searchResults = writable([]);
-  const location = window?.location?.href;
-  const neededUrl =
-    location?.split("/")[2] === "localhost:5173"
-      ? PUBLIC_BASE_URL
-      : location?.split("/")[2]?.split(":")[0];
+  // const location = window?.location?.href;
+  // const neededUrl =
+  //   location?.split("/")[2] === "localhost:5173"
+  //     ? PUBLIC_BASE_URL
+  //     : location?.split("/")[2]?.split(":")[0];
 
-  console.log(neededUrl);
+  const neededUrl = $page.url.hostname;
 
   async function convertImageToBase64(file) {
     return new Promise((resolve, reject) => {

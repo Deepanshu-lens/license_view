@@ -1,13 +1,14 @@
 <script lang="ts">
   import Stream from "./../../components/stream/Stream.svelte";
   import { PUBLIC_BASE_URL } from "$env/static/public";
-
+  import { page } from "$app/stores";
   let videos: { [key: string] } = {};
-  const location = window?.location?.href;
-  const neededUrl =
-    location?.split("/")[2] === "localhost:5173"
-      ? PUBLIC_BASE_URL
-      : location?.split("/")[2]?.split(":")[0];
+  const neededUrl = $page.url.hostname;
+  // const location = window?.location?.href;
+  // const neededUrl =
+  //   location?.split("/")[2] === "localhost:5173"
+  //     ? PUBLIC_BASE_URL
+  //     : location?.split("/")[2]?.split(":")[0];
 
   const testCameras = {
     name: "2",
@@ -52,7 +53,7 @@
     if (!videos[testCameras.id]) {
       initVideo(testCameras);
     } else {
-      videos[testCameras.id].src = new URl(
+      videos[testCameras.id].src = new URL(
         `ws://${neededUrl}:8082/api/ws?src=${testCameras.url
           ?.split("@")[1]
           ?.split(":")[0]

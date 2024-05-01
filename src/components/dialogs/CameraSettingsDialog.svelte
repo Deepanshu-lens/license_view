@@ -83,7 +83,7 @@
         saveDuration,
         saveFolder,
         motionThresh: motion === 0 ? 1000 : motion,
-        priority,
+        priority: priority === true ? 1 : 0,
       }),
     }).then(() => {
       toast("Camera settings updated.");

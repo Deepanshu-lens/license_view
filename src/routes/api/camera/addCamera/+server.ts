@@ -23,7 +23,7 @@ export const POST: RequestHandler = async ({
     vehicleOCRThresho: data.vehOCRThresh,
     saveDuration: data.saveDuration,
     saveFolder: data.saveFolder,
-    priority: data.priority === true ? 1 : 0,
+    priority: data.priority,
     motionThresh: data.motionThresh,
   });
 

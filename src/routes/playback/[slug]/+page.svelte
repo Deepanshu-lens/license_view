@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
+  // import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
+  import { page } from "$app/stores";
   import PlaybackView from "./../../../components/playback/mobile/PlaybackView.svelte";
   import PlaybackPanel from "@/components/playback/PlaybackPanel.svelte";
   import { convertedVideos, selectedNode } from "@/lib/stores";
@@ -9,13 +10,12 @@
   import { onMount } from "svelte";
   import { ChevronLeft } from "lucide-svelte";
 
-  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
-  // const PB = new PocketBase("http://127.0.0.1:5555");
+  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
   export let data: PageServerData;
   const session = data.session;
   let nodes: Node[] = [];
-  let isMobile: boolean = false;
 
   async function getNodes(): Promise<Node[]> {
     if (data?.session?.node?.length > 0) {
@@ -45,12 +45,6 @@
   onMount(async () => {
     nodes = await getNodes();
     selectedNode.set(nodes[0]);
-
-    isMobile = window.innerWidth < 700;
-    window.addEventListener("resize", () => {
-      isMobile = window.innerWidth < 700;
-    });
-
     if (data) {
       console.log(data.webmFiles);
       convertedVideos.set(data.webmFiles);
@@ -58,25 +52,25 @@
   });
 </script>
 
-{#if !isMobile}
-  <main class="hidden sm:block w-full h-screen">
-    <PlaybackPanel webmFiles={data.webmFiles} {data} />
-  </main>
-{:else}
-  <main class="block sm:hidden">
-    <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">
-      <div class="top-config w-full">
-        <button
-          class="flex items-center justify-start text-black/[.7] pt-4"
-          on:click={() => {
-            window.location.href = `/session/${$selectedNode.session}`;
-          }}
-        >
-          <ChevronLeft class="h-[30px] w-[30px]" />
-          <p class="text-lg font-semibold">Playback</p>
-        </button>
-      </div>
-      <PlaybackView webmFiles={data.webmFiles} />
+<!-- desk -->
+<main class="hidden sm:block w-full h-screen">
+  <PlaybackPanel webmFiles={data.webmFiles} {data} />
+</main>
+
+<!-- mob -->
+<main class="block sm:hidden">
+  <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">
+    <div class="top-config w-full">
+      <button
+        class="flex items-center justify-start text-black/[.7] pt-4"
+        on:click={() => {
+          window.location.href = `/session/${$selectedNode.session}`;
+        }}
+      >
+        <ChevronLeft class="h-[30px] w-[30px]" />
+        <p class="text-lg font-semibold">Playback</p>
+      </button>
     </div>
-  </main>
-{/if}
+    <PlaybackView webmFiles={data.webmFiles} />
+  </div>
+</main>

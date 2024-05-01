@@ -7,15 +7,16 @@
   import EventPanel from "@/components/events/EventPanel.svelte";
   import EventsView from "@/components/events/mobile/EventsView.svelte";
   import { ChevronLeft } from "lucide-svelte";
-  import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
+  // import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
+  import { page } from "$app/stores";
 
   export let data: PageServerData;
   const session = data.session;
   let nodes: Node[] = [];
   let batchedEvents: Event[] = [];
-  let isMobile: boolean = false;
 
-  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
   async function getNodes(): Promise<Node[]> {
     if (session.node.length > 0) {
@@ -56,11 +57,6 @@
     let x = data.props.events;
     events.set(x);
 
-    isMobile = window.innerWidth < 700;
-    window.addEventListener("resize", () => {
-      isMobile = window.innerWidth < 700;
-    });
-
     PB.collection("events").subscribe("*", async (e) => {
       batchedEvents.push({
         ...e.record,
@@ -86,25 +82,25 @@
   });
 </script>
 
-{#if !isMobile}
-  <main class="hidden sm:block">
-    <EventPanel {data} />
-  </main>
-{:else}
-  <main class="block sm:hidden">
-    <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">
-      <div class="top-config w-full">
-        <button
-          class="flex items-center justify-start text-black/[.7] pt-4"
-          on:click={() => {
-            window.location.href = `/session/${$selectedNode.session}`;
-          }}
-        >
-          <ChevronLeft class="h-[30px] w-[30px]" />
-          <p class="text-lg font-semibold">Events</p>
-        </button>
-      </div>
-      <EventsView {data} />
+<!-- desk -->
+<main class="hidden sm:block">
+  <EventPanel {data} />
+</main>
+
+<!-- mob -->
+<!-- <main class="block sm:hidden">
+  <div class="flex flex-col w-full bg-[#f5f6f7] z-10 relative">
+    <div class="top-config w-full">
+      <button
+        class="flex items-center justify-start text-black/[.7] pt-4"
+        on:click={() => {
+          window.location.href = `/session/${$selectedNode.session}`;
+        }}
+      >
+        <ChevronLeft class="h-[30px] w-[30px]" />
+        <p class="text-lg font-semibold">Events</p>
+      </button>
     </div>
-  </main>
-{/if}
+    <EventsView {data} />
+  </div>
+</main> -->

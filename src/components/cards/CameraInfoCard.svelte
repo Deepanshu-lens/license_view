@@ -28,6 +28,10 @@
   // CODE
 
   const deleteCamera = () => {
+    // const cell = document.getElementById(`stream-${cameraId}`);
+    // if (cell) {
+    //   document.getElementById(`stream-${cameraId}`)?.remove();
+    // }
     fetch("/api/camera/deleteCamera", {
       method: "delete",
       headers: {

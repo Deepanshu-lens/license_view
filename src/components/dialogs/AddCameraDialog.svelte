@@ -24,7 +24,6 @@
   export let sNode;
 
   const onSubmit = () => {
-    console.log(motionThresh);
     if (cameraURL && cameraURL.length > 0) {
       let modifiedCameraURL = cameraURL;
       const urlParts = cameraURL.split("@");
@@ -54,7 +53,7 @@
           vehicleDetThresh: 0.4,
           vehiclePlateThresh: 0.5,
           vehicleOCRThresh: 0.6,
-          priority,
+          priority: priority === true ? 1 : 0,
           motionThresh:
             motionThresh === 0 ? 1000 : motionThresh === 50 ? 2500 : 5000,
         }),
@@ -95,7 +94,7 @@
             vehicleOCRThresh: 0.6,
             saveFolder: "./PlayBack/",
             saveDuration: 30 * 60 * 24,
-            priority,
+            priority: priority === true ? 1 : 0,
             motionThresh:
               motionThresh === 0 ? 1000 : motionThresh === 50 ? 2500 : 5000,
           }),
@@ -117,7 +116,7 @@
           cameraIp +
           ":554/cam/realmonitor?channel=1\u0026subtype=0";
         console.log(newUrl);
-        fetch("api/camera/addCamera", {
+        fetch("/api/camera/addCamera", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -136,7 +135,7 @@
             vehicleOCRThresh: 0.6,
             saveFolder: "./PlayBack/",
             saveDuration: 30 * 60 * 24,
-            priority,
+            priority: priority === true ? 1 : 0,
             motionThresh:
               motionThresh === 0 ? 1000 : motionThresh === 50 ? 2500 : 5000,
           }),

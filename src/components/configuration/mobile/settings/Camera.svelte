@@ -5,7 +5,8 @@
   import { writable } from "svelte/store";
   import type { User } from "@/types";
   import { toast } from "svelte-sonner";
-  import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
+  // import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
+  import { page } from "$app/stores";
   export let user: User;
   export let text;
   export let selected;
@@ -30,9 +31,8 @@
     { length: newDataCount },
     (_, index: number) => index,
   );
-
-  const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
-  // const PB = new PocketBase("http://127.0.0.1:5555");
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
 
   async function getNodeData() {
     if (user?.session) {
