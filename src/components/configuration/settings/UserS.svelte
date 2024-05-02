@@ -38,6 +38,26 @@
     }
   }
 
+  async function deleteAllEvents() {
+    try {
+      const response = await fetch("/api/events/deleteAll", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.ok) {
+        console.log("All events deleted successfully");
+        // Handle success, e.g., show a notification or update the UI
+      } else {
+        throw new Error("Failed to delete events");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      // Handle errors, e.g., show an error message
+    }
+  }
+
   function formatDateTime(dateTimeString: string) {
     const options = {
       year: "numeric",
@@ -338,6 +358,7 @@
         {/if}
       </form>
     </div>
+    <button on:click={deleteAllEvents}>Delete All Events</button>
   {/if}
   {#if selected === 2}
     <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />

@@ -13,8 +13,10 @@
   import Parking from "@/components/reports/Parking.svelte";
   import Reports from "@/components/reports/Reports.svelte";
   import Health from "@/components/reports/Health.svelte";
+  import type { PageServerData } from "./$types";
 
-  let selectedScreen = 5;
+  let selectedScreen = 1;
+  export let data: PageServerData;
 </script>
 
 <main
@@ -115,9 +117,7 @@
       </div>
     {/if}
     {#if selectedScreen === 5}
-      <div class="overflow-y-scroll max-h-[calc(100vh-160px)]">
-        <Health />
-      </div>
+      <Health os={data.os} />
     {/if}
   </section>
 </main>

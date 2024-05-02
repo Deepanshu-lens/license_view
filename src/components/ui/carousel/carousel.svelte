@@ -10,7 +10,7 @@
 
   type $$Props = CarouselProps;
 
-  export let opts = { watchDrag: false };
+  export let opts = {};
   //   export let onDragStart = () => {};
   //   export let onTouchMove = () => {};
   export let plugins: NonNullable<$$Props["plugins"]> = [];

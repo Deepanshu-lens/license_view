@@ -663,7 +663,7 @@
 
     <button
       on:click={() => (showRightPanel = !showRightPanel)}
-      class={`absolute ${showRightPanel ? ` ${isAllFullScreen ? "right-[18rem]" : "right-[17rem] 2xl:right-[18rem]"} ` : "right-0"} py-1 rounded-l-md bg-[#f9f9f9] dark:bg-slate-800 top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
+      class={`absolute ${showRightPanel ? ` ${isAllFullScreen ? "right-[18rem]" : "right-[20%] xl:right-[17rem] 2xl:right-[18rem]"} ` : "right-0"} py-1 rounded-l-md bg-[#f9f9f9] dark:bg-slate-800 top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
     >
       <ChevronRight
         class={`${showRightPanel ? "rotate-0" : "rotate-180"} transition-transform ease-in-out duration-700`}
@@ -671,6 +671,7 @@
     </button>
 
     <div
+      id="infopanel"
       class={`h-full border-solid 
          border-x-[1px] 
          transition-width ease-in-out duration-500 overflow-y-scroll z-[998]

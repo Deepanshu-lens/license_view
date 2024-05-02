@@ -38,6 +38,7 @@
   //   location?.split("/")[2] === "localhost:5173"
   //     ? PUBLIC_BASE_URL
   //     : location?.split("/")[2]?.split(":")[0];
+
   const neededUrl = $page.url.hostname;
 
   const initVideo = (camera: Camera) => {
@@ -46,10 +47,11 @@
     }
     let video = document.createElement("video-stream") as VideoStreamType;
     video.id = `stream-${camera.id}`;
-    video.mode = "webrtc";
+    // video.mode = "webrtc";
+    video.mode = $page.url.hostname.includes("116") ? "mse" : "webrtc";
     video.url = camera.url;
     video.src = new URL(
-      `ws://${neededUrl}:8082/api/ws?src=${camera.id}&camID=${camera.id}&nodeID=${1}`,
+      `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
     );
     video.style.position = "relative";
     video.style.width = "100%";
@@ -69,7 +71,7 @@
         if (videos[c.id].url !== c.url) {
           videos[c.id].url = c.url;
           videos[c.id].src = new URL(
-            `ws://${neededUrl}:8082/api/ws?src=${c.id}&camID=${c.id}&nodeID=${1}`,
+            `ws://${neededUrl}:8082/api/ws?src=${c.id}&nodeID=${1}`,
           );
         }
       }
@@ -145,10 +147,16 @@
       {/if}
 
       {#if landscape}
-        <Carousel.Root class="w-full h-full flex justify-center items-center">
+        <Carousel.Root
+          class="w-full h-full flex justify-center items-center"
+          opts={{ watchDrag: true }}
+        >
           <Carousel.Content class="w-full h-full mx-0 px-0">
-            {#each Array.from( { length: cameraCount && cameraCount > 1 ? Math.ceil(cameraCount / ($selectedNode.mobileLayout !== 1 ? $selectedNode.mobileLayout : 1)) : 1 }, ) as _, slideIndex}
-              <Carousel.Item class="h-full w-full px-0 mx-0">
+            {#each Array.from( { length: cameraCount && cameraCount > 1 ? Math.ceil(cameraCount / $selectedNode.mobileLayout !== 1 ? cameraCount : 1) : 1 }, ) as _, slideIndex}
+              <Carousel.Item
+                class="h-full w-full px-0 mx-0"
+                id="carousel-slide-landscape"
+              >
                 <div
                   class="grid place-items-center ml-10 w-[calc(100vh-200px)] h-[100vw] grid-cols-{$selectedNode.mobileLayout}"
                   id={`slide-${slideIndex}`}
@@ -160,7 +168,7 @@
                       {#if cameraIdx < cameraCount}
                         <div
                           id={`stream-${$selectedNode.name}-${cameraIdx}`}
-                          class="relative z-10 h-1/2 w-1/2"
+                          class="relative z-10 h-[80%] w-[80%]"
                         >
                           <Stream
                             videoElement={videos[
@@ -195,6 +203,13 @@
               </Carousel.Item>
             {/each}
           </Carousel.Content>
+          <!-- <Carousel.Previous
+            class="-right-8 text-bold text-[#015a62] dark:text-white"
+            id="carousel-prev"
+          />
+          <Carousel.Next
+            class="right-0 text-bold text-[#015a62] dark:text-white"
+          /> -->
         </Carousel.Root>
       {:else}
         <div

@@ -2,6 +2,7 @@ import { redirect } from "@sveltejs/kit";
 import type { LayoutServerLoad } from "./$types";
 import type { User } from "@/types";
 import { decodeJwt } from "@/lib/jwt";
+import os from "os";
 
 export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
   const protectedRoutes = [
@@ -11,6 +12,9 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
     "gallery",
     "reports",
   ];
+
+  const operatingSystem = os.platform();
+  // console.log("os", operatingSystem);
 
   // console.log('locals',locals)
   if (
@@ -59,6 +63,7 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
           session: { ...session },
           nodes: structuredClone(nodes),
           url: url.pathname,
+          os: operatingSystem,
         };
       } else {
         return {
@@ -70,6 +75,7 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
           session: { node: [] },
           nodes: [],
           url: url.pathname,
+          os: operatingSystem,
         };
       }
     }

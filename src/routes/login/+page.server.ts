@@ -1,11 +1,13 @@
 import { redirect, error } from "@sveltejs/kit";
-
+import os from "os";
 export const actions = {
   login: async ({ locals, request }) => {
     console.log("LOGING ATTEMPT");
     const data = await request.formData();
     const email = data.get("email")?.toString() || "";
     const password = data.get("password")?.toString() || "";
+    // const operatingSystem = os.platform;
+    // console.log(operatingSystem);
     try {
       const user = await locals.pb
         ?.collection("users")

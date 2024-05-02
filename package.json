@@ -36,6 +36,7 @@
 		"@paralleldrive/cuid2": "^2.2.2",
 		"@radix-ui/react-dialog": "^1.0.5",
 		"bits-ui": "^0.17.0",
+		"chart.js": "^4.4.2",
 		"class-variance-authority": "^0.7.0",
 		"clsx": "^2.1.0",
 		"embla-carousel-autoplay": "^8.0.0-rc22",
@@ -55,11 +56,13 @@
 		"pocketbase": "^0.15.2",
 		"sortablejs": "^1.15.2",
 		"stripe": "^14.11.0",
+		"svelte-chartjs": "^3.1.5",
 		"svelte-fullscreen": "^2.0.0",
 		"svelte-sonner": "^0.3.11",
 		"tailwind-merge": "^2.2.1",
 		"tailwind-variants": "^0.1.20",
 		"tailwindcss-animate": "^1.0.7",
-		"vaul-svelte": "^0.3.0"
+		"vaul-svelte": "^0.3.0",
+		"ws": "^8.17.0"
 	}
 }

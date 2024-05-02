@@ -200,7 +200,10 @@
     on:dragstart|preventDefault
     on:touchmove|preventDefault
   > -->
-  <Carousel.Root class="w-full h-full flex justify-center items-center">
+  <Carousel.Root
+    class="w-full h-full flex justify-center items-center"
+    opts={{ watchDrag: false }}
+  >
     <Carousel.Content class="w-full h-full mx-0 px-0">
       {#each Array(totalPages) as _, pageIndex}
         <Carousel.Item class="h-full w-full px-0 mx-0">
