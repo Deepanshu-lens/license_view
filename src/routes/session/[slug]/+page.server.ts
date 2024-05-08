@@ -44,7 +44,7 @@ export async function load({ locals }) {
   //     fields: "name,lastSeen,expand.events.frameImage",
   //   });
 
-  console.log(events);
+  // console.log(events);
 
   const serializableEvents = events?.items.map(
     (event) =>

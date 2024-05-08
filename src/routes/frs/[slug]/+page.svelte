@@ -21,12 +21,20 @@
   import RegisterDialog from "@/components/dialogs/RegisterDialog.svelte";
   import FrsModal from "@/components/modal/FrsModal.svelte";
   import RegisterEventDialog from "@/components/dialogs/RegisterEventDialog.svelte";
+  import FrsMatchModal from "@/components/modal/FrsMatchModal.svelte";
   TimeAgo.addLocale(en);
   const timeAgo = new TimeAgo("en-US");
   let selectedEvent = null;
+  let selectedMatchEvent = null;
 
   function openEventDialog(eventData) {
-    selectedEvent = eventData;
+    if (eventData.title.includes("Face")) {
+      console.log("first");
+      selectedEvent = eventData;
+    } else {
+      console.log("first");
+      selectedMatchEvent = eventData;
+    }
   }
 
   export let data: PageServerData;
@@ -147,7 +155,6 @@
           <Table.Row
             on:click={() => {
               openEventDialog(event);
-              console.log(event);
             }}
             class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-2 rounded-lg  border-2 border-solid border-[#e4e4e4]"
           >
@@ -165,7 +172,8 @@
                 height="40"
               /></Table.Cell
             >
-            <Table.Cell class="text-[#727272] w-full h-full text-sm"
+            <Table.Cell
+              class="text-[#727272] w-full h-full text-sm whitespace-nowrap"
               ><span>
                 Camera {$selectedNode.camera.filter(
                   (c) => c.id === event.camera,
@@ -278,4 +286,10 @@
 
 {#if selectedEvent}
   <FrsModal {selectedEvent} on:close={() => (selectedEvent = null)} />
+{/if}
+{#if selectedMatchEvent}
+  <FrsMatchModal
+    {selectedMatchEvent}
+    on:close={() => (selectedMatchEvent = null)}
+  />
 {/if}

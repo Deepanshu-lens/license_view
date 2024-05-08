@@ -27,22 +27,22 @@
       text: "Live",
       href: `/session/${sessionId}`,
     },
-    {
-      text: "Events",
-      href: `/events/${sessionId}`,
-    },
-    {
-      text: "Gallery",
-      href: `/gallery/${sessionId}`,
-    },
+    // {
+    //   text: "Events",
+    //   href: `/events/${sessionId}`,
+    // },
+    // {
+    //   text: "Gallery",
+    //   href: `/gallery/${sessionId}`,
+    // },
     {
       text: "Configuration",
       href: `/configuration/${sessionId}?section=Remote`,
     },
-    {
-      text: "Reports",
-      href: `/reports/${sessionId}`,
-    },
+    // {
+    //   text: "Reports",
+    //   href: `/reports/${sessionId}`,
+    // },
   ];
 
   let frs = {
@@ -62,18 +62,18 @@
       text: "Live",
       href: `/session/${sessionId}`,
     },
-    {
-      text: "Playback",
-      href: `/playback/${sessionId}`,
-    },
-    {
-      text: "Events",
-      href: `/events/${sessionId}`,
-    },
-    {
-      text: "Gallery",
-      href: `/gallery/${sessionId}`,
-    },
+    // {
+    //   text: "Playback",
+    //   href: `/playback/${sessionId}`,
+    // },
+    // {
+    //   text: "Events",
+    //   href: `/events/${sessionId}`,
+    // },
+    // {
+    //   text: "Gallery",
+    //   href: `/gallery/${sessionId}`,
+    // },
     {
       text: "Configuration",
       href: `/configuration/${sessionId}`,
