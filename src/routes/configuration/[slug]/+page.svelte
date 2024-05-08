@@ -104,6 +104,7 @@
     records={data.records}
     logs={data.logs}
     sessionId={data.session.id}
+    {data}
   />
 </main>
 

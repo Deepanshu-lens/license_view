@@ -23,7 +23,7 @@
   <slot />
 {:else}
   {#if !data.url.includes("login") && !data.url?.includes("register")}
-    <Navbar {user} sessionId={session?.id} />
+    <Navbar {user} sessionId={session?.id} {session} />
   {/if}
   {#if session && user}
     {#key data.url}

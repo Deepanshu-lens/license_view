@@ -1,31 +1,31 @@
 <script lang="ts">
   import type { User } from "@/types";
+  import PocketBase from "pocketbase";
+  import { page } from "$app/stores";
   import {
     User as UserIcon,
     LogOut,
     Radio,
-    CalendarRange,
     PlayCircle,
     Calendar,
     Image,
     SettingsIcon,
   } from "lucide-svelte";
   export let user: User;
+  export let session;
   export let sessionId: string | undefined;
-  import { page } from "$app/stores";
   import Separator from "../ui/separator/separator.svelte";
   import DarkModeSwitch from "../toggles/DarkModeSwitch.svelte";
   import { mode } from "mode-watcher";
   import { addUserLog } from "@/lib/addUserLog";
+  import { onDestroy, onMount } from "svelte";
+
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
   const menuList = [
     {
       text: "Live",
       href: `/session/${sessionId}`,
-    },
-    {
-      text: "Playback",
-      href: `/playback/${sessionId}`,
     },
     {
       text: "Events",
@@ -44,6 +44,18 @@
       href: `/reports/${sessionId}`,
     },
   ];
+
+  let frs = {
+    text: "FRS",
+    href: `/frs/${sessionId}`,
+  };
+
+  let anpr = {
+    text: "ANPR",
+    href: `/anpr/${sessionId}`,
+  };
+
+  let playback = { text: "Playback", href: `/playback/${sessionId}` };
 
   const menuListMob = [
     {
@@ -67,11 +79,31 @@
       href: `/configuration/${sessionId}`,
     },
   ];
+
   let isOpen = false;
+
   function toggleOpen() {
     isOpen = !isOpen;
     addUserLog("user clicked on user icon");
   }
+
+  const getSession = async () => {
+    const updatedSession = await PB.collection("session").getFullList({
+      filter: `id="${user.session}"`,
+    });
+    return updatedSession;
+  };
+
+  onMount(async () => {
+    PB.collection("session").subscribe("*", async (e) => {
+      const check = await getSession();
+      session = check[0];
+    });
+  });
+
+  onDestroy(() => {
+    PB.collection("session").unsubscribe("*");
+  });
 </script>
 
 <header class="sm:flex border sticky top-0 left-0 w-full z-20 h-[75px] hidden">
@@ -97,24 +129,81 @@
       <div
         class={`flex flex-row items-center justify-center py-6 px-4 gap-14 `}
       >
-        {#each menuList as item}
+        {#if session.frs}
           <a
-            href={item.href}
+            href={frs.href}
             on:click={() => {
-              addUserLog(`user clicked on navbar link "${item.text}"`);
+              addUserLog(`user clicked on navbar link "${frs.text}"`);
             }}
           >
             <span
               class={`${
-                $page.url.pathname === item.href.split("?")[0]
+                $page.url.pathname === frs.href.split("?")[0]
                   ? `text-primary font-bold text-lg`
                   : ""
               }`}
             >
-              {item.text}
+              {frs.text}
             </span>
           </a>
+        {/if}
+
+        {#each menuList as item}
+          {#key item}
+            <a
+              href={item.href}
+              on:click={() => {
+                addUserLog(`user clicked on navbar link "${item.text}"`);
+              }}
+            >
+              <span
+                class={`${
+                  $page.url.pathname === item.href.split("?")[0]
+                    ? `text-primary font-bold text-lg`
+                    : ""
+                }`}
+              >
+                {item.text}
+              </span>
+            </a>
+          {/key}
         {/each}
+        {#if session.playback}
+          <a
+            href={playback.href}
+            on:click={() => {
+              addUserLog(`user clicked on navbar link "${playback.text}"`);
+            }}
+          >
+            <span
+              class={`${
+                $page.url.pathname === playback.href.split("?")[0]
+                  ? `text-primary font-bold text-lg`
+                  : ""
+              }`}
+            >
+              {playback.text}
+            </span>
+          </a>
+        {/if}
+        {#if session.anpr}
+          <a
+            href={anpr.href}
+            on:click={() => {
+              addUserLog(`user clicked on navbar link "${anpr.text}"`);
+            }}
+          >
+            <span
+              class={`${
+                $page.url.pathname === anpr.href.split("?")[0]
+                  ? `text-primary font-bold text-lg`
+                  : ""
+              }`}
+            >
+              {anpr.text}
+            </span>
+          </a>
+        {/if}
       </div>
 
       <div

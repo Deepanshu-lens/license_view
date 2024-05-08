@@ -12,12 +12,23 @@
   import { addUserLog } from "@/lib/addUserLog";
   import { goto } from "$app/navigation";
 
-  import { CameraIcon, Cast, Disc2, Radio, Router, User2 } from "lucide-svelte";
+  import {
+    CameraIcon,
+    Cast,
+    Disc2,
+    FileSignatureIcon,
+    Radio,
+    Router,
+    User2,
+  } from "lucide-svelte";
+  import License from "./settings/License.svelte";
+  import type { PageServerData } from "../../routes/$types";
   export let user: User;
   export let records: LoginEvent;
   export let logs: UserLog;
+  export let data: PageServerData;
   export let sessionId;
-
+  console.log(data);
   $: {
     const searchParams = new URLSearchParams($page.url.search);
     search = searchParams.get("section");
@@ -85,7 +96,7 @@
       <p
         class={`text-xs ${search !== "Recording" ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
       >
-        Remote
+        Recording
       </p>
     </span>
     <span class="group flex flex-col gap-0.5 items-center justify-center">
@@ -123,6 +134,22 @@
     <span class="group flex flex-col gap-0.5 items-center justify-center">
       <button
         on:click={() => {
+          handleButtonClick("License");
+        }}
+        class={search !== "License"
+          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+          : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
+        ><FileSignatureIcon class="h-[22px] w-[22px]" />
+      </button>
+      <p
+        class={`text-xs ${search !== "License" ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
+      >
+        License
+      </p>
+    </span>
+    <span class="group flex flex-col gap-0.5 items-center justify-center">
+      <button
+        on:click={() => {
           handleButtonClick("User");
         }}
         class={search !== "User"
@@ -148,6 +175,8 @@
       <System />
     {:else if search === "Camera"}
       <Camera {user} />
+    {:else if search === "License"}
+      <License session={data.session} />
     {:else}
       <UserS {user} {records} {logs} />
     {/if}

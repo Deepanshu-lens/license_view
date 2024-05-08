@@ -195,11 +195,7 @@
 
 {#if streamCount > 0 && Object.keys(videos).length > 0}
   <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <!-- <div
-    class="h-full w-full carousel-container"
-    on:dragstart|preventDefault
-    on:touchmove|preventDefault
-  > -->
+
   <Carousel.Root
     class="w-full h-full flex justify-center items-center"
     opts={{ watchDrag: false }}
@@ -222,42 +218,6 @@
                 <!-- svelte-ignore a11y-no-static-element-interactions -->
                 {#key pageIndex * $selectedNode.maxStreamsPerPage + slotIndex}
                   <!-- svelte-ignore a11y-click-events-have-key-events -->
-                  <!-- draggable="true"
-                  on:dragstart={(event) => {
-                    event.dataTransfer.setData("text/plain", event.target.id);
-                  }}
-                    on:dragover={(event) => {
-                      event.preventDefault();
-                    }}
-                    on:drop={(event) => {
-                      event.preventDefault();
-                      const id = event.dataTransfer.getData("text/plain");
-                      const draggedElement = document.getElementById(id);
-                      const dropTarget = event.target.closest(".grid-cell");
-                      if (!dropTarget || !draggedElement) return;
-                      
-                      let temp = draggedElement.innerHTML;
-                      console.log(temp);
-                      draggedElement.innerHTML = dropTarget.innerHTML;
-                      dropTarget.innerHTML = temp;
-                    }} -->
-
-                  <!-- style={$selectedNode.maxStreamsPerPage === 13 &&
-                      slotIndex === 0
-                        ? "grid-area: bigCell1"
-                        : $selectedNode.maxStreamsPerPage === 10 &&
-                            slotIndex === 0
-                          ? "grid-area: bigCell1"
-                          : $selectedNode.maxStreamsPerPage === 10 &&
-                              slotIndex === 1
-                            ? "grid-area: bigCell2"
-                            : $selectedNode.maxStreamsPerPage === 5 &&
-                                slotIndex === 0
-                              ? "grid-area: bigCell1"
-                              : $selectedNode.maxStreamsPerPage === 7 &&
-                                  slotIndex === 0
-                                ? "grid-area: bigCell1"
-                                : ""} -->
                   <div
                     id={`grid-cell-${slotIndex}`}
                     class="relative h-full"
@@ -490,7 +450,66 @@
   .grid {
     display: grid !important;
   }
-
+  .grid-rows-1 {
+    grid-template-rows: repeat(1, 100%);
+  }
+  .grid-rows-2 {
+    grid-template-rows: repeat(2, 50%);
+  }
+  .grid-rows-3 {
+    grid-template-rows: repeat(3, 33.33%);
+  }
+  .grid-rows-4 {
+    grid-template-rows: repeat(4, 25%);
+  }
+  .grid-rows-5 {
+    grid-template-rows: repeat(5, 20%);
+  }
+  .grid-rows-6 {
+    grid-template-rows: repeat(6, 16.66%);
+  }
+  .grid-rows-7 {
+    grid-template-rows: repeat(7, 14.285%);
+  }
+  .grid-rows-8 {
+    grid-template-rows: repeat(8, 12.5%);
+  }
+  .grid-rows-9 {
+    grid-template-rows: repeat(9, 11.11);
+  }
+  .grid-rows-10 {
+    grid-template-rows: repeat(10, 10%);
+  }
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, 100%);
+  }
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, 50%);
+  }
+  .grid-cols-3 {
+    grid-template-columns: repeat(3, 33.33%);
+  }
+  .grid-cols-4 {
+    grid-template-columns: repeat(4, 25%);
+  }
+  .grid-cols-5 {
+    grid-template-columns: repeat(5, 20%);
+  }
+  .grid-cols-6 {
+    grid-template-columns: repeat(6, 16.66%);
+  }
+  .grid-cols-7 {
+    grid-template-columns: repeat(7, 14.285%);
+  }
+  .grid-cols-8 {
+    grid-template-columns: repeat(8, 12.5%);
+  }
+  .grid-cols-9 {
+    grid-template-columns: repeat(9, 11.11);
+  }
+  .grid-cols-10 {
+    grid-template-columns: repeat(10, 10%);
+  }
   .grid-area-13 {
     grid-template-columns: repeat(4, 25%);
     grid-template-rows: repeat(4, 25%);
@@ -526,13 +545,5 @@
       "bigCell1 bigCell1 bigCell1  ."
       "bigCell1 bigCell1 bigCell1  ."
       ". . . .";
-  }
-
-  .carousel-container {
-    pointer-events: none !important;
-  }
-
-  .carousel-container button {
-    pointer-events: auto !important;
   }
 </style>

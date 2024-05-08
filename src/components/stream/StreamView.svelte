@@ -251,7 +251,8 @@
   }
 
   onMount(async () => {
-    galleryItems = data.props.galleryItems;
+    galleryItems = await getGallery();
+    // galleryItems = data.props.galleryItems;
     unknownItems = data.props.imposterItems;
     PB.collection("faceGallery").subscribe("*", async (e) => {
       console.log("New change in gallery ", e.action, e.record);
@@ -753,6 +754,7 @@
             {#if $events.length > 0}
               <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
               {#each $events as event}
+                {@const date = event.created}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <li
                   class="w-full fade-in-15 transition-all duration-200"
@@ -818,14 +820,14 @@
                       </span>
                       <span class="flex items-center justify-between gap-2">
                         <p class={"text-[10px]"}>
-                          {event.created.toLocaleDateString("en-US", {
+                          {date.toLocaleDateString("en-US", {
                             year: "numeric",
                             month: "short",
                             day: "numeric",
                           })}
                         </p>
                         <p class={"text-[10px]"}>
-                          {event.created.toLocaleTimeString("en-US", {
+                          {date.toLocaleTimeString("en-US", {
                             hour: "2-digit",
                             minute: "2-digit",
                             second: "2-digit",

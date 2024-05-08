@@ -16,11 +16,6 @@
   const imposterImages = writable<string[]>([]);
   const avgFeatures = writable();
 
-  // const location = window?.location?.href;
-  // const neededUrl =
-  //   location?.split("/")[2] === "localhost:5173"
-  //     ? PUBLIC_BASE_URL
-  //     : location?.split("/")[2]?.split(":")[0];
   const neededUrl = $page.url.hostname;
 
   let webcamSource: HTMLVideoElement;

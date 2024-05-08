@@ -30,52 +30,6 @@
   import { Bar, Line } from "svelte-chartjs";
   export let os: string;
   let websocket;
-  //   onMount(() => {
-  //     let websocket = new WebSocket("ws://localhost:8080/ws");
-
-  //     websocket.onopen = () => {
-  //       console.log("Connected to WebSocket on port 8080");
-  //     };
-
-  //     websocket.onmessage = (event) => {
-  //       console.log("Message from server ", event.data);
-  //     };
-
-  //     websocket.onerror = (error) => {
-  //       console.error("WebSocket Error:", error);
-  //     };
-  //   });
-
-  // const macCpuU = {
-  //   ANE_Usage: 0,
-  //   CPU_Power_W: 0.355,
-  //   E_CPU_Freq_MHz: 1114,
-  //   E_CPU_Usage: 21,
-  //   E_Core_Count: "4",
-  //   GPU_Core_Count: "7",
-  //   GPU_Freq_MHz: null,
-  //   GPU_Power_W: 0.011,
-  //   GPU_Usage: 5.05,
-  //   In_bytes: null,
-  //   In_packets: null,
-  //   Memory_Total_GB: 8,
-  //   Memory_Usage_Percent: 82.28435516357422,
-  //   Memory_Used_GB: 6.5827484130859375,
-  //   Model_Name: "Apple M1",
-  //   Out_bytes: null,
-  //   Out_packets: null,
-  //   P_CPU_Freq_MHz: null,
-  //   P_CPU_Usage: null,
-  //   P_Core_Count: "4",
-  //   Read_KBytes: null,
-  //   Read_ops: null,
-  //   Swap_Total_GB: null,
-  //   Swap_Used_GB: null,
-  //   Total_Cores: "8",
-  //   Total_Power_W: null,
-  //   Write_KBytes: null,
-  //   Write_ops: null,
-  // };
 
   const basicData = {
     ANE_Usage: null,
@@ -171,9 +125,7 @@
 
       function updateNetworkData(key, unit) {
         networkDiskD[key] =
-          msg[key] === null
-            ? `${networkDiskD[key]} ${unit}`
-            : `${msg[key]} ${unit}`;
+          msg[key] === null ? `${networkDiskD[key]}` : `${msg[key]} ${unit}`;
       }
 
       updateNetworkData("Out_bytes", "bytes/s");
@@ -458,7 +410,7 @@
     >
     {#if os !== "darwin"}
       {#each systemD as item}
-        <span class=" font-normal text-base text-[#323232]"
+        <span class=" font-normal text-base text-[#727272CC]"
           >{item[0].split(" ")[0]}:
           <span class="text-primary font-semibold">
             {item[0].split(" ").slice(1).join(" ")}</span
@@ -466,54 +418,64 @@
         >
       {/each}
     {:else}
-      <span class=" font-normal text-base text-[#323232]"
-        >Model Name:
-        <span class="text-primary font-semibold">
-          {basicData.Model_Name}</span
-        ></span
-      >
-      <span class=" font-normal text-base text-[#323232]"
-        >Total Cores:
-        <span class="text-primary font-semibold">
-          {basicData.Total_Cores}</span
-        ></span
-      >
-      <span class=" font-normal text-base text-[#323232]"
-        >E-Cores:
-        <span class="text-primary font-semibold">
-          {basicData.E_Core_Count}</span
-        ></span
-      >
-      <span class=" font-normal text-base text-[#323232]"
-        >P-Cores:
-        <span class="text-primary font-semibold">
-          {basicData.P_Core_Count}</span
-        ></span
-      >
-      <span class=" font-normal text-base text-[#323232]"
-        >GPU Cores:
-        <span class="text-primary font-semibold">
-          {basicData.GPU_Core_Count}</span
-        ></span
-      >
-      <span class=" font-normal text-base text-[#323232]"
-        >CPU Power:
-        <span class="text-primary font-semibold">
-          {basicData.CPU_Power_W} W</span
-        ></span
-      >
-      <span class=" font-normal text-base text-[#323232]"
-        >GPU Power:
-        <span class="text-primary font-semibold">
-          {basicData.GPU_Power_W} W</span
-        ></span
-      >
-      <span class=" font-normal text-base text-[#323232]"
-        >GPU Usage:
-        <span class="text-primary font-semibold">
-          {basicData.GPU_Usage} %</span
-        ></span
-      >
+      <div class="grid grid-rows-2 grid-cols-4 h-full w-full gap-2">
+        <span
+          class="text-base text-[#727272CC] bg-[#D2F2FACC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
+          >Model Name:<br />
+          <span class="text-black dark:text-white text-lg font-semibold">
+            {basicData.Model_Name}</span
+          ></span
+        >
+        <span
+          class="text-base text-[#727272CC] bg-[#F7FAD2CC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
+          >Total Cores:<br />
+          <span class="text-black dark:text-white text-lg font-semibold">
+            {basicData.Total_Cores}</span
+          ></span
+        >
+        <span
+          class="text-base text-[#727272CC] bg-[#D2FAD8CC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
+          >E-Cores:<br />
+          <span class="text-black dark:text-white text-lg font-semibold">
+            {basicData.E_Core_Count}</span
+          ></span
+        >
+        <span
+          class="text-base text-[#727272CC] bg-[#D2D6FACC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
+          >P-Cores:<br />
+          <span class="text-black dark:text-white text-lg font-semibold">
+            {basicData.P_Core_Count}</span
+          ></span
+        >
+        <span
+          class="text-base text-[#727272CC] bg-[#FAD2F6CC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
+          >GPU Cores:<br />
+          <span class="text-black dark:text-white text-lg font-semibold">
+            {basicData.GPU_Core_Count}</span
+          ></span
+        >
+        <span
+          class="text-base text-[#727272CC] bg-[#FAD2D2CC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
+          >CPU Power:<br />
+          <span class="text-black dark:text-white text-lg font-semibold">
+            {basicData.CPU_Power_W} W</span
+          ></span
+        >
+        <span
+          class="text-base text-[#727272CC] bg-[#FAE0D2CC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
+          >GPU Power:<br />
+          <span class="text-black dark:text-white text-lg font-semibold">
+            {basicData.GPU_Power_W} W</span
+          ></span
+        >
+        <span
+          class="text-base text-[#727272CC] bg-[#FAF1D2CC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
+          >GPU Usage:<br />
+          <span class="text-black dark:text-white text-lg font-semibold">
+            {basicData.GPU_Usage} %</span
+          ></span
+        >
+      </div>
     {/if}
   </div>
   <div
@@ -667,11 +629,16 @@
         Network Data{/if}
     </span>
     {#if os === "darwin"}
-      {#each Object.entries(networkDiskD) as [key, value]}
-        <span class="font-normal text-base text-[#323232]">
-          {key}: <span class="text-primary font-semibold">{value}</span>
-        </span>
-      {/each}
+      <div class="grid grid-rows-3 grid-cols-3 gap-4 w-full h-full">
+        {#each Object.entries(networkDiskD) as [key, value]}
+          <span class="font-normal text-sm text-[#727272]">
+            {key}: <br />
+            <span class="text-black dar:text-white font-bold text-xl"
+              >{value}</span
+            >
+          </span>
+        {/each}
+      </div>
     {:else}
       <div class="h-full">
         <Line

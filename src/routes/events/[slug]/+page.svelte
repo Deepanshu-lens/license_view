@@ -5,8 +5,6 @@
   import PocketBase from "pocketbase";
   import { onDestroy, onMount } from "svelte";
   import EventPanel from "@/components/events/EventPanel.svelte";
-  import EventsView from "@/components/events/mobile/EventsView.svelte";
-  import { ChevronLeft } from "lucide-svelte";
   // import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
   import { page } from "$app/stores";
 

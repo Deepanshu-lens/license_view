@@ -30,13 +30,21 @@ export async function load({ locals }) {
       "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
   });
 
-  const imposterItems = await locals.pb
-    ?.collection("impostors")
-    .getList(1, 10, {
-      sort: "-lastSeen",
-      expand: "events",
-      fields: "name,lastSeen,expand.events.frameImage",
-    });
+  // const galleryItems = await locals.pb?.collection("faceGallery").getFullList({
+  //   sort: "-lastSeen",
+  //   expand: "events",
+  //   fields: "name,lastSeen,images,expand.events.frameImage",
+  // });
+
+  // const imposterItems = await locals.pb
+  //   ?.collection("impostors")
+  //   .getList(1, 10, {
+  //     sort: "-lastSeen",
+  //     expand: "events",
+  //     fields: "name,lastSeen,expand.events.frameImage",
+  //   });
+
+  console.log(events);
 
   const serializableEvents = events?.items.map(
     (event) =>
@@ -46,56 +54,44 @@ export async function load({ locals }) {
       }) as unknown as Event,
   );
 
-  const galleryItems = await locals.pb?.collection("faceGallery").getFullList({
-    sort: "-lastSeen",
-    fields: "name,lastSeen,images",
-  });
+  // const galleryItems = await locals.pb?.collection("faceGallery").getFullList({
+  //   sort: "-lastSeen",
+  //   expand: "events",
+  //   fields: "name,lastSeen,images,expand.events.frameImage",
+  // });
 
   // console.log(galleryItems);
 
-  // const galleryItems = await locals.pb?.collection("faceGallery").getFullList({
-  //   sort: "-lastSeen",
-  //   expand: {
-  //     events: {
-  //       take: 8,
-  //       select: {
-  //         frameImage: true,
-  //       },
-  //     },
-  //   },
-  //   fields: "name,lastSeen,expand.events.frameImage,images",
-  // });
+  // const serializableGalleryItems = galleryItems.map((e) => ({
+  //   name: e.name,
+  //   lastSeen: e.lastSeen,
+  //   savedData: e.images,
+  //   images: e.expand.events
+  //     ? e.expand.events
+  //         .map((f) => f.frameImage)
+  //         .slice(-8)
+  //         .reverse()
+  //     : [],
+  //   created: new Date(),
+  //   updated: new Date(),
+  // }));
 
-  const serializableGalleryItems = galleryItems.map((e) => ({
-    name: e.name,
-    lastSeen: e.lastSeen,
-    savedData: e.images,
-    images: e.expand.events
-      ? e.expand.events
-          .map((f) => f.frameImage)
-          .slice(-8)
-          .reverse()
-      : [],
-    created: new Date(),
-    updated: new Date(),
-  }));
-
-  const serializableImposterItems = imposterItems.items.map((e) => ({
-    name: "Unknown",
-    lastSeen: e.lastSeen,
-    images: e.expand.events
-      .map((f) => f.frameImage)
-      .slice(-8)
-      .reverse(),
-    created: new Date(),
-    updated: new Date(),
-  }));
+  // const serializableImposterItems = imposterItems.items.map((e) => ({
+  //   name: "Unknown",
+  //   lastSeen: e.lastSeen,
+  //   images: e.expand.events
+  //     .map((f) => f.frameImage)
+  //     .slice(-8)
+  //     .reverse(),
+  //   created: new Date(),
+  //   updated: new Date(),
+  // }));
 
   return {
     props: {
       events: serializableEvents,
-      galleryItems: serializableGalleryItems,
-      imposterItems: serializableImposterItems,
+      galleryItems: [],
+      imposterItems: [],
     },
   };
 }

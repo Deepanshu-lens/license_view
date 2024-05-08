@@ -28,6 +28,7 @@
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
   // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  console.log(data);
 
   async function getNodes(): Promise<Node[]> {
     if (session?.node.length > 0) {
