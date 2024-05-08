@@ -209,7 +209,7 @@
       </div>
       <span
         class="text-black dark:text-white font-semibold text-base leading-tight w-[90%] mx-auto flex items-center justify-between py-4"
-        >Live Events
+        >Live Alerts
         <span class="flex items-center gap-4"
           ><FilterIcon
             class="h-6 w-6 p-1 bg-[#f9f9f9] rounded-full text-[#727272] dark:bg-[#333] dark:text-white"

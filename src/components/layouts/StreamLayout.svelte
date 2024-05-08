@@ -234,7 +234,7 @@
                     {#if [5, 7, 13].includes($selectedNode.maxStreamsPerPage) && bigCellIndex !== slotIndex}
                       <button
                         on:click={() => setBigCell(slotIndex)}
-                        class="cursor-pointer absolute rounded top-4 right-20 flex-shrink-0 p-1 bg-[rgba(0,0,0,.5)] text-white z-20"
+                        class={`cursor-pointer absolute rounded top-4 ${isAllFullScreen ? "right-12" : "right-20"} flex-shrink-0 p-1 bg-[rgba(0,0,0,.5)] text-white z-20`}
                       >
                         <AArrowUp size={18} />
                       </button>
@@ -363,11 +363,13 @@
                       </button>
                     {/if}
 
-                    <span
-                      class="cursor-grab grab-handle absolute rounded top-4 right-12 flex-shrink-0 p-1 bg-[rgba(0,0,0,.5)] text-white z-20"
-                    >
-                      <Menu size={18} />
-                    </span>
+                    {#if !isAllFullScreen}
+                      <span
+                        class="cursor-grab grab-handle absolute rounded top-4 right-12 flex-shrink-0 p-1 bg-[rgba(0,0,0,.5)] text-white z-20"
+                      >
+                        <Menu size={18} />
+                      </span>
+                    {/if}
                   </div>
                 {/key}
               {:else}

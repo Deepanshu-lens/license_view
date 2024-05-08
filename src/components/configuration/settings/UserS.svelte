@@ -38,26 +38,6 @@
     }
   }
 
-  async function deleteAllEvents() {
-    try {
-      const response = await fetch("/api/events/deleteAll", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.ok) {
-        console.log("All events deleted successfully");
-        // Handle success, e.g., show a notification or update the UI
-      } else {
-        throw new Error("Failed to delete events");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      // Handle errors, e.g., show an error message
-    }
-  }
-
   function formatDateTime(dateTimeString: string) {
     const options = {
       year: "numeric",
@@ -358,7 +338,6 @@
         {/if}
       </form>
     </div>
-    <button on:click={deleteAllEvents}>Delete All Events</button>
   {/if}
   {#if selected === 2}
     <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
@@ -372,12 +351,16 @@
     <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
     <h2 class="font-medium px-6 mb-4">Login Events</h2>
     {#if records}
-      {#each records as item, index}
-        <li class="flex items-center gap-4 px-6 pb-6">
-          <h2>{index + 1} :</h2>
-          <p>Login Time: {formatDateTime(item?.created)}</p>
-        </li>
-      {/each}
+      <div
+        class="flex flex-col items-start overflow-y-scroll max-h-[calc(100vh-250px)] w-full"
+      >
+        {#each records as item, index}
+          <li class="flex items-center gap-4 px-6 pb-6">
+            <h2>{index + 1} :</h2>
+            <p>Login Time: {formatDateTime(item?.created)}</p>
+          </li>
+        {/each}
+      </div>
     {:else}
       <span class="px-6 text-sm">Loading...</span>
     {/if}

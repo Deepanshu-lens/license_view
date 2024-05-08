@@ -42,7 +42,7 @@
 </script>
 
 <div class="max-h-[calc(100vh-160px)] h-full w-full overflow-y-scroll">
-  <Table.Root class="mx-auto w-[98%] flex flex-col pb-10">
+  <Table.Root class="mx-auto w-[100%] flex flex-col pb-10">
     <Table.Header
       class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
     >
@@ -97,7 +97,7 @@
           <Table.Cell
             class="text-[#727272] w-full h-full flex items-center justify-center"
           >
-            <span> {index} </span>
+            <span> {index + 1} </span>
           </Table.Cell>
           <Table.Cell
             class="text-[#727272] w-full h-full flex items-center justify-center text-sm"

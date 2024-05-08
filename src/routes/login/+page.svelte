@@ -19,7 +19,7 @@
 </script>
 
 <div
-  class="flex justify-center items-center w-full h-screen relative flex-col sm:flex-row"
+  class="flex justify-center items-center w-full h-screen relative flex-col sm:flex-row overflow-hidden"
 >
   <div
     class="left sm:w-1/2 w-full bg-forms-background dark:bg-dark-forms-background sm:h-screen h-2/3 bg-cover z-10"
