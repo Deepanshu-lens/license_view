@@ -35,6 +35,7 @@
   let isSingleFullscreen: boolean = false;
   let videos: { [key: string]: HTMLElement } = {};
   let cells: HTMLDivElement;
+  let ele;
   // const location = window?.location?.href;
   // const neededUrl =
   //   location?.split("/")[2] === "localhost:5173"
@@ -44,20 +45,24 @@
   const neededUrl = $page.url.hostname;
 
   const initVideo = (camera: Camera) => {
-    console.log("first");
     if (videos[camera.id]) {
       console.log("first");
       return;
     }
+    console.log("camera init", camera);
     let video = document.createElement("video-stream") as VideoStreamType;
     video.id = `stream-${camera.id}`;
     video.mode = $page.url.hostname.includes("116") ? "mse" : "webrtc";
     video.url = camera.url;
-    video.src = new URL(
-      isSingleFullscreen
-        ? `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&camID=${camera.id}_FULL&nodeID=${1}`
-        : `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
-    );
+    camera.subUrl.length === 0
+      ? (video.src = new URL(
+          `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
+        ))
+      : (video.src = new URL(
+          isSingleFullscreen
+            ? `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&camID=${camera.id}_FULL&nodeID=${1}`
+            : `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
+        ));
     video.style.position = "relative";
     video.style.width = "100%";
     video.style.height = "100%";
@@ -80,10 +85,32 @@
     }
   };
 
-  const onFullscreenChange = () => {
+  const onFullscreenChange = (event) => {
+    if (isSingleFullscreen) {
+      if (document.fullscreenElement) {
+        const fullscreenElementId = document.fullscreenElement?.id;
+        ele = fullscreenElementId;
+      }
+    }
     if (!document.fullscreenElement) {
       console.log("Exited fullscreen mode");
+      const parent = document.getElementById(ele);
+      const videoStreamElement = parent.querySelector("video-stream");
+      if (videoStreamElement) {
+        const matchingCamera = $selectedNode.camera.find(
+          (c) => c.url === videoStreamElement.url,
+        );
+        const matchingCameraId = matchingCamera ? matchingCamera.id : null;
+        if (matchingCameraId !== null) {
+          videos[matchingCameraId].remove();
+          delete videos[matchingCameraId];
+          initVideo(matchingCamera);
+        }
+      } else {
+        console.log("No video-stream element found in the parent.");
+      }
       isSingleFullscreen = false;
+      updateLayout($selectedNode.maxStreamsPerPage);
       document.removeEventListener("fullscreenchange", onFullscreenChange);
     }
   };
@@ -106,13 +133,10 @@
   };
 
   const updateLayout = (maxStreamsPerPage: number) => {
-    console.log("first");
-    $selectedNode.camera.map((c, i) => {
+    $selectedNode.camera.map((c) => {
       if (!videos[c.id]) {
-        console.log("Initializing video ", c);
         initVideo(c);
       } else {
-        // Check if url is edited by user. If so, update src
         if (videos[c.id].url !== c.url) {
           videos[c.id].url = c.url;
           videos[c.id].src = new URL(
