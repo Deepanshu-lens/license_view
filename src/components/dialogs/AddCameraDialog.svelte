@@ -10,6 +10,7 @@
 
   let cameraName = "";
   let cameraURL = "";
+  let subURL = "";
   let cameraUsername = "";
   let cameraPass = "";
   let cameraIp = "";
@@ -42,6 +43,7 @@
         body: JSON.stringify({
           name: cameraName,
           url: modifiedCameraURL,
+          subUrl: subURL,
           nodeId: sNode ? sNode.id : $selectedNode.id,
           face: face,
           save: saving,
@@ -83,6 +85,7 @@
           body: JSON.stringify({
             name: cameraName,
             url: newUrl,
+            subUrl: subURL,
             nodeId: sNode ? sNode.id : $selectedNode.id,
             face: face,
             save: saving,
@@ -124,6 +127,7 @@
           body: JSON.stringify({
             name: cameraName,
             url: newUrl,
+            subUrl: subURL,
             nodeId: sNode ? sNode.id : $selectedNode.id,
             face: face,
             save: saving,
@@ -197,7 +201,7 @@
     <span class="text-xl font-semibold mx-auto">Using url</span>
     <div class="grid gap-4 py-4">
       <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="camera-url">URL</Label>
+        <Label for="camera-url">Main URL</Label>
         <Input
           id="camera-url"
           class="col-span-3"
@@ -205,11 +209,17 @@
           placeholder={"rtsp://admin:password@123.123.123.123/stream/1"}
           bind:cameraURL
           on:change={(e) => (cameraURL = e.target.value)}
-          on:keyup={(e) => {
-            if (e.key === "Enter") {
-              onSubmit();
-            }
-          }}
+        />
+      </div>
+      <div class="grid grid-cols-4 items-center gap-4">
+        <Label for="camera-url">Sub URL</Label>
+        <Input
+          id="camera-url"
+          class="col-span-3"
+          disabled={disabled === "url"}
+          placeholder={"rtsp://admin:password@123.123.123.123/sub-stream/1"}
+          bind:subURL
+          on:change={(e) => (subURL = e.target.value)}
         />
       </div>
       <span class="text-xl font-semibold mx-auto">Or using details</span>

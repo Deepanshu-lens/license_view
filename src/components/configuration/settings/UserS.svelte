@@ -82,7 +82,7 @@
     {#if selected === 2}
       <div class=" relative">
         <span class="font-bold text-[#015A62] dark:text-white">
-          Premissions
+          Permissions
         </span>
         <span
           class=" h-[3px] rounded-full bg-[#0B8995] w-full absolute left-0 -bottom-4"
@@ -96,7 +96,7 @@
           addUserLog("user clicked on permissions button, user panel");
         }}
       >
-        Premissions
+        Permissions
       </button>
     {/if}
     {#if selected === 3}
@@ -341,7 +341,7 @@
   {/if}
   {#if selected === 2}
     <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
-    <h2 class="font-medium px-6 mb-4">Premission Settings</h2>
+    <h2 class="font-medium px-6 mb-4">Permission Settings</h2>
   {/if}
   {#if selected === 3}
     <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />

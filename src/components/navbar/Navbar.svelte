@@ -39,10 +39,10 @@
       text: "Configuration",
       href: `/configuration/${sessionId}?section=Remote`,
     },
-    // {
-    //   text: "Reports",
-    //   href: `/reports/${sessionId}`,
-    // },
+    {
+      text: "Reports",
+      href: `/reports/${sessionId}`,
+    },
   ];
 
   let frs = {

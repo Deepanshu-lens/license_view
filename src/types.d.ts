@@ -8,6 +8,7 @@ export type Camera = {
   name: string;
   id: string;
   url: string;
+  subUrl: string;
   hovered?: boolean;
   active?: boolean;
   face: boolean;

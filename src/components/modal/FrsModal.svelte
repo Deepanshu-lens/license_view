@@ -32,7 +32,7 @@
     </button> -->
     <div class="flex items-center justify-between">
       <h2 class="text-2xl font-bold capitalize">
-        {event.title} (Alert)
+        {event.title}
       </h2>
       <div class="flex items-center gap-4">
         <button

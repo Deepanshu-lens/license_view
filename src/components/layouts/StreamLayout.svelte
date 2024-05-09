@@ -52,7 +52,9 @@
     video.mode = $page.url.hostname.includes("116") ? "mse" : "webrtc";
     video.url = camera.url;
     video.src = new URL(
-      `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
+      isSingleFullscreen
+        ? `ws://${neededUrl}:8082/api/ws?src=${c.id}_FULL&camID=${c.id}_FULL&nodeID=${1}`
+        : `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
     );
     video.style.position = "relative";
     video.style.width = "100%";
@@ -102,6 +104,7 @@
   };
 
   const updateLayout = (maxStreamsPerPage: number) => {
+    console.log("first");
     $selectedNode.camera.map((c, i) => {
       if (!videos[c.id]) {
         console.log("Initializing video ", c);
@@ -269,9 +272,23 @@
                       >
                         <button
                           on:click={() => {
-                            isSingleFullscreen === true
-                              ? exitSingleFullscreen()
-                              : singleFullscreen(slotIndex);
+                            if (isSingleFullscreen === true) {
+                              exitSingleFullscreen();
+                              initVideo(
+                                $selectedNode.camera[
+                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                    slotIndex
+                                ],
+                              );
+                            } else {
+                              singleFullscreen(slotIndex);
+                              initVideo(
+                                $selectedNode.camera[
+                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                    slotIndex
+                                ],
+                              );
+                            }
 
                             addUserLog(
                               `user clicked single camera fulscreen for camera ${
@@ -338,12 +355,26 @@
                     {:else}
                       <button
                         on:click={() => {
-                          isSingleFullscreen === true
-                            ? exitSingleFullscreen()
-                            : singleFullscreen(slotIndex);
+                          if (isSingleFullscreen === true) {
+                            exitSingleFullscreen();
+                            initVideo(
+                              $selectedNode.camera[
+                                pageIndex * $selectedNode.maxStreamsPerPage +
+                                  slotIndex
+                              ],
+                            );
+                          } else {
+                            singleFullscreen(slotIndex);
+                            initVideo(
+                              $selectedNode.camera[
+                                pageIndex * $selectedNode.maxStreamsPerPage +
+                                  slotIndex
+                              ],
+                            );
+                          }
 
                           addUserLog(
-                            `user clicked single fulscreen ${isSingleFullscreen ? "minimize" : "maximize"} for camera ${
+                            `user clicked single camera fulscreen for camera ${
                               $selectedNode.camera[
                                 pageIndex * $selectedNode.maxStreamsPerPage +
                                   slotIndex
@@ -353,7 +384,7 @@
                                 pageIndex * $selectedNode.maxStreamsPerPage +
                                   slotIndex
                               ].url
-                            }"`,
+                            }" `,
                           );
                         }}
                         class="absolute p-1 top-4 right-4 cursor-pointer bg-[rgba(0,0,0,.5)] text-white rounded z-20"

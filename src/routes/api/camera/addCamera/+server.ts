@@ -12,6 +12,7 @@ export const POST: RequestHandler = async ({
   const camera = await locals.pb?.collection("camera").create({
     name: data.name,
     url: data.url,
+    subUrl: data.subUrl,
     node: data.nodeId,
     save: data.save,
     face: data.face,

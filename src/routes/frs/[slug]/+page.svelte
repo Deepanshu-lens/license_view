@@ -29,10 +29,8 @@
 
   function openEventDialog(eventData) {
     if (eventData.title.includes("Face")) {
-      console.log("first");
       selectedEvent = eventData;
     } else {
-      console.log("first");
       selectedMatchEvent = eventData;
     }
   }

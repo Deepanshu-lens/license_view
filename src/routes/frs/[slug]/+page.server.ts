@@ -17,6 +17,7 @@ export async function load({ locals }) {
     node: event.node,
     camera: event.camera,
     feature: event.feature,
+    id: event.id,
   }));
 
   return {

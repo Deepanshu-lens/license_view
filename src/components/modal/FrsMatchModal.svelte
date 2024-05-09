@@ -1,7 +1,14 @@
 <script lan="ts">
+  import PocketBase from "pocketbase";
   import { selectedNode } from "@/lib/stores";
   import { EditIcon, ScanFace, X } from "lucide-svelte";
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
+  import { page } from "$app/stores";
+
+  import TimeAgo from "javascript-time-ago";
+  import en from "javascript-time-ago/locale/en";
+  TimeAgo.addLocale(en);
+  const timeAgo = new TimeAgo("en-US");
 
   export let selectedMatchEvent;
 
@@ -9,10 +16,33 @@
   console.log(event);
   const dispatch = createEventDispatcher();
 
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+
   function closeModal() {
     dispatch("close");
   }
   const date = new Date(event.created);
+  let matchData;
+  onMount(async () => {
+    const fetch = await PB.collection("faceGallery").getFullList({
+      sort: "-lastSeen",
+      fields: "id,events,lastSeen,name,images",
+    });
+
+    console.log(event.id);
+    const serializableItems = fetch.map((e) => ({
+      name: e.name,
+      lastSeen: e.lastSeen,
+      events: e.events,
+      image: e.images[0],
+    }));
+
+    matchData = serializableItems.find((item) => {
+      return item.events.includes(event.id);
+    });
+
+    console.log(matchData);
+  });
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -25,15 +55,9 @@
             `}
     on:click|stopPropagation
   >
-    <!-- <button
-        on:click={closeModal}
-        class="absolute top-2 right-2 grid place-items-center"
-      >
-        <X size={20} />
-      </button> -->
     <div class="flex items-center justify-between">
       <h2 class="text-2xl font-bold capitalize">
-        {event.title} (Alert)
+        {event.title}
       </h2>
       <div class="flex items-center gap-4">
         <button
@@ -59,36 +83,58 @@
         second: "2-digit",
       })}
     </span>
-    <div class="flex items-center gap-4 mt-4">
-      <img
-        class="obejct-contain w-[200px] h-[150px] rounded-lg"
-        alt="portrait alert"
-        src={"data:image/jpeg;base64," + event.frameImage}
-      />
-      <div class="flex flex-col gap-2">
-        <p class={`text-base w-full text-[#00132B]`}>
-          Camera name:
-          <span class="text-[#727272]">
-            {$selectedNode.camera.filter((c) => c.id === event.camera)[0] &&
-              $selectedNode.camera.filter((c) => c.id === event.camera)[0].name}
-          </span>
-        </p>
-        <p class={`text-base w-full text-[#00132B] whitespace-nowrap`}>
-          Detection Score:
-          <span class={`text-[#727272]`}>
-            {event?.score.toFixed(3)}
-          </span>
-        </p>
-        <p class={`text-base w-full text-[#00132B] whitespace-nowrap`}>
-          Similarity Score:
-          <span class={`text-[#727272]`}>
-            {event.matchScore !== 0 &&
-            event.matchScore !== undefined &&
-            event.matchScore !== null
-              ? `Match Score : ${event?.matchScore.toFixed(3)}`
-              : "No matches found"}
-          </span>
-        </p>
+    <div class={`flex ${matchData ? "flex-col" : "flex-row"} gap-4 mt-4`}>
+      <div class="flex items-center gap-10">
+        <img
+          class="obejct-contain w-[200px] h-[150px] rounded-lg"
+          alt="portrait alert"
+          src={"data:image/jpeg;base64," + event.frameImage}
+        />
+        {#if matchData}
+          <img
+            class="obejct-contain w-[200px] h-[150px] rounded-lg"
+            alt="portrait alert"
+            src={"data:image/jpeg;base64," + matchData?.image}
+          />
+        {/if}
+      </div>
+      <div class="flex gap-16">
+        <div class="flex flex-col gap-2">
+          <p class={`text-base w-full text-[#00132B]`}>
+            Camera name:
+            <span class="text-[#727272]">
+              {$selectedNode.camera.filter((c) => c.id === event.camera)[0] &&
+                $selectedNode.camera.filter((c) => c.id === event.camera)[0]
+                  .name}
+            </span>
+          </p>
+          <p class={`text-base w-full text-[#00132B] whitespace-nowrap`}>
+            Detection Score:
+            <span class={`text-[#727272]`}>
+              {event?.score.toFixed(3)}
+            </span>
+          </p>
+          <p class={`text-base w-full text-[#00132B] whitespace-nowrap`}>
+            Similarity Score:
+            <span class={`text-[#727272]`}>
+              {event.matchScore !== 0 &&
+              event.matchScore !== undefined &&
+              event.matchScore !== null
+                ? `${event?.matchScore.toFixed(3) * 100}%`
+                : "No matches found"}
+            </span>
+          </p>
+        </div>
+        {#if matchData}
+          <div class="flex flex-col gap-2">
+            <p class={`text-base w-full text-[#00132B]`}>
+              Last Seen:
+              <span class="text-[#727272]">
+                {timeAgo?.format(new Date(matchData?.lastSeen))}
+              </span>
+            </p>
+          </div>
+        {/if}
       </div>
     </div>
   </article>

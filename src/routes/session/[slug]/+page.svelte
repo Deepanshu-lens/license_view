@@ -48,6 +48,7 @@
                     name: cam.name,
                     id: cam.id,
                     url: cam.url,
+                    subUrl: cam.subUrl,
                     save: cam.save,
                     face: cam.face,
                     vehicle: cam.vehicle,
