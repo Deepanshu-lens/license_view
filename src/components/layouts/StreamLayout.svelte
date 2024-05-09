@@ -44,7 +44,9 @@
   const neededUrl = $page.url.hostname;
 
   const initVideo = (camera: Camera) => {
+    console.log("first");
     if (videos[camera.id]) {
+      console.log("first");
       return;
     }
     let video = document.createElement("video-stream") as VideoStreamType;
@@ -53,7 +55,7 @@
     video.url = camera.url;
     video.src = new URL(
       isSingleFullscreen
-        ? `ws://${neededUrl}:8082/api/ws?src=${c.id}_FULL&camID=${c.id}_FULL&nodeID=${1}`
+        ? `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&camID=${camera.id}_FULL&nodeID=${1}`
         : `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
     );
     video.style.position = "relative";
@@ -274,6 +276,26 @@
                           on:click={() => {
                             if (isSingleFullscreen === true) {
                               exitSingleFullscreen();
+                              const streamElement =
+                                videos[
+                                  $selectedNode.camera[
+                                    pageIndex *
+                                      $selectedNode.maxStreamsPerPage +
+                                      slotIndex
+                                  ].id
+                                ];
+                              console.log(streamElement);
+                              if (streamElement) {
+                                console.log("first");
+                                streamElement.remove();
+                                delete videos[
+                                  $selectedNode.camera[
+                                    pageIndex *
+                                      $selectedNode.maxStreamsPerPage +
+                                      slotIndex
+                                  ].id
+                                ];
+                              }
                               initVideo(
                                 $selectedNode.camera[
                                   pageIndex * $selectedNode.maxStreamsPerPage +
@@ -282,6 +304,26 @@
                               );
                             } else {
                               singleFullscreen(slotIndex);
+                              const streamElement =
+                                videos[
+                                  $selectedNode.camera[
+                                    pageIndex *
+                                      $selectedNode.maxStreamsPerPage +
+                                      slotIndex
+                                  ].id
+                                ];
+                              console.log(streamElement);
+                              if (streamElement) {
+                                console.log("first");
+                                streamElement.remove();
+                                delete videos[
+                                  $selectedNode.camera[
+                                    pageIndex *
+                                      $selectedNode.maxStreamsPerPage +
+                                      slotIndex
+                                  ].id
+                                ];
+                              }
                               initVideo(
                                 $selectedNode.camera[
                                   pageIndex * $selectedNode.maxStreamsPerPage +
@@ -357,6 +399,24 @@
                         on:click={() => {
                           if (isSingleFullscreen === true) {
                             exitSingleFullscreen();
+                            const streamElement =
+                              videos[
+                                $selectedNode.camera[
+                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                    slotIndex
+                                ].id
+                              ];
+                            console.log(streamElement);
+                            if (streamElement) {
+                              console.log("first");
+                              streamElement.remove();
+                              delete videos[
+                                $selectedNode.camera[
+                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                    slotIndex
+                                ].id
+                              ];
+                            }
                             initVideo(
                               $selectedNode.camera[
                                 pageIndex * $selectedNode.maxStreamsPerPage +
@@ -365,6 +425,24 @@
                             );
                           } else {
                             singleFullscreen(slotIndex);
+                            const streamElement =
+                              videos[
+                                $selectedNode.camera[
+                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                    slotIndex
+                                ].id
+                              ];
+                            console.log(streamElement);
+                            if (streamElement) {
+                              console.log("first");
+                              streamElement.remove();
+                              delete videos[
+                                $selectedNode.camera[
+                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                    slotIndex
+                                ].id
+                              ];
+                            }
                             initVideo(
                               $selectedNode.camera[
                                 pageIndex * $selectedNode.maxStreamsPerPage +

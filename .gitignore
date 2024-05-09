@@ -15,3 +15,5 @@ server/*.exe
 server/packages/ai/face/models/*
 PlayBackData
 static/Playback
+services
+services/*
