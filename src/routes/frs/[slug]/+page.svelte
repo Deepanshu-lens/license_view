@@ -220,7 +220,8 @@
               class="text-[#727272] w-full h-full text-sm flex gap-2 items-center whitespace-nowrap"
             >
               <button
-                class="px-2 py-1 rounded-xl bg-[#E9EFFE] text-[#4976F4] text-sm font-medium flex items-center gap-1"
+                disabled
+                class="px-2 py-1 rounded-xl bg-[#E9EFFE] text-[#4976F4] text-sm font-medium flex items-center gap-1 disabled:cursor-not-allowed"
                 ><EditIcon size={16} />
                 Edit</button
               >

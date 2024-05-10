@@ -95,7 +95,9 @@
 <!-- markup (zero or more items) goes here -->
 <Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger><slot /></Dialog.Trigger>
-  <Dialog.Content class="sm:max-w-[720px] scale-90 2xl:scale-100">
+  <Dialog.Content
+    class="sm:max-w-[720px] scale-90 2xl:scale-100 max-h-[90%] overflow-y-scroll"
+  >
     <Dialog.Header>
       <Dialog.Title>Camera Settings</Dialog.Title>
       <Dialog.Description>
@@ -144,8 +146,8 @@
             <Select.Root onSelectedChange={(e) => (saveDuration = e.value)}>
               <Select.Trigger class="w-[180px]">
                 <Select.Value
-                  placeholder={items.filter((m) => m.value === saveDuration)[0]
-                    .label}
+                  placeholder={items.find((m) => m.value === saveDuration)
+                    ?.label || "Select Duration"}
                 />
               </Select.Trigger>
               <Select.Content>

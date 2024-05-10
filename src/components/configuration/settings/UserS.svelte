@@ -1,13 +1,15 @@
 <script lang="ts">
-  import { Check, Pencil, X } from "lucide-svelte";
+  import { Check, ChevronsUpDown, Pencil, X } from "lucide-svelte";
   import type { LoginEvent, User, UserLog } from "@/types";
   import { toast } from "svelte-sonner";
+  import * as Table from "@/components/ui/table";
   import { addUserLog } from "@/lib/addUserLog";
+  import Switch from "@/components/ui/switch/switch.svelte";
 
   export let user: User;
   export let records: LoginEvent[];
   export let logs: UserLog[];
-  export let selected = 1;
+  export let selected = 2;
   let showUpdateUsernameModal = false;
   let showUpdateEmailModal = false;
   let showUpdatePasswordModal = false;
@@ -82,7 +84,7 @@
     {#if selected === 2}
       <div class=" relative">
         <span class="font-bold text-[#015A62] dark:text-white">
-          Permissions
+          Roles & Permissions
         </span>
         <span
           class=" h-[3px] rounded-full bg-[#0B8995] w-full absolute left-0 -bottom-4"
@@ -96,7 +98,7 @@
           addUserLog("user clicked on permissions button, user panel");
         }}
       >
-        Permissions
+        Roles & Permissions
       </button>
     {/if}
     {#if selected === 3}
@@ -341,7 +343,217 @@
   {/if}
   {#if selected === 2}
     <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
-    <h2 class="font-medium px-6 mb-4">Permission Settings</h2>
+    <div class="w-full justify-between flex items-center px-6 mb-4">
+      <h2 class="font-medium">Permission Settings</h2>
+      <button class="bg-[#015a62] px-3 py-1 text-white rounded-md">
+        + Add Feature</button
+      >
+    </div>
+    <Table.Root class="mx-auto w-full px-6 flex flex-col pb-10 ">
+      <Table.Header
+        class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
+      >
+        <Table.Row class="bg-transparent flex items-center p-3">
+          <Table.Head class="text-[#727272] w-full h-full">Features</Table.Head>
+          <Table.Head class="text-[#727272] w-[250px] h-full">
+            Super admin
+          </Table.Head>
+          <Table.Head class="text-[#727272] w-[250px] h-full"
+            >Co-admin</Table.Head
+          >
+          <Table.Head class="text-[#727272] w-[250px] h-full">User</Table.Head>
+          <Table.Head class="text-[#727272] w-[200px] h-full"
+            >Actions</Table.Head
+          >
+        </Table.Row>
+      </Table.Header>
+      <Table.Body class="overflow-y-scroll max-h-[calc(100vh-285px)] pb-10">
+        <Table.Row
+          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
+        >
+          <Table.Cell class="text-black w-full h-full"
+            ><span class="flex items-center gap-2 capitalize font-semibold">
+              Camera Settings (Add, delete & edit camera specifications)
+            </span>
+          </Table.Cell>
+          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
+            <span class="flex items-center gap-2">
+              Active <Switch />
+            </span>
+          </Table.Cell>
+        </Table.Row>
+        <Table.Row
+          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
+        >
+          <Table.Cell class="text-black w-full h-full"
+            ><span class="flex items-center gap-2 capitalize font-semibold">
+              Node Settings
+            </span>
+          </Table.Cell>
+          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
+            <span class="flex items-center gap-2">
+              Active <Switch />
+            </span>
+          </Table.Cell>
+        </Table.Row>
+        <Table.Row
+          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
+        >
+          <Table.Cell class="text-black w-full h-full"
+            ><span class="flex items-center gap-2 capitalize font-semibold">
+              User Management
+            </span>
+          </Table.Cell>
+          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
+            <span class="flex items-center gap-2">
+              Active <Switch />
+            </span>
+          </Table.Cell>
+        </Table.Row>
+        <Table.Row
+          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
+        >
+          <Table.Cell class="text-black w-full h-full"
+            ><span class="flex items-center gap-2 capitalize font-semibold">
+              Synchronisation
+            </span>
+          </Table.Cell>
+          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
+            <span class="flex items-center gap-2">
+              Active <Switch />
+            </span>
+          </Table.Cell>
+        </Table.Row>
+        <Table.Row
+          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
+        >
+          <Table.Cell class="text-black w-full h-full"
+            ><span class="flex items-center gap-2 capitalize font-semibold">
+              Snip/Record Feed
+            </span>
+          </Table.Cell>
+          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
+            <span class="flex items-center gap-2">
+              Active <Switch />
+            </span>
+          </Table.Cell>
+        </Table.Row>
+        <Table.Row
+          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
+        >
+          <Table.Cell class="text-black w-full h-full"
+            ><span class="flex items-center gap-2 capitalize font-semibold">
+              Generate Reports
+            </span>
+          </Table.Cell>
+          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
+            <span class="flex items-center gap-2">
+              Active <Switch />
+            </span>
+          </Table.Cell>
+        </Table.Row>
+        <Table.Row
+          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
+        >
+          <Table.Cell class="text-black w-full h-full"
+            ><span class="flex items-center gap-2 capitalize font-semibold">
+              Import/Export Configuration
+            </span>
+          </Table.Cell>
+          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
+            <span class="flex items-center gap-2">
+              Active <Switch />
+            </span>
+          </Table.Cell>
+        </Table.Row>
+        <Table.Row
+          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
+        >
+          <Table.Cell class="text-black w-full h-full"
+            ><span class="flex items-center gap-2 capitalize font-semibold">
+              Group Management
+            </span>
+          </Table.Cell>
+          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
+            <input type="checkbox" />
+          </Table.Cell>
+          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
+            <span class="flex items-center gap-2">
+              Active <Switch />
+            </span>
+          </Table.Cell>
+        </Table.Row>
+      </Table.Body>
+    </Table.Root>
   {/if}
   {#if selected === 3}
     <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
@@ -351,15 +563,39 @@
     <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
     <h2 class="font-medium px-6 mb-4">Login Events</h2>
     {#if records}
-      <div
-        class="flex flex-col items-start overflow-y-scroll max-h-[calc(100vh-250px)] w-full"
-      >
-        {#each records as item, index}
-          <li class="flex items-center gap-4 px-6 pb-6">
-            <h2>{index + 1} :</h2>
-            <p>Login Time: {formatDateTime(item?.created)}</p>
-          </li>
-        {/each}
+      <div class="w-full">
+        <Table.Root class=" w-[40%] px-6 flex flex-col pb-10 ">
+          <Table.Header
+            class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9] "
+          >
+            <Table.Row class="bg-transparent flex items-center p-3">
+              <Table.Head class="text-[#727272] w-full h-full text-start"
+                >S.No</Table.Head
+              >
+              <Table.Head class="text-[#727272] w-full h-full text-center">
+                Login Time
+              </Table.Head>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body
+            class="overflow-y-scroll max-h-[calc(100vh-285px)] pb-10 "
+          >
+            {#each records as item, index}
+              <Table.Row
+                class="bg-transparent cursor-pointer flex gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
+              >
+                <Table.Cell class="text-black w-full h-full text-start">
+                  {index + 1}
+                </Table.Cell>
+                <Table.Cell
+                  class="text-[#727272] w-full h-full text-sm text-center"
+                >
+                  {formatDateTime(item?.created)}
+                </Table.Cell>
+              </Table.Row>
+            {/each}
+          </Table.Body>
+        </Table.Root>
       </div>
     {:else}
       <span class="px-6 text-sm">Loading...</span>
@@ -373,23 +609,46 @@
     <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
     <h2 class="font-medium px-6 mb-4">System Logs</h2>
     {#if logs}
-      <div
-        class="flex flex-col items-start overflow-y-scroll max-h-[calc(100vh-250px)] w-full"
-      >
-        {#each logs as item, index}
-          <li class="flex items-center justify-evenly gap-4 px-6 pb-6">
-            <!-- <h2 class=" flex-shrink-0 font-medium">{index + 1} :</h2> -->
-            <p class="flex-shrink-0">
-              <span class="text-base font-medium"> Event Time: </span>
-              {formatDateTime(item?.created)}
-            </p>
-            <p>
-              <span class="text-base font-medium"> Event: </span>
-
-              {item.event}
-            </p>
-          </li>
-        {/each}
+      <div class="w-full">
+        <Table.Root class=" w-full px-6 flex flex-col pb-10 ">
+          <Table.Header
+            class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9] "
+          >
+            <Table.Row class="bg-transparent flex items-center p-3">
+              <Table.Head class="text-[#727272] w-full h-full ">S.No</Table.Head
+              >
+              <Table.Head class="text-[#727272] w-full h-full text-center">
+                Event Time
+              </Table.Head>
+              <Table.Head class="text-[#727272] w-full h-full text-center">
+                Event
+              </Table.Head>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body
+            class="overflow-y-scroll max-h-[calc(100vh-285px)] pb-10 "
+          >
+            {#each logs as item, index}
+              <Table.Row
+                class="bg-transparent cursor-pointer flex gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
+              >
+                <Table.Cell class="text-black w-full h-full ">
+                  {index + 1}
+                </Table.Cell>
+                <Table.Cell
+                  class="text-[#727272] w-full h-full text-sm text-center"
+                >
+                  {formatDateTime(item?.created)}
+                </Table.Cell>
+                <Table.Cell
+                  class="text-[#727272] w-full h-full text-sm text-center"
+                >
+                  {item.event}
+                </Table.Cell>
+              </Table.Row>
+            {/each}
+          </Table.Body>
+        </Table.Root>
       </div>
     {:else}
       <span class="px-6 text-sm">Loading...</span>

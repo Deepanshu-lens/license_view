@@ -280,9 +280,9 @@
                       ]}
                     />
                     <span
-                      class="flex gap-2 text-[#C20D02] bg-[rgba(255,255,255,.68)] py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-75 z-20"
+                      class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-90 z-20"
                     >
-                      <Disc2 size={18} />
+                      <span class="h-2 w-2 bg-[#589e67] rounded-full" />
                       <span class="text-xs font-extrabold">
                         {$selectedNode.camera[
                           pageIndex * $selectedNode.maxStreamsPerPage +

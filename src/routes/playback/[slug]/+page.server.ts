@@ -24,6 +24,8 @@ export const load = async () => {
   try {
     const playbackDir = path.resolve("static", "Playback");
     const files = await fs.readdir(playbackDir);
+    console.log(playbackDir);
+    console.log(files);
 
     // Create a set of existing .webm filenames without the extension for quick lookup
     const webmFileNamesWithoutExtension = new Set(
