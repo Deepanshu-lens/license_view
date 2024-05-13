@@ -205,10 +205,10 @@
               ></Table.Cell
             >
             <Table.Cell class="text-[#727272] w-full h-full text-sm"
-              ><span class="ml-8">{event.score.toFixed(3)}</span></Table.Cell
+              ><span class="ml-8">{event?.score?.toFixed(3)}</span></Table.Cell
             >
             <Table.Cell class="text-[#727272] w-full h-full text-sm"
-              ><span class="ml-8">{event.matchScore.toFixed(3)}</span
+              ><span class="ml-8">{event?.matchScore?.toFixed(3)}</span
               ></Table.Cell
             >
 

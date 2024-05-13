@@ -9,7 +9,6 @@ export const PUT: RequestHandler = async ({
 }: RequestEvent) => {
   console.log("Editing Camera");
   const data = await request.json();
-  console.log(data);
 
   const oldUrl = await locals.pb
     ?.collection("camera")

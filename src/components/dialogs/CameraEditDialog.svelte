@@ -40,10 +40,10 @@
         <Label class="w-24" for="node-name">Name</Label>
         <Input type="text" bind:value={name} class="text-base" />
       </div>
-      <div class=" col-span-2 flex items-center gap-4">
+      <!-- <div class=" col-span-2 flex items-center gap-4">
         <Label class="w-24" for="node-name">Url</Label>
         <Input type="text" bind:value={url} class="text-xs" />
-      </div>
+      </div> -->
     </div>
 
     <Dialog.Footer>

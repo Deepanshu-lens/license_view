@@ -1,4 +1,5 @@
 <script lang="ts">
+	import  PocketBase  from 'pocketbase';
   import { mode } from "mode-watcher";
   import { activeCamera, topPanelHide } from "@/lib/stores";
   import { cn } from "@/lib";
@@ -22,7 +23,7 @@
   import { PUBLIC_BASE_URL } from "$env/static/public";
   import { page } from "$app/stores";
   import Sortable from "sortablejs";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
 
   export let handleSingleSS: () => void;
   export let isAllFullScreen: boolean;
@@ -36,11 +37,6 @@
   let videos: { [key: string]: HTMLElement } = {};
   let cells: HTMLDivElement;
   let ele;
-  // const location = window?.location?.href;
-  // const neededUrl =
-  //   location?.split("/")[2] === "localhost:5173"
-  //     ? PUBLIC_BASE_URL
-  //     : location?.split("/")[2]?.split(":")[0];
 
   const neededUrl = $page.url.hostname;
 
@@ -54,7 +50,7 @@
     video.id = `stream-${camera.id}`;
     video.mode = $page.url.hostname.includes("116") ? "mse" : "webrtc";
     video.url = camera.url;
-    camera.subUrl.length === 0
+    camera?.subUrl?.length === 0
       ? (video.src = new URL(
           `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
         ))
@@ -102,6 +98,7 @@
         );
         const matchingCameraId = matchingCamera ? matchingCamera.id : null;
         if (matchingCameraId !== null) {
+          isSingleFullscreen = false
           videos[matchingCameraId].remove();
           delete videos[matchingCameraId];
           initVideo(matchingCamera);
@@ -118,12 +115,9 @@
   const refreshVideoStream = (cameraId: string) => {
     const videoElement = videos[cameraId];
     if (videoElement) {
-      // Remove the video element from the DOM and from the videos object
       console.log(videoElement);
       videoElement.remove();
       delete videos[cameraId];
-
-      // Re-initialize the video for the camera
       const camera = $selectedNode.camera.find((c) => c.id === cameraId);
       console.log(camera.name);
       if (camera) {
@@ -202,6 +196,7 @@
   }
 
   onMount(function () {
+    // getUpdatedConfig()
     if (cells) {
       Sortable.create(cells, {
         animation: 250,
@@ -213,6 +208,52 @@
       console.log("first");
     }
   });
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+
+  onMount(async () => {
+    PB.collection('configuration').subscribe('*', (e) => {
+      console.log('new update in gallery',e.action,e.record)
+      if(e.action === 'create') {
+        const cameraIdsAndUrls = $selectedNode.camera.map(camera => ({ id: camera.id, url: camera.url }));
+        const cameraUrl = e.record.ipAddr
+        const cameraUrlExists = cameraIdsAndUrls.some(camera => camera.url.includes(cameraUrl));
+        if (cameraUrlExists) {
+          const cam = cameraIdsAndUrls.find(camera => camera.url.includes(cameraUrl))
+          console.log('refreshing cam from subscription',cam)
+          setTimeout(() => {
+            refreshVideoStream(cam?.id);
+          }, 2000);
+        }
+      }
+    })
+  })
+
+  onDestroy(() => {
+    PB.collection('configuration').unsubscribe('*')
+  })
+
+// async function getUpdatedConfig () {
+//   const config = await PB.collection('configuration').getFullList( {
+//     fields: 'companyName,ipAddr'
+//   })
+
+//   const activeConfigs = config.filter(item => item.status === true);
+//   const uniqueActiveIpAddrs = [...new Set(config.map(item => item.ipAddr))];
+//   console.log(uniqueActiveIpAddrs)
+
+//   console.log($selectedNode.camera)
+//   const cameraIdsAndUrls = $selectedNode.camera.map(camera => ({ id: camera.id, url: camera.url }));
+//   console.log(cameraIdsAndUrls);
+//   const cameraUrls = uniqueActiveIpAddrs.map(url => {
+//     console.log(url)
+//     return url;
+//   });
+//   const res = cameraIdsAndUrls.filter(camera => {
+//     console.log(camera)
+//     return cameraUrls.some(url => {console.log(url); return camera.url.includes(url)});
+//   });
+//   console.log(res)
+// }
 
   $: bigCellIndex = [10, 13, 5, 7].includes($selectedNode.maxStreamsPerPage)
     ? 0
@@ -592,7 +633,7 @@
     grid-template-rows: repeat(2, 50%);
   }
   .grid-rows-3 {
-    grid-template-rows: repeat(3, 33.33%);
+    grid-template-rows: repeat(3, 33%);
   }
   .grid-rows-4 {
     grid-template-rows: repeat(4, 25%);
@@ -601,7 +642,7 @@
     grid-template-rows: repeat(5, 20%);
   }
   .grid-rows-6 {
-    grid-template-rows: repeat(6, 16.66%);
+    grid-template-rows: repeat(6, 16.2%);
   }
   .grid-rows-7 {
     grid-template-rows: repeat(7, 14.285%);
@@ -622,7 +663,7 @@
     grid-template-columns: repeat(2, 50%);
   }
   .grid-cols-3 {
-    grid-template-columns: repeat(3, 33.33%);
+    grid-template-columns: repeat(3, 33.2%);
   }
   .grid-cols-4 {
     grid-template-columns: repeat(4, 25%);
@@ -631,7 +672,7 @@
     grid-template-columns: repeat(5, 20%);
   }
   .grid-cols-6 {
-    grid-template-columns: repeat(6, 16.66%);
+    grid-template-columns: repeat(6, 16.35%);
   }
   .grid-cols-7 {
     grid-template-columns: repeat(7, 14.285%);
