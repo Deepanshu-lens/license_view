@@ -11,8 +11,16 @@
 	export { className as class };
 	export let variant: VariantProps<typeof buttonVariants>["variant"] = "outline";
 	export let size: VariantProps<typeof buttonVariants>["size"] = "icon";
+		export let onClick: () => void; 
 	const { orientation, canScrollNext, scrollNext, handleKeyDown } =
 		getEmblaContext("<Carousel.Next/>");
+
+		function handleClick(event: MouseEvent) {
+		if (onClick) {
+			onClick();
+		}
+		scrollNext(event);
+	}
 </script>
 
 <Button
@@ -26,7 +34,7 @@
 		className
 	)}
 	disabled={!$canScrollNext}
-	on:click={scrollNext}
+	on:click={handleClick}
 	on:keydown={handleKeyDown}
 	{...$$restProps}
 >

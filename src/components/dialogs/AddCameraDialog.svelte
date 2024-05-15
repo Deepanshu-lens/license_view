@@ -24,6 +24,8 @@
   let motionThresh: number = 0;
 
   let mode = 2;
+  let uploadMode = 1;
+  let addMode = 1;
 
   export let sNode;
 
@@ -69,7 +71,7 @@
         toast("Camera added");
       });
     } else {
-      if (company === 2 || company === 3) {
+      if (company === 2 || company === 4) {
         let newUrl =
           "rtsp://" +
           cameraUsername +
@@ -79,7 +81,18 @@
             : cameraPass) +
           "@" +
           cameraIp;
-        console.log(newUrl);
+        let sub =
+          "rtsp://" +
+          cameraUsername +
+          ":" +
+          (cameraPass.includes("@")
+            ? cameraPass.replace("@", "%40")
+            : cameraPass) +
+          "@" +
+          cameraIp +
+          ":554/H264/ch1/sub/av_stream";
+        console.log("main url:", newUrl);
+        console.log("sub url:", sub);
         fetch("/api/camera/addCamera", {
           method: "POST",
           headers: {
@@ -88,7 +101,7 @@
           body: JSON.stringify({
             name: cameraName,
             url: newUrl,
-            subUrl: subURL,
+            subUrl: sub,
             nodeId: sNode ? sNode.id : $selectedNode.id,
             face: face,
             save: saving,
@@ -121,7 +134,18 @@
           "@" +
           cameraIp +
           ":554/cam/realmonitor?channel=1\u0026subtype=0";
-        console.log(newUrl);
+        let sub =
+          "rtsp://" +
+          cameraUsername +
+          ":" +
+          (cameraPass.includes("@")
+            ? cameraPass.replace("@", "%40")
+            : cameraPass) +
+          "@" +
+          cameraIp +
+          ":554/cam/realmonitor?channel=1\u0026subtype=1";
+        console.log("main url:", newUrl);
+        console.log("sub url:", sub);
         fetch("/api/camera/addCamera", {
           method: "POST",
           headers: {
@@ -130,7 +154,61 @@
           body: JSON.stringify({
             name: cameraName,
             url: newUrl,
-            subUrl: subURL,
+            subUrl: sub,
+            nodeId: sNode ? sNode.id : $selectedNode.id,
+            face: face,
+            save: saving,
+            vehicle: vehicle,
+            faceDetThresh: 0.93,
+            faceMatchThresh: 0.3,
+            vehicleDetThresh: 0.4,
+            vehiclePlateThresh: 0.5,
+            vehicleOCRThresh: 0.6,
+            saveFolder: "./PlayBack/",
+            saveDuration: 30 * 60 * 24,
+            priority: priority === true ? 1 : 0,
+            motionThresh:
+              motionThresh === 0 ? 1000 : motionThresh === 50 ? 2500 : 5000,
+          }),
+        }).then((response) => {
+          if (response.ok) {
+            dialogOpen = false;
+          }
+          toast("Camera added");
+        });
+      } else if (company === 3) {
+        // Add your code here for company 3
+        let newUrl =
+          "rtsp://" +
+          cameraUsername +
+          ":" +
+          (cameraPass.includes("@")
+            ? cameraPass.replace("@", "%40")
+            : cameraPass) +
+          "@" +
+          cameraIp +
+          ":554/ch01";
+        let sub =
+          "rtsp://" +
+          cameraUsername +
+          ":" +
+          (cameraPass.includes("@")
+            ? cameraPass.replace("@", "%40")
+            : cameraPass) +
+          "@" +
+          cameraIp +
+          ":554/ch01_sub";
+        console.log("main url:", newUrl);
+        console.log("sub url:", sub);
+        fetch("/api/camera/addCamera", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: cameraName,
+            url: newUrl,
+            subUrl: sub,
             nodeId: sNode ? sNode.id : $selectedNode.id,
             face: face,
             save: saving,
@@ -175,39 +253,33 @@
   }
 </script>
 
-<!-- markup (zero or more items) goes here -->
 <Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger><slot /></Dialog.Trigger>
   <Dialog.Content
-    class="sm:max-w-[720px] scale-90 sm:scale-100 z-[70] max-h-[90%] sm:max-h-auto overflow-y-scroll"
+    class="sm:max-w-[720px] scale-90 sm:scale-100 z-[70] max-h-[95%] sm:max-h-auto overflow-y-scroll"
   >
     <Dialog.Header>
       <Dialog.Title>Add Camera</Dialog.Title>
-      <Dialog.Description>
-        Insert a new camera in <span class="font-semibold"
-          >{sNode ? sNode.name : $selectedNode.name}</span
-        >
-        node
-      </Dialog.Description>
     </Dialog.Header>
     <div class="w-full flex flex-col items-start justify-center py-4 gap-4">
       <p class="text-[#00132B] dark:text-slate-100">
         Choose from the options below to register your images
       </p>
       <span class="flex items-center justify-between w-full gap-4">
-        <button disabled
+        <button
+          disabled
           class={mode !== 1
-            ? "text-[#00132B] dark:text-slate-300 flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[rgb(145,158,171)]/[.24] font-semibold "
-            : " text-[#00132B] flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#136ad5] bg-[#ecf3fc] font-semibold "}
+            ? "text-[#00132B] cursor-not-allowed dark:text-slate-300 flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#919eab]/[.24] font-semibold "
+            : " text-[#00132B] flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#015a62] bg-[#015a62] bg-opacity-10 font-semibold "}
           on:click={() => (mode = 1)}
         >
-          <input type="radio" checked={mode === 1} />
+          <input type="radio" checked={mode === 1} disabled />
           Automatically
         </button>
         <button
           class={mode !== 2
-            ? "text-[#00132B] dark:text-slate-300 flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[rgb(145,158,171)]/[.24] font-semibold"
-            : "text-[#00132B] flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#136ad5] bg-[#ecf3fc] font-semibold"}
+            ? "text-[#00132B] dark:text-slate-300 flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#919eab]/[.24] font-semibold"
+            : "text-[#00132B] flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#015a62] bg-[#015a62] bg-opacity-10 font-semibold"}
           on:click={() => (mode = 2)}
         >
           <input type="radio" checked={mode === 2} />
@@ -215,8 +287,62 @@
         </button>
       </span>
     </div>
+    <span class="w-full flex items-center justify-between pb-4">
+      <p class="text-base font-semibold text-muted-foreground">
+        Insert a new camera in <span class="font-bold text-primary"
+          >{sNode ? sNode.name : $selectedNode.name}</span
+        >
+        node
+      </p>
+      <span class="flex items-center gap-4">
+        <p
+          class={`text-sm ${uploadMode === 1 ? "text-primary font-medium" : "text-muted-foreground"}`}
+        >
+          Single Upload
+        </p>
+        <Switch  disabled/>
+        <p
+        class={`text-sm ${uploadMode !== 1 ? "text-primary font-medium" : "text-muted-foreground"}`}
+
+        >
+          Multiple Upload
+        </p>
+      </span>
+    </span>
+    <div class="grid gap-4 py-4">
+      <div class="grid grid-cols-4 items-center gap-4">
+        <Label for="camera-name">Name</Label>
+        <Input
+          id="camera-name"
+          placeholder={"Home-Porch"}
+          class="col-span-3"
+          bind:cameraName
+          on:change={(e) => (cameraName = e.target.value)}
+        />
+      </div>
+   
     {#if mode === 2}
-      <div class="grid gap-4 py-4">
+      <div
+        class="w-full border-b border-black/[.1] pb-2 flex items-center justify-start gap-4"
+      >
+        <button on:click={() => addMode = 1}
+          class={`${addMode !== 1 ? "text-[#5F6064] font-medium" : "text-primary font-semibold"} font-medium text-sm relative`}
+          >Using URL
+          {#if addMode === 1}
+            <span
+              class="h-[2px] w-full absolute bg-primary -bottom-2.5 left-0"
+            />{/if}</button
+        >
+        <button on:click={() => addMode = 2}
+          class={`${addMode === 1 ? "text-[#5F6064] font-medium" : "text-primary font-semibold"}  text-sm relative`}
+          >Using Details{#if addMode !== 1}
+            <span
+              class="h-[2px] w-full absolute bg-primary -bottom-2.5 left-0"
+            />{/if}</button
+        >
+      </div>
+
+      <!-- <div class="grid gap-4 py-4">
         <div class="grid grid-cols-4 items-center gap-4">
           <Label for="camera-name">Name</Label>
           <Input
@@ -226,10 +352,20 @@
             bind:cameraName
             on:change={(e) => (cameraName = e.target.value)}
           />
-        </div>
-      </div>
-      <span class="text-xl font-semibold mx-auto">Using url</span>
+        </div> -->
+      
+      {#if addMode ===1}
       <div class="grid gap-4 py-4">
+        <!-- <div class="grid grid-cols-4 items-center gap-4">
+          <Label for="camera-name">Name</Label>
+          <Input
+            id="camera-name"
+            placeholder={"Home-Porch"}
+            class="col-span-3"
+            bind:cameraName
+            on:change={(e) => (cameraName = e.target.value)}
+          />
+        </div> -->
         <div class="grid grid-cols-4 items-center gap-4">
           <Label for="camera-url">Main URL</Label>
           <Input
@@ -252,9 +388,22 @@
             on:change={(e) => (subURL = e.target.value)}
           />
         </div>
-        <span class="text-xl font-semibold mx-auto">Or using details</span>
+      </div>
+      {:else}
+      <div class="grid gap-4 py-4">
         <div class="grid gap-4 py-4">
+          <!-- <div class="grid grid-cols-4 items-center gap-4">
+            <Label for="camera-name">Name</Label>
+            <Input
+              id="camera-name"
+              placeholder={"Home-Porch"}
+              class="col-span-3"
+              bind:cameraName
+              on:change={(e) => (cameraName = e.target.value)}
+            />
+          </div> -->
           <div class="grid grid-cols-4 items-center gap-4">
+            
             <Label for="camera-username">Username</Label>
             <Input
               id="camera-username"
@@ -348,76 +497,97 @@
                 disabled={disabled === "other"}
                 checked={company === 3}
               />
+              ZKTECO
+            </label>
+            <label
+              class="flex items-center gap-1 text-xs sm:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
+            >
+              <input
+                type="checkbox"
+                name="cameraBrand"
+                class="disabled:cursor-not-allowed"
+                on:change={() => {
+                  if (company !== 4) {
+                    updateCompany(4);
+                  } else {
+                    updateCompany(0);
+                  }
+                }}
+                disabled={disabled === "other"}
+                checked={company === 4}
+              />
               Other
             </label>
           </div>
         </div>
-        <span class="text-xl font-semibold mx-auto pt-2">Features</span>
-        <div class="grid grid-cols-4 items-center gap-4 py-2">
-          <span
-            class="block text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
-          >
-            Camera Features
-          </span>
-          <div
-            class="flex flex-row items-center gap-3 my-auto col-span-3 flex-wrap sm:flex-nowrap"
-          >
-            <!-- svelte-ignore a11y-label-has-associated-control -->
-            <label
-              class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
-            >
-              <Switch bind:checked={saving} class="scale-90" />
-              Feed Saving
-            </label>
-            <!-- svelte-ignore a11y-label-has-associated-control -->
-            <label
-              class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
-            >
-              <Switch bind:checked={vehicle} class="scale-90" />
-              Vehicle Scan
-            </label>
-            <!-- svelte-ignore a11y-label-has-associated-control -->
-            <label
-              class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
-            >
-              <Switch bind:checked={face} class="scale-90" />
-              Face Scan
-            </label>
-
-            <!-- svelte-ignore a11y-label-has-associated-control -->
-            <label
-              class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
-            >
-              <Switch bind:checked={priority} class="scale-90" />
-              Priority
-            </label>
-          </div>
-        </div>
-        <div class="grid grid-cols-4 items-center gap-4 py-2">
-          <span
-            class="block text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
-          >
-            Motion Sensitivity
-          </span>
-          <div class="flex items-center gap-4 grid-cols-3">
-            <Slider
-              min={0}
-              value={[motionThresh]}
-              max={100}
-              step={50}
-              class="w-32"
-              onValueChange={(e) => {
-                motionThresh = e[0];
-              }}
-            />
-            {motionThresh === 0 ? "Low" : motionThresh === 50 ? "Mid" : "High"}
-          </div>
-        </div>
-
-        <Dialog.Footer>
-          <Button type="submit" on:click={onSubmit}>Add Camera</Button>
-        </Dialog.Footer>
+       
       </div>
+      {/if}
+      <span class="text-xl font-semibold pt-2">Features</span>
+      <div class="grid grid-cols-4 items-center gap-4 py-2">
+        <span
+          class="block text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
+        >
+          Camera Features
+        </span>
+        <div
+          class="flex flex-row items-center gap-3 my-auto col-span-3 flex-wrap sm:flex-nowrap"
+        >
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label
+            class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
+          >
+            <Switch bind:checked={saving} class="scale-90" />
+            Feed Saving
+          </label>
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label
+            class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
+          >
+            <Switch bind:checked={vehicle} class="scale-90" />
+            Vehicle Scan
+          </label>
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label
+            class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
+          >
+            <Switch bind:checked={face} class="scale-90" />
+            Face Scan
+          </label>
+
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label
+            class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
+          >
+            <Switch bind:checked={priority} class="scale-90" />
+            Priority
+          </label>
+        </div>
+      </div>
+      <div class="grid grid-cols-4 items-center gap-4 py-2">
+        <span
+          class="block text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
+        >
+          Motion Sensitivity
+        </span>
+        <div class="flex items-center gap-4 grid-cols-3">
+          <Slider
+            min={0}
+            value={[motionThresh]}
+            max={100}
+            step={50}
+            class="w-32"
+            onValueChange={(e) => {
+              motionThresh = e[0];
+            }}
+          />
+          {motionThresh === 0 ? "Low" : motionThresh === 50 ? "Mid" : "High"}
+        </div>
+      </div>
+
+      <Dialog.Footer>
+        <Button type="submit" on:click={onSubmit}>Add Camera</Button>
+      </Dialog.Footer>
     {:else}
       <div class="grid gap-4 py-4">
         <div class="grid grid-cols-4 items-center gap-4">

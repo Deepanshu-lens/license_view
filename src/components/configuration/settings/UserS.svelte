@@ -9,7 +9,7 @@
   export let user: User;
   export let records: LoginEvent[];
   export let logs: UserLog[];
-  export let selected = 2;
+  export let selected = 1;
   let showUpdateUsernameModal = false;
   let showUpdateEmailModal = false;
   let showUpdatePasswordModal = false;
@@ -655,3 +655,5 @@
     {/if}
   {/if}
 </div>
+
+<!-- rtsp://admin:Admin%401234@192.168.1.106:322/ch01.264?dev=1 -->

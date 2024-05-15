@@ -95,7 +95,7 @@
       nodes = await getNodes();
       selectedNode.set(nodes[0]);
     });
-
+    
     PB.collection("node").subscribe("*", async (e) => {
       nodes = await getNodes();
       selectedNode.set(nodes[0]);

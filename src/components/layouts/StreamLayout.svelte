@@ -37,6 +37,7 @@
   let videos: { [key: string]: HTMLElement } = {};
   let cells: HTMLDivElement;
   let ele;
+  let slideIndex: number = 0;
 
   const neededUrl = $page.url.hostname;
 
@@ -126,7 +127,39 @@
     }
   };
 
+  function handleSlideChange() {
+    const startIndex = slideIndex * $selectedNode.maxStreamsPerPage;
+    const endIndex = startIndex + $selectedNode.maxStreamsPerPage;
+    const camerasOnSlide = $selectedNode.camera.slice(startIndex, endIndex);
+    const cameraIds = camerasOnSlide.map(camera => camera.id);
+    console.log('Camera IDs on current slide:', cameraIds);
+    // Call your function here with cameraIds
+    console.log(camerasOnSlide)
+    // yourFunction(cameraIds);
+cameraIds.forEach(cameraId => {
+  console.log('cameraId refreshing',cameraId)
+  refreshVideoStream(cameraId);
+});
+  }
+
+  function handlePrevious() {
+    if (slideIndex > 0) {
+      slideIndex -= 1;
+    }
+    handleSlideChange()
+  }
+  
+  function handleNext() {
+    if (slideIndex < totalPages - 1) {
+      slideIndex += 1;
+    }
+    handleSlideChange()
+  }
+
+  $: console.log(slideIndex)
+
   const updateLayout = (maxStreamsPerPage: number) => {
+    slideIndex = 0
     $selectedNode.camera.map((c) => {
       if (!videos[c.id]) {
         initVideo(c);
@@ -227,33 +260,31 @@
       }
     })
   })
+  
+  // onMount(() => {
+  //   if ($selectedNode.camera.length > 0) {
+  //     const refreshInterval = 120000;
+
+  //     const refreshCameras = () => {
+  //       $selectedNode.camera.forEach((camera, index) => {
+  //         setTimeout(() => {
+  //           refreshVideoStream(camera.id);
+  //           console.log('refreshing camera with index & name:',index, camera.name)
+  //         }, refreshInterval * index);
+  //       });
+  //     };
+
+  //     refreshCameras();
+  //     const intervalId = setInterval(refreshCameras, refreshInterval * $selectedNode.camera.length);
+  //     onDestroy(() => {
+  //       clearInterval(intervalId);
+  //     });
+  //   }
+  // });
 
   onDestroy(() => {
     PB.collection('configuration').unsubscribe('*')
   })
-
-// async function getUpdatedConfig () {
-//   const config = await PB.collection('configuration').getFullList( {
-//     fields: 'companyName,ipAddr'
-//   })
-
-//   const activeConfigs = config.filter(item => item.status === true);
-//   const uniqueActiveIpAddrs = [...new Set(config.map(item => item.ipAddr))];
-//   console.log(uniqueActiveIpAddrs)
-
-//   console.log($selectedNode.camera)
-//   const cameraIdsAndUrls = $selectedNode.camera.map(camera => ({ id: camera.id, url: camera.url }));
-//   console.log(cameraIdsAndUrls);
-//   const cameraUrls = uniqueActiveIpAddrs.map(url => {
-//     console.log(url)
-//     return url;
-//   });
-//   const res = cameraIdsAndUrls.filter(camera => {
-//     console.log(camera)
-//     return cameraUrls.some(url => {console.log(url); return camera.url.includes(url)});
-//   });
-//   console.log(res)
-// }
 
   $: bigCellIndex = [10, 13, 5, 7].includes($selectedNode.maxStreamsPerPage)
     ? 0
@@ -593,10 +624,10 @@
         </Carousel.Item>
       {/each}
     </Carousel.Content>
-    <Carousel.Previous
+    <Carousel.Previous onClick={handlePrevious} 
       class="left-8 disabled:invisible text-bold text-[#015a62] dark:text-white"
     />
-    <Carousel.Next
+    <Carousel.Next     onClick={handleNext} 
       class="right-8 disabled:invisible text-bold text-[#015a62] dark:text-white"
     />
   </Carousel.Root>
