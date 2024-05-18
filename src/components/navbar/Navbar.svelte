@@ -62,18 +62,18 @@
       text: "Live",
       href: `/session/${sessionId}`,
     },
-    // {
-    //   text: "Playback",
-    //   href: `/playback/${sessionId}`,
-    // },
-    // {
-    //   text: "Events",
-    //   href: `/events/${sessionId}`,
-    // },
-    // {
-    //   text: "Gallery",
-    //   href: `/gallery/${sessionId}`,
-    // },
+    {
+      text: "Playback",
+      href: `/playback/${sessionId}`,
+    },
+    {
+      text: "Events",
+      href: `/events/${sessionId}`,
+    },
+    {
+      text: "Gallery",
+      href: `/gallery/${sessionId}`,
+    },
     {
       text: "Configuration",
       href: `/configuration/${sessionId}`,
@@ -352,4 +352,3 @@
     {/each}
   </nav>
 </header>
-

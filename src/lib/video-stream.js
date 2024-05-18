@@ -8,6 +8,22 @@ export class VideoStream extends VideoRTC {
   /**
    * Custom GUI
    */
+
+  // async checkCodec() {
+  //   const pc = new RTCPeerConnection(this.pcConfig);
+  //   const offer = await pc.createOffer();
+  //   const sdp = offer.sdp;
+  //   console.log(sdp)
+  //   pc.close();
+
+  //   if (sdp.includes("H265") || sdp.includes("hvc1")) {
+  //     return ["h265",sdp];
+  //   } else {
+  //     return ["h264",sdp,offer];
+  //   }
+  // }
+
+
   oninit() {
     console.debug("stream.oninit");
     super.oninit();
@@ -16,6 +32,7 @@ export class VideoStream extends VideoRTC {
   onconnect() {
     console.debug("stream.onconnect");
     const result = super.onconnect();
+    // console.log(result)
     if (result) this.divMode = "loading";
     return result;
   }
@@ -31,8 +48,10 @@ export class VideoStream extends VideoRTC {
   onopen() {
     console.debug("stream.onopen");
     const result = super.onopen();
-
+    // console.log(result)
     this.onmessage["stream"] = (msg) => {
+      // console.log(msg)
+      // console.log(msg.type)
       console.debug("stream.onmessge", msg);
       switch (msg.type) {
         case "error":

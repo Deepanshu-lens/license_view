@@ -771,7 +771,7 @@
              `}
                   >
                     <img
-                      class="object-cover w-16 h-16 rounded-md"
+                      class="object-cover w-16 h-16 rounded-md flex-shrink-0"
                       src={"data:image/jpeg;base64," + event.frameImage}
                       alt="Team Member"
                     />
@@ -788,7 +788,7 @@
                         />
                       </CarDetailsDialog>
                     {/if}
-                    <div>
+                    <div class="w-full">
                       <h3 class={"font-semibold text-sm"}>
                         {#if event.title.includes("car") && event.description !== ""}
                           {event.description} {event.title}
@@ -805,7 +805,7 @@
                           )[0].name}
                       </p>
                       <span
-                        class="flex items-center justify-between border-b border-solid border-[#1c1c1c]/.1 gap-2"
+                        class="flex items-center justify-between border-b border-solid border-[#1c1c1c]/.1 gap-2 w-full"
                       >
                         <p class="text-[10px] text-[#D28E3D] font-medium">
                           {event.matchScore !== 0 &&

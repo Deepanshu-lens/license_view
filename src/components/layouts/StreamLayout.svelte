@@ -1,5 +1,5 @@
 <script lang="ts">
-	import  PocketBase  from 'pocketbase';
+  import PocketBase from "pocketbase";
   import { mode } from "mode-watcher";
   import { activeCamera, topPanelHide } from "@/lib/stores";
   import { cn } from "@/lib";
@@ -41,7 +41,7 @@
 
   const neededUrl = $page.url.hostname;
 
-  const initVideo = (camera: Camera) => {
+  const initVideo = async (camera: Camera) => {
     if (videos[camera.id]) {
       console.log("first");
       return;
@@ -49,7 +49,11 @@
     console.log("camera init", camera);
     let video = document.createElement("video-stream") as VideoStreamType;
     video.id = `stream-${camera.id}`;
+    // const codec = await  video.checkCodec()
+    // console.log(codec)
+
     video.mode = $page.url.hostname.includes("116") ? "mse" : "webrtc";
+    // video.mode = 'mse'
     video.url = camera.url;
     camera?.subUrl?.length === 0
       ? (video.src = new URL(
@@ -67,6 +71,7 @@
     video.background = true;
     video.visibilityCheck = false;
     videos[camera.id] = video;
+    console.log(videos[camera.id]);
   };
 
   const singleFullscreen = (slotIndex: number) => {
@@ -99,7 +104,7 @@
         );
         const matchingCameraId = matchingCamera ? matchingCamera.id : null;
         if (matchingCameraId !== null) {
-          isSingleFullscreen = false
+          isSingleFullscreen = false;
           videos[matchingCameraId].remove();
           delete videos[matchingCameraId];
           initVideo(matchingCamera);
@@ -131,35 +136,35 @@
     const startIndex = slideIndex * $selectedNode.maxStreamsPerPage;
     const endIndex = startIndex + $selectedNode.maxStreamsPerPage;
     const camerasOnSlide = $selectedNode.camera.slice(startIndex, endIndex);
-    const cameraIds = camerasOnSlide.map(camera => camera.id);
-    console.log('Camera IDs on current slide:', cameraIds);
+    const cameraIds = camerasOnSlide.map((camera) => camera.id);
+    console.log("Camera IDs on current slide:", cameraIds);
     // Call your function here with cameraIds
-    console.log(camerasOnSlide)
+    console.log(camerasOnSlide);
     // yourFunction(cameraIds);
-cameraIds.forEach(cameraId => {
-  console.log('cameraId refreshing',cameraId)
-  refreshVideoStream(cameraId);
-});
+    cameraIds.forEach((cameraId) => {
+      console.log("cameraId refreshing", cameraId);
+      refreshVideoStream(cameraId);
+    });
   }
 
   function handlePrevious() {
     if (slideIndex > 0) {
       slideIndex -= 1;
     }
-    handleSlideChange()
+    handleSlideChange();
   }
-  
+
   function handleNext() {
     if (slideIndex < totalPages - 1) {
       slideIndex += 1;
     }
-    handleSlideChange()
+    handleSlideChange();
   }
 
-  $: console.log(slideIndex)
+  // $: console.log(slideIndex);
 
   const updateLayout = (maxStreamsPerPage: number) => {
-    slideIndex = 0
+    slideIndex = 0;
     $selectedNode.camera.map((c) => {
       if (!videos[c.id]) {
         initVideo(c);
@@ -236,6 +241,15 @@ cameraIds.forEach(cameraId => {
         chosenClass: "chosen",
         dragClass: "dragged",
         handle: ".grab-handle",
+        onEnd: function (evt) {
+          // Get the new order of elements
+          console.log(evt);
+          const newOrder = Array.from(cells.children).map((child) => child.id);
+          const draggedElement = evt.item;
+
+          // Update the list with the new order
+          updateListWithNewOrder(newOrder, draggedElement);
+        },
       });
     } else {
       console.log("first");
@@ -244,23 +258,30 @@ cameraIds.forEach(cameraId => {
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
   onMount(async () => {
-    PB.collection('configuration').subscribe('*', (e) => {
-      console.log('new update in gallery',e.action,e.record)
-      if(e.action === 'create') {
-        const cameraIdsAndUrls = $selectedNode.camera.map(camera => ({ id: camera.id, url: camera.url }));
-        const cameraUrl = e.record.ipAddr
-        const cameraUrlExists = cameraIdsAndUrls.some(camera => camera.url.includes(cameraUrl));
+    PB.collection("configuration").subscribe("*", (e) => {
+      console.log("new update in gallery", e.action, e.record);
+      if (e.action === "create") {
+        const cameraIdsAndUrls = $selectedNode.camera.map((camera) => ({
+          id: camera.id,
+          url: camera.url,
+        }));
+        const cameraUrl = e.record.ipAddr;
+        const cameraUrlExists = cameraIdsAndUrls.some((camera) =>
+          camera.url.includes(cameraUrl),
+        );
         if (cameraUrlExists) {
-          const cam = cameraIdsAndUrls.find(camera => camera.url.includes(cameraUrl))
-          console.log('refreshing cam from subscription',cam)
+          const cam = cameraIdsAndUrls.find((camera) =>
+            camera.url.includes(cameraUrl),
+          );
+          console.log("refreshing cam from subscription", cam);
           setTimeout(() => {
             refreshVideoStream(cam?.id);
           }, 2000);
         }
       }
-    })
-  })
-  
+    });
+  });
+
   // onMount(() => {
   //   if ($selectedNode.camera.length > 0) {
   //     const refreshInterval = 120000;
@@ -283,14 +304,36 @@ cameraIds.forEach(cameraId => {
   // });
 
   onDestroy(() => {
-    PB.collection('configuration').unsubscribe('*')
-  })
+    PB.collection("configuration").unsubscribe("*");
+  });
 
   $: bigCellIndex = [10, 13, 5, 7].includes($selectedNode.maxStreamsPerPage)
     ? 0
     : null;
+
   function setBigCell(index) {
     bigCellIndex = index;
+  }
+
+  function updateListWithNewOrder(newOrder, draggedItem) {
+    // Perform actions to update the list with the new order
+    console.log("New order of elements:", newOrder);
+    console.log("dragged item", draggedItem);
+    const cell = document.getElementById("grid-cell-0");
+    const stream = cell?.querySelector("video-stream");
+    if (stream) {
+      const matchingCamera = $selectedNode.camera.find(
+        (c) => c.url === stream.url,
+      );
+      const matchingCameraId = matchingCamera ? matchingCamera.id : null;
+
+      console.log(matchingCameraId);
+    } else {
+      console.log("here");
+    }
+    // Example: Update the state or data structure with the new order
+    // Replace this with your actual implementation
+    // list = newOrder;
   }
 </script>
 
@@ -624,10 +667,12 @@ cameraIds.forEach(cameraId => {
         </Carousel.Item>
       {/each}
     </Carousel.Content>
-    <Carousel.Previous onClick={handlePrevious} 
+    <Carousel.Previous
+      onClick={handlePrevious}
       class="left-8 disabled:invisible text-bold text-[#015a62] dark:text-white"
     />
-    <Carousel.Next     onClick={handleNext} 
+    <Carousel.Next
+      onClick={handleNext}
       class="right-8 disabled:invisible text-bold text-[#015a62] dark:text-white"
     />
   </Carousel.Root>

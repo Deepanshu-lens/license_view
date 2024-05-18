@@ -281,6 +281,7 @@
                   return;
                 });
                 toast(`${newData[nodeIndex].name} updated to ${newNodeName}!`);
+                newData[nodeIndex].name = newNodeName;
                 nodeModify = false;
               }}
             >
@@ -607,7 +608,7 @@
               <th
                 class="text-left py-3 px-4 border-r-[1px] border-solid dark:border-[#929292]"
               >
-                Vechile
+                Vehicle
               </th>
               <th class="text-left py-3 px-4">Save</th>
             </tr>

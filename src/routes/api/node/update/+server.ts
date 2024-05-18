@@ -6,9 +6,8 @@ export const PATCH: RequestHandler = async ({
 }: RequestEvent) => {
   console.log("Editing Node");
   const data = await request.json();
-  console.log(data);
 
-  const node = await locals.pb?.collection("node").update(data.id, {
+  await locals.pb?.collection("node").update(data.id, {
     name: data.name,
   });
 

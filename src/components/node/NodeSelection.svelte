@@ -1,6 +1,8 @@
 <script lang="ts">
+	import AddCameraDialog  from '@/components/dialogs/AddCameraDialog.svelte';
+	import EditNodeDialog from './../dialogs/EditNodeDialog.svelte';
   import type { Node } from "@/types";
-  import { Trash } from "lucide-svelte";
+  import { Edit, PlusCircle, Trash } from "lucide-svelte";
   import { selectedNode } from "@/lib/stores";
   import Button from "../ui/button/button.svelte";
   import { toast } from "svelte-sonner";
@@ -72,9 +74,9 @@
 <div
   class={`flex justify-between items-center py-0.5 px-4 border-b-[1px] w-full`}
 >
-  <div class={`relative inline-block w-full ${isAllFullScreen && "bg-black"}`}>
+  <div class={`relative inline-block w-max min-w-[100px] ${isAllFullScreen && "bg-black"}`}>
     <select
-      class={`block text-primary outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 pr-8 rounded leading-tight `}
+      class={`block text-primary outline-none capitalize border-none font-semibold appearance-none w-[100px] ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
       value={$selectedNode && $selectedNode.name}
       on:change={handleNodeSelect}
     >
@@ -104,13 +106,31 @@
     </div>
   </div>
   {#if url.includes(`/session/`)}
+  <span class="flex items-center gap-2 justify-between">
+    <AddCameraDialog sNode={''}>
+      <span
+      class={`w-[26px] h-[26px] bg-[#F9F9F9] rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center`}
+      >
+
+        <PlusCircle size={18} class='text-[#727272]'/>
+      </span>
+    </AddCameraDialog>
+    <EditNodeDialog>
+      <span
+    class={`w-[26px] h-[26px] bg-[#F9F9F9] rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center`}
+      >
+        <Edit size={18} class='text-[#727272]'/>
+      </span>
+    </EditNodeDialog>
     <AlertDeleteNode onDelete={onDeleteNode}
-      ><Button
-        variant="ghost"
-        size="icon"
-        class={` ${isAllFullScreen && "text-primary"}`}
-        ><Trash size={18} /></Button
-      ></AlertDeleteNode
-    >{/if}
+    ><Button
+    variant="ghost"
+    size="icon"
+    class={`w-[26px] h-[26px] bg-[#F9F9F9] rounded-full ${isAllFullScreen && "text-primary"}`}
+    ><Trash size={18} class='text-[#727272]'/></Button
+    ></AlertDeleteNode
+    >
+  </span>
+  {/if}
   <AddNodeModal {showAddNode} />
 </div>

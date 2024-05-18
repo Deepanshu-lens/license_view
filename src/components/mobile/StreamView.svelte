@@ -149,16 +149,17 @@
       {#if landscape}
         <Carousel.Root
           class="w-full h-full flex justify-center items-center"
-          opts={{ watchDrag: true }}
+          opts={{ watchDrag: false }}
         >
           <Carousel.Content class="w-full h-full mx-0 px-0">
-            {#each Array.from( { length: cameraCount && cameraCount > 1 ? Math.ceil(cameraCount / $selectedNode.mobileLayout !== 1 ? cameraCount : 1) : 1 }, ) as _, slideIndex}
+            <!-- {#each Array.from( { length: cameraCount && cameraCount > 1 ? Math.ceil(cameraCount / $selectedNode.mobileLayout !== 1 ? cameraCount : 1) : 1 }, ) as _, slideIndex} -->
+            {#each Array.from( { length: cameraCount > 0 ? ($selectedNode.mobileLayout === 1 ? cameraCount : Math.ceil(cameraCount / 2)) : 1 }, ) as _, slideIndex}
               <Carousel.Item
                 class="h-full w-full px-0 mx-0"
                 id="carousel-slide-landscape"
               >
                 <div
-                  class="grid place-items-center ml-10 w-[calc(100vh-200px)] h-[100vw] grid-cols-{$selectedNode.mobileLayout}"
+                  class="flex items-center w-[calc(100vh-98px)] ml-10 h-[100vw] grid-cols-{$selectedNode.mobileLayout}"
                   id={`slide-${slideIndex}`}
                 >
                   {#if cameraCount > 0}
@@ -168,20 +169,23 @@
                       {#if cameraIdx < cameraCount}
                         <div
                           id={`stream-${$selectedNode.name}-${cameraIdx}`}
-                          class="relative z-10 h-[80%] w-[80%]"
+                          class={$selectedNode.mobileLayout === 1
+                            ? "relative z-10 h-[100%] w-[80%] "
+                            : "relative z-10 h-[100%] w-[42%]"}
                         >
                           <Stream
                             videoElement={videos[
-                              $selectedNode.camera[index].id
+                              $selectedNode.camera[cameraIdx].id
                             ]}
-                            camera={$selectedNode.camera[index]}
+                            camera={$selectedNode.camera[cameraIdx]}
                           />
                           <span
-                            class="flex gap-2 bg-[rgba(255,255,255,.68)] py-1 px-3 absolute -top-8 left-1/2 -translate-x-1/2 items-center rounded-xl scale-[.80] z-20 text-[#C20D02]"
+                            class="flex gap-2 bg-[rgba(0,0,0,.5)] py-1 px-3 absolute top-2 left-1/2 -translate-x-1/2 items-center rounded-xl scale-[.80] z-20 text-white"
                           >
-                            <Disc2 />
+                            <!-- <Disc2 /> -->
+                            <span class="h-2 w-2 bg-[#589e67] rounded-full" />
                             <span class="text-xs font-extrabold"
-                              >{$selectedNode.camera[index].name} Rec
+                              >{$selectedNode.camera[cameraIdx].name} Rec
                             </span>
                           </span>
                           <button
@@ -191,9 +195,9 @@
                               );
                               cell?.requestFullscreen();
                             }}
-                            class="p-3 grid place-items-center absolute left-0 -top-10 text-white"
+                            class=" rounded-lg p-1 grid place-items-center absolute left-2 top-2 text-white z-20 bg-[rgba(0,0,0,.5)]"
                           >
-                            <Expand />
+                            <Expand size={18} />
                           </button>
                         </div>
                       {/if}
@@ -203,13 +207,12 @@
               </Carousel.Item>
             {/each}
           </Carousel.Content>
-          <!-- <Carousel.Previous
-            class="-right-8 text-bold text-[#015a62] dark:text-white"
-            id="carousel-prev"
+          <Carousel.Previous
+            class="left-12 text-bold text-[#015a62] dark:text-white"
           />
           <Carousel.Next
-            class="right-0 text-bold text-[#015a62] dark:text-white"
-          /> -->
+            class="right-4 text-bold text-[#015a62] dark:text-white"
+          />
         </Carousel.Root>
       {:else}
         <div
@@ -241,15 +244,16 @@
                       ? "relative bg-white shadow-smol flex flex-col max-w-[47.5%] z-10"
                       : activeStreamIndex === index &&
                           $selectedNode.mobileLayout === 1
-                        ? "relative bg-white shadow-smol flex flex-col w-[98%] h-auto mx-auto  border-2 border-solid border-[#2952e1] z-10"
-                        : "relative bg-white shadow-smol flex flex-col w-[98%] h-auto mx-auto z-10"}
+                        ? "relative bg-white shadow-smol flex flex-col w-[98%] h-auto max-h-[230px] mx-auto  border-2 border-solid border-[#2952e1] z-10"
+                        : "relative bg-white shadow-smol flex flex-col w-[98%] h-auto max-h-[230px] mx-auto z-10"}
                 >
                   <Stream videoElement={videos[item.id]} camera={item} />
 
                   <span
-                    class="flex gap-2 text-[#C20D02] bg-[rgba(255,255,255,.68)] py-1 px-3 absolute top-1 -left-2 items-center rounded-xl scale-75 z-30"
+                    class="flex gap-2 text-white bg-[rgba(0,0,0,.5)] py-1 px-3 absolute top-1 -left-2 items-center rounded-xl scale-75 z-30"
                   >
-                    <Disc2 />
+                    <!-- <Disc2 /> -->
+                    <span class="h-2 w-2 bg-[#589e67] rounded-full" />
                     <span class="text-xs font-extrabold">
                       {item?.name} - Rec
                     </span>
@@ -404,14 +408,14 @@
                   }}
                   class={activeStreamIndex === index &&
                   $selectedNode.mobileLayout === 2
-                    ? "relative border-2 border-solid border-[#2952e1]"
+                    ? "relative border-2 border-solid border-[#2952e1] max-h-[110px]"
                     : activeStreamIndex !== index &&
                         $selectedNode.mobileLayout === 2
-                      ? "relative border-[1px] border-solid border-transparent"
+                      ? "relative border-[1px] border-solid border-transparent max-h-[110px]"
                       : activeStreamIndex === index &&
                           $selectedNode.mobileLayout === 1
-                        ? "relative border-2 border-solid border-[#2952e1] "
-                        : "relative border-2 border-solid border-transparent "}
+                        ? "relative border-2 border-solid border-[#2952e1] max-h-[230px]"
+                        : "relative border-2 border-solid border-transparent max-h-[230px]"}
                 >
                   <!-- {$selectedNode.camera[index].id} -->
                   <!-- {JSON.stringify($selectedNode.camera[index])} -->
@@ -420,9 +424,11 @@
                     camera={$selectedNode.camera[index]}
                   />
                   <span
-                    class="flex gap-2 bg-[rgba(255,255,255,.68)] text-[#C20D02] py-1 px-3 absolute top-2 left-0 items-center rounded-xl scale-75 z-10"
+                    class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute top-2 left-0 items-center rounded-xl scale-75 z-10"
                   >
-                    <Disc2 />
+                    <!-- <Disc2 /> -->
+                    <span class="h-2 w-2 bg-[#589e67] rounded-full" />
+
                     <span class="text-xs font-extrabold">
                       {item?.name} - Rec
                     </span>

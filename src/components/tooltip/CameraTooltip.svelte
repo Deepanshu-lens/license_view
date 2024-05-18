@@ -13,11 +13,7 @@
 
   function onRename(newName: string) {
     if (icon === "") {
-      const oldName = name;
-
-      console.log(oldName);
-      console.log(newName);
-
+      console.log("updating camera");
       fetch("/api/camera/editCamera", {
         method: "put",
         headers: {
@@ -31,12 +27,29 @@
         }),
       })
         .then(() => {
-          toast(`${oldName} updated to ${newName}!`);
+          toast(`${name} updated to ${newName}!`);
+          name = newName;
           doRename = false;
         })
         .catch((err) => console.log(err));
     } else {
-      console.log(view);
+      console.log("updaing node");
+      fetch(`/api/node/update`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newName,
+          id: $selectedNode.id,
+        }),
+      })
+        .then((res) => {
+          toast(`${name} upadted to ${newName}!`);
+          name = newName;
+          doRename = false;
+        })
+        .catch((err) => console.log(err));
     }
   }
 
@@ -96,7 +109,7 @@
               class="block border-0 px-1 py-1 text-gray-900
                         placeholder:text-gray-400
                         bg-transparent
-                        max-w-[120px]
+                        sm:max-w-[120px] max-w-[100px]
                         focus:border-b-2
                         focus:border-indigo-600
                         dark:text-[#979797] sm:text-sm sm:leading-6"

@@ -130,7 +130,7 @@
         class={isAllFullScreen ? "text-white" : "text-black dark:text-white"}
       />
     </span>
-    <span class="relative">
+    <span class="relative w-full">
       <Input
         id="searchInput"
         type="text"
@@ -161,7 +161,7 @@
       </span>
     </span>
 
-    <AddCameraDialog sNode={""}>
+    <!-- <AddCameraDialog sNode={""}>
       <svg
         on:click={() => {
           addUserLog("user clicked on addCamera cameralist");
@@ -180,7 +180,7 @@
             : `${isAllFullScreen ? "#fff" : "#000"}`}
         />
       </svg>
-    </AddCameraDialog>
+    </AddCameraDialog> -->
   </div>
   <!-- END Camera Filtering -->
 
