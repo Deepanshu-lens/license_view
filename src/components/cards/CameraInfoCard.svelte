@@ -25,7 +25,10 @@
   export let saveFolder: string;
   export let motion: number;
   export let priority: boolean;
+  export let features;
   // CODE
+
+  // console.log(features);
 
   const deleteCamera = () => {
     // const cell = document.getElementById(`stream-${cameraId}`);
@@ -80,16 +83,20 @@
       {!isNaN(parseInt(name)) && String(parseInt(name)) === name
         ? "Camera"
         : ``}{" "}
-      {name.length > 11 ? name.substring(0, 10) + "..." : name}
+      {name?.length > 11 ? name?.substring(0, 10) + "..." : name}
     </h3>
-    <p class="text-xs">{url?.split("@")?.[1]?.split("/")?.[0].split(":")[0]}</p>
+    <p class="text-xs">
+      {url?.split("@")?.[1]?.split("/")?.[0]?.split(":")?.[0]}
+    </p>
   </div>
 
   <ul class="flex flex-row gap-2 ml-auto p-0 list-none cursor-pointer">
     <li class="cursor-pointer hover:scale-125">
+      <!-- {#if features && features.includes("camera settings")} -->
       <CameraEditDialog {name} {url} {cameraId}>
         <Edit class="h-4 w-4" />
       </CameraEditDialog>
+      <!-- {/if} -->
     </li>
     <li
       class="cursor-pointer hover:scale-125"

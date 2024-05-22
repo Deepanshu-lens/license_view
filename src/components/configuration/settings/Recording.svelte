@@ -133,118 +133,137 @@
   </div>
   <div class="h-[1px] w-[96%] dark:bg-[#242424] mb-8 bg-[#e0e0e0]" />
   {#if selected === 1}
-    <h2 class="px-6 font-medium mb-4">Recording mode</h2>
-    <div class="h-[1px] w-[96%] dark:bg-[#242424] mb-8" />
-    <form class=" flex items-center justify-center gap-4 w-[75%] mb-8 px-6">
-      {#each recordingOptions as { id, label }}
-        <div class="flex gap-4 w-full">
-          <label>
-            <input
-              type="radio"
-              name="delayOption"
-              class="cursor-pointer"
-              bind:group={recordingType}
-              value={id}
-            />
-            {label}</label
-          >
-        </div>
-      {/each}
-    </form>
-    {#if recordingType === 1}
-      <p class="text-[#3B7C26] opacity-90 text-sm px-6 mt-4 mb-8">
-        <span class="dark:text-[#929292] text-black/[.8] text-sm mr-1">
-          Note:
-        </span>
-        Frame lag possible
-      </p>
-    {:else if recordingType === 2}
-      <p class="text-[#FB8A2E] opacity-90 text-sm px-6 mt-4 mb-8">
-        <span class="dark:text-[#929292] text-black/[.8] text-sm mr-1">
-          Note:
-        </span>
-        Frame consistent but quality issues can appear at times
-      </p>
-    {:else if recordingType === 3}
-      <p class="text-[#EF4444] opacity-90 text-sm px-6 mt-4 mb-8">
-        <span class="dark:text-[#929292] text-black/[.8] text-sm mr-1">
-          Note:
-        </span>
-        Will run few seconds behind live but ensures consistent high quality stream
-      </p>
-    {:else}
+    <div
+      class=" w-[94.5%] my-4 pt-8 shad mx-6 border-black/[.08] border-[1px] border-solid"
+    >
+      <h2 class="px-6 font-medium mb-4">Recording mode</h2>
       <div
-        class="flex text-black dark:text-white opacity-90 text-sm gap-4 items-center px-6 mt-4 mb-8"
-      >
-        <span class="text-[#333] dark:text-[#929292] text-sm"> Select: </span>
-        {#each bufferOptions as { id, label }}
-          <label>
-            <input
-              type="radio"
-              name="custom delay"
-              class="cursor-pointer"
-              bind:group={bufferType}
-              value={id}
-            />
-            {label}</label
-          >
+        class="h-[1px] dark:bg-[#292929] ml-2 mb-4 bg-[#e0e0e0] mt-8 w-[95%]"
+      />
+      <form class=" flex items-center justify-center gap-4 w-[75%] mb-8 px-6">
+        {#each recordingOptions as { id, label }}
+          <div class="flex gap-4 w-full">
+            <label>
+              <input
+                type="radio"
+                name="delayOption"
+                class="cursor-pointer"
+                bind:group={recordingType}
+                value={id}
+              />
+              {label}</label
+            >
+          </div>
         {/each}
-      </div>
-    {/if}
+      </form>
+      {#if recordingType === 1}
+        <p class="text-[#3B7C26] opacity-90 text-sm px-6 mt-4 mb-8">
+          <span class="dark:text-[#929292] text-black/[.8] text-sm mr-1">
+            Note:
+          </span>
+          Frame lag possible
+        </p>
+      {:else if recordingType === 2}
+        <p class="text-[#FB8A2E] opacity-90 text-sm px-6 mt-4 mb-8">
+          <span class="dark:text-[#929292] text-black/[.8] text-sm mr-1">
+            Note:
+          </span>
+          Frame consistent but quality issues can appear at times
+        </p>
+      {:else if recordingType === 3}
+        <p class="text-[#EF4444] opacity-90 text-sm px-6 mt-4 mb-8">
+          <span class="dark:text-[#929292] text-black/[.8] text-sm mr-1">
+            Note:
+          </span>
+          Will run few seconds behind live but ensures consistent high quality stream
+        </p>
+      {:else}
+        <div
+          class="flex text-black dark:text-white opacity-90 text-sm gap-4 items-center px-6 mt-4 mb-8"
+        >
+          <span class="text-[#333] dark:text-[#929292] text-sm"> Select: </span>
+          {#each bufferOptions as { id, label }}
+            <label>
+              <input
+                type="radio"
+                name="custom delay"
+                class="cursor-pointer"
+                bind:group={bufferType}
+                value={id}
+              />
+              {label}</label
+            >
+          {/each}
+        </div>
+      {/if}
+    </div>
   {/if}
   {#if selected === 2}
-    <h2 class="px-6 mb-4 font-medium">Recording Video Quality</h2>
-    <div class="h-[1px] w-[96%] dark:bg-[#242424] mb-8 bg-[#e0e0e0]" />
-    <form class=" flex items-start justify-center gap-4 w-[65%] mb-8 px-6">
-      {#each qualityOptions as { id, label }}
-        <div class="flex gap-4 w-full">
-          <label>
-            <input
-              type="radio"
-              name="delayOption"
-              class="cursor-pointer"
-              bind:group={recordingQuality}
-              value={id}
-            />
-            {label}</label
-          >
-        </div>
-      {/each}
-    </form>
-    <p
-      id="fadeElement"
-      class={`px-6 mt-4 mb-8 text-sm opacity-90 ${
-        recordingQuality === 1
-          ? "text-[#3B7C26]"
-          : recordingQuality === 2
-            ? "text-[#FB8A2E]"
-            : recordingQuality === 3
-              ? "text-[#FB8A2E]"
-              : recordingQuality === 4
-                ? "text-[#EF4444]"
-                : "text-[#EF4444]"
-      } `}
+    <div
+      class=" w-[94.5%] my-4 pt-8 shad mx-6 border-black/[.08] border-[1px] border-solid"
     >
-      <span class="dark:text-[#929292] text-black/[.8] text-sm mr-1">
-        Note:
-      </span>
-      {recordingQuality === 1
-        ? "Min space required to store, lowest stream quality"
-        : recordingQuality === 2
-          ? "Less space required to store"
-          : recordingQuality === 3
-            ? "Medium quality recording and decent space required"
-            : recordingQuality === 4
-              ? "Good quality stream and more space required"
-              : "Best quality stream but also requires most storage space"}
-    </p>
+      <h2 class="px-6 mb-4 font-medium">Recording Video Quality</h2>
+      <div
+        class="h-[1px] dark:bg-[#292929] ml-2 mb-4 bg-[#e0e0e0] mt-8 w-[95%]"
+      />
+      <form class=" flex items-start justify-center gap-4 w-[65%] mb-8 px-6">
+        {#each qualityOptions as { id, label }}
+          <div class="flex gap-4 w-full">
+            <label>
+              <input
+                type="radio"
+                name="delayOption"
+                class="cursor-pointer"
+                bind:group={recordingQuality}
+                value={id}
+              />
+              {label}</label
+            >
+          </div>
+        {/each}
+      </form>
+      <p
+        id="fadeElement"
+        class={`px-6 mt-4 mb-8 text-sm opacity-90 ${
+          recordingQuality === 1
+            ? "text-[#3B7C26]"
+            : recordingQuality === 2
+              ? "text-[#FB8A2E]"
+              : recordingQuality === 3
+                ? "text-[#FB8A2E]"
+                : recordingQuality === 4
+                  ? "text-[#EF4444]"
+                  : "text-[#EF4444]"
+        } `}
+      >
+        <span class="dark:text-[#929292] text-black/[.8] text-sm mr-1">
+          Note:
+        </span>
+        {recordingQuality === 1
+          ? "Min space required to store, lowest stream quality"
+          : recordingQuality === 2
+            ? "Less space required to store"
+            : recordingQuality === 3
+              ? "Medium quality recording and decent space required"
+              : recordingQuality === 4
+                ? "Good quality stream and more space required"
+                : "Best quality stream but also requires most storage space"}
+      </p>
+    </div>
   {/if}
   {#if selected === 3}
-    <h2 class="px-6 font-medium mb-4">Audio settings</h2>
-    <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
-    <div class="px-6 flex items-center justify-center gap-4">
-      <span>Record sound in live mode</span>
-      <Switch bind:checked={recAudio} />
+    <div
+      class=" w-[94.5%] my-4 pt-8 shad mx-6 border-black/[.08] border-[1px] border-solid"
+    >
+      <h2 class="px-6 font-medium mb-4">Audio settings</h2>
+      <div
+        class="h-[1px] dark:bg-[#292929] ml-2 mb-4 bg-[#e0e0e0] mt-8 w-[95%]"
+      />
+      <div class="px-6 flex items-center gap-4 mb-8">
+        <span>Record sound in live mode</span>
+
+        <Switch bind:checked={recAudio} />
+      </div>
     </div>
   {/if}
 
@@ -255,3 +274,9 @@
     Confirm
   </button>
 </div>
+
+<style>
+  .shad {
+    box-shadow: 0px 4px 4px 0px #0000000f;
+  }
+</style>

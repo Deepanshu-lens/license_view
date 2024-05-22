@@ -102,7 +102,6 @@
   }
 
   $: if (!dialogOpen) {
-    console.log("dialog not open");
     registrationImages.set([]);
     imposterImages.set([]);
     avgFeatures.set(null);

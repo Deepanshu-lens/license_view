@@ -87,92 +87,104 @@
   <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
 
   {#if selected === 1}
-    <h2 class="px-6 font-medium mb-4">Stream delay duration</h2>
-    <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
-    <form class=" flex items-center justify-center w-[60%] mb-8 px-6">
-      {#each delayOptions as { id, label }}
-        <div class="flex gap-4 w-full">
-          <label>
-            <input
-              type="radio"
-              name="delayOption"
-              class="cursor-pointer"
-              bind:group={delaytype}
-              value={id}
-            />
-            {label}</label
-          >
-        </div>
-      {/each}
-    </form>
-    <p
-      class={`px-6 mt-4 mb-8 text-sm opacity-90 animate-fade   ${
-        delaytype === 1
-          ? "text-[#3B7C26] "
-          : delaytype === 2
-            ? "text-[#FB8A2E] "
-            : "text-[#EF4444] "
-      } `}
+    <div
+      class=" w-[94.5%] my-4 pt-8 shad mx-6 border-black/[.08] border-[1px] border-solid"
     >
-      <span class="dark:text-[#929292] text-black/[.8] text-sm mr-1">
-        Note:
-      </span>
-      {delaytype === 1
-        ? "Frame lag possible"
-        : delaytype === 2
-          ? "Frame consistent but quality issues can appear at times"
-          : "Will run few seconds behind live but ensures consistent high quality stream"}
-    </p>
+      <h2 class="px-6 font-medium mb-4">Stream delay duration</h2>
+      <div
+        class="h-[1px] dark:bg-[#292929] ml-2 mb-4 bg-[#e0e0e0] mt-8 w-[95%]"
+      />
+      <form class=" flex items-center justify-center w-[60%] mb-8 px-6">
+        {#each delayOptions as { id, label }}
+          <div class="flex gap-4 w-full">
+            <label>
+              <input
+                type="radio"
+                name="delayOption"
+                class="cursor-pointer"
+                bind:group={delaytype}
+                value={id}
+              />
+              {label}</label
+            >
+          </div>
+        {/each}
+      </form>
+      <p
+        class={`px-6 mt-4 mb-8 text-sm opacity-90 animate-fade   ${
+          delaytype === 1
+            ? "text-[#3B7C26] "
+            : delaytype === 2
+              ? "text-[#FB8A2E] "
+              : "text-[#EF4444] "
+        } `}
+      >
+        <span class="dark:text-[#929292] text-black/[.8] text-sm mr-1">
+          Note:
+        </span>
+        {delaytype === 1
+          ? "Frame lag possible"
+          : delaytype === 2
+            ? "Frame consistent but quality issues can appear at times"
+            : "Will run few seconds behind live but ensures consistent high quality stream"}
+      </p>
+    </div>
   {/if}
   {#if selected === 2}
-    <h2 class="px-6 font-medium mb-4">Live stream resolution</h2>
-    <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
-    <form class=" flex items-center justify-center w-[70%] mb-8 px-6">
-      {#each resoOptions as { id, label }}
-        <div class="flex gap-4 w-full">
-          <label>
-            <input
-              type="radio"
-              class="cursor-pointer"
-              bind:group={resoType}
-              value={id}
-            />
-            {label}</label
-          >
-        </div>
-      {/each}
-    </form>
-    <p
-      id="fadeElement"
-      class={`px-6 mt-4 mb-8 text-sm opacity-90 ${
-        resoType === 1
-          ? "text-[#3B7C26]"
-          : resoType === 2
-            ? "text-[#FB8A2E]"
-            : resoType === 3
-              ? "text-[#FB8A2E]"
-              : resoType === 4
-                ? "text-[#EF4444]"
-                : resoType === 5
-                  ? "text-[#EF4444]"
-                  : "text-[#3B7C26]"
-      } `}
+    <div
+      class=" w-[94.5%] my-4 pt-8 shad mx-6 border-black/[.08] border-[1px] border-solid"
     >
-      <span class="dark:text-[#929292] text-black/[.8] text-sm mr-1">
-        Note:
-      </span>
-      {resoType === 1
-        ? "For smooth lag, free streams"
-        : resoType === 2
-          ? "Frame consistent but quality issues"
-          : resoType === 3
-            ? "Minor lag could be there"
-            : resoType === 4
-              ? "Intermittent frames lag could be observed"
-              : resoType === 5
-                ? "Frame lag is expected frequently"
-                : "Decided based on the number of cameras"}
-    </p>
+      <h2 class="px-6 font-medium mb-4">Live stream resolution</h2>
+      <div
+        class="h-[1px] dark:bg-[#292929] ml-2 mb-4 bg-[#e0e0e0] mt-8 w-[95%]"
+      />
+      <form class=" flex items-center justify-center w-[70%] mb-8 px-6">
+        {#each resoOptions as { id, label }}
+          <div class="flex gap-4 w-full">
+            <label>
+              <input
+                type="radio"
+                class="cursor-pointer"
+                bind:group={resoType}
+                value={id}
+              />
+              {label}</label
+            >
+          </div>
+        {/each}
+      </form>
+      <p
+        id="fadeElement"
+        class={`px-6 mt-4 mb-8 text-sm opacity-90 ${
+          resoType === 1
+            ? "text-[#3B7C26]"
+            : resoType === 2
+              ? "text-[#FB8A2E]"
+              : resoType === 3
+                ? "text-[#FB8A2E]"
+                : resoType === 4
+                  ? "text-[#EF4444]"
+                  : resoType === 5
+                    ? "text-[#EF4444]"
+                    : "text-[#3B7C26]"
+        } `}
+      >
+        <span class="dark:text-[#929292] text-black/[.8] text-sm mr-1">
+          Note:
+        </span>
+        {resoType === 1
+          ? "For smooth lag, free streams"
+          : resoType === 2
+            ? "Frame consistent but quality issues"
+            : resoType === 3
+              ? "Minor lag could be there"
+              : resoType === 4
+                ? "Intermittent frames lag could be observed"
+                : resoType === 5
+                  ? "Frame lag is expected frequently"
+                  : "Decided based on the number of cameras"}
+      </p>
+    </div>
   {/if}
 
   <button
@@ -182,3 +194,9 @@
     Confirm
   </button>
 </div>
+
+<style>
+  .shad {
+    box-shadow: 0px 4px 4px 0px #0000000f;
+  }
+</style>

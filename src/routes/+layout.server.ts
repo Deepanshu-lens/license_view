@@ -53,12 +53,32 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
           filter: `session~"${locals.user.record.session[0]}"`,
         });
 
+        const role = await locals.pb?.collection("roles").getFullList({
+          filter: `id~"${currentUser.role}"`,
+        });
+
+        // console.log(role);
+
+        const featureList = await locals.pb
+          ?.collection("feature")
+          .getFullList();
+
+        // console.log(featureList);
+
+        const matchedFeatures = featureList
+          ?.filter((feature) => role?.[0]?.features?.includes(feature.id))
+          ?.map((feature) => feature.feature);
+
+        console.log(matchedFeatures);
+
         return {
           loggedIn: locals.pb?.authStore.isValid,
           user: {
             name: locals.user.record.name,
             email: locals.user.record.email,
             session: locals.user.record.session[0],
+            role: role[0].roleName,
+            features: matchedFeatures,
           } as User,
           session: { ...session },
           nodes: structuredClone(nodes),

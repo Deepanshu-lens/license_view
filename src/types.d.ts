@@ -2,6 +2,8 @@ export type User = {
   name: string;
   email: string;
   session: string;
+  role;
+  features;
 };
 
 export type Camera = {

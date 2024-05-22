@@ -28,7 +28,7 @@
   export let logs: UserLog;
   export let data: PageServerData;
   export let sessionId;
-  console.log(data);
+
   $: {
     const searchParams = new URLSearchParams($page.url.search);
     search = searchParams.get("section");

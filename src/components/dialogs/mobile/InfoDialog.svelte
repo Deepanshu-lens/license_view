@@ -25,7 +25,7 @@
 
   $: {
     filteredCameras = $selectedNode?.camera?.filter((value) =>
-      value.name.toLowerCase().includes(searchInput.toLowerCase()),
+      value?.name?.toLowerCase()?.includes(searchInput?.toLowerCase()),
     );
   }
 </script>

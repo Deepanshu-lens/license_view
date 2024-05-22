@@ -43,7 +43,7 @@
 
   const initVideo = async (camera: Camera) => {
     if (videos[camera.id]) {
-      console.log("first");
+      console.log("video c.id exists", camera.name);
       return;
     }
     console.log("camera init", camera);
@@ -53,7 +53,6 @@
     // console.log(codec)
 
     video.mode = $page.url.hostname.includes("116") ? "mse" : "webrtc";
-    // video.mode = 'mse'
     video.url = camera.url;
     camera?.subUrl?.length === 0
       ? (video.src = new URL(
@@ -164,15 +163,18 @@
   // $: console.log(slideIndex);
 
   const updateLayout = (maxStreamsPerPage: number) => {
+    console.log("update layout called ", $selectedNode.name);
+    console.log($selectedNode);
     slideIndex = 0;
     $selectedNode.camera.map((c) => {
       if (!videos[c.id]) {
+        console.log(c);
         initVideo(c);
       } else {
         if (videos[c.id].url !== c.url) {
           videos[c.id].url = c.url;
           videos[c.id].src = new URL(
-            `ws://${neededUrl}:8082/api/ws?src=${c.id}&camID=${c.id}&nodeID=${1}`,
+            `ws://${neededUrl}:8082/api/ws?src=${c.id}&nodeID=${1}`,
           );
         }
       }
@@ -282,30 +284,97 @@
     });
   });
 
+  onDestroy(() => {
+    PB.collection("configuration").unsubscribe("*");
+  });
+
   // onMount(() => {
   //   if ($selectedNode.camera.length > 0) {
-  //     const refreshInterval = 120000;
+  //     const refreshInterval = 20000;
 
   //     const refreshCameras = () => {
   //       $selectedNode.camera.forEach((camera, index) => {
   //         setTimeout(() => {
   //           refreshVideoStream(camera.id);
-  //           console.log('refreshing camera with index & name:',index, camera.name)
+  //           console.log(
+  //             "refreshing camera with index & name:",
+  //             index,
+  //             camera.name,
+  //           );
   //         }, refreshInterval * index);
   //       });
   //     };
 
   //     refreshCameras();
-  //     const intervalId = setInterval(refreshCameras, refreshInterval * $selectedNode.camera.length);
+  //     const intervalId = setInterval(
+  //       refreshCameras,
+  //       refreshInterval * $selectedNode.camera.length,
+  //     );
   //     onDestroy(() => {
   //       clearInterval(intervalId);
   //     });
   //   }
   // });
 
-  onDestroy(() => {
-    PB.collection("configuration").unsubscribe("*");
-  });
+  // onMount(() => {
+  //   if ($selectedNode.camera.length > 0) {
+  //     const refreshInterval = 20000;
+  //     let currentIndex = 0;
+
+  //     const refreshCameras = () => {
+  //       const camera = $selectedNode.camera[currentIndex];
+  //       if (camera) {
+  //         refreshVideoStream(camera.id);
+  //         console.log(
+  //           "refreshing camera with index & name:",
+  //           currentIndex,
+  //           camera.name,
+  //         );
+  //       }
+  //       currentIndex = (currentIndex + 1) % $selectedNode.camera.length;
+  //     };
+
+  //     refreshCameras();
+  //     const intervalId = setInterval(refreshCameras, refreshInterval);
+
+  //     onDestroy(() => {
+  //       clearInterval(intervalId);
+  //     });
+  //   }
+  // });
+
+  // onMount(() => {
+  //   if ($selectedNode.camera.length > 0) {
+  //     const refreshInterval = 120000;
+  //     let currentIndex = 0;
+
+  //     const refreshCameras = () => {
+  //       if (currentIndex < $selectedNode.camera.length) {
+  //         const camera = $selectedNode.camera[currentIndex];
+  //         refreshVideoStream(camera.id);
+  //         console.log(
+  //           "refreshing camera with index & name:",
+  //           currentIndex,
+  //           camera.name,
+  //         );
+  //         currentIndex++;
+  //         requestAnimationFrame(refreshCameras);
+  //       } else {
+  //         currentIndex = 0;
+  //         setTimeout(
+  //           () => requestAnimationFrame(refreshCameras),
+  //           refreshInterval,
+  //         );
+  //       }
+  //     };
+
+  //     requestAnimationFrame(refreshCameras);
+
+  //     // onDestroy(() => {
+  //     //   currentIndex = $selectedNode.camera.length; // Stop the loop
+  //     // });
+  //   }
+  // });
 
   $: bigCellIndex = [10, 13, 5, 7].includes($selectedNode.maxStreamsPerPage)
     ? 0

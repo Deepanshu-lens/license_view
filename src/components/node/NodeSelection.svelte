@@ -1,7 +1,7 @@
 <script lang="ts">
-	import AddCameraDialog  from '@/components/dialogs/AddCameraDialog.svelte';
-	import EditNodeDialog from './../dialogs/EditNodeDialog.svelte';
-  import type { Node } from "@/types";
+  import AddCameraDialog from "@/components/dialogs/AddCameraDialog.svelte";
+  import EditNodeDialog from "./../dialogs/EditNodeDialog.svelte";
+  import type { Camera, Node } from "@/types";
   import { Edit, PlusCircle, Trash } from "lucide-svelte";
   import { selectedNode } from "@/lib/stores";
   import Button from "../ui/button/button.svelte";
@@ -9,12 +9,16 @@
   import AlertDeleteNode from "../dialogs/alerts/AlertDeleteNode.svelte";
   import { cn } from "@/lib";
   import AddNodeModal from "../modal/AddNodeModal.svelte";
+  import { page } from "$app/stores";
   import { addUserLog } from "@/lib/addUserLog";
-  // import * as Select from "../ui/select";
+  import PocketBase from "pocketbase";
+
   export let url: string;
   export let nodes: Node[];
   export let isAllFullScreen: boolean;
   let showAddNode = false;
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  console.log($page);
 
   const onDeleteNode = () => {
     // console.log($selectedNode);
@@ -39,14 +43,17 @@
     });
   };
 
-  const handleNodeSelect = async (event: string) => {
-    const selectedOption = event.target.value;
+  const handleNodeSelect = async (event: Event) => {
+    const selectedOption = (event.target as HTMLSelectElement).value;
+
     if (selectedOption === "Add Node +") {
       console.log("adding node");
       showAddNode = true;
-    } else {
-      // console.log("nodeselect");
-      const data = await fetch("/api/node/getMany", {
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/node/getMany", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -56,27 +63,65 @@
         }),
       });
 
-      if (!data.ok) {
-        toast.error("Something went wrong. Please try again");
-        return;
+      if (!response.ok) {
+        throw new Error("Failed to fetch node data");
       }
 
-      const result = await data.json();
-      const nodeData = result.nodeData;
-
+      const { nodeData } = await response.json();
       const selected = nodeData.find((node) => node.name === selectedOption);
-      // console.log("selected", selected);
-      selectedNode.set(selected);
+
+      if (!selected) {
+        throw new Error("Selected node not found");
+      }
+
+      const nodes = await PB.collection("node").getFullList(200, {
+        expand: "camera",
+        filter: `id="${selected.id}"`,
+      });
+
+      const formattedNodes = nodes.map((node) => ({
+        ...node,
+        camera:
+          node.camera.length > 0
+            ? node.expand.camera.reverse().map((cam: Camera) => ({
+                name: cam.name,
+                id: cam.id,
+                url: cam.url,
+                subUrl: cam.subUrl,
+                save: cam.save,
+                face: cam.face,
+                vehicle: cam.vehicle,
+                faceDetThresh: cam.faceDetThresh,
+                faceMatchThresh: cam.faceMatchThresh,
+                vehicleDetThresh: cam.vehicleDetThresh,
+                vehiclePlateThresh: cam.vehiclePlateThresh,
+                vehicleOCRThresh: cam.vehicleOCRThresh,
+                saveFolder: cam.saveFolder,
+                saveDuration: cam.saveDuration,
+                motionThresh: cam.motionThresh,
+                priority: cam.priority,
+              }))
+            : [],
+      }));
+
+      selectedNode.set(formattedNodes[0]);
+      console.log("updated selectedNode", $selectedNode.name);
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong. Please try again");
     }
   };
+  console.log($page.route.id.includes("/session"));
 </script>
 
 <div
   class={`flex justify-between items-center py-0.5 px-4 border-b-[1px] w-full`}
 >
-  <div class={`relative inline-block w-max min-w-[100px] ${isAllFullScreen && "bg-black"}`}>
+  <div
+    class={`relative inline-block ${$page.route.id.includes("/session") ? "w-max" : "w-full"} ${isAllFullScreen && "bg-black"}`}
+  >
     <select
-      class={`block text-primary outline-none capitalize border-none font-semibold appearance-none w-[100px] ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
+      class={`block text-primary outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
       value={$selectedNode && $selectedNode.name}
       on:change={handleNodeSelect}
     >
@@ -106,31 +151,33 @@
     </div>
   </div>
   {#if url.includes(`/session/`)}
-  <span class="flex items-center gap-2 justify-between">
-    <AddCameraDialog sNode={''}>
-      <span
-      class={`w-[26px] h-[26px] bg-[#F9F9F9] rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center`}
+    <span class="flex items-center gap-2 justify-between">
+      <AddCameraDialog sNode={""}>
+        <span
+          class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center`}
+        >
+          <PlusCircle size={18} class="text-[#727272] dark:text-[#f9f9f9]" />
+        </span>
+      </AddCameraDialog>
+      <EditNodeDialog>
+        <span
+          class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center`}
+        >
+          <Edit size={18} class="text-[#727272] dark:text-[#f9f9f9]" />
+        </span>
+      </EditNodeDialog>
+      <AlertDeleteNode onDelete={onDeleteNode}
+        ><Button
+          variant="ghost"
+          size="icon"
+          class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"}`}
+          ><Trash
+            size={18}
+            class="text-[#727272] dark:text-[#f9f9f9]"
+          /></Button
+        ></AlertDeleteNode
       >
-
-        <PlusCircle size={18} class='text-[#727272]'/>
-      </span>
-    </AddCameraDialog>
-    <EditNodeDialog>
-      <span
-    class={`w-[26px] h-[26px] bg-[#F9F9F9] rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center`}
-      >
-        <Edit size={18} class='text-[#727272]'/>
-      </span>
-    </EditNodeDialog>
-    <AlertDeleteNode onDelete={onDeleteNode}
-    ><Button
-    variant="ghost"
-    size="icon"
-    class={`w-[26px] h-[26px] bg-[#F9F9F9] rounded-full ${isAllFullScreen && "text-primary"}`}
-    ><Trash size={18} class='text-[#727272]'/></Button
-    ></AlertDeleteNode
-    >
-  </span>
+    </span>
   {/if}
   <AddNodeModal {showAddNode} />
 </div>

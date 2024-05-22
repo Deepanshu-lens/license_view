@@ -17,11 +17,14 @@
    * Sortable Camera Info Cards
    */
   export let isAllFullScreen: boolean;
+  export let user;
   let filteredCameras: Camera[] = [];
   let cameraItems: HTMLDivElement;
   let filterText: string = "";
 
   let cameraOrder = writable<number[]>([]);
+
+  // console.log(user);
 
   // function swap(array, i, j) {
   //   // Check if indices are valid
@@ -86,11 +89,11 @@
 
   $: {
     if (filterText) {
-      filteredCameras = $selectedNode.camera.filter((camera: Camera) =>
+      filteredCameras = $selectedNode?.camera.filter((camera: Camera) =>
         camera.name.toLowerCase().includes(filterText.toLowerCase()),
       );
     } else {
-      filteredCameras = $selectedNode.camera;
+      filteredCameras = $selectedNode?.camera;
     }
   }
 
@@ -160,27 +163,6 @@
         /> /
       </span>
     </span>
-
-    <!-- <AddCameraDialog sNode={""}>
-      <svg
-        on:click={() => {
-          addUserLog("user clicked on addCamera cameralist");
-        }}
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        class="cursor-pointer"
-      >
-        <path
-          d="M12 1.5C9.22562 1.53347 6.57431 2.65047 4.61239 4.61239C2.65047 6.57431 1.53347 9.22562 1.5 12C1.53347 14.7744 2.65047 17.4257 4.61239 19.3876C6.57431 21.3495 9.22562 22.4665 12 22.5C14.7744 22.4665 17.4257 21.3495 19.3876 19.3876C21.3495 17.4257 22.4665 14.7744 22.5 12C22.4665 9.22562 21.3495 6.57431 19.3876 4.61239C17.4257 2.65047 14.7744 1.53347 12 1.5ZM18 12.75H12.75V18H11.25V12.75H6V11.25H11.25V6H12.75V11.25H18V12.75Z"
-          fill={$mode === "dark"
-            ? "#FFF"
-            : `${isAllFullScreen ? "#fff" : "#000"}`}
-        />
-      </svg>
-    </AddCameraDialog> -->
   </div>
   <!-- END Camera Filtering -->
 
@@ -212,6 +194,7 @@
             saveDuration={camera.saveDuration}
             motion={camera.motionThresh}
             priority={camera.priority}
+            features={user.features}
             {isAllFullScreen}
           />
         {/key}

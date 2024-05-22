@@ -83,9 +83,16 @@ export const load: Load = async ({ url, locals }) => {
       created: item.created,
     }));
 
+    const allFeatures = await locals.pb?.collection("feature").getFullList();
+
+    const featureList = allFeatures.map((item) => ({
+      feature: item.feature,
+    }));
+
     return {
       records: simpleList,
       logs: logList,
+      features: featureList,
     };
   } catch (err) {
     console.error("Failed to get full list:", err);

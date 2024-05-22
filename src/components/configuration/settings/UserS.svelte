@@ -1,11 +1,19 @@
 <script lang="ts">
-  import { Check, ChevronsUpDown, Pencil, X } from "lucide-svelte";
+  import {
+    Check,
+    ChevronsUpDown,
+    Filter,
+    Pencil,
+    Search,
+    X,
+  } from "lucide-svelte";
   import type { LoginEvent, User, UserLog } from "@/types";
   import { toast } from "svelte-sonner";
   import * as Table from "@/components/ui/table";
   import { addUserLog } from "@/lib/addUserLog";
   import Switch from "@/components/ui/switch/switch.svelte";
 
+  import * as Tabs from "@/components/ui/tabs";
   export let user: User;
   export let records: LoginEvent[];
   export let logs: UserLog[];
@@ -14,6 +22,7 @@
   let showUpdateEmailModal = false;
   let showUpdatePasswordModal = false;
   let username = "";
+  let selectedP = 1;
 
   function handleUsernameUpdate() {
     if (username.length > 0) {
@@ -84,7 +93,7 @@
     {#if selected === 2}
       <div class=" relative">
         <span class="font-bold text-[#015A62] dark:text-white">
-          Roles & Permissions
+          Permissions
         </span>
         <span
           class=" h-[3px] rounded-full bg-[#0B8995] w-full absolute left-0 -bottom-4"
@@ -98,7 +107,7 @@
           addUserLog("user clicked on permissions button, user panel");
         }}
       >
-        Roles & Permissions
+        Permissions
       </button>
     {/if}
     {#if selected === 3}
@@ -344,216 +353,138 @@
   {#if selected === 2}
     <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
     <div class="w-full justify-between flex items-center px-6 mb-4">
-      <h2 class="font-medium">Permission Settings</h2>
-      <button class="bg-[#015a62] px-3 py-1 text-white rounded-md">
-        + Add Feature</button
+      <span>
+        <h2 class="font-medium text-lg">Permission</h2>
+        <p class="text-xs font-normal text-[#667085]">
+          Select & assign permissions to users
+        </p>
+      </span>
+      <span
+        class="flex items-center justify-center rounded-lg border-black/[.13] border-solid border-[1px] p-1 w-[270px] h-[40px] -mx-2"
       >
+        <button
+          on:click={() => (selectedP = 1)}
+          class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-full h-full ${selectedP === 1 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
+          >Permissions</button
+        >
+        <button
+          on:click={() => (selectedP = 2)}
+          class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-full h-full ${selectedP === 2 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
+          >Nodes</button
+        >
+      </span>
+      <span class="flex items-center gap-4">
+        <span class="text-xs font-medium flex items-center gap-2"
+          ><Filter size={18} /> Filters</span
+        >
+        <span
+          class="relative rounded-lg border-2 border-solid border-[#d0d5dd]"
+        >
+          <input
+            type="text"
+            placeholder="Search"
+            class="border-none text-black outline-none pr-2 pl-8 py-2 text-sm placeholder:text-black bg-transparent"
+          />
+          <Search class="absolute top-1/2 -translate-y-1/2 left-2" size={18} />
+        </span>
+      </span>
     </div>
-    <Table.Root class="mx-auto w-full px-6 flex flex-col pb-10 ">
-      <Table.Header
-        class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
-      >
-        <Table.Row class="bg-transparent flex items-center p-3">
-          <Table.Head class="text-[#727272] w-full h-full">Features</Table.Head>
-          <Table.Head class="text-[#727272] w-[250px] h-full">
-            Super admin
-          </Table.Head>
-          <Table.Head class="text-[#727272] w-[250px] h-full"
-            >Co-admin</Table.Head
+    {#if selectedP === 1}
+      <Tabs.Root class="mx-auto w-full px-6 pb-10 bg-transparent">
+        <Tabs.List class="flex items-center w-full bg-white dark:bg-black ">
+          <Tabs.Trigger
+            value="live"
+            class="rounded-t-md flex items-center justify-start px-2 gap-4 border-[#eaecf0] border-[1px] border-solid border-b-0 w-full data-[state=active]:bg-[#f8f8f8]"
+            ><input type="checkbox" />Live</Tabs.Trigger
           >
-          <Table.Head class="text-[#727272] w-[250px] h-full">User</Table.Head>
-          <Table.Head class="text-[#727272] w-[200px] h-full"
-            >Actions</Table.Head
+          <Tabs.Trigger
+            value="playback"
+            class="rounded-t-md flex items-center justify-start px-2 gap-4 border-[#eaecf0] border-[1px] border-solid border-b-0 w-full data-[state=active]:bg-[#f8f8f8]"
+            ><input type="checkbox" /> Playback</Tabs.Trigger
           >
-        </Table.Row>
-      </Table.Header>
-      <Table.Body class="overflow-y-scroll max-h-[calc(100vh-285px)] pb-10">
-        <Table.Row
-          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-        >
-          <Table.Cell class="text-black w-full h-full"
-            ><span class="flex items-center gap-2 capitalize font-semibold">
-              Camera Settings (Add, delete & edit camera specifications)
-            </span>
-          </Table.Cell>
-          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
-            <span class="flex items-center gap-2">
-              Active <Switch />
-            </span>
-          </Table.Cell>
-        </Table.Row>
-        <Table.Row
-          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-        >
-          <Table.Cell class="text-black w-full h-full"
-            ><span class="flex items-center gap-2 capitalize font-semibold">
-              Node Settings
-            </span>
-          </Table.Cell>
-          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
-            <span class="flex items-center gap-2">
-              Active <Switch />
-            </span>
-          </Table.Cell>
-        </Table.Row>
-        <Table.Row
-          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-        >
-          <Table.Cell class="text-black w-full h-full"
-            ><span class="flex items-center gap-2 capitalize font-semibold">
-              User Management
-            </span>
-          </Table.Cell>
-          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
-            <span class="flex items-center gap-2">
-              Active <Switch />
-            </span>
-          </Table.Cell>
-        </Table.Row>
-        <Table.Row
-          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-        >
-          <Table.Cell class="text-black w-full h-full"
-            ><span class="flex items-center gap-2 capitalize font-semibold">
-              Synchronisation
-            </span>
-          </Table.Cell>
-          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
-            <span class="flex items-center gap-2">
-              Active <Switch />
-            </span>
-          </Table.Cell>
-        </Table.Row>
-        <Table.Row
-          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-        >
-          <Table.Cell class="text-black w-full h-full"
-            ><span class="flex items-center gap-2 capitalize font-semibold">
-              Snip/Record Feed
-            </span>
-          </Table.Cell>
-          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
-            <span class="flex items-center gap-2">
-              Active <Switch />
-            </span>
-          </Table.Cell>
-        </Table.Row>
-        <Table.Row
-          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-        >
-          <Table.Cell class="text-black w-full h-full"
-            ><span class="flex items-center gap-2 capitalize font-semibold">
-              Generate Reports
-            </span>
-          </Table.Cell>
-          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
-            <span class="flex items-center gap-2">
-              Active <Switch />
-            </span>
-          </Table.Cell>
-        </Table.Row>
-        <Table.Row
-          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-        >
-          <Table.Cell class="text-black w-full h-full"
-            ><span class="flex items-center gap-2 capitalize font-semibold">
-              Import/Export Configuration
-            </span>
-          </Table.Cell>
-          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
-            <span class="flex items-center gap-2">
-              Active <Switch />
-            </span>
-          </Table.Cell>
-        </Table.Row>
-        <Table.Row
-          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-        >
-          <Table.Cell class="text-black w-full h-full"
-            ><span class="flex items-center gap-2 capitalize font-semibold">
-              Group Management
-            </span>
-          </Table.Cell>
-          <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
-            <input type="checkbox" />
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] w-[200px] h-full  ">
-            <span class="flex items-center gap-2">
-              Active <Switch />
-            </span>
-          </Table.Cell>
-        </Table.Row>
-      </Table.Body>
-    </Table.Root>
+          <Tabs.Trigger
+            value="events"
+            class="rounded-t-md flex items-center justify-start px-2 gap-4 border-[#eaecf0] border-[1px] border-solid border-b-0 w-full data-[state=active]:bg-[#f8f8f8]"
+            ><input type="checkbox" /> Events</Tabs.Trigger
+          >
+          <Tabs.Trigger
+            value="gallery"
+            class="rounded-t-md flex items-center justify-start px-2 gap-4 border-[#eaecf0] border-[1px] border-solid border-b-0 w-full data-[state=active]:bg-[#f8f8f8]"
+            ><input type="checkbox" /> Gallery</Tabs.Trigger
+          >
+          <Tabs.Trigger
+            class="rounded-t-md flex items-center justify-start px-2 gap-4 border-[#eaecf0] border-[1px] border-solid border-b-0 w-full data-[state=active]:bg-[#f8f8f8]"
+            value="config"><input type="checkbox" /> Configuration</Tabs.Trigger
+          >
+          <Tabs.Trigger
+            class="rounded-t-md flex items-center justify-start px-2 gap-4 border-[#eaecf0] border-[1px] border-solid border-b-0 w-full data-[state=active]:bg-[#f8f8f8] "
+            value="reports"><input type="checkbox" /> Reports</Tabs.Trigger
+          >
+        </Tabs.List>
+        <Tabs.Content value="live">
+          <!-- <Table.Root class="mx-auto w-full flex flex-col pb-10">
+          <Table.Header
+            class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
+          >
+            <Table.Row class="bg-transparent flex items-center p-3">
+              <Table.Head class="text-[#727272] w-[100px] h-full"
+                ><input type="checkbox" name="" id="" /></Table.Head
+              >
+              <Table.Head class="text-[#727272] w-[200px] h-full"
+                >User role</Table.Head
+              >
+              <Table.Head class="text-[#727272] w-[200px] h-full">
+                Feature 1
+              </Table.Head>
+              <Table.Head class="text-[#727272] w-[200px] h-full"
+                >Feature 2</Table.Head
+              >
+              <Table.Head class="text-[#727272] w-[200px] h-full"
+                >Feature 3</Table.Head
+              >
+              <Table.Head class="text-[#727272] w-[200px] h-full"
+                >Feature 4</Table.Head
+              >
+            </Table.Row>
+          </Table.Header>
+          <Table.Body class="overflow-y-scroll max-h-[calc(100vh-285px)] pb-10">
+            <Table.Row
+              class="bg-transparent cursor-pointer flex items-center gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
+            >
+              <Table.Cell class="text-[#727272]  w-[100px] h-full text-sm ">
+                <input type="checkbox" />
+              </Table.Cell>
+              <Table.Cell class="text-black w-[200px] h-full"
+                ><span class="flex items-center gap-2 capitalize font-semibold">
+                  user 1
+                </span>
+              </Table.Cell>
+              <Table.Cell class="text-[#727272]  w-[200px] h-full text-sm ">
+                <input type="checkbox" />
+              </Table.Cell>
+              <Table.Cell class="text-[#727272] w-[200px] h-full text-sm">
+                <input type="checkbox" />
+              </Table.Cell>
+              <Table.Cell class="text-[#727272] w-[200px] h-full text-sm ">
+                <input type="checkbox" />
+              </Table.Cell>
+              <Table.Cell class="text-[#727272] w-[200px] h-full  ">
+                <input type="checkbox" />
+              </Table.Cell>
+            </Table.Row>
+          </Table.Body>
+        </Table.Root> -->
+          live content
+        </Tabs.Content>
+        <Tabs.Content value="playback">playback content</Tabs.Content>
+        <Tabs.Content value="events">events content</Tabs.Content>
+        <Tabs.Content value="gallery">gallery content</Tabs.Content>
+        <Tabs.Content value="config">config content</Tabs.Content>
+        <Tabs.Content value="reports">reports content</Tabs.Content>
+      </Tabs.Root>
+    {:else}
+      <p class="text-lg px-6 font-medium">node content</p>
+    {/if}
   {/if}
   {#if selected === 3}
     <div class="h-[1px] dark:bg-[#292929] w-[96%] mb-8 bg-[#e0e0e0]" />
@@ -657,3 +588,9 @@
 </div>
 
 <!-- rtsp://admin:Admin%401234@192.168.1.106:322/ch01.264?dev=1 -->
+
+<style>
+  .shad {
+    box-shadow: 0px 4px 4px 0px #0000000f;
+  }
+</style>

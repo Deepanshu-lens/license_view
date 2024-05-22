@@ -7,28 +7,16 @@
   import { onDestroy, onMount } from "svelte";
   import AddNodeMob from "@/components/node/mobile/AddNodeMob.svelte";
   import type { PageServerData } from "./$types";
-  // import { PUBLIC_BASE_URL, PUBLIC_POCKETBASE_URL } from "$env/static/public";
   import { page } from "$app/stores";
 
   export let data: PageServerData;
   const session = data.session;
   let nodes: Node[] = [];
   let batchedEvents: Event[] = [];
-  // let neededUrl;
-
-  // onMount(() => {
-  //   const location = window?.location.href;
-  //   neededUrl =
-  //     location?.split("/")[2] === "localhost:5173" ||
-  //     location?.split("/")[2] === PUBLIC_BASE_URL
-  //       ? PUBLIC_BASE_URL
-  //       : location?.split("/")[2]?.split(":")[0];
-  // });
-  // console.log(`http://${neededUrl}:5555`);
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
-  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
-  console.log(data);
+
+  console.log("page on session page", $page);
 
   async function getNodes(): Promise<Node[]> {
     if (session?.node.length > 0) {
@@ -37,7 +25,7 @@
         expand: "camera",
         filter: `session~"${session.id}"`,
       });
-
+      console.log("getnodes", nodes);
       return nodes.map(
         (node) =>
           ({
@@ -95,7 +83,7 @@
       nodes = await getNodes();
       selectedNode.set(nodes[0]);
     });
-    
+
     PB.collection("node").subscribe("*", async (e) => {
       nodes = await getNodes();
       selectedNode.set(nodes[0]);
@@ -112,7 +100,7 @@
 </script>
 
 {#if $selectedNode}
-  <StreamView {data} url={data.url ?? "/"} />
+  <StreamView {data} url={data.url ?? "/"} features={data?.user?.features} />
 {:else}
   <div class="hidden sm:flex">
     <AddNode />

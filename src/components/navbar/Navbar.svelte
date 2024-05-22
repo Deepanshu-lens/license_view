@@ -244,7 +244,10 @@
           >
             <p class="truncate px-3.5 py-3 relative">
               <span class="block text-sm">
-                {user?.name}
+                Name: {user?.name}
+              </span>
+              <span class="block text-sm font-medium capitalize">
+                Role: {user?.role}
               </span>
               <span class="mt-0.5 font-semibold">{user?.email}</span>
             </p>
@@ -280,7 +283,7 @@
   <nav
     class="bg-[white] dark:bg-[#1e1f25] flex flex-row items-center justify-between px-4 w-full pb-2 rounded-t-xl"
   >
-    {#each menuListMob as menu, index}
+    {#each menuListMob as menu}
       <div
         class={$page.url.pathname === menu.href.split("?")[0]
           ? "-mt-6"

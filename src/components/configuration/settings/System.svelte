@@ -120,110 +120,143 @@
       </button>
     {/if}
   </div>
-  <div class="h-[1px] w-[96%] dark:bg-[#333] mb-8 bg-[#e0e0e0]" />
-  {#if selected === 1}
-    <h2 class="px-6 font-medium mb-4">Firmware Update</h2>
-    <div class="h-[1px] w-[96%] dark:bg-[#333] mb-8 bg-[#e0e0e0]" />
 
-    <form
-      class=" flex flex-col items-start justify-center gap-10 w-[75%] mb-8 px-6"
+  {#if selected === 1}
+    <div
+      class=" w-[94.5%] my-4 pt-8 shad mx-6 border-black/[.08] border-[1px] border-solid"
     >
-      {#each firmOptions as { id, label }}
-        <div class="flex gap-4 w-full items-center">
-          <label>
-            <input
-              type="radio"
-              name="delayOption"
-              bind:group={firmType}
-              value={id}
-            />
-            {label}
-          </label>
-          {#if firmType === 2 && id === 2}
-            <div class="relative">
-              <select
-                class="bg-white dark:bg-[#1b1b1b] py-4 mt-1 font-semibold px-4 w-[300px] outline-none capitalize text-[#015A62] dark:text-white select border border-1 border-solid border-[#d9d9d9] max-h-[53px] dark:border-[#292929]"
-                name="nodeSelecter"
-              >
-                <option>available versions</option>
-              </select>
-              <span
-                class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
-              >
-                <ChevronDown size={18} />
-              </span>
-            </div>
-          {/if}
-        </div>
-      {/each}
-    </form>
-    <p class="px-6 dark:text-[#929292] text-sm mb-6 mt-4">
-      Note: The upgrading process will be 1 to 10 minutes. please don't
-      disconnect power to the device during the process
-    </p>
+      <h2 class="px-6 font-medium mb-4">Firmware Update</h2>
+      <div
+        class="h-[1px] dark:bg-[#292929] ml-2 mb-4 bg-[#e0e0e0] mt-8 w-[95%]"
+      />
+
+      <form
+        class=" flex flex-col items-start justify-center gap-10 w-[75%] mb-8 px-6"
+      >
+        {#each firmOptions as { id, label }}
+          <div class="flex gap-4 w-full items-center">
+            <label>
+              <input
+                type="radio"
+                name="delayOption"
+                bind:group={firmType}
+                value={id}
+              />
+              {label}
+            </label>
+            {#if firmType === 2 && id === 2}
+              <div class="relative">
+                <select
+                  class="bg-white dark:bg-[#1b1b1b] py-4 mt-1 font-semibold px-4 w-[300px] outline-none capitalize text-[#015A62] dark:text-white select border border-1 border-solid border-[#d9d9d9] max-h-[53px] dark:border-[#292929]"
+                  name="nodeSelecter"
+                >
+                  <option>available versions</option>
+                </select>
+                <span
+                  class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                >
+                  <ChevronDown size={18} />
+                </span>
+              </div>
+            {/if}
+          </div>
+        {/each}
+      </form>
+      <p class="px-6 dark:text-[#929292] text-sm mb-8 mt-4">
+        Note: The upgrading process will be 1 to 10 minutes. please don't
+        disconnect power to the device during the process
+      </p>
+    </div>
   {/if}
   {#if selected === 5}
-    <h2 class="font-medium px-6 mb-4">Reboot</h2>
-    <div class="h-[1px] w-[96%] dark:bg-[#333] mb-8 bg-[#e0e0e0]" />
-    <div class="flex px-6 items-center justify-center gap-4 mb-6">
-      <p class="dark:text-[#e0e0e0]">Reboot the device</p>
-      <button
-        class=" dark:border-[#333] flex gap-2 items-center dark:bg-white/[0.08] dark:hover:bg-white/[0.18] bg-black/[0.08] hover:bg-black/[0.18] border border-solid rounded-md py-2 px-[16px] dark:text-[#cac4d0] text-sm"
-        on:click={() => (showRebootModal = true)}
-      >
-        Reboot{" "}
-        <RotateCcw size={24} />
-      </button>
+    <div
+      class=" w-[94.5%] my-4 pt-8 shad mx-6 border-black/[.08] border-[1px] border-solid"
+    >
+      <h2 class="font-medium px-6 mb-4">Reboot</h2>
+      <div
+        class="h-[1px] dark:bg-[#292929] ml-2 mb-4 bg-[#e0e0e0] mt-8 w-[95%]"
+      />
+      <div class="flex px-6 items-center gap-4 mb-8">
+        <p class="dark:text-[#e0e0e0]">Reboot the device</p>
+        <button
+          class=" dark:border-[#333] flex gap-2 items-center dark:bg-white/[0.08] dark:hover:bg-white/[0.18] bg-black/[0.08] hover:bg-black/[0.18] border border-solid rounded-md py-2 px-[16px] dark:text-[#cac4d0] text-sm"
+          on:click={() => (showRebootModal = true)}
+        >
+          Reboot{" "}
+          <RotateCcw size={24} />
+        </button>
+      </div>
     </div>
   {/if}
 
   {#if selected === 2}
-    <h2 class="font-medium px-6 mb-8">Timezone settings</h2>
-    <div class="h-[1px] w-[96%] dark:bg-[#333] mb-8 bg-[#e0e0e0]" />
-    <div class="flex px-6 items-center justify-center gap-4">
-      <p>Select your timezone :</p>
-      <!-- <TimezoneSelect
-            value={selectedTimezone}
-            //@ts-ignore
-            onChange={setSelectedTimezone}
-            classPrefix="timezone-select"
-          /> -->
-      <div class="relative">
-        <select
-          class="bg-white dark:bg-[#1b1b1b] py-4 mt-1 font-semibold px-4 w-[300px] outline-none capitalize text-[#015A62] dark:text-white select border border-1 border-solid border-[#d9d9d9] max-h-[53px] dark:border-[#292929]"
-          name="nodeSelecter"
-        >
-          <option>{selectedTimezone}</option>
-        </select>
-        <span
-          class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
-        >
-          <ChevronDown size={18} />
-        </span>
+    <div
+      class=" w-[94.5%] my-4 pt-8 shad mx-6 border-black/[.08] border-[1px] border-solid"
+    >
+      <h2 class="font-medium px-6 mb-8">Timezone settings</h2>
+      <div
+        class="h-[1px] dark:bg-[#292929] ml-2 mb-4 bg-[#e0e0e0] mt-8 w-[95%]"
+      />
+      <div class="flex px-6 items-center gap-4 mb-8">
+        <p>Select your timezone :</p>
+        <div class="relative">
+          <select
+            class="bg-white dark:bg-[#1b1b1b] py-4 mt-1 font-semibold px-4 w-[300px] outline-none capitalize text-[#015A62] dark:text-white select border border-1 border-solid border-[#d9d9d9] max-h-[53px] dark:border-[#292929]"
+            name="nodeSelecter"
+          >
+            <option>{selectedTimezone}</option>
+          </select>
+          <span
+            class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"
+          >
+            <ChevronDown size={18} />
+          </span>
+        </div>
       </div>
     </div>
-    <span class="text-xs opacity-75 text-[#929292] ml-[21%] pt-2 mb-8">
-      time applies to live, captured snaps and recorded streams!
-    </span>
-    <h2 class="font-medium px-6 mb-8 mt-8">Sync your Timeline</h2>
-    <div class="h-[1px] w-[96%] dark:bg-[#333] mb-8 bg-[#e0e0e0]" />
-    <div class="flex px-6 items-center justify-center gap-4 mb-6">
-      <p>Sync your timezone with server:</p>
-      <Switch />
+    <div
+      class=" w-[94.5%] my-4 shad mx-6 border-black/[.08] border-[1px] border-solid"
+    >
+      <h2 class="font-medium px-6 mb-8 mt-8">Sync your Timeline</h2>
+      <div
+        class="h-[1px] dark:bg-[#292929] ml-2 mb-4 bg-[#e0e0e0] mt-8 w-[95%]"
+      />
+      <div class="flex px-6 items-center gap-4 mb-8">
+        <p>Sync your timezone with server:</p>
+        <Switch />
+      </div>
     </div>
   {/if}
   {#if selected === 3}
-    <h2 class="font-medium px-6 mb-4">Diagnostics</h2>
-    <div class="h-[1px] w-[96%] dark:bg-[#333] mb-8 bg-[#e0e0e0]" />
-    <div class="flex px-6 items-center justify-center gap-4"></div>
+    <div
+      class=" w-[94.5%] my-4 pt-8 shad mx-6 border-black/[.08] border-[1px] border-solid"
+    >
+      <h2 class="font-medium px-6 mb-4">Diagnostics</h2>
+      <div
+        class="h-[1px] dark:bg-[#292929] ml-2 mb-4 bg-[#e0e0e0] mt-8 w-[95%]"
+      />
+      <div class="flex px-6 items-center justify-center gap-4"></div>
+    </div>
   {/if}
   {#if selected === 4}
-    <h2 class="font-medium px-6 mb-4">System Logs</h2>
-    <div class="h-[1px] w-[96%] dark:bg-[#333] mb-8 bg-[#e0e0e0]" />
-    <div class="flex px-6 items-center justify-center gap-4"></div>
+    <div
+      class=" w-[94.5%] my-4 pt-8 shad mx-6 border-black/[.08] border-[1px] border-solid"
+    >
+      <h2 class="font-medium px-6 mb-4">System Logs</h2>
+      <div
+        class="h-[1px] dark:bg-[#292929] ml-2 mb-4 bg-[#e0e0e0] mt-8 w-[95%]"
+      />
+      <div class="flex px-6 items-center justify-center gap-4"></div>
+    </div>
   {/if}
 
   <!-- {showRebootModal && ( -->
   <!-- //   <RebootModal setShowRebootModal={setShowRebootModal} /> -->
   <!-- )} -->
 </div>
+
+<style>
+  .shad {
+    box-shadow: 0px 4px 4px 0px #0000000f;
+  }
+</style>

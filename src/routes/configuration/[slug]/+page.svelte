@@ -14,7 +14,6 @@
   import About from "@/components/configuration/mobile/About.svelte";
   import Logout from "@/components/configuration/mobile/Logout.svelte";
   import { writable } from "svelte/store";
-  // import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
   import { page } from "$app/stores";
   const user: User = getContext("user");
   export let data: PageServerData;
@@ -22,8 +21,6 @@
   let nodes: Node[] = [];
 
   let activeSec = writable<null | number>(null);
-
-  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
   async function getNodes(): Promise<Node[]> {

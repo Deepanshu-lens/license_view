@@ -13,8 +13,6 @@
   import {
     Search,
     ScanFace,
-    TabletSmartphone,
-    Airplay,
     Disc2,
     ImageDown,
     Bell,
@@ -50,11 +48,11 @@
   import CameraList from "../lists/CameraList.svelte";
   import LayoutDialog from "../dialogs/LayoutDialog.svelte";
   import AddCameraDialog from "../dialogs/AddCameraDialog.svelte";
-  // import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
   import { page } from "$app/stores";
 
   export let data;
   export let url;
+  export let features;
 
   const session = data.session;
   const sessionId = session.id;
@@ -81,7 +79,6 @@
   let batchedUnknownGallery = [];
   let selectedScreen = null;
   let showRightPanel = true;
-
   // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
@@ -287,10 +284,11 @@
     <AddCameraDialog sNode="">
       <span class="group flex-col flex items-center justify-center gap-0.5">
         <button
+          disabled={!features.includes("Add Camera")}
           on:click={() => {
             addUserLog(`user clicked on Add Camera button, top panel`);
           }}
-          class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
+          class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
           ><Plus class="h-[22px] w-[22px]" />
         </button>
         <p
@@ -303,10 +301,11 @@
     <SearchDialog>
       <span class="group flex-col flex items-center justify-center gap-0.5">
         <button
+          disabled={!features.includes("Face Search")}
           on:click={() => {
             addUserLog(`user clicked on Search button, top panel`);
           }}
-          class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
+          class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
           ><Search class="h-[22px] w-[22px]" />
         </button>
         <p
@@ -319,9 +318,10 @@
     <RegisterDialog>
       <span class="group flex-col flex items-center justify-center gap-0.5">
         <button
+          disabled={!features.includes("Face Register")}
           on:click={() =>
             addUserLog("user clicked on Register button, top panel")}
-          class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
+          class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
         >
           <ScanFace class="h-[22px] w-[22px]" />
         </button>
@@ -342,7 +342,7 @@
       <span class="group flex-col flex items-center justify-center gap-0.5">
         <button
           on:click={() => (selectedScreen = 3)}
-          class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
+          class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
           ><Monitor class="h-[22px] w-[22px]" /></button
         >
         <p
@@ -354,14 +354,15 @@
     </a>
     <span class="group flex-col flex items-center justify-center gap-0.5">
       <button
+        disabled={!features.includes("Screen Record")}
         on:click={() => {
           recordDropdownOpen = !recordDropdownOpen;
           snipDropDownOpen = false;
           addUserLog("user clicked on start recording, top panel ");
         }}
         class={!recordDropdownOpen
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
-          : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
+          ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+          : ` disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
         ><Disc2 class="h-[22px] w-[22px]" />
         {#if recordDropdownOpen}
           <div
@@ -408,14 +409,15 @@
     </span>
     <span class="group flex-col flex items-center justify-center gap-0.5">
       <button
+        disabled={!features.includes("Screen Snip")}
         on:click={() => {
           snipDropDownOpen = !snipDropDownOpen;
           recordDropdownOpen = false;
           addUserLog("user clicked on screen snip, top panel ");
         }}
         class={!snipDropDownOpen
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
-          : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
+          ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+          : `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
         ><ImageDown class="h-[22px] w-[22px]" />
         {#if snipDropDownOpen}
           <div
@@ -478,6 +480,7 @@
     </span>
     <span class="group flex-col flex items-center justify-center gap-0.5">
       <button
+        disabled={!features.includes("Toggle Alerts")}
         on:click={() => {
           alertPanelHide.set(!$alertPanelHide);
           currpanel = 1;
@@ -488,8 +491,8 @@
           addUserLog(`user set alert panel hide to ${$alertPanelHide} `);
         }}
         class={$alertPanelHide
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
-          : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
+          ? ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+          : `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
         ><Bell class="h-[22px] w-[22px]" /></button
       >
       <p
@@ -500,12 +503,12 @@
     </span>
     <span class="group flex-col flex items-center justify-center gap-0.5">
       <button
-        disabled={cameraCount === 0}
+        disabled={!features.includes("Grid Fullscreen") || cameraCount === 0}
         on:click={() => {
           toggleFullscreen();
           addUserLog(`user clicked on fulscreen, top panel`);
         }}
-        class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
+        class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
         ><Expand class="h-[22px] w-[22px]" /></button
       >
       <p
@@ -516,14 +519,15 @@
     </span>
     <span class="group flex-col flex items-center justify-center gap-0.5">
       <button
+        disabled={!features.includes("Change Layouts")}
         on:click={() => {
           displayLayouts = !displayLayouts;
           nodeCameras = false;
           addUserLog("user clicked display and layouts, left pane");
         }}
         class={!displayLayouts
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
-          : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
+          ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+          : `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
         ><LayoutPanelLeft class="h-[22px] w-[22px]" />
         {#if displayLayouts}
           <span
@@ -566,14 +570,15 @@
     </span>
     <span class="group flex-col flex items-center justify-center gap-0.5">
       <button
+        disabled={!features.includes("Manage Camera/Node")}
         on:click={() => {
           nodeCameras = !nodeCameras;
           displayLayouts = false;
           addUserLog("user clicked nodes and cameras, left pane");
         }}
         class={!nodeCameras
-          ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
-          : `relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
+          ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+          : `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
         ><Cctv class="h-[22px] w-[22px]" />
         {#if nodeCameras}
           <span
@@ -771,7 +776,7 @@
              `}
                   >
                     <img
-                      class="object-cover w-16 h-16 rounded-md flex-shrink-0"
+                      class="object-cover w-[75px] h-[75px] rounded-md flex-shrink-0"
                       src={"data:image/jpeg;base64," + event.frameImage}
                       alt="Team Member"
                     />
@@ -843,7 +848,7 @@
         {/if}
       {:else}
         <NodeSelection {isAllFullScreen} {nodes} {url} />
-        <CameraList {isAllFullScreen} {showItems} />
+        <CameraList {isAllFullScreen} {showItems} user={data.user} />
       {/if}
     </div>
   </div>
