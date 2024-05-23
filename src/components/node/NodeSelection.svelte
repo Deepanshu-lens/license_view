@@ -111,14 +111,13 @@
       toast.error("Something went wrong. Please try again");
     }
   };
-  console.log($page.route.id.includes("/session"));
 </script>
 
 <div
   class={`flex justify-between items-center py-0.5 px-4 border-b-[1px] w-full`}
 >
   <div
-    class={`relative inline-block ${$page.route.id.includes("/session") ? "w-max" : "w-full"} ${isAllFullScreen && "bg-black"}`}
+    class={`relative inline-block min-w-[140px] ${$page.route.id.includes("/session") ? "w-max" : "w-full"} ${isAllFullScreen && "bg-black"}`}
   >
     <select
       class={`block text-primary outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}

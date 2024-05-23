@@ -160,11 +160,26 @@
     handleSlideChange();
   }
 
+  let prevName = $selectedNode.name;
+
+  console.log(prevName);
+
   // $: console.log(slideIndex);
 
   const updateLayout = (maxStreamsPerPage: number) => {
+    if ($selectedNode.name !== prevName) {
+      // Clear the videos array and remove video elements from the DOM
+      Object.keys(videos).forEach((videoId) => {
+        const videoElement = videos[videoId];
+        if (videoElement) {
+          videoElement.remove();
+        }
+      });
+      videos = {};
+      prevName = $selectedNode.name;
+      console.log(prevName);
+    }
     console.log("update layout called ", $selectedNode.name);
-    console.log($selectedNode);
     slideIndex = 0;
     $selectedNode.camera.map((c) => {
       if (!videos[c.id]) {
