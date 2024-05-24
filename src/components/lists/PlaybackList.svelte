@@ -63,7 +63,7 @@
 
         // convertedVideos.set(data.playback_data);
         if ($convertedVideos.length <= 3) {
-      convertedVideos.update(videos => [...videos, data.playback_data]);
+      convertedVideos.update(videos => [...videos, data.playback_data[0]]);
     } else {
       toast.error('Maximum limit of 4 videos reached');
     }

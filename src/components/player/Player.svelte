@@ -13,6 +13,7 @@
             console.log("video end", { video: e.target.currentSrc });
         }
     }
+    // console.log(videos)
 </script>
 
 <div class="video-container h-full w-full p-0">
