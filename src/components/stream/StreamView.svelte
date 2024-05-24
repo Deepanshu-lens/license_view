@@ -294,7 +294,7 @@
   <div
     class=" flex flex-col gap-2.5 items-center justify-center px-2 h-full my-auto"
   >
-    <AddCameraDialog sNode="">
+    <AddCameraDialog sNode="" {nodes}>
       <span class="group flex-col flex items-center justify-center gap-0.5">
         <button
           disabled={!features.includes("Add Camera")}

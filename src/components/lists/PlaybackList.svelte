@@ -93,6 +93,9 @@
 
     const data = await response.json();
     allVideos.set(data.playback_data);
+    if(data.playback_data?.length === 0) {
+      toast.error(`No Recordings on chosen Date: ${searchDate}`)
+    }
     return data;
   }
 </script>

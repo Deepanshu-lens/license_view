@@ -28,7 +28,7 @@
         >
                 <!-- <source src={`${videos.srcs[0].src.split('static/')[1]}`} type="video/mp4" /> -->
                 {#each videos.srcs as src}
-                <source src={src.src.split('./')[1]} type={src.type} />
+                <source src={src.src.split('static')[1]} type={src.type} />
             {/each}
            
         </video>

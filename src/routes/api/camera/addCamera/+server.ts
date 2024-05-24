@@ -33,6 +33,7 @@ export const POST: RequestHandler = async ({
   await locals.pb?.collection("node").update(data.nodeId, {
     "camera+": [camera.id],
   });
+  
   await fetch(VITE_POCKETBASE_URL + "/api/addStream", {
     method: "POST",
     headers: {

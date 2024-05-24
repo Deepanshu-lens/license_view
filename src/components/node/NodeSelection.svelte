@@ -67,6 +67,7 @@
       }
 
       const { nodeData } = await response.json();
+      // console.log(nodeData)
       const selected = nodeData.find((node) => node.name === selectedOption);
 
       if (!selected) {
@@ -78,8 +79,10 @@
         filter: `id="${selected.id}"`,
       });
 
+      // console.log('nodes,nodeselect',nodes)
       const formattedNodes = nodes.map((node) => ({
         ...node,
+        session: $selectedNode.session,
         camera:
           node.camera.length > 0
             ? node.expand.camera.reverse().map((cam: Camera) => ({
@@ -102,7 +105,7 @@
               }))
             : [],
       }));
-
+      // console.log('nodeselectionformattednodes',formattedNodes[0])
       selectedNode.set(formattedNodes[0]);
       console.log("updated selectedNode", $selectedNode.name);
     } catch (error) {
@@ -125,7 +128,7 @@
     >
       <option>Add Node +</option>
       {#each nodes as node}
-        <option id={node.id}>{node.name}</option>
+        <option id={node.id}>{node.name.length > 10 ? node.name.substring(0, 10) + "..." : node.name}</option>
       {/each}
     </select>
     <div
@@ -150,7 +153,7 @@
   </div>
   {#if url.includes(`/session/`)}
     <span class="flex items-center gap-2 justify-between">
-      <AddCameraDialog sNode={""}>
+      <AddCameraDialog sNode={""} {nodes}>
         <span
           class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center`}
         >

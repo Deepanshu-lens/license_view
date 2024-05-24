@@ -14,7 +14,7 @@ export const actions = {
     const name = data.get("name")?.toString() || "";
     const node = await locals.pb
       ?.collection("node")
-      .create({ name, session: locals.user.record.session[0] });
+      .create({ name, session: locals.user.record.session[0], mobileLayout: 1 });
     await locals.pb
       ?.collection("session")
       .update(locals.user.record.session[0], {

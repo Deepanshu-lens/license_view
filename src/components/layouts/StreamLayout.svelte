@@ -15,7 +15,6 @@
     ImageDown,
     Menu,
     RefreshCcw,
-
   } from "lucide-svelte";
   import { Shrink } from "lucide-svelte";
   import { addUserLog } from "@/lib/addUserLog";
@@ -160,8 +159,6 @@
 
   let prevName = $selectedNode.name;
 
-  console.log(prevName);
-
   // $: console.log(slideIndex);
 
   const updateLayout = (maxStreamsPerPage: number) => {
@@ -175,9 +172,7 @@
       });
       videos = {};
       prevName = $selectedNode.name;
-      console.log(prevName);
     }
-    console.log("update layout called ", $selectedNode.name);
     slideIndex = 0;
     $selectedNode.camera.map((c) => {
       if (!videos[c.id]) {
@@ -479,7 +474,15 @@
                     <span
                       class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-90 z-20"
                     >
-                      <span class="h-2 w-2 bg-[#589e67] rounded-full" />
+                    <span
+                    class={`h-2 w-2 ${
+                      $selectedNode.camera[
+                        pageIndex * $selectedNode.maxStreamsPerPage + slotIndex
+                      ].save === true
+                        ? "bg-[#C12828]"
+                        : "bg-[#589e67]"
+                    } rounded-full`}
+                  />
                       <span class="text-xs font-extrabold">
                         {$selectedNode.camera[
                           pageIndex * $selectedNode.maxStreamsPerPage +

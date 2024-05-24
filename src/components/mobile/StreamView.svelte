@@ -183,7 +183,7 @@
                             class="flex gap-2 bg-[rgba(0,0,0,.5)] py-1 px-3 absolute top-2 left-1/2 -translate-x-1/2 items-center rounded-xl scale-[.80] z-20 text-white"
                           >
                             <!-- <Disc2 /> -->
-                            <span class="h-2 w-2 bg-[#589e67] rounded-full" />
+                            <span class={`h-2 w-2 ${$selectedNode.camera[cameraIdx].save ? 'bg-[#C12828]':  'bg-[#589e67]'}' rounded-full`} />
                             <span class="text-xs font-extrabold"
                               >{$selectedNode.camera[cameraIdx].name} Rec
                             </span>
@@ -253,7 +253,7 @@
                     class="flex gap-2 text-white bg-[rgba(0,0,0,.5)] py-1 px-3 absolute top-1 -left-2 items-center rounded-xl scale-75 z-30"
                   >
                     <!-- <Disc2 /> -->
-                    <span class="h-2 w-2 bg-[#589e67] rounded-full" />
+                    <span class={`h-2 w-2 ${item.save ? 'bg-[#C12828]':  'bg-[#589e67]'}' rounded-full`} />
                     <span class="text-xs font-extrabold">
                       {item?.name} - Rec
                     </span>
@@ -426,8 +426,7 @@
                   <span
                     class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute top-2 left-0 items-center rounded-xl scale-75 z-10"
                   >
-                    <!-- <Disc2 /> -->
-                    <span class="h-2 w-2 bg-[#589e67] rounded-full" />
+                    <span class={`h-2 w-2 ${item.save ? 'bg-[#C12828]':  'bg-[#589e67]'}' rounded-full`} />
 
                     <span class="text-xs font-extrabold">
                       {item?.name} - Rec

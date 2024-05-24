@@ -6,10 +6,13 @@ export const POST: RequestHandler = async ({
 }: RequestEvent) => {
   console.log("Getting node data");
   const { session } = await request.json();
+  console.log(session)
+  // console.log(`session="${session[0]}"`)
   const nodeData = await locals.pb?.collection("node").getFullList({
-    filter: `session="${session}"`,
+    filter: `session~"${session[0]}"`,
     // expand: "camera",
   });
+  // console.log(nodeData)
   if (nodeData) {
     for (let node of nodeData) {
       if (node.camera && Array.isArray(node.camera)) {
