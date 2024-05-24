@@ -42,9 +42,8 @@ export const POST: RequestHandler = async ({
     // Query the database for the camera data on the formatted date
     const playback_data = await locals.pb?.collection("playback").getFullList({
       filter: `startTime >= "${formattedStartDate}" && startTime <= "${formattedEndDate}"`,
+      expand: 'camera'
     });
-
-    console.log(playback_data);
 
     if (!playback_data) {
       return new Response(
@@ -54,8 +53,6 @@ export const POST: RequestHandler = async ({
         { status: 404 },
       );
     }
-
-    console.log(playback_data);
     return new Response(JSON.stringify({ playback_data }), { status: 200 });
   } catch (error) {
     console.error(error);

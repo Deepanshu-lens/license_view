@@ -117,6 +117,10 @@
   const refreshVideoStream = (cameraId: string) => {
     const videoElement = videos[cameraId];
     if (videoElement) {
+      if (videoElement.src instanceof WebSocket && videoElement.src.readyState === WebSocket.OPEN) {
+        console.log('first')
+        videoElement.src.close();
+      }
       console.log(videoElement);
       videoElement.remove();
       delete videos[cameraId];

@@ -296,8 +296,9 @@
   >
     <AddCameraDialog sNode="" {nodes}>
       <span class="group flex-col flex items-center justify-center gap-0.5">
-        <button
-          disabled={!features.includes("Add Camera")}
+        <!-- <button
+          disabled={!features.includes("Add Camera")} -->
+          <button disabled
           on:click={() => {
             addUserLog(`user clicked on Add Camera button, top panel`);
           }}
@@ -313,8 +314,9 @@
     </AddCameraDialog>
     <SearchDialog>
       <span class="group flex-col flex items-center justify-center gap-0.5">
-        <button
-          disabled={!features.includes("Face Search")}
+        <!-- <button
+        disabled={!features.includes("Face Search")} -->
+        <button disabled
           on:click={() => {
             addUserLog(`user clicked on Search button, top panel`);
           }}
@@ -330,8 +332,9 @@
     </SearchDialog>
     <RegisterDialog>
       <span class="group flex-col flex items-center justify-center gap-0.5">
-        <button
-          disabled={!features.includes("Face Register")}
+        <!-- <button
+        disabled={!features.includes("Face Register")} -->
+        <button disabled
           on:click={() =>
             addUserLog("user clicked on Register button, top panel")}
           class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
@@ -366,8 +369,9 @@
       </span>
     </a>
     <span class="group flex-col flex items-center justify-center gap-0.5">
-      <button
-        disabled={!features.includes("Screen Record")}
+      <!-- <button
+      disabled={!features.includes("Screen Record")} -->
+      <button disabled
         on:click={() => {
           recordDropdownOpen = !recordDropdownOpen;
           snipDropDownOpen = false;
@@ -421,8 +425,9 @@
       </p>
     </span>
     <span class="group flex-col flex items-center justify-center gap-0.5">
+      <!-- <button
+      disabled={!features.includes("Screen Snip")} -->
       <button
-        disabled={!features.includes("Screen Snip")}
         on:click={() => {
           snipDropDownOpen = !snipDropDownOpen;
           recordDropdownOpen = false;
@@ -492,8 +497,9 @@
       </p>
     </span>
     <span class="group flex-col flex items-center justify-center gap-0.5">
-      <button
-        disabled={!features.includes("Toggle Alerts")}
+      <!-- <button
+      disabled={!features.includes("Toggle Alerts")} -->
+      <button disabled
         on:click={() => {
           alertPanelHide.set(!$alertPanelHide);
           currpanel = 1;
@@ -515,8 +521,9 @@
       </p>
     </span>
     <span class="group flex-col flex items-center justify-center gap-0.5">
+      <!-- <button
+      disabled={!features.includes("Grid Fullscreen") || cameraCount === 0} -->
       <button
-        disabled={!features.includes("Grid Fullscreen") || cameraCount === 0}
         on:click={() => {
           toggleFullscreen();
           addUserLog(`user clicked on fulscreen, top panel`);
@@ -531,8 +538,9 @@
       </p>
     </span>
     <span class="group flex-col flex items-center justify-center gap-0.5">
+      <!-- <button
+      disabled={!features.includes("Change Layouts")} -->
       <button
-        disabled={!features.includes("Change Layouts")}
         on:click={() => {
           displayLayouts = !displayLayouts;
           nodeCameras = false;
@@ -582,8 +590,9 @@
       </p>
     </span>
     <span class="group flex-col flex items-center justify-center gap-0.5">
+      <!-- <button
+      disabled={!features.includes("Manage Camera/Node")} -->
       <button
-        disabled={!features.includes("Manage Camera/Node")}
         on:click={() => {
           nodeCameras = !nodeCameras;
           displayLayouts = false;

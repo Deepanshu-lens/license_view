@@ -30,6 +30,7 @@ export const POST: RequestHandler = async ({
     // Fetch all playback data for the specified camera and date
     const playbackData = await locals.pb?.collection("playback").getFullList({
       filter: `camera = "${cameraId}"`,
+      expand: 'camera'
     });
 console.log(playbackData)
     if (!playbackData) {

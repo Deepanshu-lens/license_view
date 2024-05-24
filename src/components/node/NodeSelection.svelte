@@ -67,7 +67,7 @@
       }
 
       const { nodeData } = await response.json();
-      // console.log(nodeData)
+      console.log(nodeData)    
       const selected = nodeData.find((node) => node.name === selectedOption);
 
       if (!selected) {
@@ -121,14 +121,16 @@
   <div
     class={`relative inline-block min-w-[140px] ${$page.route.id.includes("/session") ? "w-max" : "w-full"} ${isAllFullScreen && "bg-black"}`}
   >
-    <select
-      class={`block text-primary outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
-      value={$selectedNode && $selectedNode.name}
+  <!-- value={$selectedNode && $selectedNode.name.length > 10 ? $selectedNode.name.substring(0, 10) + "..." : $selectedNode.name} -->
+  <select
+  class={`block text-primary text-xs outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
+  value={$selectedNode && $selectedNode.name}
       on:change={handleNodeSelect}
     >
       <option>Add Node +</option>
       {#each nodes as node}
-        <option id={node.id}>{node.name.length > 10 ? node.name.substring(0, 10) + "..." : node.name}</option>
+      {@const name = node.name}
+        <option id={node.id}>{name}</option>
       {/each}
     </select>
     <div
@@ -154,11 +156,11 @@
   {#if url.includes(`/session/`)}
     <span class="flex items-center gap-2 justify-between">
       <AddCameraDialog sNode={""} {nodes}>
-        <span
-          class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center`}
+        <button disabled
+          class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center disabled:cursor-not-allowed`}
         >
           <PlusCircle size={18} class="text-[#727272] dark:text-[#f9f9f9]" />
-        </span>
+        </button>
       </AddCameraDialog>
       <EditNodeDialog>
         <span

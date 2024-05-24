@@ -8,7 +8,7 @@
   const date = new Date(video.startTime)
 </script>
 
-<div class="w-[225px] h-[55px] bg-[#f9f9f9] rounded-md shad flex items-center justify-start px-2 gap-2 mx-auto">
+<div class="w-[225px] h-[55px] bg-[#f9f9f9] rounded-md shad flex items-center justify-start p-2 gap-2 mx-auto">
   <button on:click={() => {
     if ($convertedVideos.length <= 3) {
       convertedVideos.update(videos => [...videos, video]);
@@ -33,7 +33,7 @@
     ></button
   >
   <span 
-    ><p class="text-sm font-medium">Recording</p>
+    ><p class="text-sm font-medium">Rec : <span class="text-primary">{video.expand.camera.name}</span></p>
     <p class="text-xs text-black/70">   {date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",

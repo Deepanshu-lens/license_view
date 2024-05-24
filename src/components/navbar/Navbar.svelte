@@ -31,10 +31,10 @@
       text: "Events",
       href: `/events/${sessionId}`,
     },
-    // {
-    //   text: "Gallery",
-    //   href: `/gallery/${sessionId}`,
-    // },
+    {
+      text: "Gallery",
+      href: `/gallery/${sessionId}`,
+    },
     {
       text: "Configuration",
       href: `/configuration/${sessionId}?section=Remote`,
@@ -129,13 +129,48 @@
       <div
         class={`flex flex-row items-center justify-center py-6 px-4 gap-14 `}
       >
+        {#each menuList as item}
+          {#key item}
+            {#if item.text === "Live" || item.text === "Configuration"}
+              <a
+                href={item.href}
+                on:click={() => {
+                  addUserLog(`user clicked on navbar link "${item.text}"`);
+                }}
+              >
+                <span
+                  class={`${
+                    $page.url.pathname === item.href.split("?")[0]
+                      ? `text-primary font-bold text-lg`
+                      : ""
+                  }`}
+                >
+                  {item.text}
+                </span>
+              </a>
+            {:else}
+              <button disabled class="disabled:cursor-not-allowed">
+                <span
+                  class={`${
+                    $page.url.pathname === item.href.split("?")[0]
+                      ? `text-primary font-bold text-lg`
+                      : ""
+                  }`}
+                >
+                  {item.text}
+                </span>
+              </button>
+            {/if}
+          {/key}
+        {/each}
         {#if session.frs}
-          <a
+          <!-- <a
             href={frs.href}
             on:click={() => {
               addUserLog(`user clicked on navbar link "${frs.text}"`);
             }}
-          >
+          > -->
+          <button disabled class="disabled:cursor-not-allowed">
             <span
               class={`${
                 $page.url.pathname === frs.href.split("?")[0]
@@ -145,36 +180,16 @@
             >
               {frs.text}
             </span>
-          </a>
+          </button>
         {/if}
-
-        {#each menuList as item}
-          {#key item}
-            <a
-              href={item.href}
-              on:click={() => {
-                addUserLog(`user clicked on navbar link "${item.text}"`);
-              }}
-            >
-              <span
-                class={`${
-                  $page.url.pathname === item.href.split("?")[0]
-                    ? `text-primary font-bold text-lg`
-                    : ""
-                }`}
-              >
-                {item.text}
-              </span>
-            </a>
-          {/key}
-        {/each}
         {#if session.playback}
-          <a
+          <!-- <a
             href={playback.href}
             on:click={() => {
               addUserLog(`user clicked on navbar link "${playback.text}"`);
             }}
-          >
+          > -->
+          <button disabled class="disabled:cursor-not-allowed">
             <span
               class={`${
                 $page.url.pathname === playback.href.split("?")[0]
@@ -184,7 +199,8 @@
             >
               {playback.text}
             </span>
-          </a>
+          </button>
+          <!-- </a> -->
         {/if}
         {#if session.anpr}
           <a
