@@ -22,7 +22,7 @@ export const POST: RequestHandler = async ({
 
     // Combine node and subNode names with an underscore
     const combinedName = `${node}_${subNode}`;
-    console.log(sessionId, node, subNode, combinedName);
+    console.log(sessionId, combinedName);
 
     const result = await locals.pb?.collection("node").create({
       name: combinedName,

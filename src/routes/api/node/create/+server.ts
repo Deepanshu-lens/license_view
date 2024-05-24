@@ -16,6 +16,13 @@ export const POST: RequestHandler = async ({
       mobileLayout: mobileLay
     });
 
+    // console.log(result.id)
+    await locals.pb
+    ?.collection("session")
+    .update(locals.user.record.session[0], {
+      "node+": [result?.id],
+    });
+
     return new Response(JSON.stringify({ node: result }), { status: 200 });
   } catch (err) {
     console.log(err);

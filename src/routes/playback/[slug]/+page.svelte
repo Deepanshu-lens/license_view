@@ -26,7 +26,7 @@
         (node) =>
           ({
             ...node,
-            session: session:id,
+            session: session.id,
             camera:
               node?.camera?.length > 0
                 ? (node?.expand?.camera?.reverse().map((cam: Camera) => ({
