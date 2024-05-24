@@ -15,12 +15,10 @@
     ImageDown,
     Menu,
     RefreshCcw,
-    Replace,
-    VolumeX,
+
   } from "lucide-svelte";
   import { Shrink } from "lucide-svelte";
   import { addUserLog } from "@/lib/addUserLog";
-  import { PUBLIC_BASE_URL } from "$env/static/public";
   import { page } from "$app/stores";
   import Sortable from "sortablejs";
   import { onDestroy, onMount } from "svelte";

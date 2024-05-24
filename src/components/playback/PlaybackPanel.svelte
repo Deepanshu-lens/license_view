@@ -1,250 +1,69 @@
 <script lang="ts">
-  import { Calendar } from "@/components/ui/calendar";
   import {
-    CalendarDays,
-    X,
-    Shrink,
-    ListFilter,
     Search,
     Filter,
     Expand,
     ChevronRight,
+    Trash,
+    X
   } from "lucide-svelte";
-  import PlaybackVideoCard from "../cards/PlaybackVideoCard.svelte";
-  import { activeCamera, alertPanelHide, playbackVideos } from "@/lib/stores";
-  import { cn } from "@/lib";
-  import PocketBase, { Record } from "pocketbase";
-  import { onDestroy, onMount } from "svelte";
-  import type { Playback } from "@/types";
+  import PocketBase from "pocketbase";
   import { addUserLog } from "@/lib/addUserLog";
   import NodeSelection from "../node/NodeSelection.svelte";
   import PlaybackList from "../lists/PlaybackList.svelte";
-  import { toast } from "svelte-sonner";
-  import LayoutDialog from "../dialogs/LayoutDialog.svelte";
-  import RegisterDialog from "../dialogs/RegisterDialog.svelte";
-  // import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
   import { page } from "$app/stores";
+  import { convertedVideos } from "@/lib/stores";
+  import Player from "../player/Player.svelte";
 
-  let showCalendar: boolean = false;
+
   let showRightPanel: boolean = true;
-  let value = null;
-  let searchDate: string = "";
-  let queryDate = "";
   let playbackFullscreen = false;
   let showFilters = false;
-  let manual: boolean = false;
-  export let webmFiles;
-  export let data;
-  const nodes = data.nodes;
 
-  function handleDateInput() {
-    const formattedInput = new Date(searchDate);
-    if (searchDate.length === 0) queryDate = "";
-    // console.log(searchDate);
-    // console.log(queryDate);
-    if (!isNaN(formattedInput)) {
-      const inputDate = formattedInput.toString().slice(0, 15);
-      queryDate = inputDate;
-    }
-  }
-
-  $: if (value) {
-    const date = new Date(value.year, value.month - 1, value.day);
-
-    // Convert to desired format
-    let formattedDate = date.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-
-    console.log(formattedDate);
-    searchDate = formattedDate;
-    queryDate = formattedDate;
-    formattedDate = null;
-    showCalendar = false;
-    value = null;
-  }
+export let data;
+const nodes = data.nodes
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
-  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
 
-  PB.collection("playback").subscribe("*", async (e) => {
-    playbackVideos.set(await getPlaybackData());
-    console.log($playbackVideos);
-  });
+$: {
+console.log($convertedVideos)
+}
 
-  async function getPlaybackData(): Promise<Playback[]> {
-    console.log("Getting playback data");
-    const data = await PB.collection("playback").getFullList({
-      sort: "-startTime",
-    });
-    return data.map(
-      (event) =>
-        ({
-          ...event,
-          startTime: new Date(event.startTime),
-        }) as unknown as Playback,
-    );
-  }
-
-  onMount(async () => {
-    playbackVideos.set(await getPlaybackData());
-    // console.log($playbackVideos);
-  });
-
-  onDestroy(() => {
-    PB.collection("playback").unsubscribe("*");
-  });
-  // console.log(webmFiles);
-
-  let processedVideos;
-  $: {
-    processedVideos = $playbackVideos.map((video) => {
-      // console.log(video);
-      return webmFiles
-        .filter((file) => {
-          return video.url.split("/")[2].includes(file.split(".")[0]);
-        })
-        .map((file) => {
-          // console.log(file, video);
-          return { ...video, webmFile: file };
-        });
-    });
-    processedVideos = processedVideos.filter(
-      (videoArray) => videoArray.length > 0,
-    );
-  }
-
-  const singleFullscreen = () => {
-    let cell = document.getElementById(`scrollableEle`);
-    cell?.requestFullscreen({ navigationUI: "show" });
-    playbackFullscreen = true;
-  };
-
-  const exitSingleFullscreen = () => {
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-      playbackFullscreen = false;
-    }
-  };
-
-  const onFullscreenChange = () => {
-    if (!document.fullscreenElement) {
-      console.log("Exited fullscreen mode");
-      playbackFullscreen = false;
-      document.removeEventListener("fullscreenchange", onFullscreenChange);
-    }
-  };
-
-  $: {
-    if (playbackFullscreen) {
-      document.addEventListener("fullscreenchange", onFullscreenChange);
-    } else {
-      document.removeEventListener("fullscreenchange", onFullscreenChange);
-    }
-  }
 </script>
 
 <section
-  class="right-playback flex-1 flex w-full h-screen justify-between px-2"
+  class="right-playback flex-1 flex w-full h-screen justify-between pr-2 pl-[1px]"
 >
-  <div class="w-full h-full">
-    <!-- <div class="top2 flex items-center justify-between pr-6 py-2.5">
-      <div class="flex items-center justify-center gap-4">
-        <button
-          class={!manual
-            ? "font-semibold text-sm text-white px-4 py-1.5 rounded-md bg-[#015A62] border-solid border border-[#015A62] w-[135px]"
-            : "font-semibold text-sm bg-white px-4 py-1.5 rounded-md text-[#015A62] dark:border-none dark:bg-[#333] dark:text-[white] border-solid border border-[#015A62] w-[135px]"}
-          on:click={() => {
-            manual = false;
-            addUserLog("user clicked on automated button playback");
-          }}
-        >
-          Automated
-        </button>
-        <button
-          class={!manual
-            ? "font-semibold text-sm bg-white px-4 py-1.5 rounded-md text-[#015A62] dark:border-none dark:bg-[#333] dark:text-[white] border-solid border border-[#015A62] w-[135px]"
-            : "font-semibold text-sm text-white px-4 py-1.5 rounded-md bg-[#015A62] border-solid border border-[#015A62] w-[135px]"}
-          on:click={() => {
-            manual = true;
-            addUserLog("user clicked on manual button playback");
-          }}
-        >
-          Manual
-        </button>
-      </div>
-      <div class="text-[#015A62]">
-        {queryDate.length === 0 ? "Date" : queryDate}
-      </div>
-    </div> -->
-
-    <div
-      id="scrollableEle"
-      class={cn(
-        "flex flex-col overflow-y-scroll pr-6 bg-white dark:bg-black relative ml-2",
-        playbackFullscreen
-          ? "max-h-screen py-8 px-4"
-          : "max-h-[calc(100vh-200px)] py-4",
-      )}
-    >
-      {#if playbackFullscreen}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <span
-          on:click={() => {
-            exitSingleFullscreen();
-            addUserLog("user clicked on Minimize button playback");
-          }}
-          class=" cursor-pointer absolute top-4 right-4 backdrop-blur-sm bg-[rgba(0,0,0,0.6)] p-1.5 rounded-sm text-white flex items-center gap-2"
-        >
-          <Shrink size={18} /> Minimize
-        </span>
-      {/if}
-      <span
-        class="text-lg font-medium dark:text-[#e0e0e0] text-[#212427] pr-6 mb-3"
-      >
-        Files that got converted
-      </span>
-      <div
-        class={cn(
-          "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mb-6",
-        )}
-      >
-        {#if webmFiles.length > 0}
-          {#each webmFiles as video}
-            <PlaybackVideoCard {video} />
-          {/each}
-        {:else}
-          <span
-            class="text-sm font-medium dark:text-[#e0e0e0] text-[#212427] pr-6 py-4"
-          >
-            No items found
-          </span>
-        {/if}
-      </div>
-      <span
-        class="text-lg font-medium dark:text-[#e0e0e0] text-[#212427] pr-6 mb-3"
-      >
-        Files that match db
-      </span>
-      <div class={"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"}>
-        {#if processedVideos.length > 0}
-          {#each processedVideos as video}
-            <PlaybackVideoCard {video} />
-          {/each}
-        {:else}
-          <span
-            class="text-sm font-medium dark:text-[#e0e0e0] text-[#212427] px-r py-4"
-          >
-            No items found
-          </span>
-        {/if}
-      </div>
-    </div>
+<div class='h-full w-full'>
+  {#if $convertedVideos.length === 0} 
+  <div class="bg-[#333] text-white grid place-items-center w-full h-[calc(100vh-75px)]">
+    <p>No recordings selected</p>
   </div>
+  {:else}
+  <div class={`bg-[#333] h-[calc(100vh-75px)] grid place-items-center gap-1 w-full  ${$convertedVideos.length=== 1 ? 'grid-cols-1 grid-rows-1': $convertedVideos.length === 2 ? 'grid-cols-2 grid-rows-1': 'grid-rows-2 grid-cols-2'}`}>
+    {#each $convertedVideos as video, idx (video.id)}
+      {@const videos = {
+        controls: true,
+        srcs: [
+          {
+            src: video.url,
+            type: "video/mp4",
+          },
+        ],
+      }}
+      <div class="grid place-items-center h-full w-full relative">
 
+        <Player {videos} {idx} />
+        <button class='absolute z-20 top-4 right-4 text-white' on:click={() => {
+          $convertedVideos = $convertedVideos.filter((_, index) => index !== idx);
+        }}>
+        <X size={18} class='text-white'/>
+      </button>
+    </div>
+    {/each}
+  </div>
+  {/if}
+</div>
   <div
     class={`h-[calc(100vh-75px)] ${showRightPanel ? "w-1/4 max-w-72 " : "w-0"} transition-width ease-in-out duration-500 dark:border-[#292929] border-x-[1px] relative`}
   >
@@ -271,7 +90,7 @@
     class="flex flex-col gap-4 items-center justify-center pl-2 h-[calc(100vh-76px)]"
   >
     <span class="group flex flex-col gap-0.5 items-center justify-center">
-      <button
+      <button disabled
         on:click={() => {
           addUserLog(`user clicked on Search button, top panel`);
         }}
@@ -287,7 +106,7 @@
     <span
       class="group flex flex-col gap-0.5 items-center justify-center relative"
     >
-      <button
+      <button disabled
         on:click={() => (showFilters = !showFilters)}
         class={!showFilters
           ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
@@ -377,8 +196,7 @@
       {/if}
     </span>
     <span class="group flex flex-col gap-0.5 items-center justify-center">
-      <button
-        on:click={() => singleFullscreen()}
+      <button disabled
         class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
         ><Expand class="h-[22px] w-[22px]" />
       </button>
@@ -390,3 +208,19 @@
     </span>
   </div>
 </section>
+
+<style>
+   .grid-rows-1 {
+    grid-template-rows: repeat(1, 100%);
+  }
+  .grid-rows-2 {
+    grid-template-rows: repeat(2, 50%);
+  }
+
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, 99.9%);
+  }
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, 49.6%);
+  }
+</style>

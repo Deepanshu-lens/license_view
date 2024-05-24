@@ -49,6 +49,19 @@
   import LayoutDialog from "../dialogs/LayoutDialog.svelte";
   import AddCameraDialog from "../dialogs/AddCameraDialog.svelte";
   import { page } from "$app/stores";
+  import Player from "@/components/player/Player.svelte";
+
+  // let videos = [
+  //   {
+  //     controls: true,
+  //     srcs: [
+  //       {
+  //         src: "/video/eka4spdbagxd4ox_2024_05_22_15_45_10.ts",
+  //         type: "video/mp4",
+  //       },
+  //     ],
+  //   },
+  // ];
 
   export let data;
   export let url;
@@ -625,6 +638,7 @@
         : "w-full h-full flex items-center justify-center"}
     >
       <StreamLayout {handleSingleSS} {isAllFullScreen} />
+      <!-- <Player {videos} /> -->
     </div>
 
     {#if isAllFullScreen}

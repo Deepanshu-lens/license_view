@@ -69,7 +69,7 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
           ?.filter((feature) => role?.[0]?.features?.includes(feature.id))
           ?.map((feature) => feature.feature);
 
-        console.log(matchedFeatures);
+        // console.log(matchedFeatures);
 
         return {
           loggedIn: locals.pb?.authStore.isValid,

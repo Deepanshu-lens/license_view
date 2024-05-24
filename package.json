@@ -39,6 +39,7 @@
 		"chart.js": "^4.4.2",
 		"class-variance-authority": "^0.7.0",
 		"clsx": "^2.1.0",
+		"date-fns": "^3.6.0",
 		"embla-carousel-autoplay": "^8.0.0-rc22",
 		"embla-carousel-svelte": "^8.0.0-rc22",
 		"eventsource": "^2.0.2",

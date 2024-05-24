@@ -171,3 +171,13 @@ input {
 .shadow-big {
   box-shadow: 0px 4px 26px 0px rgba(0, 0, 0, 0.15);
 }
+
+/* input[type=time]::-webkit-datetime-edit-hour-field:focus,
+input[type=time]::-webkit-datetime-edit-minute-field:focus,
+input[type=time]::-webkit-datetime-edit-second-field:focus,
+input[type=time]::-webkit-datetime-edit-ampm-field:focus {
+  background-color: #e4d2ba;
+}
+::selection {
+  background: #e4d2ba;
+} */

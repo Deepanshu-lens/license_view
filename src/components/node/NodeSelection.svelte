@@ -18,7 +18,6 @@
   export let isAllFullScreen: boolean;
   let showAddNode = false;
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
-  console.log($page);
 
   const onDeleteNode = () => {
     // console.log($selectedNode);

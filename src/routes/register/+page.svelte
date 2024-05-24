@@ -35,7 +35,7 @@
       <div
         class="flex items-center sm:justify-start sm:self-start gap-4 sm:-ml-4 pt-[2rem] sm:pt-0"
       >
-        <img
+        <!-- <img
           src={"/images/coreIp.jpg"}
           alt="logo"
           height={80}
@@ -49,7 +49,7 @@
           width={140}
           class="hidden dark:block"
         />
-        <span class="w-[1px] h-[80%] bg-slate-300" />
+        <span class="w-[1px] h-[80%] bg-slate-300" /> -->
         <img
           src={"/images/white.svg"}
           alt="logo"

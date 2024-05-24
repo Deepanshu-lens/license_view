@@ -6,6 +6,7 @@ export const selectedNode = writable<SelectedNode>();
 export const selectedPlaybackDate = writable("");
 export const playbackVideos = writable<Playback[]>([]);
 export const convertedVideos = writable([]);
+export const allVideos = writable([])
 
 export const hoveredCamera = writable("");
 export const activeCamera = writable("");

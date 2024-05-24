@@ -27,10 +27,10 @@
       text: "Live",
       href: `/session/${sessionId}`,
     },
-    // {
-    //   text: "Events",
-    //   href: `/events/${sessionId}`,
-    // },
+    {
+      text: "Events",
+      href: `/events/${sessionId}`,
+    },
     // {
     //   text: "Gallery",
     //   href: `/gallery/${sessionId}`,
@@ -112,14 +112,14 @@
       <div
         class="cursor-pointer f-dull flex items-center gap-2 justify-center px-2"
       >
-        <img
+        <!-- <img
           src={$mode === "light"
             ? "/images/coreIp.jpg"
             : "/images/navCoreWhite.png"}
           alt="logo"
           class="w-24"
         />
-        <Separator orientation="vertical" class="h-12" />
+        <Separator orientation="vertical" class="h-12" /> -->
         <img
           src={$mode === "light" ? "/images/green.svg" : "/images/white.svg"}
           alt="logo"
@@ -212,14 +212,14 @@
       >
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <span
+        <!-- <span
           class="flex items-center justify-center gap-1.5 cursor-pointer hover:text-primary"
           on:click={() => {
             addUserLog(`user clicked on support on navbar`);
           }}
         >
           Support
-        </span>
+        </span> -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <span
