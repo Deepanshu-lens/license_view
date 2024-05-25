@@ -57,7 +57,7 @@
         return;
       }
       const result = await data.json();
-      nodeData.set([...result?.nodeData]);
+      nodeData.set(result?.nodeData.map(node => ({ ...node, session: user.session })));
     } else {
       console.log("no selected node");
     }
@@ -97,6 +97,7 @@
   };
 
   $: {
+    console.log($nodeData)
     newData =
       $nodeData.length > 0
         ? $nodeData.filter((item: any) => {
@@ -114,6 +115,7 @@
       detailIndex = null;
     }
   }
+
 </script>
 
 <div

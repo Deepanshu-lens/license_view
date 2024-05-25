@@ -6,13 +6,9 @@ export const POST: RequestHandler = async ({
 }: RequestEvent) => {
   console.log("Getting node data");
   const { session } = await request.json();
-  console.log(session)
-  // console.log(`session="${session[0]}"`)
   const nodeData = await locals.pb?.collection("node").getFullList({
-    filter: `session~"${session[0]}"`,
-    // expand: "camera",
+    filter: `session~"${session}"`,
   });
-  // console.log(nodeData)
   if (nodeData) {
     for (let node of nodeData) {
       if (node.camera && Array.isArray(node.camera)) {
@@ -25,8 +21,6 @@ export const POST: RequestHandler = async ({
             cameraData.push(cameraDetails);
           }
         }
-        // Add the camera data to the node object. Adjust this according to how you want the data structured.
-        // node.expand = cameraData;
         node.cameraData = cameraData;
       }
     }

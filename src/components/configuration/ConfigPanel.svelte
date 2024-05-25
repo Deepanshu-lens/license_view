@@ -178,7 +178,7 @@
     {:else if search === "License"}
       <License session={data.session} />
     {:else}
-      <UserS {user} {records} {logs} />
+      <UserS {user} {records} {logs} {data} />
     {/if}
   </div>
 

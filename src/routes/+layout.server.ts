@@ -48,7 +48,7 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
         const session = await locals.pb
           ?.collection("session")
           .getOne(locals.user.record.session[0]);
-
+        // console.log(locals.user.record.session[0])
         const nodes = await locals.pb?.collection("node").getFullList<Node[]>({
           filter: `session~"${locals.user.record.session[0]}"`,
         });
@@ -77,7 +77,7 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
             name: locals.user.record.name,
             email: locals.user.record.email,
             session: locals.user.record.session[0],
-            role: role[0].roleName,
+            role: role?.[0]?.roleName,
             features: matchedFeatures,
           } as User,
           session: { ...session },

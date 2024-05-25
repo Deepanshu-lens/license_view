@@ -14,15 +14,18 @@
   import Switch from "@/components/ui/switch/switch.svelte";
 
   import * as Tabs from "@/components/ui/tabs";
+  import type { PageServerData } from ".svelte-kit/types/src/routes/$types";
   export let user: User;
   export let records: LoginEvent[];
   export let logs: UserLog[];
-  export let selected = 1;
+  export let selected = 2;
+  export let data: PageServerData;
   let showUpdateUsernameModal = false;
   let showUpdateEmailModal = false;
   let showUpdatePasswordModal = false;
   let username = "";
-  let selectedP = 1;
+  let selectedP = 2;
+  let allUsers = [];
 
   function handleUsernameUpdate() {
     if (username.length > 0) {
@@ -61,6 +64,34 @@
     };
     const date = new Date(dateTimeString);
     return date.toLocaleDateString("en-US", options);
+  }
+
+  let fetched = false;
+  let fetchingUsers = false;
+
+  async function fetchAllUsers() {
+    if (fetchingUsers) return;
+    
+    fetchingUsers = true;
+    try {
+      const response = await fetch("/api/user/getMany");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      allUsers = data.records;
+      fetched = true;
+      return data;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      return [];
+    } finally {
+      fetchingUsers = false;
+    }
+  }
+
+  $: if (selectedP === 2 && selected === 2 && !fetched) {
+    fetchAllUsers();
   }
 </script>
 
@@ -484,6 +515,44 @@
       </Tabs.Root>
     {:else}
       <p class="text-lg px-6 font-medium">node content</p>
+      <Table.Root class="mx-auto w-full flex flex-col pb-10 pt-4 px-6">
+        <Table.Header
+          class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9] "
+        >
+          <Table.Row class="bg-transparent flex items-center justify-between p-3">
+            <Table.Head class="text-[#727272] h-full">
+             User/Nodes
+            </Table.Head>
+            {#each data.nodes as node}
+              <Table.Head class="text-[#727272] h-full">
+                {node.name}
+              </Table.Head>
+            {/each}
+          </Table.Row>
+        </Table.Header>
+        <Table.Body class="overflow-y-scroll max-h-[calc(100vh-285px)] pb-10">
+            {#if allUsers}
+              {#each allUsers as user}
+                <Table.Row
+                  class="bg-transparent cursor-pointer flex items-center justify-between mt-4 px-3 rounded-lg border-2 border-solid border-[#e4e4e4]"
+                >
+                  <Table.Cell class="text-black h-full">
+                    <span class="flex items-center gap-2 capitalize font-semibold">
+                      {user.name}
+                    </span>
+                  </Table.Cell>
+                  {#each data.nodes as node}
+                    <Table.Cell class="text-[#727272] h-full text-sm">
+                      <input type="checkbox" />
+                    </Table.Cell>
+                  {/each}
+                </Table.Row>
+              {/each}
+            {/if}
+
+           
+        </Table.Body>
+      </Table.Root>
     {/if}
   {/if}
   {#if selected === 3}
