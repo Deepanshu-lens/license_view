@@ -43,6 +43,7 @@
 		"embla-carousel-autoplay": "^8.0.0-rc22",
 		"embla-carousel-svelte": "^8.0.0-rc22",
 		"eventsource": "^2.0.2",
+		"flowbite-svelte": "^0.46.1",
 		"framer-motion": "^11.0.14",
 		"hls.js": "^1.5.4",
 		"html2canvas": "^1.4.1",

@@ -3,11 +3,9 @@
   import {
     Check,
     ChevronDown,
-    Disc2,
     EditIcon,
     Expand,
     ListFilter,
-    ScanFace,
     Shrink,
     Trash2Icon,
     X,
@@ -18,11 +16,9 @@
   import Stream from "../stream/Stream.svelte";
   import ComfortableProfileCard from "../cards/ComfortableProfileCard.svelte";
   import CarDetailsDialog from "../dialogs/CarDetailsDialog.svelte";
-  import { addUserLog } from "@/lib/addUserLog";
   import InfoDialog from "../dialogs/mobile/InfoDialog.svelte";
   import { onMount } from "svelte";
   import { toast } from "svelte-sonner";
-  import { PUBLIC_BASE_URL } from "$env/static/public";
   import { page } from "$app/stores";
 
   let showInfoModal = false;

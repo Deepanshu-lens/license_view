@@ -110,7 +110,7 @@
   <nav class="bg-background w-full flex flex-row items-center justify-center">
     <div class="flex w-full justify-between">
       <div
-        class="cursor-pointer f-dull flex items-center gap-2 justify-center px-2"
+        class="cursor-pointer flex items-center gap-2 justify-center px-2"
       >
         <!-- <img
           src={$mode === "light"

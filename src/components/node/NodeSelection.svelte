@@ -3,7 +3,11 @@
   import AddCameraDialog from "@/components/dialogs/AddCameraDialog.svelte";
   import EditNodeDialog from "./../dialogs/EditNodeDialog.svelte";
   import type { Camera, Node } from "@/types";
-  import { Edit, PlusCircle, Trash } from "lucide-svelte";
+  import {
+    Edit,
+    PlusCircle,
+    Trash,
+  } from "lucide-svelte";
   import { selectedNode } from "@/lib/stores";
   import Button from "../ui/button/button.svelte";
   import { toast } from "svelte-sonner";
@@ -13,9 +17,7 @@
   import { page } from "$app/stores";
   import { addUserLog } from "@/lib/addUserLog";
   import PocketBase from "pocketbase";
-  import * as DropdownMenu from "@/components/ui/dropdown-menu/index.js";
-  import * as HoverCard from "@/components/ui/hover-card";
-  import * as ContextMenu from "@/components/ui/context-menu";
+  import { Dropdown, DropdownItem, DropdownDivider } from "flowbite-svelte";
 
   export let url: string;
   export let nodes: Node[];
@@ -57,10 +59,8 @@
   }
 
   const resultGroupNodes = groupNodesRecursively(nodes);
-  console.log(resultGroupNodes);
 
   const onDeleteNode = () => {
-    // console.log($selectedNode);
     const localCameraList = $selectedNode.camera;
     fetch("/api/node/delete", {
       method: "delete",
@@ -109,7 +109,6 @@
       }
 
       const { nodeData } = await response.json();
-      console.log(nodeData);
       const selected = nodeData.find((node) => node.name === selectedOption);
 
       if (!selected) {
@@ -154,9 +153,7 @@
       toast.error("Something went wrong. Please try again");
     }
   };
-  let showFirstLevel = false;
-  let showSecondLevel = false;
-  
+
 </script>
 
 <div
@@ -165,58 +162,7 @@
   <div
     class={`relative inline-block min-w-[140px] ${$page.route.id.includes("/session") ? "w-max" : "w-full"} ${isAllFullScreen && "bg-black"}`}
   >
-    <!-- <DropdownMenu.Root>
-      <DropdownMenu.Trigger
-        class={`block text-start text-primary text-xs outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight`}
-      >
-        {$selectedNode && $selectedNode.name.includes("_")
-          ? $selectedNode.name.substring(
-              $selectedNode.name.lastIndexOf("_") + 1,
-            )
-          : $selectedNode.name.length > 10
-            ? $selectedNode.name.substring(0, 10) + "..."
-            : $selectedNode.name}
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content>
-        <DropdownMenu.Group>
-          <DropdownMenu.Item
-            id={"add"}
-            on:click={() =>
-              handleNodeSelect({ target: { value: "Add Node +" } })}
-          >
-            Add Node +
-          </DropdownMenu.Item>
-          {#each resultGroupNodes as node}
-            {@const name = node.name}
-            <DropdownMenu.Sub>
-              <DropdownMenu.SubTrigger>
-                <span>Invite users</span>
-              </DropdownMenu.SubTrigger>
-              <DropdownMenu.SubContent>
-                <DropdownMenu.Item>
-                  <span>Email</span>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item>
-                  <span>Message</span>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item>
-                  <HoverCard.Root>
-                    <HoverCard.Trigger>Hover</HoverCard.Trigger>
-                    <HoverCard.Content>
-                      SvelteKit - Web development, streamlined
-                    </HoverCard.Content>
-                  </HoverCard.Root>
-                </DropdownMenu.Item>
-              </DropdownMenu.SubContent>
-            </DropdownMenu.Sub>
-          {/each}
-        </DropdownMenu.Group>
-      </DropdownMenu.Content>
-    </DropdownMenu.Root>  -->  
-   
-   
-   
-  <select
+    <!-- <select
   class={`block text-primary text-xs outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
   value={$selectedNode && $selectedNode.name}
       on:change={handleNodeSelect}
@@ -226,8 +172,101 @@
       {@const name = node.name}
         <option id={node.id}>{name}</option>
       {/each}
-    </select>
+    </select> -->
+
+    <button
+      class={`text-start block text-primary text-xs outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
+      >{$selectedNode && $selectedNode.name.includes("_")
+        ? $selectedNode.name.substring($selectedNode.name.lastIndexOf("_") + 1)
+        : $selectedNode.name.length > 10
+          ? $selectedNode.name.substring(0, 10) + "..."
+          : $selectedNode.name}</button
+    >
+    <!-- <Dropdown class="z-[99999999]">
+      <DropdownItem
+        on:click={() => handleNodeSelect({ target: { value: "Add Node +" } })}
+        >Add Node +</DropdownItem
+      >
+      {#if resultGroupNodes?.length !== 0}
+        {#each resultGroupNodes as node}
+          <DropdownItem
+            class="flex items-center justify-between z-40"
+            on:click={() => {
+              if (node?.nodes[0].nodes === undefined) {
+                handleNodeSelect({ target: { value: node.name } });
+              }
+            }}
+          >
+            {node.name.includes("_")
+              ? node.name.substring(node.name.lastIndexOf("_") + 1)
+              : node.name.length > 10
+                ? node.name.substring(0, 10) + "..."
+                : node.name}{#if node?.nodes?.[0]?.nodes !== undefined}<ChevronRight
+                class="w-6 h-6 ms-2 text-primary-700 dark:text-white"
+              />
+            {/if}
+          </DropdownItem>
+          {#if node?.nodes?.[0]?.nodes !== undefined}
+            <Dropdown placement="left-start" class="z-40">
+              {#each node.nodes as subnode}
+                <DropdownItem
+                  class="flex items-center justify-between z-40"
+                  on:click={() => {
+                    if (subnode?.nodes?.[0]?.nodes === undefined) {
+                      handleNodeSelect({ target: { value: subnode.name } });
+                    }
+                  }}
+                >
+                  {subnode.name.includes("_")
+                    ? subnode.name.substring(subnode.name.lastIndexOf("_") + 1)
+                    : subnode.name.length > 10
+                      ? subnode.name.substring(0, 10) + "..."
+                      : subnode.name}{#if subnode?.nodes?.[0]?.nodes !== undefined}
+                    <ChevronRight
+                      class="w-6 h-6 ms-2 text-primary-700 dark:text-white"
+                    />{/if}
+                </DropdownItem>
+                {#if subnode.nodes && subnode.nodes?.[0]?.nodes !== undefined}
+                  <Dropdown placement="left-start" class="z-40">
+                    {#each subnode.nodes as subsubnode}
+                      <DropdownItem  on:click={() => {
+                        if (subsubnode?.nodes?.[0]?.nodes === undefined) {
+                          handleNodeSelect({ target: { value: subsubnode.name } });
+                        }
+                      }}
+                        class="flex items-center justify-between z-40"
+                        >{subsubnode.name.includes("_")
+                          ? subsubnode.name.substring(
+                              subsubnode.name.lastIndexOf("_") + 1,
+                            )
+                          : subsubnode.name.length > 10
+                            ? subsubnode.name.substring(0, 10) + "..."
+                            : subsubnode.name}
+                        {#if subsubnode?.nodes?.[0]?.nodes !== undefined}
+                          <ChevronRight
+                            class="w-6 h-6 ms-2 text-primary-700 dark:text-white"
+                          />{/if}</DropdownItem
+                      >
+                    {/each}
+                  </Dropdown>
+                {/if}
+              {/each}
+            </Dropdown>
+          {/if}
+        {/each}
+      {/if}
+    </Dropdown> -->
    
+    <Dropdown class="z-[99999999]">
+      <DropdownItem on:click={() => handleNodeSelect({ target: { value: "Add Node +" } })}>
+        Add Node +
+      </DropdownItem>
+      {#if resultGroupNodes?.length !== 0}
+        {#each resultGroupNodes as node}
+          <RecursiveNode {node} {handleNodeSelect} />
+        {/each}
+      {/if}
+    </Dropdown>
     <div
       class={cn(
         `pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 py-4 text-primary`,
@@ -279,85 +318,3 @@
   {/if}
   <AddNodeModal {showAddNode} />
 </div>
-
-
-   <!-- <DropdownMenu.Root>
-                <DropdownMenu.Trigger
-                  >{name.includes("_")
-                    ? name.substring(name.lastIndexOf("_") + 1)
-                    : name.length > 10
-                      ? name.substring(0, 10) + "..."
-                      : name}
-                  , subNodes:({node?.nodes?.length - 1})</DropdownMenu.Trigger
-                >
-                <DropdownMenu.Content>
-                  <DropdownMenu.Group>
-                    {#each node.nodes as subnode, index}
-                      {@const subName = subnode.name}
-                      {#if index !== 0}
-                        <DropdownMenu.Item
-                          id={subnode.id}
-                          on:click={() =>
-                            handleNodeSelect({ target: { value: subName } })}
-                        >
-                          <DropdownMenu.Root>
-                            <DropdownMenu.Trigger
-                              >{subName.includes("_")
-                                ? subName.substring(
-                                    subName.lastIndexOf("_") + 1,
-                                  )
-                                : subName.length > 10
-                                  ? subName.substring(0, 10) + "..."
-                                  : subName}
-                              , subNodes:({subnode?.nodes?.length -
-                                1})</DropdownMenu.Trigger
-                            >
-                            <DropdownMenu.Content>
-                              <DropdownMenu.Group>
-                                {#each subnode.nodes as subsubnode, id}
-                                  {@const subsubname = subsubnode.name}
-                                  {#if id !== 0}
-                                    <DropdownMenu.Item on:click={() =>
-                                      handleNodeSelect({ target: { value: subsubname } })}
-                                      >{id}- {subsubname.includes("_")
-                                        ? subsubname.substring(
-                                            subsubname.lastIndexOf("_") + 1,
-                                          )
-                                        : subsubname.length > 10
-                                          ? subsubname.substring(0, 10) + "..."
-                                          : subsubname}
-                                      , subNodes:({subnode?.nodes?.length -
-                                        1})</DropdownMenu.Item
-                                    >
-                                  {:else}
-                                    <DropdownMenu.Label
-                                      >{subsubname.includes("_")
-                                        ? subsubname.substring(
-                                            subsubname.lastIndexOf("_") + 1,
-                                          )
-                                        : subsubname.length > 10
-                                          ? subsubname.substring(0, 10) + "..."
-                                          : subsubname}</DropdownMenu.Label
-                                    >
-                                    <DropdownMenu.Separator />
-                                  {/if}
-                                {/each}
-                              </DropdownMenu.Group>
-                            </DropdownMenu.Content>
-                          </DropdownMenu.Root>
-                        </DropdownMenu.Item>
-                      {:else}
-                        <DropdownMenu.Label
-                          >{subName.includes("_")
-                            ? subName.substring(subName.lastIndexOf("_") + 1)
-                            : subName.length > 10
-                              ? subName.substring(0, 10) + "..."
-                              : subName}</DropdownMenu.Label
-                        >
-                        <DropdownMenu.Separator />
-                      {/if}
-                    {/each}
-                  </DropdownMenu.Group>
-                </DropdownMenu.Content>
-              </DropdownMenu.Root> -->
-            
