@@ -247,6 +247,14 @@
   }
 
   async function handleAddNode() {
+    // Check all nodeNames for underscores first
+    const invalidNodes = nodeName.filter(node => node.includes('_'));
+    
+    if (invalidNodes.length > 0) {
+      toast.error('"_" are not allowed for Node names, please try with some other name!');
+      return;
+    }
+
     for (let node of nodeName) {
       await fetch("/api/node/create", {
         method: "POST",
@@ -258,19 +266,25 @@
           sessionId: $selectedNode?.session,
         }),
       })
-        .catch((err) => console.log(err));
+      .catch((err) => console.log(err));
       // console.log(node)
     }
-    dialogOpen =false
+    dialogOpen = false;
   }
 
   async function handleAddSubNodes() {  
-    // console.log('sub node names',subNodeNames)
-    // console.log('chosen node',chosenNode.session[0])
+    // Check all subNodeNames for underscores first
+    const invalidSubNodes = subNodeNames.filter(sub => sub.includes('_'));
+    
+    if (invalidSubNodes.length > 0) {
+      toast.error('"_" are not allowed for subNode names, please try with some other name!');
+      return;
+    }
 
     for (let subs of subNodeNames) {
       await fetch('/api/node/subnode/create', {
-        method: 'POST', headers: {
+        method: 'POST', 
+        headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -278,11 +292,10 @@
           node: chosenNode.name,
           sessionId: chosenNode.session[0]
         })
-      })
+      });
+      dialogOpen = false;
     }
-    dialogOpen =false
   }
-
   $: {
     if (
       cameraUsername?.length > 0 ||

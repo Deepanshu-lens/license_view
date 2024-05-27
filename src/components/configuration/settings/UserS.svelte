@@ -498,7 +498,7 @@
         </Tabs.Content>
       </Tabs.Root>
     {:else}
-      <div class="w-full overflow-x-auto hide-scrollbar pb-10 pt-4 px-6">
+      <div class="w-full overflow-x-auto overflow-y-auto max-h-[calc(100vh-250px)] max-w-[calc(100vw-5.5rem)] hide-scrollbar pb-10 pt-4 px-6">
        <NodesTable {data} {allUsers}/>
        <!-- nodes table -->
       </div>

@@ -111,6 +111,8 @@
     }
   };
 
+
+  console.log(data)
   
 
   const captureSlideScreenshot = async (index: number) => {
@@ -285,9 +287,8 @@
   >
     <AddCameraDialog sNode="" {nodes}>
       <span class="group flex-col flex items-center justify-center gap-0.5">
-        <!-- <button
-          disabled={!features.includes("Add Camera")} -->
-          <button 
+        <button
+          disabled={!data.user.features.includes("add_camera")}
           on:click={() => {
             addUserLog(`user clicked on Add Camera button, top panel`);
           }}
@@ -303,9 +304,8 @@
     </AddCameraDialog>
     <SearchDialog>
       <span class="group flex-col flex items-center justify-center gap-0.5">
-        <!-- <button
-        disabled={!features.includes("Face Search")} -->
-        <button 
+        <button
+        disabled={!data.user.features.includes("button_search")}
           on:click={() => {
             addUserLog(`user clicked on Search button, top panel`);
           }}
@@ -321,9 +321,8 @@
     </SearchDialog>
     <RegisterDialog>
       <span class="group flex-col flex items-center justify-center gap-0.5">
-        <!-- <button
-        disabled={!features.includes("Face Register")} -->
-        <button 
+        <button
+        disabled={!data.user.features.includes("button_register")}
           on:click={() =>
             addUserLog("user clicked on Register button, top panel")}
           class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
@@ -346,6 +345,7 @@
     >
       <span class="group flex-col flex items-center justify-center gap-0.5">
         <button
+        disabled={!data.user.features.includes("button_extend")}
           on:click={() => (selectedScreen = 3)}
           class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
           ><Monitor class="h-[22px] w-[22px]" /></button
@@ -358,9 +358,8 @@
       </span>
     </a>
     <span class="group flex-col flex items-center justify-center gap-0.5">
-      <!-- <button
-      disabled={!features.includes("Screen Record")} -->
-      <button 
+      <button
+      disabled={!data.user.features.includes("button_record")}
         on:click={() => {
           recordDropdownOpen = !recordDropdownOpen;
           snipDropDownOpen = false;
@@ -414,9 +413,9 @@
       </p>
     </span>
     <span class="group flex-col flex items-center justify-center gap-0.5">
-      <!-- <button
-      disabled={!features.includes("Screen Snip")} -->
+
       <button
+      disabled={!data.user.features.includes("button_snip")}
         on:click={() => {
           snipDropDownOpen = !snipDropDownOpen;
           recordDropdownOpen = false;
@@ -488,7 +487,8 @@
     <span class="group flex-col flex items-center justify-center gap-0.5">
       <!-- <button
       disabled={!features.includes("Toggle Alerts")} -->
-      <button 
+      <button  
+      disabled={!data.user.features.includes("button_alert")}
         on:click={() => {
           alertPanelHide.set(!$alertPanelHide);
           currpanel = 1;
@@ -513,6 +513,7 @@
       <!-- <button
       disabled={!features.includes("Grid Fullscreen") || cameraCount === 0} -->
       <button
+      disabled={!data.user.features.includes("button_layout")}
         on:click={() => {
           toggleFullscreen();
           addUserLog(`user clicked on fulscreen, top panel`);
@@ -530,6 +531,7 @@
       <!-- <button
       disabled={!features.includes("Change Layouts")} -->
       <button
+      disabled={!data.user.features.includes("button_manage")}
         on:click={() => {
           displayLayouts = !displayLayouts;
           nodeCameras = false;
@@ -635,7 +637,7 @@
         ? "w-full h-screen flex items-center justify-center"
         : "w-full h-full flex items-center justify-center"}
     >
-      <StreamLayout {handleSingleSS} {isAllFullScreen} />
+      <StreamLayout {handleSingleSS} {isAllFullScreen} {data}/>
       <!-- <Player {videos} /> -->
     </div>
 
@@ -859,8 +861,8 @@
           </ul>
         {/if}
       {:else}
-        <NodeSelection {isAllFullScreen} {nodes} {url} />
-        <CameraList {isAllFullScreen} {showItems} user={data.user} />
+        <NodeSelection {isAllFullScreen} {nodes} {url} {data} />
+        <CameraList {isAllFullScreen} {showItems} user={data.user} {data}/>
       {/if}
     </div>
   </div>

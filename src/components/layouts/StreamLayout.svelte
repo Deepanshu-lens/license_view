@@ -24,6 +24,7 @@
 
   export let handleSingleSS: () => void;
   export let isAllFullScreen: boolean;
+  export let data;
   // export let slideIndex: number | undefined | null;
 
   let streamCount = $selectedNode.camera.length; // Number of video streams
@@ -38,7 +39,7 @@
 
   const neededUrl = $page.url.hostname;
 
-  const initVideo = async (camera: Camera) => {
+  const initVideo = async (camera: Camera, index: number) => {
     if (videos[camera.id]) {
       console.log("video c.id exists", camera.name);
       return;
@@ -55,11 +56,22 @@
       ? (video.src = new URL(
           `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
         ))
-      : (video.src = new URL(
-          isSingleFullscreen
-            ? `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&camID=${camera.id}_FULL&nodeID=${1}`
-            : `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
-        ));
+      : ($selectedNode.maxStreamsPerPage === 13 ||
+            $selectedNode.maxStreamsPerPage === 5 ||
+            $selectedNode.maxStreamsPerPage === 7) &&
+          index === 0
+        ? (video.src = new URL(
+            `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&nodeID=${1}`,
+          ))
+        : $selectedNode.maxStreamsPerPage === 10 && (index === 0 || index === 1)
+          ? (video.src = new URL(
+              `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&nodeID=${1}`,
+            ))
+          : (video.src = new URL(
+              isSingleFullscreen
+                ? `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&nodeID=${1}`
+                : `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
+            ));
     video.style.position = "relative";
     video.style.width = "100%";
     video.style.height = "100%";
@@ -117,8 +129,11 @@
   const refreshVideoStream = (cameraId: string) => {
     const videoElement = videos[cameraId];
     if (videoElement) {
-      if (videoElement.src instanceof WebSocket && videoElement.src.readyState === WebSocket.OPEN) {
-        console.log('first')
+      if (
+        videoElement.src instanceof WebSocket &&
+        videoElement.src.readyState === WebSocket.OPEN
+      ) {
+        console.log("first");
         videoElement.src.close();
       }
       console.log(videoElement);
@@ -178,10 +193,10 @@
       prevName = $selectedNode.name;
     }
     slideIndex = 0;
-    $selectedNode.camera.map((c) => {
+    $selectedNode.camera.map((c, index) => {
       if (!videos[c.id]) {
         console.log(c);
-        initVideo(c);
+        initVideo(c, index);
       } else {
         if (videos[c.id].url !== c.url) {
           videos[c.id].url = c.url;
@@ -478,15 +493,16 @@
                     <span
                       class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-90 z-20"
                     >
-                    <span
-                    class={`h-2 w-2 ${
-                      $selectedNode.camera[
-                        pageIndex * $selectedNode.maxStreamsPerPage + slotIndex
-                      ].save === true
-                        ? "bg-[#C12828]"
-                        : "bg-[#589e67]"
-                    } rounded-full`}
-                  />
+                      <span
+                        class={`h-2 w-2 ${
+                          $selectedNode.camera[
+                            pageIndex * $selectedNode.maxStreamsPerPage +
+                              slotIndex
+                          ].save === true
+                            ? "bg-[#C12828]"
+                            : "bg-[#589e67]"
+                        } rounded-full`}
+                      />
                       <span class="text-xs font-extrabold">
                         {$selectedNode.camera[
                           pageIndex * $selectedNode.maxStreamsPerPage +
@@ -529,6 +545,8 @@
                                   pageIndex * $selectedNode.maxStreamsPerPage +
                                     slotIndex
                                 ],
+                                pageIndex * $selectedNode.maxStreamsPerPage +
+                                  slotIndex,
                               );
                             } else {
                               singleFullscreen(slotIndex);
@@ -557,6 +575,8 @@
                                   pageIndex * $selectedNode.maxStreamsPerPage +
                                     slotIndex
                                 ],
+                                pageIndex * $selectedNode.maxStreamsPerPage +
+                                  slotIndex,
                               );
                             }
 
@@ -650,6 +670,8 @@
                                 pageIndex * $selectedNode.maxStreamsPerPage +
                                   slotIndex
                               ],
+                              pageIndex * $selectedNode.maxStreamsPerPage +
+                                slotIndex,
                             );
                           } else {
                             singleFullscreen(slotIndex);
@@ -676,6 +698,8 @@
                                 pageIndex * $selectedNode.maxStreamsPerPage +
                                   slotIndex
                               ],
+                              pageIndex * $selectedNode.maxStreamsPerPage +
+                                slotIndex,
                             );
                           }
 
@@ -707,6 +731,12 @@
                         <Menu size={18} />
                       </span>
                     {/if}
+
+                    <img
+                      src="/images/logo-black.png"
+                      alt="logo"
+                      class="object-contain w-[15%] absolute right-4 bottom-4 z-20"
+                    />
                   </div>
                 {/key}
               {:else}
@@ -731,18 +761,22 @@
                   <AddCameraDialog sNode={""}>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                    <img
-                      on:click={() => {
-                        addUserLog(
-                          `user clicked on add camera on stream panel`,
-                        );
-                      }}
-                      alt="add camera"
-                      src={$mode === "light" && !isAllFullScreen
-                        ? "/images/plusLight.png"
-                        : "/images/plusDark.png"}
-                      class="h-full w-full object-contain scale-50 2xl:scale-[.35] absolute cursor-pointer top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
-                    />
+                    <button
+                      disabled={!data.user.features.includes("add_camera")}
+                    >
+                      <img
+                        on:click={() => {
+                          addUserLog(
+                            `user clicked on add camera on stream panel`,
+                          );
+                        }}
+                        alt="add camera"
+                        src={$mode === "light" && !isAllFullScreen
+                          ? "/images/plusLight.png"
+                          : "/images/plusDark.png"}
+                        class="h-full w-full object-contain scale-50 2xl:scale-[.35] absolute cursor-pointer top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
+                      />
+                    </button>
                   </AddCameraDialog>
                   <!-- <span
                     class="cursor-grab grab-handle absolute rounded top-4 right-12 flex-shrink-0 p-1 bg-[rgba(0,0,0,.5)] text-white z-20"
@@ -773,16 +807,18 @@
     <AddCameraDialog sNode={""}>
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-      <img
-        on:click={() => {
-          addUserLog(`user added first camera through streampanel`);
-        }}
-        alt="add camera"
-        src={$mode === "light"
-          ? "/images/plusLight.png"
-          : "/images/plusDark.png"}
-        class={`h-full w-full object-contain dark:scale-[.40] scale-[.20] cursor-pointer ${streamCount === 0 ? "" : "top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"}`}
-      />
+      <button disabled={!data.user.features.includes("add_camera")}>
+        <img
+          on:click={() => {
+            addUserLog(`user added first camera through streampanel`);
+          }}
+          alt="add camera"
+          src={$mode === "light"
+            ? "/images/plusLight.png"
+            : "/images/plusDark.png"}
+          class={`h-full w-full object-contain dark:scale-[.40] scale-[.20] cursor-pointer ${streamCount === 0 ? "" : "top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"}`}
+        />
+      </button>
     </AddCameraDialog>
   </div>
 {/if}

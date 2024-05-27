@@ -13,32 +13,18 @@
   import { addUserLog } from "@/lib/addUserLog";
   import { writable } from "svelte/store";
 
+
   /**
    * Sortable Camera Info Cards
    */
   export let isAllFullScreen: boolean;
   export let user;
+  export let data;
   let filteredCameras: Camera[] = [];
   let cameraItems: HTMLDivElement;
   let filterText: string = "";
-
   let cameraOrder = writable<number[]>([]);
 
-  // console.log(user);
-
-  // function swap(array, i, j) {
-  //   // Check if indices are valid
-  //   if (i < 0 || i >= array.length || j < 0 || j >= array.length) {
-  //     console.error("Invalid indices provided for swapping.");
-  //     return;
-  //   }
-
-  //   // Swap elements
-  //   let temp = array[i];
-  //   array[i] = array[j];
-  //   array[j] = temp;
-  //   return array;
-  // }
 
   function handleEscape(event: KeyboardEvent) {
     if (event.key === "Escape") {
@@ -107,7 +93,7 @@
     <div class="flex flex-col space-y-6 mx-auto items-center">
       <Cctv size={64} />
       <AddCameraDialog sNode={""}>
-        <Button class="mx-auto text-center">Add Camera</Button>
+        <Button class="mx-auto text-center"    disabled={!data.user.features.includes("add_camera")} >Add Camera</Button>
       </AddCameraDialog>
     </div>
   </div>

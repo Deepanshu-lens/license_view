@@ -20,6 +20,9 @@
 // global.window = window;
 // global.document = window.document;
 
+import { toast } from "svelte-sonner";
+
+
 export class VideoRTC extends HTMLElement {
   constructor() {
     super();
@@ -347,6 +350,11 @@ export class VideoRTC extends HTMLElement {
     this.ws.addEventListener("message", (ev) => {
       if (typeof ev.data === "string") {
         const msg = JSON.parse(ev.data);
+        if (msg.value && msg.value.includes("No connection could be made")) {
+          console.log("connection error");
+          toast.error("Connection error: No connection could be made");
+     
+        }
         for (const mode in this.onmessage) {
           this.onmessage[mode](msg);
         }

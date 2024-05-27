@@ -4,24 +4,33 @@ export const POST: RequestHandler = async ({
   locals,
   request,
 }: RequestEvent) => {
-  console.log("Creating new node");
+  console.log("Creating new nodes");
+
   try {
-    const {id , features} = await request.json();
+    const updates = await request.json();
 
-    console.log(id);
-    console.log(features);
+    for (const update of updates) {
+      const { id, features } = update;
 
-    const data = {
-        "features": features,
+      if (features.length === 0) {
+        console.log(`Skipping update for id ${id} as features array is empty`);
+        continue;
+      }
+
+    //   console.log(id);
+    //   console.log(features);
+
+      const data = {
+        features: features,
+      };
+
+    //   console.log(data);
+
+      const record = await locals.pb?.collection('users').update(`${id}`, data);
+    //   console.log(record);
     }
 
-    console.log(data);
-
-    const record = await locals.pb?.collection('users').update(`${id}`, data);
-    console.log(record);
-   
-
-    return new Response(JSON.stringify({ node: record }), { status: 200 });
+    return new Response(JSON.stringify({ message: "All records updated successfully" }), { status: 200 });
   } catch (err) {
     console.log(err);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {

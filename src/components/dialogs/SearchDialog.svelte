@@ -14,7 +14,6 @@
 
   let dialogOpen = false;
   let captureMode = 1;
-
   const queryImage = writable();
   const searchResults = writable([]);
   // const location = window?.location?.href;
@@ -24,6 +23,12 @@
   //     : location?.split("/")[2]?.split(":")[0];
 
   const neededUrl = $page.url.hostname;
+
+  $: {
+    if (!dialogOpen) {
+      queryImage.set(null);
+    }
+  }
 
   async function convertImageToBase64(file) {
     return new Promise((resolve, reject) => {

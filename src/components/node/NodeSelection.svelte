@@ -18,7 +18,7 @@
   import { addUserLog } from "@/lib/addUserLog";
   import PocketBase from "pocketbase";
   import { Dropdown, DropdownItem, DropdownDivider } from "flowbite-svelte";
-
+  export let data:PageServerData;
   export let url: string;
   export let nodes: Node[];
   export let isAllFullScreen: boolean;
@@ -154,6 +154,8 @@
     }
   };
 
+  console.log(data)
+
 </script>
 
 <div
@@ -174,7 +176,7 @@
       {/each}
     </select> -->
 
-    <button
+    <button 
       class={`text-start block text-primary text-xs outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
       >{$selectedNode && $selectedNode.name.includes("_")
         ? $selectedNode.name.substring($selectedNode.name.lastIndexOf("_") + 1)
@@ -182,80 +184,6 @@
           ? $selectedNode.name.substring(0, 10) + "..."
           : $selectedNode.name}</button
     >
-    <!-- <Dropdown class="z-[99999999]">
-      <DropdownItem
-        on:click={() => handleNodeSelect({ target: { value: "Add Node +" } })}
-        >Add Node +</DropdownItem
-      >
-      {#if resultGroupNodes?.length !== 0}
-        {#each resultGroupNodes as node}
-          <DropdownItem
-            class="flex items-center justify-between z-40"
-            on:click={() => {
-              if (node?.nodes[0].nodes === undefined) {
-                handleNodeSelect({ target: { value: node.name } });
-              }
-            }}
-          >
-            {node.name.includes("_")
-              ? node.name.substring(node.name.lastIndexOf("_") + 1)
-              : node.name.length > 10
-                ? node.name.substring(0, 10) + "..."
-                : node.name}{#if node?.nodes?.[0]?.nodes !== undefined}<ChevronRight
-                class="w-6 h-6 ms-2 text-primary-700 dark:text-white"
-              />
-            {/if}
-          </DropdownItem>
-          {#if node?.nodes?.[0]?.nodes !== undefined}
-            <Dropdown placement="left-start" class="z-40">
-              {#each node.nodes as subnode}
-                <DropdownItem
-                  class="flex items-center justify-between z-40"
-                  on:click={() => {
-                    if (subnode?.nodes?.[0]?.nodes === undefined) {
-                      handleNodeSelect({ target: { value: subnode.name } });
-                    }
-                  }}
-                >
-                  {subnode.name.includes("_")
-                    ? subnode.name.substring(subnode.name.lastIndexOf("_") + 1)
-                    : subnode.name.length > 10
-                      ? subnode.name.substring(0, 10) + "..."
-                      : subnode.name}{#if subnode?.nodes?.[0]?.nodes !== undefined}
-                    <ChevronRight
-                      class="w-6 h-6 ms-2 text-primary-700 dark:text-white"
-                    />{/if}
-                </DropdownItem>
-                {#if subnode.nodes && subnode.nodes?.[0]?.nodes !== undefined}
-                  <Dropdown placement="left-start" class="z-40">
-                    {#each subnode.nodes as subsubnode}
-                      <DropdownItem  on:click={() => {
-                        if (subsubnode?.nodes?.[0]?.nodes === undefined) {
-                          handleNodeSelect({ target: { value: subsubnode.name } });
-                        }
-                      }}
-                        class="flex items-center justify-between z-40"
-                        >{subsubnode.name.includes("_")
-                          ? subsubnode.name.substring(
-                              subsubnode.name.lastIndexOf("_") + 1,
-                            )
-                          : subsubnode.name.length > 10
-                            ? subsubnode.name.substring(0, 10) + "..."
-                            : subsubnode.name}
-                        {#if subsubnode?.nodes?.[0]?.nodes !== undefined}
-                          <ChevronRight
-                            class="w-6 h-6 ms-2 text-primary-700 dark:text-white"
-                          />{/if}</DropdownItem
-                      >
-                    {/each}
-                  </Dropdown>
-                {/if}
-              {/each}
-            </Dropdown>
-          {/if}
-        {/each}
-      {/if}
-    </Dropdown> -->
    
     <Dropdown class="z-[99999999]">
       <DropdownItem on:click={() => handleNodeSelect({ target: { value: "Add Node +" } })}>
@@ -290,21 +218,23 @@
   {#if url.includes(`/session/`)}
     <span class="flex items-center gap-2 justify-between">
       <AddCameraDialog sNode={""} {nodes}>
-        <button
+        <button 
+        disabled={!data.user.features.includes("add_node")}
           class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center disabled:cursor-not-allowed`}
         >
           <PlusCircle size={18} class="text-[#727272] dark:text-[#f9f9f9]" />
         </button>
       </AddCameraDialog>
       <EditNodeDialog>
-        <span
+        <button
+        disabled={!data.user.features.includes("edit_node")}
           class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center`}
         >
           <Edit size={18} class="text-[#727272] dark:text-[#f9f9f9]" />
-        </span>
+        </button>
       </EditNodeDialog>
       <AlertDeleteNode onDelete={onDeleteNode}
-        ><Button
+        ><Button  disabled={!data.user.features.includes("delete_node")}
           variant="ghost"
           size="icon"
           class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"}`}

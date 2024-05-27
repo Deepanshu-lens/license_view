@@ -33,9 +33,10 @@
   export let vehicleOCRThreshold: number = 0.6;
   export let saveDuration: number;
   export let saveFolder: string;
-  export let motion: number;
+  export let motion: number = 1000;
   export let priority: boolean;
   let dialogOpen = false;
+
 
   const items = [
     {
@@ -347,7 +348,6 @@
             motion = e[0];
           }}
         />
-        <!-- {motion} -->
         {motion === 5000 ? "High" : motion === 2500 ? "Mid" : "Low"}
       </div>
     </div>
