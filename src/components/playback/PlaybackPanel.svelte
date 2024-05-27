@@ -5,7 +5,7 @@
     Expand,
     ChevronRight,
     Trash,
-    X
+    X,
   } from "lucide-svelte";
   import PocketBase from "pocketbase";
   import { addUserLog } from "@/lib/addUserLog";
@@ -15,55 +15,61 @@
   import { convertedVideos } from "@/lib/stores";
   import Player from "../player/Player.svelte";
 
-
   let showRightPanel: boolean = true;
   let playbackFullscreen = false;
   let showFilters = false;
 
-export let data;
-const nodes = data.nodes
+  export let data;
+  const nodes = data.nodes;
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
-$: {
-console.log($convertedVideos)
-}
-
+  $: {
+    console.log($convertedVideos);
+  }
 </script>
 
 <section
   class="right-playback flex-1 flex w-full h-screen justify-between pr-2 pl-[1px]"
 >
-<div class='h-full w-full'>
-  {#if $convertedVideos.length === 0} 
-  <div class="bg-[#333] text-white grid place-items-center w-full h-[calc(100vh-75px)]">
-    <p>No recordings selected</p>
+  <div class="h-full w-full">
+    {#if $convertedVideos.length === 0}
+      <div
+        class="bg-[#333] text-white grid place-items-center w-full h-[calc(100vh-75px)]"
+      >
+        <p>No recordings selected</p>
+      </div>
+    {:else}
+      <div
+        class={`bg-[#333] h-[calc(100vh-75px)] grid place-items-center gap-1 w-full  ${$convertedVideos.length === 1 ? "grid-cols-1 grid-rows-1" : $convertedVideos.length === 2 ? "grid-cols-2 grid-rows-1" : "grid-rows-2 grid-cols-2"}`}
+      >
+        {#each $convertedVideos as video, idx (video.id)}
+          {@const videos = {
+            controls: true,
+            srcs: [
+              {
+                src: video.url,
+                type: "video/mp4",
+              },
+            ],
+          }}
+          <div class="grid place-items-center h-full w-full relative">
+            <Player {videos} {idx} />
+            <button
+              class="absolute z-20 top-4 right-4 text-white"
+              on:click={() => {
+                $convertedVideos = $convertedVideos.filter(
+                  (_, index) => index !== idx,
+                );
+              }}
+            >
+              <X size={18} class="text-white" />
+            </button>
+          </div>
+        {/each}
+      </div>
+    {/if}
   </div>
-  {:else}
-  <div class={`bg-[#333] h-[calc(100vh-75px)] grid place-items-center gap-1 w-full  ${$convertedVideos.length=== 1 ? 'grid-cols-1 grid-rows-1': $convertedVideos.length === 2 ? 'grid-cols-2 grid-rows-1': 'grid-rows-2 grid-cols-2'}`}>
-    {#each $convertedVideos as video, idx (video.id)}
-      {@const videos = {
-        controls: true,
-        srcs: [
-          {
-            src: video.url,
-            type: "video/mp4",
-          },
-        ],
-      }}
-      <div class="grid place-items-center h-full w-full relative">
-
-        <Player {videos} {idx} />
-        <button class='absolute z-20 top-4 right-4 text-white' on:click={() => {
-          $convertedVideos = $convertedVideos.filter((_, index) => index !== idx);
-        }}>
-        <X size={18} class='text-white'/>
-      </button>
-    </div>
-    {/each}
-  </div>
-  {/if}
-</div>
   <div
     class={`h-[calc(100vh-75px)] ${showRightPanel ? "w-1/4 max-w-72 " : "w-0"} transition-width ease-in-out duration-500 dark:border-[#292929] border-x-[1px] relative`}
   >
@@ -90,7 +96,8 @@ console.log($convertedVideos)
     class="flex flex-col gap-4 items-center justify-center pl-2 h-[calc(100vh-76px)]"
   >
     <span class="group flex flex-col gap-0.5 items-center justify-center">
-      <button disabled
+      <button
+        disabled
         on:click={() => {
           addUserLog(`user clicked on Search button, top panel`);
         }}
@@ -106,7 +113,8 @@ console.log($convertedVideos)
     <span
       class="group flex flex-col gap-0.5 items-center justify-center relative"
     >
-      <button disabled
+      <button
+        disabled
         on:click={() => (showFilters = !showFilters)}
         class={!showFilters
           ? `text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
@@ -196,7 +204,8 @@ console.log($convertedVideos)
       {/if}
     </span>
     <span class="group flex flex-col gap-0.5 items-center justify-center">
-      <button disabled
+      <button
+        disabled
         class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
         ><Expand class="h-[22px] w-[22px]" />
       </button>
@@ -210,7 +219,7 @@ console.log($convertedVideos)
 </section>
 
 <style>
-   .grid-rows-1 {
+  .grid-rows-1 {
     grid-template-rows: repeat(1, 100%);
   }
   .grid-rows-2 {

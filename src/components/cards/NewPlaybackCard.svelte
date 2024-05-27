@@ -1,21 +1,25 @@
 <script type="ts">
-    import { Edit, Trash } from "lucide-svelte";
+  import { Edit, Trash } from "lucide-svelte";
   import { convertedVideos } from "@/lib/stores";
   import { toast } from "svelte-sonner";
 
-    export let video;
-  console.log(video)
-  const date = new Date(video.startTime)
+  export let video;
+  console.log(video);
+  const date = new Date(video.startTime);
 </script>
 
-<div class="w-[225px] h-[55px] bg-[#f9f9f9] rounded-md shad flex items-center justify-start p-2 gap-2 mx-auto">
-  <button on:click={() => {
-    if ($convertedVideos.length <= 3) {
-      convertedVideos.update(videos => [...videos, video]);
-    } else {
-      toast.error('Maximum limit of 4 videos reached');
-    }
-  }} class="h-[32px] w-[32px] rounded-full bg-white grid place-items-center"
+<div
+  class="w-[225px] h-[55px] bg-[#f9f9f9] rounded-md shad flex items-center justify-start p-2 gap-2 mx-auto"
+>
+  <button
+    on:click={() => {
+      if ($convertedVideos.length <= 3) {
+        convertedVideos.update((videos) => [...videos, video]);
+      } else {
+        toast.error("Maximum limit of 4 videos reached");
+      }
+    }}
+    class="h-[32px] w-[32px] rounded-full bg-white grid place-items-center"
     ><svg
       xmlns="http://www.w3.org/2000/svg"
       width="20"
@@ -32,15 +36,22 @@
       /></svg
     ></button
   >
-  <span 
-    ><p class="text-sm font-medium">Rec : <span class="text-primary">{video.expand.camera.name}</span></p>
-    <p class="text-xs text-black/70">   {date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    })}</p></span
+  <span
+    ><p class="text-sm font-medium">
+      Rec : <span class="text-primary">{video.expand.camera.name}</span>
+    </p>
+    <p class="text-xs text-black/70">
+      {date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })}
+    </p></span
   >
-  <span class="flex items-center gap-2 ml-auto"><Edit class='text-[#727272]' size={16}/> <Trash class='text-[#727272]' size={16}/></span>
+  <span class="flex items-center gap-2 ml-auto"
+    ><Edit class="text-[#727272]" size={16} />
+    <Trash class="text-[#727272]" size={16} /></span
+  >
 </div>
 
 <style>
