@@ -1,12 +1,11 @@
 import type { RequestEvent, RequestHandler } from "./$types";
-
 export const GET: RequestHandler = async ({
   locals,
   request,
-}: RequestEvent) => {
+}: RequestEvent): Promise<Response> => {
     const records = await locals.pb?.collection('users').getFullList({
-        sort: '-created',
+      sort: 'created',
     });
-
-  return new Response(JSON.stringify({ records }), { status: 200 });
+    // console.log(records)
+    return new Response(JSON.stringify({ records }), { status: 200 });
 };

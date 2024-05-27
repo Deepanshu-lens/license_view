@@ -51,8 +51,8 @@ export const actions = {
 };
 
 export const load: Load = async ({ url, locals }) => {
-  const queryParams = url.searchParams;
-  const user = queryParams.get("section");
+  // const queryParams = url.searchParams;
+  // const user = queryParams.get("section");
 
   // if (user === "User") {
   console.log("getting login events & user logs");
@@ -61,7 +61,7 @@ export const load: Load = async ({ url, locals }) => {
     const loginRecords = await locals.pb
       ?.collection("loginEvents")
       .getFullList({
-        filter: `email~"${locals.user.record.email}"`,
+        filter: `email~"${locals?.user?.record?.email}"`,
         sort: "-created",
       });
 
@@ -72,7 +72,7 @@ export const load: Load = async ({ url, locals }) => {
     }));
 
     const userLogs = await locals.pb?.collection("userLogs").getFullList({
-      filter: `email~"${locals.user.record.email}"`,
+      filter: `email~"${locals?.user?.record?.email}"`,
       sort: "-created",
     });
 

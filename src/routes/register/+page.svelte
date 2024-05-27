@@ -93,6 +93,7 @@
           type="text"
           placeholder="Name"
           name="name"
+          required
         />
       </div>
 
@@ -119,6 +120,7 @@
           type="email"
           name="email"
           placeholder="Email"
+          required
         />
       </div>
       <div class="mb-4 relative w-[350px] max-h-[40px]">

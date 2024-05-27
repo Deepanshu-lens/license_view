@@ -1,24 +1,23 @@
 <script lang="ts">
-  import {
-    Check,
-    ChevronsUpDown,
-    Filter,
-    Pencil,
-    Search,
-    X,
-  } from "lucide-svelte";
+  import { Check, Filter, Pencil, Search, X } from "lucide-svelte";
   import type { LoginEvent, User, UserLog } from "@/types";
   import { toast } from "svelte-sonner";
   import * as Table from "@/components/ui/table";
   import { addUserLog } from "@/lib/addUserLog";
   import Switch from "@/components/ui/switch/switch.svelte";
-
   import * as Tabs from "@/components/ui/tabs";
   import type { PageServerData } from ".svelte-kit/types/src/routes/$types";
+  import LiveTable from "./users/LiveTable.svelte";
+  import PlaybackTable from "./users/PlaybackTable.svelte";
+  import EventsTable from "./users/EventsTable.svelte";
+  import GalleryTable from "./users/GalleryTable.svelte";
+  import ConfigurationTable from "./users/ConfigurationTable.svelte";
+  import ReportsTable from "./users/ReportsTable.svelte";
+    import NodesTable from "./nodes/NodesTable.svelte";
   export let user: User;
   export let records: LoginEvent[];
   export let logs: UserLog[];
-  export let selected = 1;
+  export let selected = 2;
   export let data: PageServerData;
   let showUpdateUsernameModal = false;
   let showUpdateEmailModal = false;
@@ -26,6 +25,7 @@
   let username = "";
   let selectedP = 1;
   let allUsers = [];
+  let liveFeatures = []
 
   function handleUsernameUpdate() {
     if (username.length > 0) {
@@ -51,6 +51,18 @@
       toast.error("Username too small!");
     }
   }
+
+  // async function getUsers() {
+  //   try {
+  //     await PB.admins.authWithPassword('admin@admin.com','1234567890')
+
+  //     const users = await PB.collection('users').getFullList()
+
+  //     console.log(users)
+  //   } catch (err) {
+  //     console.log(err)
+  //   }
+  // }
 
   function formatDateTime(dateTimeString: string) {
     const options = {
@@ -80,6 +92,14 @@
       }
       const data = await response.json();
       allUsers = data.records;
+
+      const features = await fetch('/api/features/live')
+      if (!features.ok) {
+        throw new Error(`HTTP error! status: ${features.status}`);
+      }
+      const d = await features.json()
+      // console.log(d)
+      liveFeatures= d.features.items;
       fetched = true;
       return data;
     } catch (error) {
@@ -90,7 +110,7 @@
     }
   }
 
-  $: if (selectedP === 2 && selected === 2 && !fetched) {
+  $: if (selected === 2 && !fetched) {
     fetchAllUsers();
   }
 </script>
@@ -453,311 +473,35 @@
           >
         </Tabs.List>
         <Tabs.Content value="live">
-          <Table.Root class="mx-auto w-full flex flex-col pb-10">
-            <Table.Header
-              class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
-            >
-              <Table.Row
-                class="bg-transparent flex items-center justify-between p-3"
-              >
-                <Table.Head class="text-[#727272] h-full">User role</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 1</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 2</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 3</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 4</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body
-              class="overflow-y-scroll max-h-[calc(100vh-285px)] hide-scrollbar pb-10"
-            >
-              <Table.Row
-                class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-              >
-                <Table.Cell class="text-black h-full"
-                  ><span
-                    class="flex items-center gap-2 capitalize font-semibold"
-                  >
-                    user 1
-                  </span>
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm ">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm ">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full  ">
-                  <input type="checkbox" />
-                </Table.Cell>
-              </Table.Row>
-            </Table.Body>
-          </Table.Root>
+          <LiveTable {liveFeatures} {allUsers} />
           <!-- live content -->
         </Tabs.Content>
         <Tabs.Content value="playback">
-          <Table.Root class="mx-auto w-full flex flex-col pb-10">
-            <Table.Header
-              class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
-            >
-              <Table.Row
-                class="bg-transparent flex items-center justify-between p-3"
-              >
-                <Table.Head class="text-[#727272] h-full">User role</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 1</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 2</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 3</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 4</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body
-              class="overflow-y-scroll max-h-[calc(100vh-285px)] hide-scrollbar pb-10"
-            >
-              <Table.Row
-                class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-              >
-                <Table.Cell class="text-black h-full"
-                  ><span
-                    class="flex items-center gap-2 capitalize font-semibold"
-                  >
-                    user 1
-                  </span>
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm ">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm ">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full  ">
-                  <input type="checkbox" />
-                </Table.Cell>
-              </Table.Row>
-            </Table.Body>
-          </Table.Root></Tabs.Content
-        >
+          <PlaybackTable />
+          <!-- playback content -->
+        </Tabs.Content>
         <Tabs.Content value="events">
-          <Table.Root class="mx-auto w-full flex flex-col pb-10">
-            <Table.Header
-              class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
-            >
-              <Table.Row
-                class="bg-transparent flex items-center justify-between p-3"
-              >
-                <Table.Head class="text-[#727272] h-full">User role</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 1</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 2</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 3</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 4</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body
-              class="overflow-y-scroll max-h-[calc(100vh-285px)] hide-scrollbar pb-10"
-            >
-              <Table.Row
-                class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-              >
-                <Table.Cell class="text-black h-full"
-                  ><span
-                    class="flex items-center gap-2 capitalize font-semibold"
-                  >
-                    user 1
-                  </span>
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm ">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm ">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full  ">
-                  <input type="checkbox" />
-                </Table.Cell>
-              </Table.Row>
-            </Table.Body>
-          </Table.Root></Tabs.Content
-        >
+          <EventsTable />
+          <!-- events content -->
+        </Tabs.Content>
         <Tabs.Content value="gallery">
-          <Table.Root class="mx-auto w-full flex flex-col pb-10">
-            <Table.Header
-              class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
-            >
-              <Table.Row
-                class="bg-transparent flex items-center justify-between p-3"
-              >
-                <Table.Head class="text-[#727272] h-full">User role</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 1</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 2</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 3</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 4</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body
-              class="overflow-y-scroll max-h-[calc(100vh-285px)] hide-scrollbar pb-10"
-            >
-              <Table.Row
-                class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-              >
-                <Table.Cell class="text-black h-full"
-                  ><span
-                    class="flex items-center gap-2 capitalize font-semibold"
-                  >
-                    user 1
-                  </span>
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm ">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm ">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full  ">
-                  <input type="checkbox" />
-                </Table.Cell>
-              </Table.Row>
-            </Table.Body>
-          </Table.Root></Tabs.Content
-        >
+          <GalleryTable />
+          <!-- gallery content -->
+        </Tabs.Content>
         <Tabs.Content value="config">
-          <Table.Root class="mx-auto w-full flex flex-col pb-10">
-            <Table.Header
-              class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
-            >
-              <Table.Row
-                class="bg-transparent flex items-center justify-between p-3"
-              >
-                <Table.Head class="text-[#727272] h-full">User role</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 1</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 2</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 3</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 4</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body
-              class="overflow-y-scroll max-h-[calc(100vh-285px)] hide-scrollbar pb-10"
-            >
-              <Table.Row
-                class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-              >
-                <Table.Cell class="text-black h-full"
-                  ><span
-                    class="flex items-center gap-2 capitalize font-semibold"
-                  >
-                    user 1
-                  </span>
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm ">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm ">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full  ">
-                  <input type="checkbox" />
-                </Table.Cell>
-              </Table.Row>
-            </Table.Body>
-          </Table.Root></Tabs.Content
-        >
+          <ConfigurationTable />
+          <!-- config content -->
+        </Tabs.Content>
         <Tabs.Content value="reports">
-          <Table.Root class="mx-auto w-full flex flex-col pb-10">
-            <Table.Header
-              class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
-            >
-              <Table.Row
-                class="bg-transparent flex items-center justify-between p-3"
-              >
-                <Table.Head class="text-[#727272] h-full">User role</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 1</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 2</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 3</Table.Head>
-                <Table.Head class="text-[#727272] h-full">Feature 4</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body
-              class="overflow-y-scroll max-h-[calc(100vh-285px)] hide-scrollbar pb-10"
-            >
-              <Table.Row
-                class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-              >
-                <Table.Cell class="text-black h-full"
-                  ><span
-                    class="flex items-center gap-2 capitalize font-semibold"
-                  >
-                    user 1
-                  </span>
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm ">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full text-sm ">
-                  <input type="checkbox" />
-                </Table.Cell>
-                <Table.Cell class="text-[#727272] h-full  ">
-                  <input type="checkbox" />
-                </Table.Cell>
-              </Table.Row>
-            </Table.Body>
-          </Table.Root></Tabs.Content
-        >
+          <ReportsTable />
+          <!-- reports content -->
+        </Tabs.Content>
       </Tabs.Root>
     {:else}
-      <p class="text-lg px-6 font-medium">node content</p>
-      <Table.Root class="mx-auto w-full flex flex-col pb-10 pt-4 px-6">
-        <Table.Header
-          class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9] "
-        >
-          <Table.Row
-            class="bg-transparent flex items-center justify-between p-3"
-          >
-            <Table.Head class="text-[#727272] h-full">User/Nodes</Table.Head>
-            {#each data.nodes as node}
-              <Table.Head class="text-[#727272] h-full">
-                {node.name}
-              </Table.Head>
-            {/each}
-          </Table.Row>
-        </Table.Header>
-        <Table.Body class="overflow-y-scroll max-h-[calc(100vh-285px)] hide-scrollbar pb-10">
-          {#if allUsers}
-            {#each allUsers as user}
-              <Table.Row
-                class="bg-transparent cursor-pointer flex items-center justify-between mt-4 px-3 rounded-lg border-2 border-solid border-[#e4e4e4]"
-              >
-                <Table.Cell class="text-black h-full">
-                  <span
-                    class="flex items-center gap-2 capitalize font-semibold"
-                  >
-                    {user.name}
-                  </span>
-                </Table.Cell>
-                {#each data.nodes as node}
-                  <Table.Cell class="text-[#727272] h-full text-sm">
-                    <input type="checkbox" />
-                  </Table.Cell>
-                {/each}
-              </Table.Row>
-            {/each}
-          {/if}
-        </Table.Body>
-      </Table.Root>
+      <div class="w-full overflow-x-auto hide-scrollbar pb-10 pt-4 px-6">
+       <NodesTable {data} {allUsers}/>
+       <!-- nodes table -->
+      </div>
     {/if}
   {/if}
   {#if selected === 3}
@@ -860,8 +604,6 @@
     {/if}
   {/if}
 </div>
-
-<!-- rtsp://admin:Admin%401234@192.168.1.106:322/ch01.264?dev=1 -->
 
 <style>
   .shad {

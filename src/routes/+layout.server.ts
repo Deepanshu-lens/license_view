@@ -65,9 +65,12 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
 
         // console.log(featureList);
 
+        // const matchedFeatures = featureList
+        //   ?.filter((feature) => role?.[0]?.features?.includes(feature.id))
+        //   ?.map((feature) => feature.feature);
         const matchedFeatures = featureList
-          ?.filter((feature) => role?.[0]?.features?.includes(feature.id))
-          ?.map((feature) => feature.feature);
+        ?.filter((feature) => currentUser?.features?.includes(feature.id))
+        ?.map((feature) => feature.feature);
 
         // console.log(matchedFeatures);
 

@@ -6,12 +6,12 @@ export const POST: RequestHandler = async ({
 }: RequestEvent) => {
   console.log("NEW USERLOG ADDED!");
   try {
-    // console.log(locals.user.record.id);
+    // console.log(locals.user);
     const data = await request.json();
     // console.log(data);
 
     const res = await locals.pb?.collection("userlogs").create({
-      email: locals.user.record.email,
+      email: locals?.user?.record?.email,
       event: data.event,
     });
 
@@ -19,7 +19,7 @@ export const POST: RequestHandler = async ({
 
     const update = await locals.pb
       ?.collection("users")
-      .update(locals.user.record.id, {
+      .update(locals?.user?.record?.id, {
         "logs+": [res?.id],
       });
     // console.log(update);

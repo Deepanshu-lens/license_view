@@ -52,7 +52,7 @@
 
   export let data;
   export let url;
-  export let features;
+  // export let features;
 
   const session = data.session;
   const sessionId = session.id;
@@ -110,6 +110,8 @@
       }
     }
   };
+
+  
 
   const captureSlideScreenshot = async (index: number) => {
     const num = index === null || index === undefined ? "0" : index;
@@ -285,7 +287,7 @@
       <span class="group flex-col flex items-center justify-center gap-0.5">
         <!-- <button
           disabled={!features.includes("Add Camera")} -->
-          <button disabled
+          <button 
           on:click={() => {
             addUserLog(`user clicked on Add Camera button, top panel`);
           }}
@@ -303,7 +305,7 @@
       <span class="group flex-col flex items-center justify-center gap-0.5">
         <!-- <button
         disabled={!features.includes("Face Search")} -->
-        <button disabled
+        <button 
           on:click={() => {
             addUserLog(`user clicked on Search button, top panel`);
           }}
@@ -321,7 +323,7 @@
       <span class="group flex-col flex items-center justify-center gap-0.5">
         <!-- <button
         disabled={!features.includes("Face Register")} -->
-        <button disabled
+        <button 
           on:click={() =>
             addUserLog("user clicked on Register button, top panel")}
           class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
@@ -358,7 +360,7 @@
     <span class="group flex-col flex items-center justify-center gap-0.5">
       <!-- <button
       disabled={!features.includes("Screen Record")} -->
-      <button disabled
+      <button 
         on:click={() => {
           recordDropdownOpen = !recordDropdownOpen;
           snipDropDownOpen = false;
@@ -486,7 +488,7 @@
     <span class="group flex-col flex items-center justify-center gap-0.5">
       <!-- <button
       disabled={!features.includes("Toggle Alerts")} -->
-      <button disabled
+      <button 
         on:click={() => {
           alertPanelHide.set(!$alertPanelHide);
           currpanel = 1;
