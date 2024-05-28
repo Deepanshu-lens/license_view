@@ -141,8 +141,8 @@
                 <span
                   class={`${
                     $page.url.pathname === item.href.split("?")[0]
-                      ? `text-primary font-bold text-lg`
-                      : ""
+                      ? `text-primary font-bold text-lg cursor-pointer`
+                      : " cursor-pointer"
                   }`}
                 >
                   {item.text}
@@ -183,13 +183,13 @@
           </button>
         {/if}
         {#if session.playback}
-          <!-- <a
+          <a
             href={playback.href}
             on:click={() => {
               addUserLog(`user clicked on navbar link "${playback.text}"`);
             }}
-          > -->
-          <button disabled class="disabled:cursor-not-allowed">
+          >
+          <!-- <button class="disabled:cursor-not-allowed"> -->
             <span
               class={`${
                 $page.url.pathname === playback.href.split("?")[0]
@@ -199,8 +199,8 @@
             >
               {playback.text}
             </span>
-          </button>
-          <!-- </a> -->
+          <!-- </button> -->
+          </a>
         {/if}
         {#if session.anpr}
           <a

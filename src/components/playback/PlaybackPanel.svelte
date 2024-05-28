@@ -89,7 +89,7 @@
         url={data.url ?? "/"}
         isAllFullScreen={playbackFullscreen}
       />
-      <PlaybackList />
+      <PlaybackList {nodes}/>
     </div>
   </div>
   <div

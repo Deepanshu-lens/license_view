@@ -17,7 +17,7 @@
   export let user: User;
   export let records: LoginEvent[];
   export let logs: UserLog[];
-  export let selected = 2;
+  export let selected = 1;
   export let data: PageServerData;
   let showUpdateUsernameModal = false;
   let showUpdateEmailModal = false;

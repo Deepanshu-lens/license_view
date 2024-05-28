@@ -4,7 +4,7 @@
   import { toast } from "svelte-sonner";
 
   export let video;
-  console.log(video);
+  console.log('videocarddata',video);
   const date = new Date(video.startTime);
 </script>
 

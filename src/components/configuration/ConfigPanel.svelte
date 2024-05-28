@@ -131,7 +131,7 @@
         Camera
       </p>
     </span>
-    <!-- <span class="group flex flex-col gap-0.5 items-center justify-center">
+    <span class="group flex flex-col gap-0.5 items-center justify-center">
       <button
         on:click={() => {
           handleButtonClick("License");
@@ -146,7 +146,7 @@
       >
         License
       </p>
-    </span> -->
+    </span>
     <span class="group flex flex-col gap-0.5 items-center justify-center">
       <button
         on:click={() => {

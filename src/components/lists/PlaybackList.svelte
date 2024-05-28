@@ -11,6 +11,7 @@
   import { selectedNode, convertedVideos, allVideos } from "@/lib/stores";
   import { ChevronDown, CalendarDaysIcon, PlusCircle, X } from "lucide-svelte";
   import { toast } from "svelte-sonner";
+  export let nodes;
 
   $: if (value) {
     const date = new Date(value.year, value.month - 1, value.day);
@@ -78,12 +79,14 @@
   }
 
   async function fetchFromDate(date) {
+    const nodeIds = nodes.map(node => node.id);
+    console.log(nodeIds)
     const response = await fetch("/api/playbackVideo/getMany", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ date }),
+      body: JSON.stringify({ date, nodeIds }),
     });
 
     if (!response.ok) {
@@ -250,7 +253,7 @@
   {/if}
 
   {#if $allVideos?.length > 0}
-    <div class="video-entry flex flex-col w-full h-full gap-4 mt-4 max-h-[calc(100vh-260px)] overflow-y-scroll">
+    <div class="video-entry flex flex-col w-full h-full gap-4 mt-4 max-h-[calc(100vh-260px)] pb-20 overflow-y-scroll">
       {#each $allVideos as video}
         <NewPlaybackCard {video} />
       {/each}
