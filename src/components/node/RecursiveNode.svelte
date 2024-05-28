@@ -10,7 +10,7 @@
 </script>
 
 <DropdownItem
-  class="flex items-center justify-between z-40"
+  class="flex items-center justify-between z-40 "
   on:click={() => {
     if (!hasChildren) {
       handleNodeSelect({ target: { value: node.name } });
@@ -19,15 +19,15 @@
 >
   {node.name.includes("_")
     ? node.name.substring(node.name.lastIndexOf("_") + 1)
-    : node.name.length > 10
-      ? node.name.substring(0, 10) + "..."
+    : node.name.length > 20
+      ? node.name.substring(0, 20) + "..."
       : node.name}
   {#if hasChildren}
     <ChevronRight class="w-6 h-6 ms-2 text-primary-700 dark:text-white" />
   {/if}
 </DropdownItem>
 {#if hasChildren}
-  <Dropdown placement="left-start" class="z-40">
+<Dropdown placement="bottom-end" class="z-[99999999] dark:text-slate-200 dark:bg-black border dark:border-slate-300 dark:border-opacity-35 rounded-sm min-w-[10rem]">
     {#each node.nodes as subnode}
       <RecursiveNode node={subnode} {handleNodeSelect} />
     {/each}

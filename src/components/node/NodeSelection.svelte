@@ -154,7 +154,7 @@
     }
   };
 
-  console.log(data)
+  // console.log(data)
 
 </script>
 
@@ -180,13 +180,13 @@
       class={`text-start block text-primary text-xs outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
       >{$selectedNode && $selectedNode.name.includes("_")
         ? $selectedNode.name.substring($selectedNode.name.lastIndexOf("_") + 1)
-        : $selectedNode.name.length > 10
-          ? $selectedNode.name.substring(0, 10) + "..."
+        : $selectedNode.name.length > 20
+          ? $selectedNode.name.substring(0, 20) + "..."
           : $selectedNode.name}</button
     >
    
-    <Dropdown class="z-[99999999]">
-      <DropdownItem on:click={() => handleNodeSelect({ target: { value: "Add Node +" } })}>
+    <Dropdown class="z-[99999999] dark:text-slate-200 dark:bg-black border dark:border-slate-300 dark:border-opacity-35 min-w-[10rem] rounded-sm">
+      <DropdownItem  on:click={() => handleNodeSelect({ target: { value: "Add Node +" } })}>
         Add Node +
       </DropdownItem>
       {#if resultGroupNodes?.length !== 0}

@@ -8,10 +8,12 @@
   let startTime;
   let endTime;
   import { Calendar } from "@/components/ui/calendar";
+  import { toast } from "svelte-sonner";
   import { selectedNode, convertedVideos, allVideos } from "@/lib/stores";
   import { ChevronDown, CalendarDaysIcon, PlusCircle, X } from "lucide-svelte";
-  import { toast } from "svelte-sonner";
+  import * as Select from '@/components/ui/select/index'
   export let nodes;
+  let chosenNode;
 
   $: if (value) {
     const date = new Date(value.year, value.month - 1, value.day);
@@ -80,13 +82,12 @@
 
   async function fetchFromDate(date) {
     const nodeIds = nodes.map(node => node.id);
-    console.log(nodeIds)
     const response = await fetch("/api/playbackVideo/getMany", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ date, nodeIds }),
+      body: JSON.stringify({ date, nodeId: nodeIds }),
     });
 
     if (!response.ok) {
@@ -95,12 +96,21 @@
     }
 
     const data = await response.json();
+    console.log('data from data',data)
     allVideos.set(data.playback_data);
     if(data.playback_data?.length === 0) {
       toast.error(`No Recordings on chosen Date: ${searchDate}`)
     }
     return data;
   }
+
+// $: console.log(chosenNode)
+
+$: filteredVideos = $allVideos?.filter(video => 
+    !chosenNode?.value || chosenNode.value === 'all' || chosenNode.value === video.cameraNode
+  );
+
+  // $: console.log(filteredVideos)
 </script>
 
 <div
@@ -123,11 +133,11 @@
 </div>
 {#if selectedMode === 1}
   <div class="px-4 py-4 flex flex-col gap-1">
-    <label for="camera" class="text-black/[.7] text-sm">Select Camera</label>
+    <label for="camera" class="text-black/[.7] dark:text-slate-200 text-sm">Select Camera</label>
     <div class="relative w-full">
       <select
         bind:value={selectedCamera}
-        class={`block text-primary capitalize font-semibold rounded-md appearance-none w-full bg-[#F6F6F6] border-2 py-2 text-sm px-2 leading-tight `}
+        class={`block text-primary capitalize font-semibold rounded-md appearance-none w-full bg-[#F6F6F6] dark:bg-black border-2 py-2 text-sm px-2 leading-tight `}
       >
         <option value="" disabled selected>Select from list</option>
         {#each $selectedNode?.camera as cam}
@@ -141,7 +151,7 @@
     </div>
   </div>
   <div class="px-4 flex flex-col gap-1">
-    <label for="camera" class="text-black/[.7] text-sm">Select Date</label>
+    <label for="camera" class="text-black/[.7] dark:text-slate-200 text-sm">Select Date</label>
     <div class="relative w-full">
       <input
         type="text"
@@ -149,7 +159,7 @@
         disabled
         bind:value={searchDate}
         on:change={(e) => (searchDate = e.target.value)}
-        class=" rounded-md block capitalize border-2 text-sm px-2 py-2 leading-tight w-full bg-[#f6f6f6] text-[#979797]"
+        class=" rounded-md block capitalize border-2 text-sm px-2 py-2 leading-tight w-full bg-[#f6f6f6] dark:bg-black text-[#979797]"
       />
       <button
         on:click={() => (showCalendar = !showCalendar)}
@@ -170,13 +180,13 @@
   </div>
   <div class="px-4 w-full py-4 flex flex-row items-center gap-3">
     <span>
-      <label for="start-time" class="text-black/[.7] text-sm">Start Time</label>
+      <label for="start-time" class="text-black/[.7] dark:text-slate-200 text-sm">Start Time</label>
       <input
         type="time"
         id="start-time"
         bind:value={startTime}
         placeholder="00:00"
-        class="block rounded-md capitalize border-2 text-sm px-2 py-2 leading-tight w-full bg-[#f6f6f6] text-[#979797]"
+        class="block rounded-md capitalize border-2 text-sm px-2 py-2 leading-tight w-full bg-[#f6f6f6] text-[#979797] dark:bg-black"
       />
     </span>
     <span>
@@ -186,20 +196,20 @@
         id="end-time"
         bind:value={endTime}
         placeholder="00:00"
-        class="block rounded-md capitalize border-2 text-sm px-2 py-2 leading-tight w-full bg-[#f6f6f6] text-[#979797]"
+        class="block rounded-md capitalize border-2 text-sm px-2 py-2 leading-tight w-full bg-[#f6f6f6] text-[#979797] dark:bg-black"
       />
     </span>
   </div>
   <div class="w-full px-4 mt-4">
     <button
-      class="flex items-center gap-2 w-full text-[#015a62] border border-[#015a62] rounded-md text-sm py-2 text-center justify-center"
+      class="flex items-center gap-2 w-full text-primary border border-primary rounded-md text-sm py-2 text-center justify-center"
     >
       Add More <PlusCircle size={18} />
     </button>
   </div>
   <div class="px-4 w-full">
     <button
-      class="text-white bg-[#015a62] w-full py-2 text-sm font-medium mt-4 rounded-md"
+      class="text-white bg-primary w-full py-2 text-sm font-medium mt-4 rounded-md"
       on:click={() =>
         fetchPlaybackData(selectedCamera, searchDate, startTime, endTime)}
     >
@@ -210,7 +220,7 @@
   <div class="relative w-full p-4">
     <button
       on:click={() => (showCalendar = !showCalendar)}
-      class="absolute top-1/2 -translate-y-1/2 left-5 grid place-items-center"
+      class="absolute top-1/2 -translate-y-1/2 left-[1.5rem] grid place-items-center"
     >
       <CalendarDaysIcon
         size={20}
@@ -223,10 +233,11 @@
       on:change={(e) => (searchDate = e.target.value)}
       type="text"
       placeholder="DD MONTH, YY"
-      class=" h-full block rounded-md capitalize border-2 text-sm pl-8 pr-4 py-2 leading-tight w-full bg-[#f6f6f6] text-[#979797]"
+      class=" h-full block rounded-md capitalize border-2 text-sm pl-8 pr-4 py-2 leading-tight w-full bg-[#f6f6f6] text-[#979797] dark:bg-black"
     />
+   
     <button
-      class="absolute top-1/2 -translate-y-1/2 right-5 grid place-items-center"
+      class="absolute top-1/2 -translate-y-1/2 right-[1.5rem] grid place-items-center"
       on:click={() => {
         value = null;
         searchDate = null;
@@ -241,11 +252,12 @@
       />
     {/if}
   </div>
+   
   {#if searchDate}
     <div class="px-4 w-full">
       <button
         on:click={() => fetchFromDate(searchDate)}
-        class="text-white bg-[#015a62] w-full py-1 text-sm font-medium mt-4 rounded-md"
+        class="text-white bg-primary w-full py-1 text-sm font-medium mt-4 rounded-md"
       >
         Submit
       </button>
@@ -254,9 +266,28 @@
 
   {#if $allVideos?.length > 0}
     <div class="video-entry flex flex-col w-full h-full gap-4 mt-4 max-h-[calc(100vh-260px)] pb-20 overflow-y-scroll">
-      {#each $allVideos as video}
+      <p class="text-sm mx-auto">Filter Videos according to Node:</p>
+      <Select.Root bind:selected={chosenNode}>
+        <Select.Trigger class='px-3 py-2 text-start w-[90%] mx-auto bg-[#f6f6f6] dark:bg-black text-[#979797] border-2 font-semibold outline-none'> 
+            <Select.Value placeholder="Node Filter" />
+          </Select.Trigger>
+          <Select.Content class='max-h-[400px] overflow-y-scroll overflow-x-none'>
+            <Select.Item value="all">All</Select.Item>
+            {#each nodes as node}
+              <Select.Item value={node.id}>{node.name}</Select.Item>
+            {/each}
+          </Select.Content>
+        </Select.Root>
+      <!-- {#each $allVideos as video}
         <NewPlaybackCard {video} />
-      {/each}
+      {/each} -->
+      {#if filteredVideos.length !== 0}
+      {#each filteredVideos as video}
+      <NewPlaybackCard {video} />
+    {/each}
+    {:else}
+    <p class="text-[#979797[ text-sm mx-auto">No recordings on this filter Node</p>
+    {/if}
     </div>
   {/if}
 {/if}

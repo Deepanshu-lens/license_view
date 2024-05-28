@@ -16,6 +16,20 @@
       }
     }
   });
+
+  // function handleSubmit(event) {
+  //   const form = event.target;
+  //   const name = form.name.value.trim();
+  //   const email = form.email.value.trim();
+  //   const password = form.password.value.trim();
+  //   const confirmPassword = form['confirm-password'].value.trim();
+
+  //   if (!name || !email || !password || !confirmPassword) {
+  //     event.preventDefault();
+  //     toast.error("All fields are required. Please fill out the missing fields.");
+  //   }
+  // }
+
 </script>
 
 <div
@@ -35,21 +49,6 @@
       <div
         class="flex items-center sm:justify-start sm:self-start gap-4 sm:-ml-4 pt-[2rem] sm:pt-0"
       >
-        <!-- <img
-          src={"/images/coreIp.jpg"}
-          alt="logo"
-          height={80}
-          width={140}
-          class="block dark:hidden"
-        />
-        <img
-          src={"/images/coreIP2.png"}
-          alt="logo"
-          height={80}
-          width={140}
-          class="hidden dark:block"
-        />
-        <span class="w-[1px] h-[80%] bg-slate-300" /> -->
         <img
           src={"/images/white.svg"}
           alt="logo"
