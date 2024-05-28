@@ -16,7 +16,7 @@
   setContext("user", user);
 </script>
 
-<ModeWatcher />
+<ModeWatcher defaultMode='light' />
 <Toaster richColors />
 
 {#if !user}

@@ -4,6 +4,7 @@
   export let videos = [];
   export let idx;
   import { toast } from "svelte-sonner";
+  let loading = false;
 
   function handlePlayed(e) {
     if (typeof e.target.currentSrc !== "undefined") {
@@ -17,8 +18,10 @@
     }
   }
   let video;
+
   onMount(async () => {
     console.log("testing hls");
+    loading = true
     if (Hls.isSupported()) {
       const hls = new Hls({
         maxBufferSize: 600,

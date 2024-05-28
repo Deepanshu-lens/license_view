@@ -39,12 +39,16 @@
 
   const neededUrl = $page.url.hostname;
 
-  const initVideo = async (camera: Camera, index: number) => {
+  const initVideo = async (camera: Camera) => {
+    const index = $selectedNode.camera.findIndex(
+      (cam) => cam.id === camera.id,
+    );
+    // console.log(index, "newIndex init video");
     if (videos[camera.id]) {
       console.log("video c.id exists", camera.name);
       return;
     }
-    console.log("camera init", camera);
+    // console.log("camera init", camera);
     let video = document.createElement("video-stream") as VideoStreamType;
     video.id = `stream-${camera.id}`;
     // const codec = await  video.checkCodec()
@@ -54,23 +58,23 @@
     video.url = camera.url;
     camera?.subUrl?.length === 0
       ? (video.src = new URL(
-          `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
+          `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}&cn=${camera.name}`,
         ))
       : ($selectedNode.maxStreamsPerPage === 13 ||
             $selectedNode.maxStreamsPerPage === 5 ||
             $selectedNode.maxStreamsPerPage === 7) &&
           index === 0
         ? (video.src = new URL(
-            `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&nodeID=${1}`,
+            `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&nodeID=${1}&cn=${camera.name}`,
           ))
         : $selectedNode.maxStreamsPerPage === 10 && (index === 0 || index === 1)
           ? (video.src = new URL(
-              `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&nodeID=${1}`,
+              `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&nodeID=${1}&cn=${camera.name}`,
             ))
           : (video.src = new URL(
               isSingleFullscreen
-                ? `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&nodeID=${1}`
-                : `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
+                ? `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&nodeID=${1}&cn=${camera.name}`
+                : `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}&cn=${camera.name}`,
             ));
     video.style.position = "relative";
     video.style.width = "100%";
@@ -79,7 +83,7 @@
     video.background = true;
     video.visibilityCheck = false;
     videos[camera.id] = video;
-    console.log(videos[camera.id]);
+    // console.log(videos[camera.id]);
   };
 
   const singleFullscreen = (slotIndex: number) => {
@@ -193,10 +197,10 @@
       prevName = $selectedNode.name;
     }
     slideIndex = 0;
-    $selectedNode.camera.map((c, index) => {
+    $selectedNode.camera.map((c) => {
       if (!videos[c.id]) {
-        console.log(c);
-        initVideo(c, index);
+        console.log('c',c);
+        initVideo(c);
       } else {
         if (videos[c.id].url !== c.url) {
           videos[c.id].url = c.url;
@@ -545,8 +549,6 @@
                                   pageIndex * $selectedNode.maxStreamsPerPage +
                                     slotIndex
                                 ],
-                                pageIndex * $selectedNode.maxStreamsPerPage +
-                                  slotIndex,
                               );
                             } else {
                               singleFullscreen(slotIndex);
@@ -575,8 +577,6 @@
                                   pageIndex * $selectedNode.maxStreamsPerPage +
                                     slotIndex
                                 ],
-                                pageIndex * $selectedNode.maxStreamsPerPage +
-                                  slotIndex,
                               );
                             }
 
@@ -670,8 +670,6 @@
                                 pageIndex * $selectedNode.maxStreamsPerPage +
                                   slotIndex
                               ],
-                              pageIndex * $selectedNode.maxStreamsPerPage +
-                                slotIndex,
                             );
                           } else {
                             singleFullscreen(slotIndex);
@@ -698,8 +696,6 @@
                                 pageIndex * $selectedNode.maxStreamsPerPage +
                                   slotIndex
                               ],
-                              pageIndex * $selectedNode.maxStreamsPerPage +
-                                slotIndex,
                             );
                           }
 

@@ -290,7 +290,7 @@
         body: JSON.stringify({
           subNode: subs,
           node: chosenNode.name,
-          sessionId: chosenNode.session[0]
+          sessionId: $selectedNode.session
         })
       });
       dialogOpen = false;
@@ -322,25 +322,24 @@
     <div class="flex items-center justify-between w-full">
       <button
         on:click={() => (modeAdd = 1)}
-        class={`${modeAdd === 1 ? "bg-white" : "bg-[#f5f5f5]"} w-full text-[#4f4f4f] font-medium text-lg border-r border-black/.13 `}
+        class={`${modeAdd === 1 ? "bg-white dark:bg-slate-700" : "bg-[#f5f5f5] dark:bg-slate-800"} w-full text-[#4f4f4f] dark:text-slate-200 font-medium text-lg border-r border-black/.13 `}
         >Add Node</button
       >
       <button
         on:click={() => (modeAdd = 2)}
-        class={`${modeAdd === 2 ? "bg-white" : "bg-[#f5f5f5]"} w-full text-[#4f4f4f] font-medium text-lg  border-r border-black/.13`}
+        class={`${modeAdd === 2 ? "bg-white dark:bg-slate-700" : "bg-[#f5f5f5] dark:bg-slate-800"} w-full text-[#4f4f4f] dark:text-slate-200 font-medium text-lg border-r border-black/.13 `}
         >Add SubNode</button
       >
       <button
         on:click={() => (modeAdd = 3)}
-        class={`${modeAdd === 3 ? "bg-white" : "bg-[#f5f5f5]"} w-full text-[#4f4f4f] font-medium text-lg`}
+        class={`${modeAdd === 3 ? "bg-white dark:bg-slate-700" : "bg-[#f5f5f5] dark:bg-slate-800"} w-full text-[#4f4f4f] dark:text-slate-200 font-medium text-lg border-r border-black/.13 `}
         >Add Camera</button
       >
     </div>
     {#if modeAdd === 3}
       <div class=" drop-shadow-md px-2">
         <div class="w-full flex flex-col items-start justify-center py-4 gap-4">
-        <p class="text-[#212123] font-medium text-xl">Add Camera</p>
-          <p class="text-[#00132B] dark:text-slate-100">Choose mode</p>
+        <p class="text-[#212123] dark:text-slate-200 font-medium text-xl">Add Camera</p>
           <span class="flex items-center justify-between w-full gap-4">
             <button
               disabled
@@ -666,7 +665,7 @@
     {/if}
     {#if modeAdd === 2}
       <div class="flex flex-col px-2">
-        <p class="text-[#212123] font-medium text-xl mt-2">Add Sub Node</p>
+        <p class="text-[#212123] dark:text-slate-200 font-medium text-xl mt-2">Add Sub Node</p>
         <span
           class=" h-[1px] w-full bg-[#919EAB] border-opacity-15 mt-4 mb-6"
         />
@@ -712,8 +711,8 @@
     {/if}
     {#if modeAdd === 1}
       <div class="flex flex-col px-2">
-        <p class="text-[#212123] font-medium text-xl mt-2">Add New Node</p>
-        <p class="text-base text-black/[.7] leading-[22px] py-2">
+        <p class="text-[#212123] dark:text-slate-200 font-medium text-xl mt-2">Add New Node</p>
+        <p class="text-base text-black/[.7] dark:text-white/[.7] leading-[22px] py-2">
           Add New Node to start monitoring
         </p>
         <span
@@ -737,7 +736,7 @@
         variant="secondary"
         on:click={() => (addNodeCounter += 1)}
         >Add Another Node <PlusCircle
-          class="text-[#015a62]"
+          class="text-primary"
           size={18}
         /></Button
       >

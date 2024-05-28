@@ -28,7 +28,7 @@ export class VideoRTC extends HTMLElement {
     super();
 
     this.DISCONNECT_TIMEOUT = 5000;
-    this.RECONNECT_TIMEOUT = 30000;
+    this.RECONNECT_TIMEOUT = 50000;
 
     this.CODECS = [
       "avc1.640029", // H.264 high 4.1 (Chromecast 1st and 2nd Gen)
@@ -351,8 +351,9 @@ export class VideoRTC extends HTMLElement {
       if (typeof ev.data === "string") {
         const msg = JSON.parse(ev.data);
         if (msg.value && msg.value.includes("No connection could be made")) {
-          console.log("connection error");
-          toast.error("Connection error: No connection could be made");
+          console.log("connection error",this.wsURL);
+let camName = this.wsURL.split('&cn=')[1]
+          toast.error(`Connection error: No connection could be made with ${camName}!`);
      
         }
         for (const mode in this.onmessage) {

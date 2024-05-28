@@ -112,14 +112,6 @@
       <div
         class="cursor-pointer flex items-center gap-2 justify-center px-2"
       >
-        <!-- <img
-          src={$mode === "light"
-            ? "/images/coreIp.jpg"
-            : "/images/navCoreWhite.png"}
-          alt="logo"
-          class="w-24"
-        />
-        <Separator orientation="vertical" class="h-12" /> -->
         <img
           src={$mode === "light" ? "/images/green.svg" : "/images/white.svg"}
           alt="logo"
