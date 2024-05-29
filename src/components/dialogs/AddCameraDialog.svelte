@@ -33,7 +33,7 @@
   let nodeName = [];
   let subNodeNames = [];
   let chosenNode: any;
-  let httpPort;
+  let httpPort:null|number = null;
 
   export let sNode;
   export let nodes;
@@ -82,7 +82,7 @@
       });
     } else {
       // onvif://admin:admin123@50.168.139.58:80
-      const onvifUrl = `onvif://${cameraUsername}:${cameraPass}@${cameraIp}:${httpPort}`;
+      const onvifUrl = `onvif://${cameraUsername}:${cameraPass}@${cameraIp}${httpPort ? `:${httpPort}` : ''}`;
       console.log(onvifUrl);
 
       let onvifData;
@@ -397,7 +397,7 @@
                     <Input
                       id="camera-port"
                       class="col-span-3"
-                      placeholder={"address associated with camera"}
+                      placeholder={"Port"}
                       disabled={disabled === "other"}
                       bind:httpPort
                       on:change={(e) => (httpPort = e.target.value)}
