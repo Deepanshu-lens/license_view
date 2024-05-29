@@ -25,7 +25,6 @@
   export let saveFolder: string;
   export let motion: number;
   export let priority: boolean;
-  export let features;
   // CODE
 
   // console.log(features);

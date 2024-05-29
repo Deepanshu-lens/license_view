@@ -32,13 +32,14 @@
   let subNodeCounter = 1;
   let nodeName = [];
   let subNodeNames = [];
-  let chosenNode:any;
+  let chosenNode: any;
+  let httpPort;
 
   export let sNode;
   export let nodes;
 
   const onSubmit = () => {
-    if (cameraURL && cameraURL.length > 0) {
+    if (mode === 1) {
       let modifiedCameraURL = cameraURL;
       const urlParts = cameraURL.split("@");
       console.log(urlParts);
@@ -48,6 +49,7 @@
         modifiedCameraURL = urlParts[0] + "%40" + urlParts.slice(1).join("@");
       }
       console.log(modifiedCameraURL);
+
       fetch("/api/camera/addCamera", {
         method: "POST",
         headers: {
@@ -79,166 +81,77 @@
         toast("Camera added");
       });
     } else {
-      if (company === 2 || company === 4) {
-        let newUrl =
-          "rtsp://" +
-          cameraUsername +
-          ":" +
-          (cameraPass.includes("@")
-            ? cameraPass.replace("@", "%40")
-            : cameraPass) +
-          "@" +
-          cameraIp;
-        let sub =
-          "rtsp://" +
-          cameraUsername +
-          ":" +
-          (cameraPass.includes("@")
-            ? cameraPass.replace("@", "%40")
-            : cameraPass) +
-          "@" +
-          cameraIp +
-          ":554/H264/ch1/sub/av_stream";
-        console.log("main url:", newUrl);
-        console.log("sub url:", sub);
-        fetch("/api/camera/addCamera", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: cameraName,
-            url: newUrl,
-            subUrl: sub,
-            nodeId: sNode ? sNode.id : $selectedNode.id,
-            face: face,
-            save: saving,
-            vehicle: vehicle,
-            faceDetThresh: 0.93,
-            faceMatchThresh: 0.3,
-            vehicleDetThresh: 0.4,
-            vehiclePlateThresh: 0.5,
-            vehicleOCRThresh: 0.6,
-            saveFolder: "./PlayBack/",
-            saveDuration: 30 * 60 * 24,
-            priority: priority === true ? 1 : 0,
-            motionThresh:
-              motionThresh === 0 ? 1000 : motionThresh === 50 ? 2500 : 5000,
-          }),
-        }).then((response) => {
-          if (response.ok) {
-            dialogOpen = false;
+      // onvif://admin:admin123@50.168.139.58:80
+      const onvifUrl = `onvif://${cameraUsername}:${cameraPass}@${cameraIp}:${httpPort}`;
+      console.log(onvifUrl);
+
+      let onvifData;
+
+      fetch(`http://localhost:8084/api/onvif?url=${onvifUrl}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data) {
+            onvifData = data;
+            if (onvifData) {
+              const main =
+                onvifData[0].stream_type === "MainStream"
+                  ? onvifData[0].url
+                  : onvifData[1].url;
+              const sub =
+                onvifData[1].stream_type === "SubStream"
+                  ? onvifData[1].url
+                  : onvifData[0].url;
+
+              if (main && sub) {
+                fetch("/api/camera/addCamera", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    name: cameraName,
+                    url: main,
+                    subUrl: sub,
+                    nodeId: sNode ? sNode.id : $selectedNode.id,
+                    face: face,
+                    save: saving,
+                    saveFolder: "./PlayBack/",
+                    saveDuration: 30 * 60 * 24,
+                    vehicle: vehicle,
+                    faceDetThresh: 0.93,
+                    faceMatchThresh: 0.3,
+                    vehicleDetThresh: 0.4,
+                    vehiclePlateThresh: 0.5,
+                    vehicleOCRThresh: 0.6,
+                    priority: priority === true ? 1 : 0,
+                    motionThresh:
+                      motionThresh === 0
+                        ? 1000
+                        : motionThresh === 50
+                          ? 2500
+                          : 5000,
+                  }),
+                }).then((response) => {
+                  if (response.ok) {
+                    dialogOpen = false;
+                  }
+                  toast("Camera added");
+                });
+              }
+            }
+          } else {
+            toast("Failed to add camera via ONVIF");
           }
-          toast("Camera added");
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          toast("Error adding camera via ONVIF");
         });
-      } else if (company === 1) {
-        let newUrl =
-          "rtsp://" +
-          cameraUsername +
-          ":" +
-          (cameraPass.includes("@")
-            ? cameraPass.replace("@", "%40")
-            : cameraPass) +
-          "@" +
-          cameraIp +
-          ":554/cam/realmonitor?channel=1\u0026subtype=0";
-        let sub =
-          "rtsp://" +
-          cameraUsername +
-          ":" +
-          (cameraPass.includes("@")
-            ? cameraPass.replace("@", "%40")
-            : cameraPass) +
-          "@" +
-          cameraIp +
-          ":554/cam/realmonitor?channel=1\u0026subtype=1";
-        console.log("main url:", newUrl);
-        console.log("sub url:", sub);
-        fetch("/api/camera/addCamera", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: cameraName,
-            url: newUrl,
-            subUrl: sub,
-            nodeId: sNode ? sNode.id : $selectedNode.id,
-            face: face,
-            save: saving,
-            vehicle: vehicle,
-            faceDetThresh: 0.93,
-            faceMatchThresh: 0.3,
-            vehicleDetThresh: 0.4,
-            vehiclePlateThresh: 0.5,
-            vehicleOCRThresh: 0.6,
-            saveFolder: "./PlayBack/",
-            saveDuration: 30 * 60 * 24,
-            priority: priority === true ? 1 : 0,
-            motionThresh:
-              motionThresh === 0 ? 1000 : motionThresh === 50 ? 2500 : 5000,
-          }),
-        }).then((response) => {
-          if (response.ok) {
-            dialogOpen = false;
-          }
-          toast("Camera added");
-        });
-      } else if (company === 3) {
-        // Add your code here for company 3
-        let newUrl =
-          "rtsp://" +
-          cameraUsername +
-          ":" +
-          (cameraPass.includes("@")
-            ? cameraPass.replace("@", "%40")
-            : cameraPass) +
-          "@" +
-          cameraIp +
-          ":554/ch01";
-        let sub =
-          "rtsp://" +
-          cameraUsername +
-          ":" +
-          (cameraPass.includes("@")
-            ? cameraPass.replace("@", "%40")
-            : cameraPass) +
-          "@" +
-          cameraIp +
-          ":554/ch01_sub";
-        console.log("main url:", newUrl);
-        console.log("sub url:", sub);
-        fetch("/api/camera/addCamera", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: cameraName,
-            url: newUrl,
-            subUrl: sub,
-            nodeId: sNode ? sNode.id : $selectedNode.id,
-            face: face,
-            save: saving,
-            vehicle: vehicle,
-            faceDetThresh: 0.93,
-            faceMatchThresh: 0.3,
-            vehicleDetThresh: 0.4,
-            vehiclePlateThresh: 0.5,
-            vehicleOCRThresh: 0.6,
-            saveFolder: "./PlayBack/",
-            saveDuration: 30 * 60 * 24,
-            priority: priority === true ? 1 : 0,
-            motionThresh:
-              motionThresh === 0 ? 1000 : motionThresh === 50 ? 2500 : 5000,
-          }),
-        }).then((response) => {
-          if (response.ok) {
-            dialogOpen = false;
-          }
-          toast("Camera added");
-        });
-      }
     }
   };
 
@@ -248,10 +161,12 @@
 
   async function handleAddNode() {
     // Check all nodeNames for underscores first
-    const invalidNodes = nodeName.filter(node => node.includes('_'));
-    
+    const invalidNodes = nodeName.filter((node) => node.includes("_"));
+
     if (invalidNodes.length > 0) {
-      toast.error('"_" are not allowed for Node names, please try with some other name!');
+      toast.error(
+        '"_" are not allowed for Node names, please try with some other name!',
+      );
       return;
     }
 
@@ -265,33 +180,34 @@
           name: node,
           sessionId: $selectedNode?.session,
         }),
-      })
-      .catch((err) => console.log(err));
+      }).catch((err) => console.log(err));
       // console.log(node)
     }
     dialogOpen = false;
   }
 
-  async function handleAddSubNodes() {  
+  async function handleAddSubNodes() {
     // Check all subNodeNames for underscores first
-    const invalidSubNodes = subNodeNames.filter(sub => sub.includes('_'));
-    
+    const invalidSubNodes = subNodeNames.filter((sub) => sub.includes("_"));
+
     if (invalidSubNodes.length > 0) {
-      toast.error('"_" are not allowed for subNode names, please try with some other name!');
+      toast.error(
+        '"_" are not allowed for subNode names, please try with some other name!',
+      );
       return;
     }
 
     for (let subs of subNodeNames) {
-      await fetch('/api/node/subnode/create', {
-        method: 'POST', 
+      await fetch("/api/node/subnode/create", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           subNode: subs,
           node: chosenNode.name,
-          sessionId: $selectedNode.session
-        })
+          sessionId: $selectedNode.session,
+        }),
       });
       dialogOpen = false;
     }
@@ -339,7 +255,9 @@
     {#if modeAdd === 3}
       <div class=" drop-shadow-md px-2">
         <div class="w-full flex flex-col items-start justify-center py-4 gap-4">
-        <p class="text-[#212123] dark:text-slate-200 font-medium text-xl">Add Camera</p>
+          <p class="text-[#212123] dark:text-slate-200 font-medium text-xl">
+            Add Camera
+          </p>
           <span class="flex items-center justify-between w-full gap-4">
             <button
               disabled
@@ -397,12 +315,12 @@
 
           {#if mode === 2}
             <div
-              class="w-full border-b border-black/[.1] pb-2 flex items-center justify-start gap-4"
+              class="w-full border-b border-black/[.1] pb-2 flex items-center justify-start gap-10"
             >
               <button
                 on:click={() => (addMode = 1)}
                 class={`${addMode !== 1 ? "text-[#5F6064] font-medium" : "text-primary font-semibold"} font-medium text-sm relative`}
-                >Using URL
+                >Using RTSP
                 {#if addMode === 1}
                   <span
                     class="h-[2px] w-full absolute bg-primary -bottom-2.5 left-0"
@@ -411,7 +329,7 @@
               <button
                 on:click={() => (addMode = 2)}
                 class={`${addMode === 1 ? "text-[#5F6064] font-medium" : "text-primary font-semibold"}  text-sm relative`}
-                >Using Details{#if addMode !== 1}
+                >Using Onvif{#if addMode !== 1}
                   <span
                     class="h-[2px] w-full absolute bg-primary -bottom-2.5 left-0"
                   />{/if}</button
@@ -475,93 +393,15 @@
                       bind:cameraIp
                       on:change={(e) => (cameraIp = e.target.value)}
                     />
-                  </div>
-                </div>
-                <div class="grid grid-cols-4 items-center gap-4">
-                  <span
-                    class="block text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
-                  >
-                    Camera Brand
-                  </span>
-                  <div
-                    class="flex flex-row items-center gap-6 my-auto col-span-3"
-                  >
-                    <label
-                      class="flex items-center gap-1 text-xs sm:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
-                    >
-                      <input
-                        type="checkbox"
-                        name="cameraBrand"
-                        class="disabled:cursor-not-allowed"
-                        on:change={() => {
-                          if (company !== 1) {
-                            updateCompany(1);
-                          } else {
-                            updateCompany(0);
-                          }
-                        }}
-                        disabled={disabled === "other"}
-                        checked={company === 1}
-                      />{" "}
-                      CP Plus
-                    </label>
-                    <label
-                      class="flex items-center gap-1 text-xs sm:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
-                    >
-                      <input
-                        type="checkbox"
-                        name="cameraBrand"
-                        class="disabled:cursor-not-allowed"
-                        on:change={() => {
-                          if (company !== 2) {
-                            updateCompany(2);
-                          } else {
-                            updateCompany(0);
-                          }
-                        }}
-                        disabled={disabled === "other"}
-                        checked={company === 2}
-                      />{" "}
-                      Hikvision
-                    </label>
-                    <label
-                      class="flex items-center gap-1 text-xs sm:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
-                    >
-                      <input
-                        type="checkbox"
-                        name="cameraBrand"
-                        class="disabled:cursor-not-allowed"
-                        on:change={() => {
-                          if (company !== 3) {
-                            updateCompany(3);
-                          } else {
-                            updateCompany(0);
-                          }
-                        }}
-                        disabled={disabled === "other"}
-                        checked={company === 3}
-                      />
-                      ZKTECO
-                    </label>
-                    <label
-                      class="flex items-center gap-1 text-xs sm:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
-                    >
-                      <input
-                        type="checkbox"
-                        name="cameraBrand"
-                        class="disabled:cursor-not-allowed"
-                        on:change={() => {
-                          if (company !== 4) {
-                            updateCompany(4);
-                          } else {
-                            updateCompany(0);
-                          }
-                        }}
-                        disabled={disabled === "other"}
-                        checked={company === 4}
-                      />
-                      Other
-                    </label>
+                    <Label for="camera-ip">HTTP Port</Label>
+                    <Input
+                      id="camera-port"
+                      class="col-span-3"
+                      placeholder={"address associated with camera"}
+                      disabled={disabled === "other"}
+                      bind:httpPort
+                      on:change={(e) => (httpPort = e.target.value)}
+                    />
                   </div>
                 </div>
               </div>
@@ -665,7 +505,9 @@
     {/if}
     {#if modeAdd === 2}
       <div class="flex flex-col px-2">
-        <p class="text-[#212123] dark:text-slate-200 font-medium text-xl mt-2">Add Sub Node</p>
+        <p class="text-[#212123] dark:text-slate-200 font-medium text-xl mt-2">
+          Add Sub Node
+        </p>
         <span
           class=" h-[1px] w-full bg-[#919EAB] border-opacity-15 mt-4 mb-6"
         />
@@ -676,7 +518,10 @@
               size={18}
               class="text-[#727272] absolute top-1/2 pointer-events-none -translate-y-1/2 right-2"
             />
-            <select class="w-full p-2 border border-gray-300 rounded-md" bind:value={chosenNode}>
+            <select
+              class="w-full p-2 border border-gray-300 rounded-md"
+              bind:value={chosenNode}
+            >
               {#each nodes as node}
                 <option value={node}>{node.name}</option>
               {/each}
@@ -711,8 +556,12 @@
     {/if}
     {#if modeAdd === 1}
       <div class="flex flex-col px-2">
-        <p class="text-[#212123] dark:text-slate-200 font-medium text-xl mt-2">Add New Node</p>
-        <p class="text-base text-black/[.7] dark:text-white/[.7] leading-[22px] py-2">
+        <p class="text-[#212123] dark:text-slate-200 font-medium text-xl mt-2">
+          Add New Node
+        </p>
+        <p
+          class="text-base text-black/[.7] dark:text-white/[.7] leading-[22px] py-2"
+        >
           Add New Node to start monitoring
         </p>
         <span
@@ -735,10 +584,7 @@
         class="w-1/2 mx-auto flex items-center gap-4"
         variant="secondary"
         on:click={() => (addNodeCounter += 1)}
-        >Add Another Node <PlusCircle
-          class="text-primary"
-          size={18}
-        /></Button
+        >Add Another Node <PlusCircle class="text-primary" size={18} /></Button
       >
       <Button class="w-1/2 mx-auto" on:click={() => handleAddNode()}
         >Submit</Button

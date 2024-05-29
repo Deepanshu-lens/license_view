@@ -81,6 +81,21 @@
   let fetched = false;
   let fetchingUsers = false;
 
+
+  async function fetchFeatures(path: string) {
+  try {
+    const response = await fetch(`/api/features/${path}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.features.items;
+  } catch (error) {
+    console.error(`Error fetching features from ${path}:`, error);
+    return [];
+  }
+}
+
   async function fetchAllUsers() {
     if (fetchingUsers) return;
 
@@ -93,11 +108,11 @@
       const data = await response.json();
       allUsers = data.records;
 
-      const features = await fetch('/api/features/live')
-      if (!features.ok) {
-        throw new Error(`HTTP error! status: ${features.status}`);
+      const live = await fetch('/api/features/live')
+      if (!live.ok) {
+        throw new Error(`HTTP error! status: ${live.status}`);
       }
-      const d = await features.json()
+      const d = await live.json()
       // console.log(d)
       liveFeatures= d.features.items;
       fetched = true;
@@ -477,7 +492,7 @@
           <!-- live content -->
         </Tabs.Content>
         <Tabs.Content value="playback">
-          <PlaybackTable />
+          <PlaybackTable/>
           <!-- playback content -->
         </Tabs.Content>
         <Tabs.Content value="events">

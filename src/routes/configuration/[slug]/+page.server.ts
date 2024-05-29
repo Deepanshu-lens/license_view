@@ -58,6 +58,20 @@ export const load: Load = async ({ url, locals }) => {
   console.log("getting login events & user logs");
 
   try {
+
+    // const response = await fetch('https://atlas.zktecousa.xyz:8086/authenticate?username=admin&password=ZKTeco123!&apiClientType=2', {
+    //   method: 'GET',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Access-Control-Allow-Origin': '*',
+    //   },
+    //   rejectUnauthorized: false,//add when working with https sites
+    // requestCert: false,//add when working with https sites
+    // agent: false,//add when working with https sites
+    // });
+
+    // const responseData = await response.json();
+    // console.log(responseData);
     const loginRecords = await locals.pb
       ?.collection("loginEvents")
       .getFullList({
