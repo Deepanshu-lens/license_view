@@ -4,7 +4,7 @@ import http from 'http';
 import Agent, { HttpsAgent } from 'agentkeepalive';
 
 export const POST: RequestHandler = async ({ request, locals, cookies }: RequestEvent) => {
-    const {unid , serverIP , serverPort} = await request.json()
+    const {unid , serverIP , serverPort, token} = await request.json()
     const sessionToken = cookies.get('sessionToken'); // Retrieve sessionToken from cookies
     const sessionTokenLocal = '1506197728'; // Retrieve sessionToken from cookies
     const url = `https://atlas.zktecousa.xyz:8086/json/doorMomentaryUnlock?unid=${unid} `;
@@ -16,7 +16,7 @@ export const POST: RequestHandler = async ({ request, locals, cookies }: Request
     });
 
     const headers = {
-      'sessionToken': `${sessionTokenLocal}` // Include the sessionToken in the Authorization header
+      'sessionToken': `${token}` // Include the sessionToken in the Authorization header
     };
 
     try {

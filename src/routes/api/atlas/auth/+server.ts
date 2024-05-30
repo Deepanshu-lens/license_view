@@ -3,9 +3,12 @@ import http from 'http';
 import Agent, { HttpsAgent } from 'agentkeepalive';
 
 export const POST: RequestHandler = async ({ request, locals, cookies }: RequestEvent) => {
-  const { serverIP, serverPort } = await request.json();
-  const url = `https://${serverIP}:${serverPort}/authenticate?username=admin&password=ZKTeco123!&apiClientType=2`;
+  const { serverIP, serverPort,username, password } = await request.json();
 
+  console.log(serverIP,serverPort,username,password)
+  const url = `https://${serverIP}:${serverPort}/authenticate?username=${username}&password=${password}&apiClientType=2`;
+  // const url = `https://${serverIP}:${serverPort}/authenticate?username=admin&password=ZKTeco123!&apiClientType=2`;
+console.log(url)
   const agent = new HttpsAgent({
     rejectUnauthorized: false // This disables certificate validation
   });
@@ -36,6 +39,15 @@ export const POST: RequestHandler = async ({ request, locals, cookies }: Request
     console.log(data)
     const sessionToken = data.sessionToken;
     console.log(sessionToken)
+
+    if(sessionToken === undefined) {
+    return new Response(JSON.stringify({ error: "Authentication failed. Invalid session token." }), {
+      status: 401,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    }
 
     //@ts-ignore
     // cookies.set('sessionToken', sessionToken, { httpOnly: true, path: '/', maxAge: 36000000 });

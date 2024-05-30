@@ -2,6 +2,7 @@
 import { ChevronDown, Info,LockKeyhole } from "lucide-svelte";
     import { toast } from "svelte-sonner";
   export let data;
+  export let currSess;
   let showChildren = null;
   let selectChild = null
 
@@ -13,7 +14,7 @@ import { ChevronDown, Info,LockKeyhole } from "lucide-svelte";
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ unid:doorId })
+        body: JSON.stringify({ unid:doorId, token:currSess })
       });
       const data = await response.json();
       if (response.ok) {
@@ -24,6 +25,7 @@ import { ChevronDown, Info,LockKeyhole } from "lucide-svelte";
       }
     } catch (error) {
       console.error('Error unlocking door:', error);
+      toast.error('error unlocking door!')
     }
   }
 </script>

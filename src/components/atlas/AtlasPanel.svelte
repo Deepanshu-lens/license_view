@@ -21,6 +21,8 @@
 
   let serverIp = "";
   let serverPort = "";
+  let username = '';
+  let password = '';
   let searchUnid = "";
   let searchName = "";
   let doorList = [];
@@ -28,7 +30,8 @@
   let userList = [];
 
   function handleSubmit() {
-    const payload = { serverIP: serverIp, serverPort };
+    console.log(username, password)
+    const payload = { serverIP: serverIp, serverPort, username, password };
     fetch("/api/atlas/auth", {
       method: "POST",
       headers: {
@@ -153,7 +156,7 @@
         </div>
         
         <div class="h-[calc(100vh-250px)]">
-          <TreeSection data={doorList} />
+          <TreeSection data={doorList} {currSess} />
         </div>
       {/if}
       {#if view === 3}
@@ -225,6 +228,25 @@
     ${showRightPanel ? "w-1/4 p-4" : " p-0 w-0"} relative max-w-72`}
   >
     {#if showRightPanel}
+      <Label class="flex flex-col gap-2">
+        Username
+        <Input
+          id="username"
+          name="username"
+          placeholder="Username"
+          bind:value={username}
+        />
+      </Label>
+      <Label class="flex flex-col gap-2">
+Password
+        <Input
+          id="password"
+          name="password"
+          placeholder="password"
+          type='password'
+          bind:value={password}
+        />
+      </Label>
       <Label class="flex flex-col gap-2">
         Server IP
         <Input

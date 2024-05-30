@@ -27,14 +27,14 @@
       text: "Live",
       href: `/session/${sessionId}`,
     },
-    {
-      text: "Events",
-      href: `/events/${sessionId}`,
-    },
-    {
-      text: "Gallery",
-      href: `/gallery/${sessionId}`,
-    },
+    // {
+    //   text: "Events",
+    //   href: `/events/${sessionId}`,
+    // },
+    // {
+    //   text: "Gallery",
+    //   href: `/gallery/${sessionId}`,
+    // },
     {
       text: "Configuration",
       href: `/configuration/${sessionId}?section=Remote`,
@@ -127,7 +127,7 @@
       >
         {#each menuList as item}
           {#key item}
-            {#if item.text === "Live" || item.text === "Configuration"}
+            <!-- {#if item.text === "Live" || item.text === "Configuration"} -->
               <a
                 href={item.href}
                 on:click={() => {
@@ -144,7 +144,7 @@
                   {item.text}
                 </span>
               </a>
-            {:else}
+            <!-- {:else}
               <button disabled class="disabled:cursor-not-allowed">
                 <span
                   class={`${
@@ -156,17 +156,16 @@
                   {item.text}
                 </span>
               </button>
-            {/if}
+            {/if} -->
           {/key}
         {/each}
-        {#if session.frs}
-          <!-- <a
+        <!-- {#if session.frs}
+          <a
             href={frs.href}
             on:click={() => {
               addUserLog(`user clicked on navbar link "${frs.text}"`);
             }}
-          > -->
-          <button disabled class="disabled:cursor-not-allowed">
+          >
             <span
               class={`${
                 $page.url.pathname === frs.href.split("?")[0]
@@ -176,16 +175,15 @@
             >
               {frs.text}
             </span>
-          </button>
-        {/if}
-        {#if session.playback}
+            </a>
+        {/if} -->
+        <!-- {#if session.playback}
           <a
             href={playback.href}
             on:click={() => {
               addUserLog(`user clicked on navbar link "${playback.text}"`);
             }}
           >
-          <!-- <button class="disabled:cursor-not-allowed"> -->
             <span
               class={`${
                 $page.url.pathname === playback.href.split("?")[0]
@@ -195,9 +193,8 @@
             >
               {playback.text}
             </span>
-          <!-- </button> -->
           </a>
-        {/if}
+        {/if} -->
         {#if session.anpr}
           <a
             href={anpr.href}
