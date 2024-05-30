@@ -30,7 +30,6 @@
   let userList = [];
 
   function handleSubmit() {
-    console.log(username, password)
     const payload = { serverIP: serverIp, serverPort, username, password };
     fetch("/api/atlas/auth", {
       method: "POST",
@@ -50,7 +49,7 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ token: data.message.sessionToken }),
+            body: JSON.stringify({ token: data.message.sessionToken, serverIP: serverIp, serverPort }),
           })
             .then((res) => res.json())
             .then((data) => {
@@ -63,7 +62,7 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ token: data.message.sessionToken }),
+            body: JSON.stringify({ token: data.message.sessionToken, serverIP: serverIp, serverPort }),
           })
             .then((res) => res.json())
             .then((data) => {
@@ -76,7 +75,7 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ token: data.message.sessionToken }),
+            body: JSON.stringify({ token: data.message.sessionToken, serverIP: serverIp, serverPort }),
           })
             .then((res) => res.json())
             .then((data) => {
