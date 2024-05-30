@@ -26,6 +26,7 @@
     <ChevronRight class="w-6 h-6 ms-2 text-primary-700 dark:text-white" />
   {/if}
 </DropdownItem>
+<!-- <DropdownDivider /> -->
 {#if hasChildren}
 <Dropdown placement="bottom-end" class="z-[99999999] dark:text-slate-200 dark:bg-black border dark:border-slate-300 dark:border-opacity-35 rounded-sm min-w-[10rem]">
     {#each node.nodes as subnode}

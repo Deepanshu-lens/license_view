@@ -39,7 +39,8 @@
   export let nodes;
 
   const onSubmit = () => {
-    if (mode === 1) {
+    console.log(mode)
+    if (addMode === 1) {
       let modifiedCameraURL = cameraURL;
       const urlParts = cameraURL.split("@");
       console.log(urlParts);

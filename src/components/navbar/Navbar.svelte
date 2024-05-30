@@ -43,6 +43,10 @@
       text: "Reports",
       href: `/reports/${sessionId}`,
     },
+    {
+      text: "Atlas",
+      href: `/atlas/${sessionId}`,
+    },
   ];
 
   let frs = {

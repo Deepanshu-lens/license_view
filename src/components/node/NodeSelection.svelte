@@ -3,11 +3,7 @@
   import AddCameraDialog from "@/components/dialogs/AddCameraDialog.svelte";
   import EditNodeDialog from "./../dialogs/EditNodeDialog.svelte";
   import type { Camera, Node } from "@/types";
-  import {
-    Edit,
-    PlusCircle,
-    Trash,
-  } from "lucide-svelte";
+  import { Edit, PlusCircle, Trash } from "lucide-svelte";
   import { selectedNode } from "@/lib/stores";
   import Button from "../ui/button/button.svelte";
   import { toast } from "svelte-sonner";
@@ -18,7 +14,7 @@
   import { addUserLog } from "@/lib/addUserLog";
   import PocketBase from "pocketbase";
   import { Dropdown, DropdownItem, DropdownDivider } from "flowbite-svelte";
-  export let data:PageServerData;
+  export let data: PageServerData;
   export let url: string;
   export let nodes: Node[];
   export let isAllFullScreen: boolean;
@@ -94,34 +90,44 @@
     }
 
     try {
-      const response = await fetch("/api/node/getMany", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          session: $selectedNode.session,
-        }),
-      });
+      // const response = await fetch("/api/node/getMany", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     session: $selectedNode.session,
+      //   }),
+      // });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch node data");
-      }
-
-      const { nodeData } = await response.json();
-      const selected = nodeData.find((node) => node.name === selectedOption);
-
-      if (!selected) {
-        throw new Error("Selected node not found");
-      }
-
-      const nodes = await PB.collection("node").getFullList(200, {
+      // if (!response.ok) {
+      //   throw new Error("Failed to fetch node data");
+      // }
+      // console.log(response)
+      // console.log(selectedOption);
+      const test = await PB.collection("node").getFullList({
         expand: "camera",
-        filter: `id="${selected.id}"`,
+        filter: `name="${selectedOption}"&&session~"${$selectedNode.session}"`,
       });
+      // console.log(test);
+
+      // const { nodeData } = await response.json();
+      // console.log(nodeData);
+      // const selected = nodeData.find((node) => node.name === selectedOption);
+
+      // if (!selected) {
+      //   throw new Error("Selected node not found");
+      // }
+
+      // const nodes = await PB.collection("node").getFullList(200, {
+      //   expand: "camera",
+      //   filter: `id="${selected.id}"`,
+      // });
+
+      // console.log(nodes);
 
       // console.log('nodes,nodeselect',nodes)
-      const formattedNodes = nodes.map((node) => ({
+      const formattedNodes = test.map((node) => ({
         ...node,
         session: $selectedNode.session,
         camera:
@@ -155,7 +161,6 @@
   };
 
   // console.log(data)
-
 </script>
 
 <div
@@ -176,7 +181,7 @@
       {/each}
     </select> -->
 
-    <button 
+    <button
       class={`text-start block text-primary text-xs outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
       >{$selectedNode && $selectedNode.name.includes("_")
         ? $selectedNode.name.substring($selectedNode.name.lastIndexOf("_") + 1)
@@ -184,9 +189,13 @@
           ? $selectedNode.name.substring(0, 20) + "..."
           : $selectedNode.name}</button
     >
-   
-    <Dropdown class="z-[99999999] dark:text-slate-200 dark:bg-black border dark:border-slate-300 dark:border-opacity-35 min-w-[10rem] rounded-sm">
-      <DropdownItem  on:click={() => handleNodeSelect({ target: { value: "Add Node +" } })}>
+
+    <Dropdown
+      class="z-[99999999] dark:text-slate-200 dark:bg-black border dark:border-slate-300 dark:border-opacity-35 min-w-[10rem] rounded-sm"
+    >
+      <DropdownItem
+        on:click={() => handleNodeSelect({ target: { value: "Add Node +" } })}
+      >
         Add Node +
       </DropdownItem>
       {#if resultGroupNodes?.length !== 0}
@@ -218,8 +227,8 @@
   {#if url.includes(`/session/`)}
     <span class="flex items-center gap-2 justify-between">
       <AddCameraDialog sNode={""} {nodes}>
-        <button 
-        disabled={!data.user.features.includes("add_node")}
+        <button
+          disabled={!data.user.features.includes("add_node")}
           class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center disabled:cursor-not-allowed`}
         >
           <PlusCircle size={18} class="text-[#727272] dark:text-[#f9f9f9]" />
@@ -227,14 +236,15 @@
       </AddCameraDialog>
       <EditNodeDialog>
         <button
-        disabled={!data.user.features.includes("edit_node")}
+          disabled={!data.user.features.includes("edit_node")}
           class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center`}
         >
           <Edit size={18} class="text-[#727272] dark:text-[#f9f9f9]" />
         </button>
       </EditNodeDialog>
       <AlertDeleteNode onDelete={onDeleteNode}
-        ><Button  disabled={!data.user.features.includes("delete_node")}
+        ><Button
+          disabled={!data.user.features.includes("delete_node")}
           variant="ghost"
           size="icon"
           class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"}`}

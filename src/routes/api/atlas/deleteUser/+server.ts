@@ -3,10 +3,12 @@ import http from 'http';
 import Agent, { HttpsAgent } from 'agentkeepalive';
 
 export const POST: RequestHandler = async ({ request, locals, cookies }: RequestEvent) => {
+    const {unid , token} = await request.json()
     const sessionToken = cookies.get('sessionToken'); // Retrieve sessionToken from cookies
-    const sessionTokenLocal = '378775786'; // Retrieve sessionToken from cookies
-    const {token} = await request.json()
-    const url = `https://atlas.zktecousa.xyz:8086/credHolder/list`;
+    const sessionTokenLocal = '1506197728'; // Retrieve sessionToken from cookies
+    const url = `https://atlas.zktecousa.xyz:8086/credHolder/delete/${unid} `;
+
+    console.log(url)
 
     const agent = new HttpsAgent({
       rejectUnauthorized: false // This disables certificate validation
@@ -39,37 +41,11 @@ export const POST: RequestHandler = async ({ request, locals, cookies }: Request
 
       const { data } = response as { status: number; data: any };
 
-      const users = data?.instanceList?.map((user: { unid: any; first: any; last: any; phones: string | any[]; emails: string | any[]; enabled: any; version: any; lastModified: any; creds: any; }) => ({
-        "unid": user.unid,
-        "firstName": user.first,
-        "LastName": user.last,
-        "phoneNumber": user.phones.length > 0 ? user.phones[0].phoneNumber : "N/A",
-        "email": user.emails.length > 0 ? user.emails[0].emailAddress : null,
-        "enabled": user.enabled,
-        "version": user.version,
-        "lastModified": user.lastModified,
-        "cred": JSON.stringify(user.creds)
-      }));
+      console.log(data)
 
-      const userList = await locals.pb?.collection('atlas_users').getFullList({});
 
-      console.log(userList);
-      console.log(users);
 
-      const existingUnids = new Set(userList?.map((user: any) => user.unid));
-
-      const results = [];
-      for (const user of users) {
-        if (!existingUnids.has(user.unid)) {
-          console.log(user)
-          
-          const result = await locals.pb?.collection('atlas_users').create(user);
-          results.push(result);
-        }
-      }
-      console.log(results);
-
-      return new Response(JSON.stringify({ message: `Successfully saved user data`, userList }), {
+      return new Response(JSON.stringify({ message: `Successfully delete the cred holder`, data }), {
         status: 200,
         headers: {
           'Content-Type': 'application/json'
