@@ -7,7 +7,7 @@ export const POST: RequestHandler = async ({ request, locals, cookies }: Request
     const {unid , serverIP , serverPort, token} = await request.json()
     const sessionToken = cookies.get('sessionToken'); // Retrieve sessionToken from cookies
     const sessionTokenLocal = '1506197728'; // Retrieve sessionToken from cookies
-    const url = `https://atlas.zktecousa.xyz:8086/json/doorMomentaryUnlock?unid=${unid} `;
+    const url = `https://${serverIP}:${serverPort}/json/doorMomentaryUnlock?unid=${unid} `;
 
     console.log(url)
 
@@ -16,7 +16,7 @@ export const POST: RequestHandler = async ({ request, locals, cookies }: Request
     });
 
     const headers = {
-      'sessionToken': `${token}` // Include the sessionToken in the Authorization header
+      'sessionToken': `${sessionTokenLocal}` // Include the sessionToken in the Authorization header
     };
 
     try {
