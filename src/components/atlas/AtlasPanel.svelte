@@ -21,8 +21,8 @@
 
   let serverIp = "";
   let serverPort = "";
-  let username = '';
-  let password = '';
+  let username = "";
+  let password = "";
   let searchUnid = "";
   let searchName = "";
   let doorList = [];
@@ -49,11 +49,15 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ token: data.message.sessionToken, serverIP: serverIp, serverPort }),
+            body: JSON.stringify({
+              token: data.message.sessionToken,
+              serverIP: serverIp,
+              serverPort,
+            }),
           })
             .then((res) => res.json())
             .then((data) => {
-              console.log(data);
+              console.log('doorDatarecieved');
               doorList = data.doorList;
             })
             .catch((err) => console.log(err));
@@ -62,11 +66,15 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ token: data.message.sessionToken, serverIP: serverIp, serverPort }),
+            body: JSON.stringify({
+              token: data.message.sessionToken,
+              serverIP: serverIp,
+              serverPort,
+            }),
           })
             .then((res) => res.json())
             .then((data) => {
-              console.log(data);
+              console.log('userDatarecieved');
               userList = data.userList;
             })
             .catch((err) => console.log(err));
@@ -75,11 +83,15 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ token: data.message.sessionToken, serverIP: serverIp, serverPort }),
+            body: JSON.stringify({
+              token: data.message.sessionToken,
+              serverIP: serverIp,
+              serverPort,
+            }),
           })
             .then((res) => res.json())
             .then((data) => {
-              console.log(data);
+              console.log('eventDatarecieved');
               eventList = data.eventList;
               loading = false;
               showRightPanel = false;
@@ -128,7 +140,7 @@
       </div>
       {#if view === 1}
         <div class="px-4">
-          <UserTable data={userList} {currSess}/>
+          <UserTable data={userList} {currSess} />
         </div>
       {/if}
       {#if view === 2}
@@ -153,7 +165,7 @@
             </span>
           </span>
         </div>
-        
+
         <div class="h-[calc(100vh-250px)]">
           <TreeSection data={doorList} {currSess} />
         </div>
@@ -234,16 +246,20 @@
           name="username"
           placeholder="Username"
           bind:value={username}
+          autocapitalize="off"
+          autocomplete="off"
         />
       </Label>
       <Label class="flex flex-col gap-2">
-Password
+        Password
         <Input
           id="password"
           name="password"
           placeholder="password"
-          type='password'
+          type="password"
           bind:value={password}
+          autocapitalize="off"
+          autocomplete="off"
         />
       </Label>
       <Label class="flex flex-col gap-2">

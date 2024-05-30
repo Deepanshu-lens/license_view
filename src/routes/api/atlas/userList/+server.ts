@@ -3,10 +3,8 @@ import http from 'http';
 import Agent, { HttpsAgent } from 'agentkeepalive';
 
 export const POST: RequestHandler = async ({ request, locals, cookies }: RequestEvent) => {
-    const sessionToken = cookies.get('sessionToken'); // Retrieve sessionToken from cookies
-    const sessionTokenLocal = '378775786'; // Retrieve sessionToken from cookies
-    const {token} = await request.json()
-    const url = `https://atlas.zktecousa.xyz:8086/credHolder/list`;
+    const {token,serverIP,serverPort} = await request.json()
+    const url = `https://${serverIP}:${serverPort}/credHolder/list`;
 
     const agent = new HttpsAgent({
       rejectUnauthorized: false // This disables certificate validation

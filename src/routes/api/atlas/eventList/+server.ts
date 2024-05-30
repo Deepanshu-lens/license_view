@@ -3,9 +3,7 @@ import http from 'http';
 import Agent, { HttpsAgent } from 'agentkeepalive';
 
 export const POST: RequestHandler = async ({ request, locals, cookies }: RequestEvent) => {
-  const sessionToken = cookies.get('sessionToken'); // Retrieve sessionToken from cookies
-  const sessionTokenLocal = '378775786'; // Retrieve sessionToken from cookies
-  const {token} = await request.json()
+  const {token,serverIP,serverPort} = await request.json()
   const url = `https://${serverIP}:${serverPort}/evt/list`;
 
   const agent = new HttpsAgent({

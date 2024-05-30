@@ -3,9 +3,7 @@ import http from 'http';
 import Agent, { HttpsAgent } from 'agentkeepalive';
 
 export const POST: RequestHandler = async ({ request, locals, cookies }: RequestEvent) => {
-    const {unid , token} = await request.json()
-    const sessionToken = cookies.get('sessionToken'); // Retrieve sessionToken from cookies
-    const sessionTokenLocal = '1506197728'; // Retrieve sessionToken from cookies
+    const {unid , token,serverIP, serverPort} = await request.json()
     const url = `https://${serverIP}:${serverPort}/credHolder/delete/${unid} `;
 
     console.log(url)
