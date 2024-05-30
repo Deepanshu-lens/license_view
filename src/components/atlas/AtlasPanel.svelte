@@ -167,7 +167,7 @@
         </div>
 
         <div class="h-[calc(100vh-250px)]">
-          <TreeSection data={doorList} {currSess} />
+          <TreeSection data={doorList} {currSess} {serverIp} {serverPort} />
         </div>
       {/if}
       {#if view === 3}

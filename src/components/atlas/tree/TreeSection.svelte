@@ -3,6 +3,8 @@ import { ChevronDown, Info,LockKeyhole } from "lucide-svelte";
     import { toast } from "svelte-sonner";
   export let data;
   export let currSess;
+  export let serverIp;
+  export let serverPort
   let showChildren = null;
   let selectChild = null
 
@@ -14,7 +16,7 @@ import { ChevronDown, Info,LockKeyhole } from "lucide-svelte";
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ unid:doorId, token:currSess })
+        body: JSON.stringify({ unid:doorId, token:currSess, serverIP:serverIp, serverPort })
       });
       const data = await response.json();
       if (response.ok) {
