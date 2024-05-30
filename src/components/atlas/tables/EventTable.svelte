@@ -13,21 +13,21 @@
         class="bg-transparent flex items-center justify-between p-3"
       >
         <Table.Head class="text-[#727272] h-full"
-          ><input type="checkbox" name="" id="" /></Table.Head
+          ><input type="checkbox" /></Table.Head
         >
         <Table.Head class="text-[#727272] h-full">Unid</Table.Head>
-        <Table.Head class="text-[#727272] h-full">evtCode</Table.Head>
+        <Table.Head class="text-[#727272] h-full">Event Code</Table.Head>
         <Table.Head class="text-[#727272] h-full"
-          >evtCodeAndSubCode</Table.Head
+          >Event Code & SubCode</Table.Head
         >
         <Table.Head class="text-[#727272] h-full"
-          >evtControllerRef</Table.Head
+          >Event ControllerRef</Table.Head
         >
         <Table.Head class="text-[#727272] h-full"
-          >evtCredHolderRef</Table.Head
+          >Event Cred HolderRef</Table.Head
         >
         <!-- <Table.Head class="text-[#727272] h-full">evtCredRef</Table.Head> -->
-        <Table.Head class="text-[#727272] h-full">evtDevRef</Table.Head>
+        <Table.Head class="text-[#727272] h-full">Event DevRef</Table.Head>
       </Table.Row>
     </Table.Header>
     {#if data}
@@ -60,7 +60,7 @@
             <Popover.Root>
               <Popover.Trigger
               class="bg-primary text-white px-2 py-1 rounded-md"
-              >evtControllerRef</Popover.Trigger>
+              >Event ControllerRef</Popover.Trigger>
               <Popover.Content class='w-max'>
                   <p>Address : <span class="text-primary font-medium">
 
@@ -83,7 +83,7 @@
               <Popover.Trigger
               class="bg-primary text-white px-2 py-1 rounded-md"
               
-              >evtCredHolderRef</Popover.Trigger>
+              >Event CredHolderRef</Popover.Trigger>
               <Popover.Content class='w-max'>
                   <p>First : <span class="text-primary font-medium">
                       {event.evtCredHolderRef?.first}
@@ -100,7 +100,7 @@
             <Popover.Root>
               <Popover.Trigger
               class="bg-primary text-white px-2 py-1 rounded-md"
-              >evtDevRef</Popover.Trigger>
+              >Event DevRef</Popover.Trigger>
               <Popover.Content class='w-max'>
                
                 <p>Address : <span class="text-primary font-medium">

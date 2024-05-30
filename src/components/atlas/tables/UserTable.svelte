@@ -92,23 +92,23 @@ toast.error('No user Selected')
           >Unid</Table.Head
         >
         <Table.Head class="text-[#727272] text-center h-full w-[12.5%]"
-          >FirstName</Table.Head
+          >First Name</Table.Head
         >
         <Table.Head class="text-[#727272] text-center h-full w-[12.5%]"
-          >LastName</Table.Head
+          >Last Name</Table.Head
         >
         <Table.Head class="text-[#727272] text-center h-full w-[12.5%]"
           >Email</Table.Head
         >
         <Table.Head class="text-[#727272] text-center h-full w-[12.5%]"
-          >PhoneNumber</Table.Head
+          >Phone Number</Table.Head
         >
         <Table.Head
           class="text-[#727272] text-center pr-0 h-full w-[12.5%]"
           >Cred</Table.Head
         >
         <Table.Head class="text-[#727272] text-center h-full w-[12.5%]"
-          >lastModified</Table.Head
+          >last Modified</Table.Head
         >
       </Table.Row>
     </Table.Header>
@@ -151,7 +151,7 @@ toast.error('No user Selected')
             {user.phoneNumber}
           </Table.Cell>
           <Table.Cell
-            class="text-[#727272] h-full flex items-start justify-start text-sm w-[12.5%]w-[12.5%] text-start"
+            class="text-[#727272] h-full flex items-start justify-center text-sm w-[12.5%]w-[12.5%] text-start"
           >
             <!-- <Button>Cred</Button> -->
             <Popover.Root>
@@ -171,7 +171,7 @@ toast.error('No user Selected')
             </Popover.Root>
           </Table.Cell>
           <Table.Cell
-            class="text-[#727272] h-full text-sm w-[12.5%] text-start"
+            class="text-[#727272] h-full text-sm w-[12.5%] text-center"
           >
             {date.toLocaleDateString("en-US", {
               year: "numeric",

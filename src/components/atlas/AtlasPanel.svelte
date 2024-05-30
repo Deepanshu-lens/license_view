@@ -57,8 +57,8 @@
           })
             .then((res) => res.json())
             .then((data) => {
-              console.log('doorDatarecieved');
-              doorList = data.doorList;
+              console.log('doorDatarecieved',data);
+              doorList = data.doorListLatest;
             })
             .catch((err) => console.log(err));
           await fetch("/api/atlas/userList", {
@@ -74,8 +74,8 @@
           })
             .then((res) => res.json())
             .then((data) => {
-              console.log('userDatarecieved');
-              userList = data.userList;
+              console.log('userDatarecieved',data);
+              userList = data.userListLatest;
             })
             .catch((err) => console.log(err));
           await fetch("/api/atlas/eventList", {
@@ -91,8 +91,8 @@
           })
             .then((res) => res.json())
             .then((data) => {
-              console.log('eventDatarecieved');
-              eventList = data.eventList;
+              console.log('eventDatarecieved',data);
+              eventList = data.eventListLatest;
               loading = false;
               showRightPanel = false;
             })
