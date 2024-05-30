@@ -51,7 +51,7 @@ export const POST: RequestHandler = async ({ request, locals, cookies }: Request
         "cred": JSON.stringify(user.creds)
       }));
 
-      const userList = await locals.pb?.collection('atlas_users').getFullList({});
+      const userList = await locals.pb?.collection('atlas_users').getFullList({sort: '-created'});
 
       console.log(userList);
       console.log(users);

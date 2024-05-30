@@ -138,7 +138,7 @@ toast.error('No user Selected')
           <Table.Cell
             class="text-[#727272] h-full text-sm w-[12.5%] text-start"
           >
-            {user.lastName}
+            {user.LastName}
           </Table.Cell>
           <Table.Cell
             class="text-[#727272] h-full text-sm w-[12.5%] text-start"
@@ -148,7 +148,7 @@ toast.error('No user Selected')
           <Table.Cell
             class="text-[#727272] h-full text-sm w-[12.5%] text-start"
           >
-            {user.phone}
+            {user.phoneNumber}
           </Table.Cell>
           <Table.Cell
             class="text-[#727272] h-full flex items-start justify-start text-sm w-[12.5%]w-[12.5%] text-start"

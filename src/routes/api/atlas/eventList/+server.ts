@@ -54,7 +54,7 @@ export const POST: RequestHandler = async ({ request, locals, cookies }: Request
       "bgColor": event.bgColor ? event.bgColor : null
     }));
 
-    const eventList = await locals.pb?.collection('atlas_events').getFullList({});
+    const eventList = await locals.pb?.collection('atlas_events').getFullList({sort: '-created'});
     const existingUnids = new Set(eventList?.map((user: any) => user.unid));
 
     //   console.log(users)

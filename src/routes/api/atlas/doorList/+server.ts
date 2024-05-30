@@ -54,7 +54,7 @@ export const POST: RequestHandler = async ({ request, locals, cookies }: Request
     }));
 
 
-    const doorList = await locals.pb?.collection('atlas_doors').getFullList({});
+    const doorList = await locals.pb?.collection('atlas_doors').getFullList({sort: '-created'});
     console.log(doorList)
 
     const existingUnids = new Set(doorList?.map((user: any) => user.unid));
