@@ -127,7 +127,7 @@
       >
         {#each menuList as item}
           {#key item}
-            <!-- {#if item.text === "Live" || item.text === "Configuration"} -->
+            {#if item.text === "Live" || item.text === "Atlas"}
               <a
                 href={item.href}
                 on:click={() => {
@@ -144,7 +144,7 @@
                   {item.text}
                 </span>
               </a>
-            <!-- {:else}
+            {:else}
               <button disabled class="disabled:cursor-not-allowed">
                 <span
                   class={`${
@@ -156,7 +156,7 @@
                   {item.text}
                 </span>
               </button>
-            {/if} -->
+            {/if}
           {/key}
         {/each}
         <!-- {#if session.frs}
