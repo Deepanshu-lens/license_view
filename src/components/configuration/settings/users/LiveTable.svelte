@@ -87,7 +87,7 @@
           {#each liveFeatures as feature}
           <Table.Cell class="text-[#727272] h-full text-sm w-[183.3px]">
             <input type="checkbox" 
-                   checked={allUsers && user?.features ? user.features.some((f) => f === feature.id) : false} 
+                   checked={allUsers && user?.features ? user?.features?.some((f) => f === feature?.id) : false} 
                    on:change={(e) => handleFeatureChange(user.id, feature.id, e.target.checked)} />
           </Table.Cell>
         {/each}

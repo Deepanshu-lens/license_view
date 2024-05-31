@@ -54,7 +54,8 @@
     // const codec = await  video.checkCodec()
     // console.log(codec)
 
-    video.mode = $page.url.hostname.includes("116") ? "mse" : "webrtc";
+    // video.mode = $page.url.hostname.includes("116") ? "mse" : "webrtc";
+    video.mode = 'webrtc'
     video.url = camera.url;
     camera?.subUrl?.length === 0
       ? (video.src = new URL(
@@ -185,8 +186,11 @@
   // $: console.log(slideIndex);
 
   const updateLayout = (maxStreamsPerPage: number) => {
+    // currentIndex = 0
+    // setTimeout(() => {
+    //   refreshCameras()
+    // }, 2*60*1000);
     if ($selectedNode.name !== prevName) {
-      // Clear the videos array and remove video elements from the DOM
       Object.keys(videos).forEach((videoId) => {
         const videoElement = videos[videoId];
         if (videoElement) {
@@ -285,7 +289,7 @@
         },
       });
     } else {
-      console.log("first");
+      console.log("sortable cells not found");
     }
   });
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
@@ -318,94 +322,23 @@
   onDestroy(() => {
     PB.collection("configuration").unsubscribe("*");
   });
+  let currentIndex = 0;
 
-  // onMount(() => {
-  //   if ($selectedNode.camera.length > 0) {
-  //     const refreshInterval = 20000;
+  // $: {
+  //   if(currentIndex === streamCount) {
 
-  //     const refreshCameras = () => {
-  //       $selectedNode.camera.forEach((camera, index) => {
-  //         setTimeout(() => {
-  //           refreshVideoStream(camera.id);
-  //           console.log(
-  //             "refreshing camera with index & name:",
-  //             index,
-  //             camera.name,
-  //           );
-  //         }, refreshInterval * index);
-  //       });
-  //     };
-
-  //     refreshCameras();
-  //     const intervalId = setInterval(
-  //       refreshCameras,
-  //       refreshInterval * $selectedNode.camera.length,
-  //     );
-  //     onDestroy(() => {
-  //       clearInterval(intervalId);
-  //     });
   //   }
-  // });
-
-  // onMount(() => {
-  //   if ($selectedNode.camera.length > 0) {
-  //     const refreshInterval = 20000;
-  //     let currentIndex = 0;
-
-  //     const refreshCameras = () => {
-  //       const camera = $selectedNode.camera[currentIndex];
-  //       if (camera) {
-  //         refreshVideoStream(camera.id);
-  //         console.log(
-  //           "refreshing camera with index & name:",
-  //           currentIndex,
-  //           camera.name,
-  //         );
-  //       }
-  //       currentIndex = (currentIndex + 1) % $selectedNode.camera.length;
-  //     };
-
-  //     refreshCameras();
-  //     const intervalId = setInterval(refreshCameras, refreshInterval);
-
-  //     onDestroy(() => {
-  //       clearInterval(intervalId);
-  //     });
-  //   }
-  // });
-
-  // onMount(() => {
-  //   if ($selectedNode.camera.length > 0) {
-  //     const refreshInterval = 120000;
-  //     let currentIndex = 0;
-
-  //     const refreshCameras = () => {
-  //       if (currentIndex < $selectedNode.camera.length) {
-  //         const camera = $selectedNode.camera[currentIndex];
-  //         refreshVideoStream(camera.id);
-  //         console.log(
-  //           "refreshing camera with index & name:",
-  //           currentIndex,
-  //           camera.name,
-  //         );
-  //         currentIndex++;
-  //         requestAnimationFrame(refreshCameras);
-  //       } else {
-  //         currentIndex = 0;
-  //         setTimeout(
-  //           () => requestAnimationFrame(refreshCameras),
-  //           refreshInterval,
-  //         );
-  //       }
-  //     };
-
-  //     requestAnimationFrame(refreshCameras);
-
-  //     // onDestroy(() => {
-  //     //   currentIndex = $selectedNode.camera.length; // Stop the loop
-  //     // });
-  //   }
-  // });
+  // }
+  //   const refreshCameras = () => {
+  //     const refreshInterval = 2 * 60 * 1000; // 2 minutes
+  //     const camera = $selectedNode.camera[currentIndex];
+  //     if (camera) {
+  //       refreshVideoStream(camera.id);
+  //       console.log("refreshing camera with index & name:", currentIndex, camera.name);
+  //     }
+  //     currentIndex = (currentIndex + 1) % $selectedNode.camera.length;
+  //     setTimeout(refreshCameras, refreshInterval);
+  //   };
 
   $: bigCellIndex = [10, 13, 5, 7].includes($selectedNode.maxStreamsPerPage)
     ? 0
@@ -458,9 +391,9 @@
             bind:this={cells}
           >
             {#each Array($selectedNode.maxStreamsPerPage !== 0 && $selectedNode.maxStreamsPerPage !== 5 && $selectedNode.maxStreamsPerPage !== 7 ? $selectedNode.maxStreamsPerPage : $selectedNode.maxStreamsPerPage === 5 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : layoutRows * layoutColumns) as _, slotIndex}
-              {#if pageIndex * $selectedNode.maxStreamsPerPage + slotIndex < streamCount}
+              {#if pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex < streamCount}
                 <!-- svelte-ignore a11y-no-static-element-interactions -->
-                {#key pageIndex * $selectedNode.maxStreamsPerPage + slotIndex}
+                {#key pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex}
                   <!-- svelte-ignore a11y-click-events-have-key-events -->
                   <div
                     id={`grid-cell-${slotIndex}`}
@@ -476,9 +409,9 @@
                           : ""}
                   >
                     {#if [5, 7, 13].includes($selectedNode.maxStreamsPerPage) && bigCellIndex !== slotIndex}
-                      <button
+                      <button disabled
                         on:click={() => setBigCell(slotIndex)}
-                        class={`cursor-pointer absolute rounded top-4 ${isAllFullScreen ? "right-12" : "right-20"} flex-shrink-0 p-1 bg-[rgba(0,0,0,.5)] text-white z-20`}
+                        class={`cursor-pointer disabled:cursor-not-allowed absolute rounded top-4 ${isAllFullScreen ? "right-12" : "right-20"} flex-shrink-0 p-1 bg-[rgba(0,0,0,.5)] text-white z-20`}
                       >
                         <AArrowUp size={18} />
                       </button>
@@ -486,12 +419,12 @@
                     <Stream
                       videoElement={videos[
                         $selectedNode.camera[
-                          pageIndex * $selectedNode.maxStreamsPerPage +
+                          pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                             slotIndex
                         ].id
                       ]}
                       camera={$selectedNode.camera[
-                        pageIndex * $selectedNode.maxStreamsPerPage + slotIndex
+                        pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex
                       ]}
                     />
                     <span
@@ -500,7 +433,7 @@
                       <span
                         class={`h-2 w-2 ${
                           $selectedNode.camera[
-                            pageIndex * $selectedNode.maxStreamsPerPage +
+                            pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                               slotIndex
                           ].save === true
                             ? "bg-[#C12828]"
@@ -509,18 +442,18 @@
                       />
                       <span class="text-xs font-extrabold">
                         {$selectedNode.camera[
-                          pageIndex * $selectedNode.maxStreamsPerPage +
+                          pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                             slotIndex
                         ].name}
                       </span>
                     </span>
 
-                    {#if $activeCamera === $selectedNode.camera[pageIndex * $selectedNode.maxStreamsPerPage + slotIndex].id}
+                    {#if $activeCamera === $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex].id}
                       <div
                         id={`${$activeCamera}-menu`}
                         class="z-20 flex justify-center items-center gap-4 self-end mt-auto absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-3 rounded-xl bg-gradient-to-bl from-[rgba(217,217,217,.2)] to-[rgba(217,217,217,.1)] border border-solid border-[#d3d3d3]"
                       >
-                        <button
+                        <button disabled
                           on:click={() => {
                             if (isSingleFullscreen === true) {
                               exitSingleFullscreen();
@@ -528,7 +461,7 @@
                                 videos[
                                   $selectedNode.camera[
                                     pageIndex *
-                                      $selectedNode.maxStreamsPerPage +
+                                    ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                       slotIndex
                                   ].id
                                 ];
@@ -539,14 +472,14 @@
                                 delete videos[
                                   $selectedNode.camera[
                                     pageIndex *
-                                      $selectedNode.maxStreamsPerPage +
+                                    ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                       slotIndex
                                   ].id
                                 ];
                               }
                               initVideo(
                                 $selectedNode.camera[
-                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                     slotIndex
                                 ],
                               );
@@ -556,7 +489,7 @@
                                 videos[
                                   $selectedNode.camera[
                                     pageIndex *
-                                      $selectedNode.maxStreamsPerPage +
+                                    ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                       slotIndex
                                   ].id
                                 ];
@@ -567,14 +500,14 @@
                                 delete videos[
                                   $selectedNode.camera[
                                     pageIndex *
-                                      $selectedNode.maxStreamsPerPage +
+                                    ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                       slotIndex
                                   ].id
                                 ];
                               }
                               initVideo(
                                 $selectedNode.camera[
-                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                     slotIndex
                                 ],
                               );
@@ -583,28 +516,28 @@
                             addUserLog(
                               `user clicked single camera fulscreen for camera ${
                                 $selectedNode.camera[
-                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                     slotIndex
                                 ].name
                               } having url "${
                                 $selectedNode.camera[
-                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                     slotIndex
                                 ].url
                               }" `,
                             );
                           }}
-                          class="rounded bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
+                          class=" disabled:cursor-not-allowed rounded bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
                         >
                           {#if !isSingleFullscreen}
                             <Expand size={18} />{:else}
                             <Shrink size={18} />{/if}
                         </button>
-                        <span
+                        <!-- <span
                           class="rounded bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
                           ><Disc2 size={18} />
-                        </span>
-                        <button
+                        </span> -->
+                        <button disabled
                           on:click={(e) => {
                             e.preventDefault();
                             handleSingleSS();
@@ -612,32 +545,32 @@
                             addUserLog(
                               `user clicked capture single screenshot for camera ${
                                 $selectedNode.camera[
-                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                     slotIndex
                                 ].name
                               } having url "${
                                 $selectedNode.camera[
-                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                     slotIndex
                                 ].url
                               }"`,
                             );
                           }}
-                          class="rounded bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
+                          class="rounded disabled:cursor-not-allowed bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
                           ><ImageDown size={18} />
                         </button>
-                        <button
+                        <button disabled
                           on:click={() => {
                             const cameraId =
                               $selectedNode.camera[
-                                pageIndex * $selectedNode.maxStreamsPerPage +
+                                pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                   slotIndex
                               ].id;
                             // console.log(cameraId);
                             refreshVideoStream(cameraId);
                             // addUserLog(`user refreshed video stream for camera ${cameraId}`);
                           }}
-                          class="rounded bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
+                          class="rounded disabled:cursor-not-allowed bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
                         >
                           <RefreshCcw size={18} />
                         </button>
@@ -650,7 +583,7 @@
                             const streamElement =
                               videos[
                                 $selectedNode.camera[
-                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                     slotIndex
                                 ].id
                               ];
@@ -660,14 +593,14 @@
                               streamElement.remove();
                               delete videos[
                                 $selectedNode.camera[
-                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                     slotIndex
                                 ].id
                               ];
                             }
                             initVideo(
                               $selectedNode.camera[
-                                pageIndex * $selectedNode.maxStreamsPerPage +
+                                pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                   slotIndex
                               ],
                             );
@@ -676,7 +609,7 @@
                             const streamElement =
                               videos[
                                 $selectedNode.camera[
-                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                     slotIndex
                                 ].id
                               ];
@@ -686,14 +619,14 @@
                               streamElement.remove();
                               delete videos[
                                 $selectedNode.camera[
-                                  pageIndex * $selectedNode.maxStreamsPerPage +
+                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                     slotIndex
                                 ].id
                               ];
                             }
                             initVideo(
                               $selectedNode.camera[
-                                pageIndex * $selectedNode.maxStreamsPerPage +
+                                pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                   slotIndex
                               ],
                             );
@@ -702,18 +635,19 @@
                           addUserLog(
                             `user clicked single camera fulscreen for camera ${
                               $selectedNode.camera[
-                                pageIndex * $selectedNode.maxStreamsPerPage +
+                                pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                   slotIndex
                               ].name
                             } having url "${
                               $selectedNode.camera[
-                                pageIndex * $selectedNode.maxStreamsPerPage +
+                                pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
                                   slotIndex
                               ].url
                             }" `,
                           );
                         }}
-                        class="absolute p-1 top-4 right-4 cursor-pointer bg-[rgba(0,0,0,.5)] text-white rounded z-20"
+                        class="absolute p-1 top-4 right-4 cursor-pointer bg-[rgba(0,0,0,.5)] text-white rounded z-20 disabled:cursor-not-allowed"
+                        disabled
                         >{#if !isSingleFullscreen}
                           <Expand size={18} />{:else}
                           <Shrink size={18} />{/if}
@@ -754,11 +688,12 @@
                             ? "grid-area: bigCell1"
                             : ""}
                 >
-                  <AddCameraDialog sNode={""}>
+                  <AddCameraDialog nodes={data.nodes} sNode={""}>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                     <button
-                      disabled={!data.user.features.includes("add_camera")}
+                    class=" disabled:cursor-not-allowed"
+                    disabled
                     >
                       <img
                         on:click={() => {
@@ -770,7 +705,7 @@
                         src={$mode === "light" && !isAllFullScreen
                           ? "/images/plusLight.png"
                           : "/images/plusDark.png"}
-                        class="h-full w-full object-contain scale-50 2xl:scale-[.35] absolute cursor-pointer top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
+                        class="h-full w-full object-contain scale-50 2xl:scale-[.35] absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
                       />
                     </button>
                   </AddCameraDialog>
@@ -800,10 +735,10 @@
   <div
     class={`h-full w-full ${streamCount === 0 ? "flex justify-center items-center" : "relative"}`}
   >
-    <AddCameraDialog sNode={""}>
+    <AddCameraDialog nodes={data.nodes} sNode={""}>
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-      <button disabled={!data.user.features.includes("add_camera")}>
+      <button class="disabled:cursor-not-allowed" disabled>
         <img
           on:click={() => {
             addUserLog(`user added first camera through streampanel`);
@@ -812,7 +747,7 @@
           src={$mode === "light"
             ? "/images/plusLight.png"
             : "/images/plusDark.png"}
-          class={`h-full w-full object-contain dark:scale-[.40] scale-[.20] cursor-pointer ${streamCount === 0 ? "" : "top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"}`}
+          class={`h-full w-full object-contain dark:scale-[.40] scale-[.20] ${streamCount === 0 ? "" : "top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"}`}
         />
       </button>
     </AddCameraDialog>

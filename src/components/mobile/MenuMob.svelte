@@ -17,7 +17,7 @@
     class="flex items-center justify-evenly px-2 fixed w-screen bottom-[66px] z-30 pb-4 pt-2 backdrop-blur-xl"
   >
     <LayoutDialog orientation="">
-      <button class="flex flex-col items-center justify-center gap-1">
+      <button class="flex flex-col items-center justify-center gap-1" disabled>
         <LayoutGrid
           class={`p-[11px] w-[46px] h-[46px] rounded-full bg-[#e8e9ea] text-[#015a62]`}
         />
@@ -28,7 +28,7 @@
         </span>
       </button>
     </LayoutDialog>
-    <button
+    <button disabled
       class="flex flex-col items-center justify-center gap-1 relative"
       on:click={() =>
         showSelection === "announce"
@@ -54,13 +54,13 @@
           class="w-[150px] h-[95px] rounded-md bg-[f5f6f7] shadow-selection flex flex-col items-center justify-center absolute z-20 bg-white bottom-[4.5rem]"
           on:click={(e) => e.stopPropagation()}
         >
-          <button
+          <button disabled
             class="text-[#2c2c2c] text-sm focus:bg-[#015a62]/[.12] py-[11px] w-full"
             tabIndex={0}
           >
             Selected screen
           </button>
-          <button
+          <button disabled
             class="text-[#2c2c2c] text-sm focus:bg-[#015a62]/[.12] py-[11px] w-full"
             tabIndex={1}
           >
@@ -69,7 +69,7 @@
         </div>
       {/if}
     </button>
-    <button
+    <button disabled
       class="flex flex-col items-center justify-center gap-1 relative"
       on:click={() =>
         showSelection === "record"
@@ -95,13 +95,13 @@
           class="w-[150px] h-[95px] rounded-md bg-[f5f6f7] shadow-selection flex flex-col items-center justify-center absolute z-20 bg-white bottom-[4.5rem]"
           on:click={(e) => e.stopPropagation()}
         >
-          <button
+          <button disabled
             class="text-[#2c2c2c] text-sm focus:bg-[#015a62]/[.12] py-[11px] w-full"
             tabIndex={0}
           >
             Selected screen
           </button>
-          <button
+          <button disabled
             class="text-[#2c2c2c] text-sm focus:bg-[#015a62]/[.12] py-[11px] w-full"
             tabIndex={1}
           >
@@ -110,7 +110,7 @@
         </div>
       {/if}
     </button>
-    <button
+    <button disabled
       class="flex flex-col items-center justify-center gap-1 relative"
       on:click={() =>
         showSelection === "snip"
@@ -124,7 +124,7 @@
             : "bg-[#e8e9ea] text-[#015a62]"
         }`}
       />
-      <span
+      <span 
         class="text-xs text-black/[.6] tracking-[-0.12px] font-medium text-center"
       >
         Snip
@@ -136,7 +136,7 @@
           class="w-[150px] h-[95px] rounded-md bg-[f5f6f7] shadow-selection flex flex-col items-center justify-center absolute z-20 bg-white bottom-[4.5rem]"
           on:click={(e) => e.stopPropagation()}
         >
-          <button
+          <button disabled
             class="text-[#2c2c2c] text-sm focus:bg-[#015a62]/[.12] py-[11px] w-full"
             tabIndex={0}
             on:click={() => {
@@ -153,7 +153,7 @@
           >
             Selected screen
           </button>
-          <button
+          <button disabled
             class="text-[#2c2c2c] text-sm focus:bg-[#015a62]/[.12] py-[11px] w-full"
             tabIndex={1}
             on:click={() => {
@@ -170,7 +170,7 @@
         </div>
       {/if}
     </button>
-    <button
+    <button disabled
       class="flex flex-col items-center justify-center gap-1"
       on:click={() => {
         showAlerts = true;
@@ -192,7 +192,7 @@
   <div
     class="flex flex-row-reverse items-center justify-evenly px-2 fixed z-50 w-screen bottom-0 bg-black py-4"
   >
-    <button
+    <button disabled
       class="flex flex-col items-center justify-center gap-1 rotate-90"
       on:click={() => (landscape = false)}
     >
@@ -216,7 +216,7 @@
         Unmute
       </span>
     </span>
-    <button
+    <button disabled
       class="flex flex-col items-center justify-center gap-1 rotate-90 relative"
       on:click={() =>
         showSelection === "save"
@@ -241,7 +241,7 @@
           class="w-[150px] h-[95px] rounded-md shadow-selection flex flex-col items-center justify-center absolute z-[100] bg-[#444] right-16"
           on:click={(e) => e.stopPropagation()}
         >
-          <button
+          <button disabled
             class="text-white text-sm focus:bg-white/[.12] py-[11px] w-full flex items-center pl-2 gap-2"
             tabIndex={0}
             on:click={() => {
@@ -258,7 +258,7 @@
             <ImageDown />
             Snip screen
           </button>
-          <button
+          <button disabled
             class="text-[white] text-sm focus:bg-white/[.12] py-[11px] w-full flex items-center pl-2 gap-2"
             tabIndex={1}
           >
@@ -269,7 +269,7 @@
       {/if}
     </button>
     <LayoutDialog orientation="landscape">
-      <button class="flex flex-col items-center justify-center gap-1 rotate-90">
+      <button class="flex flex-col items-center justify-center gap-1 rotate-90" disabled>
         <LayoutGrid
           class="p-[11px] w-[46px] h-[46px] rounded-full bg-[rgb(232,233,234)]/[.22] text-white"
         />
@@ -280,7 +280,7 @@
         </span>
       </button>
     </LayoutDialog>
-    <button
+    <button disabled
       class="flex flex-col items-center justify-center gap-1 rotate-90"
       on:click={() => {
         showAlerts = true;

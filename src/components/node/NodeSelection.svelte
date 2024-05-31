@@ -181,8 +181,8 @@
       {/each}
     </select> -->
 
-    <button
-      class={`text-start block text-primary text-xs outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
+    <button 
+      class={`text-start disabled:cursor-not-allowed block text-primary text-xs outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
       >{$selectedNode && $selectedNode.name.includes("_")
         ? $selectedNode.name.substring($selectedNode.name.lastIndexOf("_") + 1)
         : $selectedNode.name.length > 20
@@ -193,11 +193,10 @@
     <Dropdown
       class="z-[99999999] dark:text-slate-200 dark:bg-black border dark:border-slate-300 dark:border-opacity-35 min-w-[10rem] rounded-sm"
     >
-      <DropdownItem
-        on:click={() => handleNodeSelect({ target: { value: "Add Node +" } })}
+    <!-- on:click={() => handleNodeSelect({ target: { value: "Add Node +" } })} -->
+      <DropdownItem class='flex w-full justify-between items-center text-primary pl-3 pr-5 cursor-not-allowed'
       >
-        Add Node +
-      </DropdownItem>
+        Add Node <PlusCircle class='text-primary' size={18}/>      </DropdownItem>
       {#if resultGroupNodes?.length !== 0}
         {#each resultGroupNodes as node}
           <RecursiveNode {node} {handleNodeSelect} />
@@ -227,31 +226,28 @@
   {#if url.includes(`/session/`)}
     <span class="flex items-center gap-2 justify-between">
       <AddCameraDialog sNode={""} {nodes}>
-        <button
-          disabled={!data.user.features.includes("add_node")}
+        <button disabled
           class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center disabled:cursor-not-allowed`}
         >
           <PlusCircle size={18} class="text-[#727272] dark:text-[#f9f9f9]" />
         </button>
       </AddCameraDialog>
       <EditNodeDialog>
-        <button
-          disabled={!data.user.features.includes("edit_node")}
-          class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center`}
+        <button disabled
+          class={`w-[26px] disabled:cursor-not-allowed h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center`}
         >
           <Edit size={18} class="text-[#727272] dark:text-[#f9f9f9]" />
         </button>
       </EditNodeDialog>
       <AlertDeleteNode onDelete={onDeleteNode}
-        ><Button
-          disabled={!data.user.features.includes("delete_node")}
+        ><button disabled
           variant="ghost"
           size="icon"
-          class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"}`}
+          class={`w-[26px] h-[26px] disabled:cursor-not-allowed bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"}`}
           ><Trash
             size={18}
             class="text-[#727272] dark:text-[#f9f9f9]"
-          /></Button
+          /></button
         ></AlertDeleteNode
       >
     </span>

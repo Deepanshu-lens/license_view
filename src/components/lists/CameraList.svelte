@@ -92,8 +92,8 @@
   <div class="w-full py-24 flex justify-center items-center">
     <div class="flex flex-col space-y-6 mx-auto items-center">
       <Cctv size={64} />
-      <AddCameraDialog sNode={""}>
-        <Button class="mx-auto text-center"    disabled={!data.user.features.includes("add_camera")} >Add Camera</Button>
+      <AddCameraDialog nodes={data.nodes} sNode={""}>
+        <Button class="mx-auto text-center disabled:cursor-not-allowed" disabled>Add Camera</Button>
       </AddCameraDialog>
     </div>
   </div>

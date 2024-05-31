@@ -28,7 +28,7 @@
 </DropdownItem>
 <!-- <DropdownDivider /> -->
 {#if hasChildren}
-<Dropdown placement="bottom-end" class="z-[99999999] dark:text-slate-200 dark:bg-black border dark:border-slate-300 dark:border-opacity-35 rounded-sm min-w-[10rem]">
+<Dropdown placement="bottom" class="z-[99999999] dark:text-slate-200 dark:bg-black border dark:border-slate-300 dark:border-opacity-35 rounded-sm min-w-[10rem]">
     {#each node.nodes as subnode}
       <RecursiveNode node={subnode} {handleNodeSelect} />
     {/each}

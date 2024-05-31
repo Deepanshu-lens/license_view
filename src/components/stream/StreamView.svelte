@@ -287,8 +287,7 @@
   >
     <AddCameraDialog sNode="" {nodes}>
       <span class="group flex-col flex items-center justify-center gap-0.5">
-        <button
-          disabled={!data.user.features.includes("add_camera")}
+        <button disabled
           on:click={() => {
             addUserLog(`user clicked on Add Camera button, top panel`);
           }}
@@ -304,8 +303,7 @@
     </AddCameraDialog>
     <SearchDialog>
       <span class="group flex-col flex items-center justify-center gap-0.5">
-        <button
-        disabled={!data.user.features.includes("button_search")}
+        <button disabled
           on:click={() => {
             addUserLog(`user clicked on Search button, top panel`);
           }}
@@ -321,8 +319,7 @@
     </SearchDialog>
     <RegisterDialog>
       <span class="group flex-col flex items-center justify-center gap-0.5">
-        <button
-        disabled={!data.user.features.includes("button_register")}
+        <button disabled
           on:click={() =>
             addUserLog("user clicked on Register button, top panel")}
           class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
@@ -344,8 +341,7 @@
       on:click={() => addUserLog("user clicked on exted display, top panel")}
     >
       <span class="group flex-col flex items-center justify-center gap-0.5">
-        <button
-        disabled={!data.user.features.includes("button_extend")}
+        <button disabled
           on:click={() => (selectedScreen = 3)}
           class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
           ><Monitor class="h-[22px] w-[22px]" /></button
@@ -358,8 +354,7 @@
       </span>
     </a>
     <span class="group flex-col flex items-center justify-center gap-0.5">
-      <button
-      disabled={!data.user.features.includes("button_record")}
+      <button disabled
         on:click={() => {
           recordDropdownOpen = !recordDropdownOpen;
           snipDropDownOpen = false;
@@ -414,8 +409,7 @@
     </span>
     <span class="group flex-col flex items-center justify-center gap-0.5">
 
-      <button
-      disabled={!data.user.features.includes("button_snip")}
+      <button disabled
         on:click={() => {
           snipDropDownOpen = !snipDropDownOpen;
           recordDropdownOpen = false;
@@ -432,7 +426,7 @@
           >
             <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
               <li class="w-full">
-                <button
+                <button disabled
                   class=" px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
                   on:click={() => {
                     captureSlideScreenshot(screens);
@@ -445,7 +439,7 @@
                 </button>
               </li>
               <li class="w-full">
-                <button
+                <button disabled
                   class=" px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
                   on:click={() => {
                     if ($activeCamera === "") {
@@ -462,7 +456,7 @@
                 </button>
               </li>
               <li class="w-full">
-                <button
+                <button disabled
                   on:click={() => {
                     captureAllScreenshot();
                     addUserLog(
@@ -487,8 +481,7 @@
     <span class="group flex-col flex items-center justify-center gap-0.5">
       <!-- <button
       disabled={!features.includes("Toggle Alerts")} -->
-      <button  
-      disabled={!data.user.features.includes("button_alert")}
+      <button  disabled
         on:click={() => {
           alertPanelHide.set(!$alertPanelHide);
           currpanel = 1;
@@ -512,8 +505,7 @@
     <span class="group flex-col flex items-center justify-center gap-0.5">
       <!-- <button
       disabled={!features.includes("Grid Fullscreen") || cameraCount === 0} -->
-      <button
-      disabled={!data.user.features.includes("button_layout")}
+      <button disabled
         on:click={() => {
           toggleFullscreen();
           addUserLog(`user clicked on fulscreen, top panel`);
@@ -530,8 +522,7 @@
     <span class="group flex-col flex items-center justify-center gap-0.5">
       <!-- <button
       disabled={!features.includes("Change Layouts")} -->
-      <button
-      disabled={!data.user.features.includes("button_manage")}
+      <button disabled
         on:click={() => {
           displayLayouts = !displayLayouts;
           nodeCameras = false;
@@ -583,7 +574,7 @@
     <span class="group flex-col flex items-center justify-center gap-0.5">
       <!-- <button
       disabled={!features.includes("Manage Camera/Node")} -->
-      <button
+      <button disabled
         on:click={() => {
           nodeCameras = !nodeCameras;
           displayLayouts = false;
@@ -644,8 +635,8 @@
     {#if isAllFullScreen}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <span
-        class="absolute top-2 left-2 flex items-center gap-2 cursor-pointer bg-[rgba(0,0,0,.5)] text-white z-20"
+      <button disabled
+        class="absolute disabled:cursor-not-allowed top-2 left-2 flex items-center gap-2 cursor-pointer bg-[rgba(0,0,0,.5)] text-white z-20"
         on:click={() => {
           if (document.fullscreenElement) {
             document.exitFullscreen();
@@ -656,14 +647,14 @@
       >
         <Minimize />
         Exit Fullscreen
-      </span>
+      </button>
     {/if}
 
     {#if !$alertPanelHide}
       <span
         class={`-rotate-90 absolute top-44 z-[999] transition-position ease-in-out duration-500 flex ${isAllFullScreen && showRightPanel ? "right-[12.7rem]" : showRightPanel && !isAllFullScreen ? "2xl:right-[12.7rem] right-[11.8rem]" : !showRightPanel ? "-right-20 opacity-0" : "-right-20"}`}
       >
-        <button
+        <button disabled
           on:click={() => (currpanel = 1)}
           class={`cursor-pointer w-[100px] h-[32px] rounded-t-xl ${isAllFullScreen ? "text-white bg-slate-800" : "text-black dark:text-white bg-white dark:bg-slate-800"} z-[800] flex items-center justify-center gap-2 shad text-sm ${currpanel === 1 && "font-bold"}`}
           >Alerts <button
@@ -673,7 +664,7 @@
             }}><X class="h-4 w-4" /></button
           >
         </button>
-        <button
+        <button disabled
           on:click={() => (currpanel = 2)}
           class={` cursor-pointer w-[100px] h-[32px] rounded-t-xl ${isAllFullScreen ? "text-white bg-slate-800" : "text-black dark:text-white bg-white dark:bg-slate-800"} shad z-[800] flex items-center justify-center gap-2 text-sm ${currpanel === 2 && "font-bold"}`}
           >Cameras
@@ -874,6 +865,7 @@
 >
   {#if !$landscape}
     <TopBar
+    {data}
       displayIcons={true}
       bind:liveFullscreen={$liveFullscreen}
       bind:editMode={$editMode}

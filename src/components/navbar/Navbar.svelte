@@ -298,7 +298,7 @@
           ? "-mt-6"
           : "-mt-2"}
       >
-        <a href={menu.href}>
+        <!-- <a href={menu.href}> -->
           <div class={`flex flex-col justify-center items-center pt-[8px] `}>
             <span
               class={`${
@@ -359,7 +359,7 @@
               {menu.text}
             </span>
           </div>
-        </a>
+        <!-- </a> -->
       </div>
     {/each}
   </nav>

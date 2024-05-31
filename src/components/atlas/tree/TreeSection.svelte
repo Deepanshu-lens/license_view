@@ -70,7 +70,7 @@ import { ChevronDown, Info,LockKeyhole } from "lucide-svelte";
       {#if showChildren === index}
         <span class="w-[1px] h-[75px] bg-primary block mx-auto" />
         {#if door.logicalChildren && door.logicalChildren.length > 0}
-          <div class="grid grid-rows-2 grid-cols-3 drop-shadow-lg gap-4">
+          <div class="grid grid-cols-3 drop-shadow-lg gap-4">
             {#each door.logicalChildren as child, idx}
               <!-- svelte-ignore a11y-click-events-have-key-events -->
               <div

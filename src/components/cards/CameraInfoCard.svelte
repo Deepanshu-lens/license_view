@@ -92,20 +92,23 @@
   <ul class="flex flex-row gap-2 ml-auto p-0 list-none cursor-pointer">
     <li class="cursor-pointer hover:scale-125">
       <!-- {#if features && features.includes("camera settings")} -->
-      <CameraEditDialog {name} {url} {cameraId}>
-        <Edit class="h-4 w-4" />
-      </CameraEditDialog>
+      <button disabled class="disabled:cursor-not-allowed">
+      <!-- <CameraEditDialog {name} {url} {cameraId}> -->
+          <Edit class="h-4 w-4" />
+        <!-- </CameraEditDialog> -->
+      </button>
       <!-- {/if} -->
     </li>
     <li
       class="cursor-pointer hover:scale-125"
-      on:click={() => {
-        addUserLog(
-          `user clicked on camera settings for camera with name  ${name}`,
-        );
-      }}
+     
     >
-      <CameraSettingsDialog
+    <button disabled class="disabled:cursor-not-allowed"  on:click={() => {
+      addUserLog(
+        `user clicked on camera settings for camera with name  ${name}`,
+      );
+    }}>
+      <!-- <CameraSettingsDialog
         cameraName={name}
         {save}
         {face}
@@ -121,12 +124,17 @@
         {motion}
         {priority}
         cameraURL={url}><Settings class="h-4 w-4" /></CameraSettingsDialog
-      >
+      > -->
+      <Settings size={16}/>
+    </button>
+
     </li>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-    <li class="cursor-pointer hover:scale-125" on:click={deleteCamera}>
-      <Trash class="h-4 w-4" />
+    <li class="cursor-pointer hover:scale-125" >
+      <button class=" disabled:cursor-not-allowed" disabled on:click={deleteCamera}>
+        <Trash class="h-4 w-4" />
+      </button>
     </li>
   </ul>
 </article>

@@ -8,6 +8,7 @@
   export let editMode: boolean;
   export let liveFullscreen: boolean;
   export let landscape: boolean;
+  export let data;
 </script>
 
 <div class="flex flex-row justify-between w-full items-center py-4 px-6">
@@ -15,8 +16,9 @@
 
   {#if displayIcons !== false}
     <span class="flex flex-row items-center gap-2">
+      <!-- disabled={$selectedNode.camera.length === 0} -->
       <button
-        disabled={$selectedNode.camera.length === 0}
+      disabled
         on:click={() => (editMode = !editMode)}
         class={`h-[32px] w-[32px] grid place-items-center disabled:opacity-70 ${
           editMode ? "bg-[#015a62]" : "bg-[#e8e9ea]"
@@ -24,15 +26,16 @@
       >
         <EditIcon class="scale-90" color={editMode ? "white" : "#015a62"} />
       </button>
-      <AddCameraDialog sNode="">
-        <button
+      <AddCameraDialog nodes={data.nodes} sNode="">
+        <button disabled
           class="h-[32px] w-[32px] grid place-content-center rounded-full bg-[#e8e9ea]"
         >
           <PlusCircle color={"#015a62"} class="scale-90" />
         </button>
       </AddCameraDialog>
+      <!-- disabled={$selectedNode.camera.length === 0} -->
       <button
-        disabled={$selectedNode.camera.length === 0}
+      disabled
         on:click={() => {
           landscape = true;
         }}
@@ -40,8 +43,9 @@
       >
         <RefreshCwOff color="#015a62" class="scla-90" />
       </button>
+      <!-- disabled={$selectedNode.camera.length === 0} -->
       <button
-        disabled={$selectedNode.camera.length === 0}
+      disabled
         on:click={() => {
           if (!liveFullscreen && $page.url.pathname.includes("/session")) {
             liveFullscreen = true;

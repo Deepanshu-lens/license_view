@@ -11,9 +11,10 @@
   import PocketBase from "pocketbase";
   import Spinner from "../ui/spinner/Spinner.svelte";
   import { page } from "$app/stores";
+  import { toast } from "svelte-sonner";
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
-  export let data;
+  // export let data;
   let view = 1;
   let showRightPanel = true;
   let currSess = null;
@@ -31,6 +32,7 @@
 
   function handleSubmit() {
     const payload = { serverIP: serverIp, serverPort, username, password };
+
     fetch("/api/atlas/auth", {
       method: "POST",
       headers: {
@@ -41,6 +43,9 @@
       .then((response) => response.json())
       .then(async (data) => {
         console.log(data);
+        if (data.error) {
+          toast.error(data.error);
+        }
         if (data.message.sessionToken) {
           currSess = data.message.sessionToken;
           loading = true;
@@ -57,7 +62,7 @@
           })
             .then((res) => res.json())
             .then((data) => {
-              console.log('doorDatarecieved',data);
+              // console.log("doorDatarecieved", data);
               doorList = data.doorListLatest;
             })
             .catch((err) => console.log(err));
@@ -74,7 +79,7 @@
           })
             .then((res) => res.json())
             .then((data) => {
-              console.log('userDatarecieved',data);
+              // console.log("userDatarecieved", data);
               userList = data.userListLatest;
             })
             .catch((err) => console.log(err));
@@ -91,7 +96,7 @@
           })
             .then((res) => res.json())
             .then((data) => {
-              console.log('eventDatarecieved',data);
+              // console.log("eventDatarecieved", data);
               eventList = data.eventListLatest;
               loading = false;
               showRightPanel = false;
@@ -233,8 +238,8 @@
   </button>
   <div
     id="infopanel"
-    class={`h-[calc(100vh-75px)] border-solid 
-     border-x-[1px] 
+    class={`h-[calc(100vh-75px)] border-solid
+     border-x-[1px]
      transition-width ease-in-out duration-500 overflow-y-scroll flex flex-col gap-6
     ${showRightPanel ? "w-1/4 p-4" : " p-0 w-0"} relative max-w-72`}
   >
@@ -280,7 +285,14 @@
           bind:value={serverPort}
         />
       </Label>
-      <Button on:click={handleSubmit} type="button">Submit</Button>
+      <Button
+        on:click={handleSubmit}
+        type="button"
+        disabled={!serverIp || !serverPort || !username || !password}
+        class="disabled:cursor-not-allowed"
+      >
+        Submit
+      </Button>
     {/if}
   </div>
 </section>

@@ -43,8 +43,8 @@
     }
     let video = document.createElement("video-stream") as VideoStreamType;
     video.id = `stream-${camera.id}`;
-    // video.mode = "webrtc";
-    video.mode = $page.url.hostname.includes("116") ? "mse" : "webrtc";
+    video.mode = "webrtc";
+    // video.mode = $page.url.hostname.includes("116") ? "mse" : "webrtc";
     video.url = camera.url;
     video.src = new URL(
       `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}`,
@@ -102,7 +102,7 @@
   {#if !landscape}
     <div class="top flex items-center justify-center px-4 w-full">
       <InfoDialog {data}>
-        <button
+        <button disabled
           class="flex items-center justify-center text-center gap-1 relative"
           on:click={() => (showInfoModal = !showInfoModal)}
         >
@@ -131,7 +131,7 @@
             Node:{" "}
             <span class="font-semibold">{$selectedNode.name}</span>
           </span>
-          <button
+          <button disabled
             class="flex items-center gap-2"
             on:click={() => {
               liveFullscreen = false;
@@ -298,7 +298,7 @@
                       }`}
                     >
                       {#if edit !== index}
-                        <button
+                        <button disabled
                           class="flex flex-col gap-1 items-center text-white"
                           on:click={(e) => {
                             e.stopPropagation();
@@ -313,7 +313,7 @@
                           <p class="text-white text-[8px]">Rename</p>
                         </button>
                       {:else}
-                        <button
+                        <button disabled
                           class="flex flex-col gap-1 items-center text-white"
                           on:click={(e) => {
                             e.stopPropagation();
@@ -347,7 +347,7 @@
                         <span
                           class="flex flex-col items-center gap-1 text-white"
                         >
-                          <button
+                          <button disabled
                             class="h-[26px] w-[26px] p-[5px] rounded-full bg-white/[.3] flex justify-center items-center"
                             on:click={() => {
                               fetch("/api/camera/deleteCamera", {
@@ -464,7 +464,7 @@
             landscape ? "pt-12 gap-8" : "gap-4"
           }`}
         >
-          <button
+          <button disabled
             class={`px-4 py-2 text-lg shrink-0 ${
               comfort
                 ? " text-black font-medium dark:text-white"
@@ -474,7 +474,7 @@
           >
             Comfort
           </button>
-          <button
+          <button disabled
             class={`px-4 py-2 text-lg shrink-0  ${
               !comfort
                 ? " text-black font-medium dark:text-white"
@@ -590,7 +590,7 @@
           </div>
         {/if}
 
-        <button
+        <button disabled
           class={`absolute shadow-big flex flex-col items-center justify-center text-[#015a62] rounded-full p-2 h-[60px] w-[60px] bg-white shadow-filter flex-shrink-0  ${
             landscape ? "bottom-16 right-4" : "bottom-8 right-4"
           }`}
