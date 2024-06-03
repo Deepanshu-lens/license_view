@@ -287,7 +287,7 @@
   >
     <AddCameraDialog sNode="" {nodes}>
       <span class="group flex-col flex items-center justify-center gap-0.5">
-        <button disabled
+        <button 
           on:click={() => {
             addUserLog(`user clicked on Add Camera button, top panel`);
           }}

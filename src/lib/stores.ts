@@ -1,4 +1,4 @@
-import type { SelectedNode, Playback, Event, Gallery } from "@/types";
+import type { SelectedNode, Playback, Event, Gallery, Camera } from "@/types";
 import { writable } from "svelte/store";
 
 export const events = writable<Event[]>([]);
@@ -7,15 +7,9 @@ export const selectedPlaybackDate = writable("");
 export const playbackVideos = writable<Playback[]>([]);
 export const convertedVideos = writable([]);
 export const allVideos = writable([])
-
 export const hoveredCamera = writable("");
 export const activeCamera = writable("");
-
-// export const fullscreen = writable(false);
-// export const leftPaneHide = writable(true);
-// export const topPanelHide = writable(false);
-// export const alertPanelHide = writable(true);
-
+export const filteredNodeCameras = writable([])
 export const fullscreen = persistedWritable("fullscreen", false);
 export const leftPaneHide = persistedWritable("leftPaneHide", true);
 export const topPanelHide = persistedWritable("topPanelHide", true);

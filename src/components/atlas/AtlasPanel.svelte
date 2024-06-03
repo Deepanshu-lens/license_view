@@ -1,6 +1,6 @@
 <script>
   import { Label } from "@/components/ui/label";
-  import { ChevronRight, Search, SmilePlusIcon, Trash2 } from "lucide-svelte";
+  import { ChevronRight, Plus, Search, SmilePlusIcon, Trash2 } from "lucide-svelte";
   import Input from "@/components/ui/input/input.svelte";
   import * as Table from "@/components/ui/table/index";
   import * as Popover from "@/components/ui/popover/index";
@@ -204,10 +204,11 @@
             <button class="flex items-center gap-1 p-2 text-[#344054]">
               <Trash2 size={18} /> Delete</button
             >
-            <button
-              class="flex items-center gap-1 bg-primary p-2 rounded-md text-white"
+            <button disabled
+              class="flex items-center gap-1 bg-primary p-2 rounded-md text-white disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              <SmilePlusIcon size={18} />
+              <!-- <SmilePlusIcon size={18} /> -->
+              <Plus size={16}/>
               Add User
             </button>
           </span>
@@ -219,8 +220,15 @@
     </div>
   {/if}
   {#if currSess === null && loading === false}
-    <div class="w-full h-[calc(100vh-75px)] p-4">
+    <!-- <div class="w-full h-[calc(100vh-75px)] p-4">
       <p>Authenticate</p>
+    </div> -->
+    <div class="w-full h-[calc(100vh-75px)] flex flex-col justify-center items-center p-4 bg-gray-100">
+      <div class="text-center">
+        <h1 class="text-2xl font-bold text-primary mb-4">Welcome to Atlas Panel</h1>
+        <p class="text-lg text-gray-600 mb-8">Please log in to access the system features.</p>
+
+      </div>
     </div>
   {/if}
   {#if currSess !== null && loading === true}

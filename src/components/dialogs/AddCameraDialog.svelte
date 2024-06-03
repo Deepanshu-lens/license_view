@@ -8,6 +8,7 @@
   import { Slider } from "@/components/ui/slider";
   import Switch from "../ui/switch/switch.svelte";
   import { ChevronDown, PlusCircle } from "lucide-svelte";
+  import * as Select from "@/components/ui/select/index";
 
   let cameraName = "";
   let cameraURL = "";
@@ -23,6 +24,7 @@
   let disabled: string | null = null;
   let priority: boolean = true;
   let motionThresh: number = 0;
+  let nvrName = "";
 
   let mode = 2;
   let uploadMode = 1;
@@ -30,16 +32,21 @@
   let modeAdd = 1;
   let addNodeCounter = 1;
   let subNodeCounter = 1;
+  let addDevice = 1;
   let nodeName = [];
   let subNodeNames = [];
   let chosenNode: any;
-  let httpPort:null|number = null;
+  let httpPort: null | number = null;
+  let nvrUserId;
+  let nvrPass;
+  let nvrIp;
+  let nvrPort;
 
   export let sNode;
   export let nodes;
 
   const onSubmit = () => {
-    console.log(mode)
+    console.log(mode);
     if (addMode === 1) {
       let modifiedCameraURL = cameraURL;
       const urlParts = cameraURL.split("@");
@@ -83,7 +90,7 @@
       });
     } else {
       // onvif://admin:admin123@50.168.139.58:80
-      const onvifUrl = `onvif://${cameraUsername}:${cameraPass}@${cameraIp}${httpPort ? `:${httpPort}` : ''}`;
+      const onvifUrl = `onvif://${cameraUsername}:${cameraPass}@${cameraIp}${httpPort ? `:${httpPort}` : ""}`;
       console.log(onvifUrl);
 
       let onvifData;
@@ -154,6 +161,30 @@
           toast("Error adding camera via ONVIF");
         });
     }
+  };
+
+  const onSubmitNVR = async () => {
+    await fetch("/api/nvr/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: nvrName,
+        password: nvrPass,
+        user_id: nvrUserId,
+        http_port: nvrPort,
+        ip: nvrIp,
+        node: $selectedNode.id,
+      }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          dialogOpen = false;
+        }
+        toast("Camera added");
+      })
+      .catch((err) => console.log(err));
   };
 
   function updateCompany(value: number) {
@@ -250,233 +281,68 @@
       <button
         on:click={() => (modeAdd = 3)}
         class={`${modeAdd === 3 ? "bg-white dark:bg-slate-700" : "bg-[#f5f5f5] dark:bg-slate-800"} w-full text-[#4f4f4f] dark:text-slate-200 font-medium text-lg border-r border-black/.13 `}
-        >Add Camera</button
+        >Add Devices</button
       >
     </div>
     {#if modeAdd === 3}
       <div class=" drop-shadow-md px-2">
         <div class="w-full flex flex-col items-start justify-center py-4 gap-4">
-          <p class="text-[#212123] dark:text-slate-200 font-medium text-xl">
-            Add Camera
-          </p>
-          <span class="flex items-center justify-between w-full gap-4">
+          <div
+            class="flex items-center justify-center rounded-lg border-black/[.13] border-solid border-[1px] p-1 w-[200px] h-[40px] mx-auto"
+          >
             <button
-              disabled
-              class={mode !== 1
-                ? "text-[#00132B] cursor-not-allowed dark:text-slate-300 flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#919eab]/[.24] font-semibold "
-                : " text-[#00132B] dark:text-slate-300 flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#015a62] bg-[#015a62] bg-opacity-10 font-semibold "}
-              on:click={() => (mode = 1)}
+              on:click={() => (addDevice = 1)}
+              class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${addDevice === 1 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
+              >Camera</button
             >
-              <input type="radio" checked={mode === 1} disabled />
-              Automatically
-            </button>
             <button
-              class={mode !== 2
-                ? "text-[#00132B] dark:text-slate-300 flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#919eab]/[.24] font-semibold"
-                : "text-[#00132B] dark:text-slate-300 flex flex-row items-center h-[67px] w-[320px] px-4 py-2 justify-start gap-4 rounded-lg border-[1px] border-solid border-[#015a62] bg-[#015a62] bg-opacity-10 font-semibold"}
-              on:click={() => (mode = 2)}
+              on:click={() => (addDevice = 2)}
+              class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${addDevice === 2 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
+              >NVR</button
             >
-              <input type="radio" checked={mode === 2} />
-              Manually
-            </button>
-          </span>
-        </div>
-        <span class="w-full flex items-center justify-between pb-4">
-          <p class="text-base font-semibold text-muted-foreground">
-            Insert a new camera in <span class="font-bold text-primary"
-              >{sNode ? sNode.name : $selectedNode.name}</span
-            >
-            node
-          </p>
-          <span class="flex items-center gap-4">
-            <p
-              class={`text-sm ${uploadMode === 1 ? "text-primary font-medium" : "text-muted-foreground"}`}
-            >
-              Single Upload
-            </p>
-            <Switch disabled />
-            <p
-              class={`text-sm ${uploadMode !== 1 ? "text-primary font-medium" : "text-muted-foreground"}`}
-            >
-              Multiple Upload
-            </p>
-          </span>
-        </span>
-        <div class="grid gap-4 py-4">
-          <div class="grid grid-cols-4 items-center gap-4">
-            <Label for="camera-name">Name</Label>
-            <Input
-              id="camera-name"
-              placeholder={"Home-Porch"}
-              class="col-span-3"
-              bind:cameraName
-              on:change={(e) => (cameraName = e.target.value)}
-            />
           </div>
-
-          {#if mode === 2}
-            <div
-              class="w-full border-b border-black/[.1] pb-2 flex items-center justify-start gap-10"
-            >
-              <button
-                on:click={() => (addMode = 1)}
-                class={`${addMode !== 1 ? "text-[#5F6064] font-medium" : "text-primary font-semibold"} font-medium text-sm relative`}
-                >Using RTSP
-                {#if addMode === 1}
-                  <span
-                    class="h-[2px] w-full absolute bg-primary -bottom-2.5 left-0"
-                  />{/if}</button
-              >
-              <button
-                on:click={() => (addMode = 2)}
-                class={`${addMode === 1 ? "text-[#5F6064] font-medium" : "text-primary font-semibold"}  text-sm relative`}
-                >Using Onvif{#if addMode !== 1}
-                  <span
-                    class="h-[2px] w-full absolute bg-primary -bottom-2.5 left-0"
-                  />{/if}</button
-              >
+          {#if addDevice === 1}
+            <div class="flex items-center gap-5">
+              <p class="text-[#212123] dark:text-slate-200 text-sm">
+                Select method of adding camera
+              </p>
+              <Select.Root>
+                <Select.Trigger class="w-[180px]">
+                  <Select.Value placeholder="Select Mode: Manual" />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item
+                    class="text-start px-2"
+                    value="2"
+                    disabled={mode !== 2}>Manual</Select.Item
+                  >
+                  <Select.Item class="text-start px-2" value="1" disabled
+                    >Automatic</Select.Item
+                  >
+                </Select.Content>
+              </Select.Root>
             </div>
-            {#if addMode === 1}
-              <div class="grid gap-4 py-4">
-                <div class="grid grid-cols-4 items-center gap-4">
-                  <Label for="camera-url">Main URL</Label>
-                  <Input
-                    id="camera-url"
-                    class="col-span-3"
-                    disabled={disabled === "url"}
-                    placeholder={"rtsp://admin:password@123.123.123.123/stream/1"}
-                    bind:cameraURL
-                    on:change={(e) => (cameraURL = e.target.value)}
-                  />
-                </div>
-                <div class="grid grid-cols-4 items-center gap-4">
-                  <Label for="camera-url">Sub URL</Label>
-                  <Input
-                    id="camera-url"
-                    class="col-span-3"
-                    disabled={disabled === "url"}
-                    placeholder={"rtsp://admin:password@123.123.123.123/sub-stream/1"}
-                    bind:subURL
-                    on:change={(e) => (subURL = e.target.value)}
-                  />
-                </div>
-              </div>
-            {:else}
-              <div class="grid gap-4 py-4">
-                <div class="grid gap-4 py-4">
-                  <div class="grid grid-cols-4 items-center gap-4">
-                    <Label for="camera-username">Username</Label>
-                    <Input
-                      id="camera-username"
-                      class="col-span-3"
-                      placeholder={"Camera portal username"}
-                      disabled={disabled === "other"}
-                      bind:cameraUsername
-                      on:change={(e) => (cameraUsername = e.target.value)}
-                    />
-                    <Label for="camera-pass">Password</Label>
-                    <Input
-                      autocomplete="new-password"
-                      id="camera-pass"
-                      class="col-span-3"
-                      placeholder={"Camera portal password"}
-                      type="password"
-                      disabled={disabled === "other"}
-                      bind:cameraPass
-                      on:change={(e) => (cameraPass = e.target.value)}
-                    />
-                    <Label for="camera-ip">IP Address</Label>
-                    <Input
-                      id="camera-ip"
-                      class="col-span-3"
-                      placeholder={"address associated with camera"}
-                      disabled={disabled === "other"}
-                      bind:cameraIp
-                      on:change={(e) => (cameraIp = e.target.value)}
-                    />
-                    <Label for="camera-ip">HTTP Port</Label>
-                    <Input
-                      id="camera-port"
-                      class="col-span-3"
-                      placeholder={"Port"}
-                      disabled={disabled === "other"}
-                      bind:httpPort
-                      on:change={(e) => (httpPort = e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-            {/if}
-            <span class="text-xl font-semibold pt-2">Features</span>
-            <div class="grid grid-cols-4 items-center gap-4 py-2">
-              <span
-                class="block text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
-              >
-                Camera Features
+            <span class="w-full flex items-center justify-between pb-4">
+              <p class="text-base font-semibold text-muted-foreground">
+                Insert a new camera in <span class="font-bold text-primary"
+                  >{sNode ? sNode.name : $selectedNode.name}</span
+                >
+                node
+              </p>
+              <span class="flex items-center gap-4">
+                <p
+                  class={`text-sm ${uploadMode === 1 ? "text-primary font-medium" : "text-muted-foreground"}`}
+                >
+                  Single Upload
+                </p>
+                <Switch disabled />
+                <p
+                  class={`text-sm ${uploadMode !== 1 ? "text-primary font-medium" : "text-muted-foreground"}`}
+                >
+                  Multiple Upload
+                </p>
               </span>
-              <div
-                class="flex flex-row items-center gap-3 my-auto col-span-3 flex-wrap sm:flex-nowrap"
-              >
-                <!-- svelte-ignore a11y-label-has-associated-control -->
-                <label
-                  class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
-                >
-                  <Switch bind:checked={saving} class="scale-90" />
-                  Feed Saving
-                </label>
-                <!-- svelte-ignore a11y-label-has-associated-control -->
-                <label
-                  class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
-                >
-                  <Switch bind:checked={vehicle} class="scale-90" />
-                  Vehicle Scan
-                </label>
-                <!-- svelte-ignore a11y-label-has-associated-control -->
-                <label
-                  class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
-                >
-                  <Switch bind:checked={face} class="scale-90" />
-                  Face Scan
-                </label>
-
-                <!-- svelte-ignore a11y-label-has-associated-control -->
-                <label
-                  class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
-                >
-                  <Switch bind:checked={priority} class="scale-90" />
-                  Priority
-                </label>
-              </div>
-            </div>
-            <div class="grid grid-cols-4 items-center gap-4 py-2">
-              <span
-                class="block text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
-              >
-                Motion Sensitivity
-              </span>
-              <div class="flex items-center gap-4 grid-cols-3">
-                <Slider
-                  min={0}
-                  value={[motionThresh]}
-                  max={100}
-                  step={50}
-                  class="w-32"
-                  onValueChange={(e) => {
-                    motionThresh = e[0];
-                  }}
-                />
-                {motionThresh === 0
-                  ? "Low"
-                  : motionThresh === 50
-                    ? "Mid"
-                    : "High"}
-              </div>
-            </div>
-
-            <Dialog.Footer>
-              <Button type="submit" on:click={onSubmit}>Add Camera</Button>
-            </Dialog.Footer>
-          {:else}
+            </span>
             <div class="grid gap-4 py-4">
               <div class="grid grid-cols-4 items-center gap-4">
                 <Label for="camera-name">Name</Label>
@@ -488,17 +354,251 @@
                   on:change={(e) => (cameraName = e.target.value)}
                 />
               </div>
+
+              {#if mode === 2}
+                <div
+                  class="w-full border-b border-black/[.1] pb-2 flex items-center justify-start gap-10"
+                >
+                  <button
+                    on:click={() => (addMode = 1)}
+                    class={`${addMode !== 1 ? "text-[#5F6064] font-medium" : "text-primary font-semibold"} font-medium text-sm relative`}
+                    >Using RTSP
+                    {#if addMode === 1}
+                      <span
+                        class="h-[2px] w-full absolute bg-primary -bottom-2.5 left-0"
+                      />{/if}</button
+                  >
+                  <button
+                    on:click={() => (addMode = 2)}
+                    class={`${addMode === 1 ? "text-[#5F6064] font-medium" : "text-primary font-semibold"}  text-sm relative`}
+                    >Using Onvif{#if addMode !== 1}
+                      <span
+                        class="h-[2px] w-full absolute bg-primary -bottom-2.5 left-0"
+                      />{/if}</button
+                  >
+                </div>
+                {#if addMode === 1}
+                  <div class="grid gap-4 py-4">
+                    <div class="grid grid-cols-4 items-center gap-4">
+                      <Label for="camera-url">Main URL</Label>
+                      <Input
+                        id="camera-url"
+                        class="col-span-3"
+                        disabled={disabled === "url"}
+                        placeholder={"rtsp://admin:password@123.123.123.123/stream/1"}
+                        bind:cameraURL
+                        on:change={(e) => (cameraURL = e.target.value)}
+                      />
+                    </div>
+                    <div class="grid grid-cols-4 items-center gap-4">
+                      <Label for="camera-url">Sub URL</Label>
+                      <Input
+                        id="camera-url"
+                        class="col-span-3"
+                        disabled={disabled === "url"}
+                        placeholder={"rtsp://admin:password@123.123.123.123/sub-stream/1"}
+                        bind:subURL
+                        on:change={(e) => (subURL = e.target.value)}
+                      />
+                    </div>
+                  </div>
+                {:else}
+                  <div class="grid gap-4 py-4">
+                    <div class="grid gap-4 py-4">
+                      <div class="grid grid-cols-4 items-center gap-4">
+                        <Label for="camera-username">Username</Label>
+                        <Input
+                          id="camera-username"
+                          class="col-span-3"
+                          placeholder={"Camera portal username"}
+                          disabled={disabled === "other"}
+                          bind:cameraUsername
+                          on:change={(e) => (cameraUsername = e.target.value)}
+                        />
+                        <Label for="camera-pass">Password</Label>
+                        <Input
+                          autocomplete="new-password"
+                          id="camera-pass"
+                          class="col-span-3"
+                          placeholder={"Camera portal password"}
+                          type="password"
+                          disabled={disabled === "other"}
+                          bind:cameraPass
+                          on:change={(e) => (cameraPass = e.target.value)}
+                        />
+                        <Label for="camera-ip">IP Address</Label>
+                        <Input
+                          id="camera-ip"
+                          class="col-span-3"
+                          placeholder={"address associated with camera"}
+                          disabled={disabled === "other"}
+                          bind:cameraIp
+                          on:change={(e) => (cameraIp = e.target.value)}
+                        />
+                        <Label for="camera-ip">HTTP Port</Label>
+                        <Input
+                          id="camera-port"
+                          class="col-span-3"
+                          placeholder={"Port"}
+                          disabled={disabled === "other"}
+                          bind:httpPort
+                          on:change={(e) => (httpPort = e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                {/if}
+                <span class="text-xl font-semibold pt-2">Features</span>
+                <div class="grid grid-cols-4 items-center gap-4 py-2">
+                  <span
+                    class="block text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
+                  >
+                    Camera Features
+                  </span>
+                  <div
+                    class="flex flex-row items-center gap-3 my-auto col-span-3 flex-wrap sm:flex-nowrap"
+                  >
+                    <!-- svelte-ignore a11y-label-has-associated-control -->
+                    <label
+                      class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
+                    >
+                      <Switch bind:checked={saving} class="scale-90" />
+                      Feed Saving
+                    </label>
+                    <!-- svelte-ignore a11y-label-has-associated-control -->
+                    <label
+                      class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
+                    >
+                      <Switch bind:checked={vehicle} class="scale-90" />
+                      Vehicle Scan
+                    </label>
+                    <!-- svelte-ignore a11y-label-has-associated-control -->
+                    <label
+                      class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
+                    >
+                      <Switch bind:checked={face} class="scale-90" />
+                      Face Scan
+                    </label>
+
+                    <!-- svelte-ignore a11y-label-has-associated-control -->
+                    <label
+                      class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
+                    >
+                      <Switch bind:checked={priority} class="scale-90" />
+                      Priority
+                    </label>
+                  </div>
+                </div>
+                <div class="grid grid-cols-4 items-center gap-4 py-2">
+                  <span
+                    class="block text-sm font-medium leading-6 dark:text-white text-[#2c2c2c]"
+                  >
+                    Motion Sensitivity
+                  </span>
+                  <div class="flex items-center gap-4 grid-cols-3">
+                    <Slider
+                      min={0}
+                      value={[motionThresh]}
+                      max={100}
+                      step={50}
+                      class="w-32"
+                      onValueChange={(e) => {
+                        motionThresh = e[0];
+                      }}
+                    />
+                    {motionThresh === 0
+                      ? "Low"
+                      : motionThresh === 50
+                        ? "Mid"
+                        : "High"}
+                  </div>
+                </div>
+
+                <Dialog.Footer>
+                  <Button type="submit" on:click={onSubmit}>Add Camera</Button>
+                </Dialog.Footer>
+              {:else}
+                <div class="grid gap-4 py-4">
+                  <div class="grid grid-cols-4 items-center gap-4">
+                    <Label for="camera-name">Name</Label>
+                    <Input
+                      id="camera-name"
+                      placeholder={"Home-Porch"}
+                      class="col-span-3"
+                      bind:cameraName
+                      on:change={(e) => (cameraName = e.target.value)}
+                    />
+                  </div>
+                  <div class="grid grid-cols-4 items-center gap-4">
+                    <Label for="camera-url">URL</Label>
+                    <Input
+                      id="camera-url"
+                      class="col-span-3"
+                      disabled={disabled === "url"}
+                      placeholder={"rtsp://admin:password@123.123.123.123/sub-stream/1"}
+                      bind:cameraURL
+                      on:change={(e) => (cameraURL = e.target.value)}
+                    />
+                  </div>
+                </div>
+              {/if}
+            </div>
+          {:else}
+            <div class="grid w-full gap-4 py-4">
               <div class="grid grid-cols-4 items-center gap-4">
-                <Label for="camera-url">URL</Label>
+                <Label for="nvr-name">NVR Name</Label>
                 <Input
-                  id="camera-url"
+                  id="nvr-name"
+                  placeholder={"Home-Porch"}
                   class="col-span-3"
-                  disabled={disabled === "url"}
-                  placeholder={"rtsp://admin:password@123.123.123.123/sub-stream/1"}
-                  bind:cameraURL
-                  on:change={(e) => (cameraURL = e.target.value)}
+                  bind:nvrName
+                  on:change={(e) => (nvrName = e.target.value)}
                 />
               </div>
+
+              <div class="grid gap-4 py-4">
+                <div class="grid gap-4 py-4">
+                  <div class="grid grid-cols-4 items-center gap-4">
+                    <Label for="nvr-userid">User ID</Label>
+                    <Input
+                      id="nvr-userId"
+                      class="col-span-3"
+                      placeholder={"Camera portal username"}
+                      bind:nvrUserId
+                      on:change={(e) => (nvrUserId = e.target.value)}
+                    />
+                    <Label for="nvr-pass">Password</Label>
+                    <Input
+                      autocomplete="nvr-pass"
+                      id="camera-pass"
+                      class="col-span-3"
+                      placeholder={"Camera portal password"}
+                      type="password"
+                      bind:nvrPass
+                      on:change={(e) => (nvrPass = e.target.value)}
+                    />
+                    <Label for="nvr-ip">IP Address</Label>
+                    <Input
+                      id="nvr-ip"
+                      class="col-span-3"
+                      placeholder={"address associated with camera"}
+                      bind:nvrIp
+                      on:change={(e) => (nvrIp = e.target.value)}
+                    />
+                    <Label for="camera-ip">HTTP Port</Label>
+                    <Input
+                      id="camera-port"
+                      class="col-span-3"
+                      placeholder={"Port"}
+                      bind:nvrPort
+                      on:change={(e) => (nvrPort = e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+              <Dialog.Footer>
+                <Button on:click={onSubmitNVR} type="submit">Add Nvr</Button>
+              </Dialog.Footer>
             </div>
           {/if}
         </div>

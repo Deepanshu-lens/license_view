@@ -1,17 +1,15 @@
 <script lang="ts">
-  import type { Camera, SelectedNode } from "@/types";
+  import type { Camera } from "@/types";
   import { Cctv, Command, Search } from "lucide-svelte";
   import AddCameraDialog from "../dialogs/AddCameraDialog.svelte";
   import CameraInfoCard from "../cards/CameraInfoCard.svelte";
   import Sortable from "sortablejs";
   import { Input } from "../ui/input";
-  import { mode } from "mode-watcher";
   import { onMount } from "svelte";
-  import { selectedNode } from "@/lib/stores";
+  import { selectedNode,filteredNodeCameras } from "@/lib/stores";
   import Button from "../ui/button/button.svelte";
   export let showItems: boolean;
   import { addUserLog } from "@/lib/addUserLog";
-  import { writable } from "svelte/store";
 
 
   /**
@@ -20,10 +18,8 @@
   export let isAllFullScreen: boolean;
   export let user;
   export let data;
-  let filteredCameras: Camera[] = [];
   let cameraItems: HTMLDivElement;
   let filterText: string = "";
-  let cameraOrder = writable<number[]>([]);
 
 
   function handleEscape(event: KeyboardEvent) {
@@ -32,6 +28,7 @@
       input.blur(); // Remove focus from the input
     }
   }
+
   onMount(function () {
     if (cameraItems) {
       Sortable.create(cameraItems, {
@@ -73,14 +70,22 @@
     };
   });
 
-  $: {
-    if (filterText) {
-      filteredCameras = $selectedNode?.camera.filter((camera: Camera) =>
-        camera.name.toLowerCase().includes(filterText.toLowerCase()),
-      );
-    } else {
-      filteredCameras = $selectedNode?.camera;
+  $: { if ($selectedNode?.camera) {
+      if (filterText) {
+        filteredNodeCameras.set($selectedNode.camera.filter((camera: Camera) =>
+          camera.name.toLowerCase().includes(filterText.toLowerCase())
+        ));
+      } else {
+        filteredNodeCameras.set($selectedNode.camera);
+      }
     }
+    // if (filterText) {
+    //   filteredCameras = $selectedNode?.camera.filter((camera: Camera) =>
+    //     camera.name.toLowerCase().includes(filterText.toLowerCase()),
+    //   );
+    // } else {
+    //   filteredCameras = $selectedNode?.camera;
+    // }
   }
 
   function filterItems(e: Event) {
@@ -153,7 +158,7 @@
   <!-- END Camera Filtering -->
 
   <!-- START Camera Cards -->
-  {#if filteredCameras.length > 0}<div
+  {#if $filteredNodeCameras.length > 0}<div
       id="camera-items"
       class={`flex flex-col gap-4 w-full max-w-screen-md mx-auto max-h-[calc(100vh-205px)] overflow-y-auto overflow-x-clip
                   transition-all duration-100 fade-in-0
@@ -162,7 +167,7 @@
                   ${showItems ? "opacity-100 " : "opacity-0"}`}
       bind:this={cameraItems}
     >
-      {#each filteredCameras as camera}
+      {#each $filteredNodeCameras as camera}
         {#key $selectedNode}
           <CameraInfoCard
             cameraId={camera.id}

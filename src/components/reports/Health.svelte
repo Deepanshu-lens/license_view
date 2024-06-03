@@ -1,671 +1,887 @@
-<script lang="ts">
+<script>
+  import MapMultiCameras from "./../map/MapMultiCameras.svelte";
+  import PocketBase from "pocketbase";
   import {
-    Chart,
-    Title,
-    Tooltip,
-    Legend,
-    BarElement,
-    CategoryScale,
-    LinearScale,
-  } from "chart.js";
-  Chart.register(
-    Title,
-    Tooltip,
-    Legend,
-    BarElement,
-    CategoryScale,
-    LinearScale,
-  );
-  import { Chart as ChartJS, LineElement, PointElement } from "chart.js";
+    ArrowLeft,
+    ArrowUpRight,
+    CalendarDays,
+    Filter,
+    FilterIcon,
+    Search,
+    Trash,
+    TrendingUp,
+    User,
+  } from "lucide-svelte";
+  import Button from "../ui/button/button.svelte";
+  import { MoreVertical } from "lucide-svelte";
+  import * as Table from "@/components/ui/table/index";
+  import * as Select from "@/components/ui/select/index";
+  import { writable } from "svelte/store";
+  import HealthNvrcard from "../cards/HealthNvrcard.svelte";
+  import { page } from "$app/stores";
   import { onMount } from "svelte";
-  ChartJS.register(
-    Title,
-    Tooltip,
-    Legend,
-    LineElement,
-    LinearScale,
-    PointElement,
-    CategoryScale,
-  );
-  import { Bar, Line } from "svelte-chartjs";
-  export let os: string;
-  let websocket;
+  import NodeSelection from "../node/NodeSelection.svelte";
+  import { selectedNode } from "@/lib/stores";
+  import MapNvr from "../map/MapNvr.svelte";
+  export let data;
+  export let nodes;
+  let selectedNvr = writable(null);
+  let cameraList = [];
 
-  const basicData = {
-    ANE_Usage: null,
-    CPU_Power_W: null,
-    E_CPU_Freq_MHz: null,
-    E_CPU_Usage: null,
-    E_Core_Count: null,
-    GPU_Core_Count: null,
-    GPU_Freq_MHz: null,
-    GPU_Power_W: null,
-    GPU_Usage: null,
-    Memory_Total_GB: null,
-    Memory_Usage_Percent: null,
-    Memory_Used_GB: null,
-    Model_Name: null,
-    P_CPU_Freq_MHz: null,
-    P_CPU_Usage: null,
-    P_Core_Count: null,
-    Swap_Total_GB: null,
-    Swap_Used_GB: null,
-    Total_Cores: null,
-    Total_Power_W: null,
-  };
 
-  const networkDiskD = {
-    In_bytes: null,
-    In_packets: null,
-    Out_bytes: null,
-    Out_packets: null,
-    Read_KBytes: null,
-    Read_ops: null,
-    Write_KBytes: null,
-    Write_ops: null,
-  };
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
-  let cpuE = [];
-  let cpuP = [];
+  let view = 1;
 
-  function generateLabels(dataArray) {
-    return dataArray.map((_, index) => `${index + 1}`);
-  }
+  const invoices = [
+    {
+      invoice: "INV001",
+      paymentStatus: "Paid",
+      totalAmount: "$250.00",
+      paymentMethod: "Credit Card",
+    },
+    {
+      invoice: "INV002",
+      paymentStatus: "Pending",
+      totalAmount: "$150.00",
+      paymentMethod: "PayPal",
+    },
+    {
+      invoice: "INV003",
+      paymentStatus: "Unpaid",
+      totalAmount: "$350.00",
+      paymentMethod: "Bank Transfer",
+    },
+    {
+      invoice: "INV004",
+      paymentStatus: "Paid",
+      totalAmount: "$450.00",
+      paymentMethod: "Credit Card",
+    },
+    {
+      invoice: "INV005",
+      paymentStatus: "Paid",
+      totalAmount: "$550.00",
+      paymentMethod: "PayPal",
+    },
+    {
+      invoice: "INV006",
+      paymentStatus: "Pending",
+      totalAmount: "$200.00",
+      paymentMethod: "Bank Transfer",
+    },
+    {
+      invoice: "INV007",
+      paymentStatus: "Unpaid",
+      totalAmount: "$300.00",
+      paymentMethod: "Credit Card",
+    },
+  ];
+  import { onDestroy } from "svelte";
+  import AreaAnalysis from "./charts/AreaAnalysis.svelte";
+  import { Input } from "../ui/input";
+    import StorageNvrCard from "../cards/StorageNvrCard.svelte";
 
-  function connectWebSocket() {
-    websocket = new WebSocket("ws://localhost:8080/ws");
+  let NvrData;
+  let NvrStorageData;
+  let uniqueCams = [];
+  let activeCams;
+  let inactiveCams;
 
-    websocket.onopen = () => {
-      console.log("Connected to WebSocket server");
-    };
-
-    websocket.onerror = (error) => {
-      console.error("WebSocket Error:", error);
-    };
-
-    websocket.onmessage = (event) => {
-      //   console.log("Received message:", event.data);
-      const msg = JSON.parse(event.data);
-
-      function updateData(key) {
-        if (msg[key] !== null) {
-          basicData[key] = msg[key];
-          if (key === "E_CPU_Usage") {
-            cpuE = [...cpuE, msg[key]]; // Spread into a new array to trigger reactivity
-          } else if (key === "P_CPU_Usage") {
-            cpuP = [...cpuP, msg[key]]; // Spread into a new array to trigger reactivity
-          }
-        }
-      }
-
-      const keysToUpdate = [
-        "ANE_Usage",
-        "CPU_Power_W",
-        "E_CPU_Freq_MHz",
-        "E_Core_Count",
-        "E_CPU_Usage",
-        "GPU_Core_Count",
-        "GPU_Freq_MHz",
-        "GPU_Power_W",
-        "Memory_Total_GB",
-        "Memory_Usage_Percent",
-        "GPU_Usage",
-        "Memory_Used_GB",
-        "P_CPU_Freq_MHz",
-        "P_CPU_Usage",
-        "P_Core_Count",
-        "Swap_Total_GB",
-        "Swap_Used_GB",
-        "Total_Cores",
-        "Total_Power_W",
-        "Model_Name",
-      ];
-
-      keysToUpdate.forEach(updateData);
-
-      function updateNetworkData(key, unit) {
-        networkDiskD[key] =
-          msg[key] === null ? `${networkDiskD[key]}` : `${msg[key]} ${unit}`;
-      }
-
-      updateNetworkData("Out_bytes", "bytes/s");
-      updateNetworkData("Out_packets", "packets/s");
-      updateNetworkData("Read_KBytes", "KBytes/s");
-      updateNetworkData("Read_ops", "ops/s");
-      updateNetworkData("Write_KBytes", "KBytes/s");
-      updateNetworkData("Write_ops", "ops/s");
-      updateNetworkData("In_packets", "packets/s");
-      updateNetworkData("In_bytes", "bytes/s");
-    };
-
-    websocket.onclose = () => {
-      console.log("WebSocket connection closed");
-    };
-  }
-
-  function disconnectWebSocket() {
-    if (websocket) {
-      websocket.close();
+  async function fetchNvrData() {
+    if ($selectedNode) {
+      NvrData = await PB.collection("nvr").getFullList({
+        filter: `node~"${$selectedNode.id}"`,
+        expand: "ip_address",
+      });
     }
   }
 
-  // Connect to WebSocket when component mounts
-  onMount(() => {
-    connectWebSocket();
-    return () => {
-      disconnectWebSocket();
-    };
+async function getNvrStorageData() {
+    if($selectedNode) {
+        NvrStorageData = await PB.collection('nvr_storage').getFullList({
+            filter:`node~"${$selectedNode.id}"`,
+            expand: `nvr`
+        })
+
+        // calculateTotalStorage(NvrStorageData)
+    }
+}
+
+  async function getCameraList() {
+    PB.autoCancellation(false);
+    try {
+      const res = await PB.collection("camera_ping_status").getList(1, 50, {
+        filter: `node~"${$selectedNode.id}"`,
+        sort: "-created",
+        expand: "camera",
+      });
+      const uniqueCameras = new Map();
+      activeCams = 0;
+      inactiveCams = 0;
+      res.items.forEach((item) => {
+        const cameraId = item.expand.camera.id;
+        if (
+          !uniqueCameras.has(cameraId) ||
+          new Date(item.created) > new Date(uniqueCameras.get(cameraId).created)
+        ) {
+          uniqueCameras.set(cameraId, item);
+          if (item.status === true) {
+            activeCams += 1;
+          } else {
+            inactiveCams += 1;
+          }
+        }
+      });
+
+      const latestUniqueCameras = Array.from(uniqueCameras.values());
+      uniqueCams = latestUniqueCameras;
+      return latestUniqueCameras;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  onMount(async () => {
+    cameraList = await getCameraList();
+    PB.collection("camera_ping_status").subscribe("*", async (e) => {
+    });
   });
 
-  const systemD = [
-    ["Product LensView v1"],
-    ["Hostname e2e-79-82"],
-    ["Up_Time 18H 18M 20S"],
-    ["Boot_Time 30 Apr 24 17:53 IST"],
-    ["Processes 158"],
-    ["OS/Platform linux/ubuntu 20.04"],
-    ["Kernel/Arch 6.0.0-060000-generic/x86_64"],
-  ];
-  const ramD = [7.2, 0.6, 6.3, 1.2, 5.2];
-  const cpuD = [
-    2.9702970296728797, 4.0404040404086805, 1.0101010100947465,
-    2.0000000000241016,
-  ];
+  onDestroy(() => {
+    PB.collection("camera_ping_status").unsubscribe("*");
+  });
 
-  const networkD = [8.17, 1.93];
+  $: $selectedNode, fetchNvrData(), getNvrStorageData();
 
-  const data = {
-    labels: ["Used", "Available", "Free", "Cached"],
-    datasets: [
-      {
-        data: ramD,
-        backgroundColor: [
-          "rgba(255, 134,159,0.8)",
-          "rgba(98,  182, 239,0.8)",
-          "rgba(255, 218, 128,0.8)",
-          "rgba(113, 205, 205,0.8)",
-        ],
-        borderWidth: 3,
-        borderColor: [
-          "rgba(255, 134, 159, 1)",
-          "rgba(98,  182, 239, 1)",
-          "rgba(255, 218, 128, 1)",
-          "rgba(113, 205, 205, 1)",
-        ],
-      },
-    ],
-  };
-
-  const macRamD = {
-    labels: ["Used"],
-    datasets: [
-      {
-        // data: [basicData.Memory_Usage_Percent],
-        backgroundColor: ["rgba(255, 134,159,0.8)"],
-        borderWidth: 3,
-        borderColor: ["rgba(255, 134, 159, 1)"],
-      },
-    ],
-  };
-
-  $: macRamD.datasets[0].data = [basicData.Memory_Used_GB?.toFixed(2)];
-
-  const lineData = {
-    datasets:
-      os !== "darwin"
-        ? [
-            {
-              label: "CPU 1",
-              fill: true,
-              lineTension: 0.3,
-              backgroundColor: "rgba(225, 204,230, .3)",
-              borderColor: "rgb(205, 130, 158)",
-              borderCapStyle: "butt",
-              borderDash: [],
-              borderDashOffset: 0.0,
-              borderJoinStyle: "miter",
-              pointBorderColor: "rgb(205, 130,158)",
-              pointBackgroundColor: "rgb(255, 255, 255)",
-              pointBorderWidth: 10,
-              pointHoverRadius: 5,
-              pointHoverBackgroundColor: "rgb(0, 0, 0)",
-              pointHoverBorderColor: "rgba(220, 220, 220,1)",
-              pointHoverBorderWidth: 2,
-              pointRadius: 1,
-              pointHitRadius: 10,
-              data: [cpuD[0]],
-            },
-            {
-              label: "CPU 2",
-              fill: true,
-              lineTension: 0.3,
-              backgroundColor: "rgba(184, 185, 210, .3)",
-              borderColor: "rgb(35, 26, 136)",
-              borderCapStyle: "butt",
-              borderDash: [],
-              borderDashOffset: 0.0,
-              borderJoinStyle: "miter",
-              pointBorderColor: "rgb(35, 26, 136)",
-              pointBackgroundColor: "rgb(255, 255, 255)",
-              pointBorderWidth: 10,
-              pointHoverRadius: 5,
-              pointHoverBackgroundColor: "rgb(0, 0, 0)",
-              pointHoverBorderColor: "rgba(220, 220, 220, 1)",
-              pointHoverBorderWidth: 2,
-              pointRadius: 1,
-              pointHitRadius: 10,
-              data: [cpuD[1]],
-            },
-            {
-              label: "CPU 3",
-              fill: true,
-              lineTension: 0.3,
-              backgroundColor: "rgba(184, 185, 210, .3)",
-              borderColor: "rgb(135, 126, 236)",
-              borderCapStyle: "butt",
-              borderDash: [],
-              borderDashOffset: 0.0,
-              borderJoinStyle: "miter",
-              pointBorderColor: "rgb(135, 126, 236)",
-              pointBackgroundColor: "rgb(255, 255, 255)",
-              pointBorderWidth: 10,
-              pointHoverRadius: 5,
-              pointHoverBackgroundColor: "rgb(0, 0, 0)",
-              pointHoverBorderColor: "rgba(220, 220, 220, 1)",
-              pointHoverBorderWidth: 2,
-              pointRadius: 1,
-              pointHitRadius: 10,
-              data: [cpuD[2]],
-            },
-            {
-              label: "CPU 4",
-              fill: true,
-              lineTension: 0.3,
-              backgroundColor: "rgba(184, 185, 210, .3)",
-              borderColor: "rgb(35, 226, 136)",
-              borderCapStyle: "butt",
-              borderDash: [],
-              borderDashOffset: 0.0,
-              borderJoinStyle: "miter",
-              pointBorderColor: "rgb(35, 226, 136)",
-              pointBackgroundColor: "rgb(255, 255, 255)",
-              pointBorderWidth: 10,
-              pointHoverRadius: 5,
-              pointHoverBackgroundColor: "rgb(0, 0, 0)",
-              pointHoverBorderColor: "rgba(220, 220, 220, 1)",
-              pointHoverBorderWidth: 2,
-              pointRadius: 1,
-              pointHitRadius: 10,
-              data: [cpuD[3]],
-            },
-          ]
-        : [
-            {
-              label: "CPU-E",
-              fill: true,
-              lineTension: 0.3,
-              backgroundColor: "rgba(225, 204,230, .3)",
-              borderColor: "rgb(205, 130, 158)",
-              borderCapStyle: "butt",
-              borderDash: [],
-              borderDashOffset: 0.0,
-              borderJoinStyle: "miter",
-              pointBorderColor: "rgb(205, 130,158)",
-              pointBackgroundColor: "rgb(255, 255, 255)",
-              pointBorderWidth: 10,
-              pointHoverRadius: 5,
-              pointHoverBackgroundColor: "rgb(0, 0, 0)",
-              pointHoverBorderColor: "rgba(220, 220, 220,1)",
-              pointHoverBorderWidth: 2,
-              pointRadius: 1,
-              pointHitRadius: 10,
-            },
-            {
-              label: "CPU-P",
-              fill: true,
-              lineTension: 0.3,
-              backgroundColor: "rgba(184, 185, 210, .3)",
-              borderColor: "rgb(35, 26, 136)",
-              borderCapStyle: "butt",
-              borderDash: [],
-              borderDashOffset: 0.0,
-              borderJoinStyle: "miter",
-              pointBorderColor: "rgb(35, 26, 136)",
-              pointBackgroundColor: "rgb(255, 255, 255)",
-              pointBorderWidth: 10,
-              pointHoverRadius: 5,
-              pointHoverBackgroundColor: "rgb(0, 0, 0)",
-              pointHoverBorderColor: "rgba(220, 220, 220, 1)",
-              pointHoverBorderWidth: 2,
-              pointRadius: 1,
-              pointHitRadius: 10,
-            },
-          ],
-  };
-  $: {
-    lineData.labels = generateLabels(cpuE);
-    lineData.datasets[0].data = cpuE;
+  function parseDetail(detailString, key) {
+    const lines = detailString.split("\n");
+    const line = lines.find((line) => line.startsWith(key));
+    if (line) {
+      return line.split(": ")[1]; // Assuming there is a space after the colon
+    }
+    return "Not available"; // Default value if key is not found
   }
 
-  $: {
-    lineData.datasets[1].data = cpuP;
-  }
-  const netwD = {
-    labels: ["January", "February", "March", "April", "May", "June", "July"],
-    datasets: [
-      {
-        label: "Download",
-        fill: true,
-        lineTension: 0.3,
-        backgroundColor: "rgba(225, 204,230, .3)",
-        borderColor: "rgb(205, 130, 158)",
-        borderCapStyle: "butt",
-        borderDash: [],
-        borderDashOffset: 0.0,
-        borderJoinStyle: "miter",
-        pointBorderColor: "rgb(205, 130,158)",
-        pointBackgroundColor: "rgb(255, 255, 255)",
-        pointBorderWidth: 10,
-        pointHoverRadius: 5,
-        pointHoverBackgroundColor: "rgb(0, 0, 0)",
-        pointHoverBorderColor: "rgba(220, 220, 220,1)",
-        pointHoverBorderWidth: 2,
-        pointRadius: 1,
-        pointHitRadius: 10,
-        data: [networkD[0]],
-      },
-      {
-        label: "Upload",
-        fill: true,
-        lineTension: 0.3,
-        backgroundColor: "rgba(184, 185, 210, .3)",
-        borderColor: "rgb(35, 26, 136)",
-        borderCapStyle: "butt",
-        borderDash: [],
-        borderDashOffset: 0.0,
-        borderJoinStyle: "miter",
-        pointBorderColor: "rgb(35, 26, 136)",
-        pointBackgroundColor: "rgb(255, 255, 255)",
-        pointBorderWidth: 10,
-        pointHoverRadius: 5,
-        pointHoverBackgroundColor: "rgb(0, 0, 0)",
-        pointHoverBorderColor: "rgba(220, 220, 220, 1)",
-        pointHoverBorderWidth: 2,
-        pointRadius: 1,
-        pointHitRadius: 10,
-        data: [networkD[1]],
-      },
-    ],
-  };
+
 </script>
 
-<section
-  class="max-h-[calc(100vh-80px-75px)] grid w-full h-full grid-cols-4 grid-rows-2 pr-2 py-2 gap-4"
->
+<div class="w-full h-[calc(100vh-75px)]">
   <div
-    class="col-span-2 rounded-lg p-2 border-2 border-black/.23 border-solid flex flex-col"
+    class="flex items-center justify-center rounded-lg border-black/[.13] border-solid border-[1px] p-1 w-[500px] h-[40px] mx-auto mt-4"
   >
-    <span class="font-medium text-lg text-[#323232] pb-2"
-      >System Information</span
+    <button
+      on:click={() => (view = 1)}
+      class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/3 h-full ${view === 1 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
+      >Cameras</button
     >
-    {#if os !== "darwin"}
-      {#each systemD as item}
-        <span class=" font-normal text-base text-[#727272CC]"
-          >{item[0].split(" ")[0]}:
-          <span class="text-primary font-semibold">
-            {item[0].split(" ").slice(1).join(" ")}</span
-          ></span
-        >
-      {/each}
-    {:else}
-      <div class="grid grid-rows-2 grid-cols-4 h-full w-full gap-2">
-        <span
-          class="text-base text-[#727272CC] bg-[#D2F2FACC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
-          >Model Name:<br />
-          <span class="text-black dark:text-white text-lg font-semibold">
-            {basicData.Model_Name}</span
-          ></span
-        >
-        <span
-          class="text-base text-[#727272CC] bg-[#F7FAD2CC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
-          >Total Cores:<br />
-          <span class="text-black dark:text-white text-lg font-semibold">
-            {basicData.Total_Cores}</span
-          ></span
-        >
-        <span
-          class="text-base text-[#727272CC] bg-[#D2FAD8CC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
-          >E-Cores:<br />
-          <span class="text-black dark:text-white text-lg font-semibold">
-            {basicData.E_Core_Count}</span
-          ></span
-        >
-        <span
-          class="text-base text-[#727272CC] bg-[#D2D6FACC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
-          >P-Cores:<br />
-          <span class="text-black dark:text-white text-lg font-semibold">
-            {basicData.P_Core_Count}</span
-          ></span
-        >
-        <span
-          class="text-base text-[#727272CC] bg-[#FAD2F6CC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
-          >GPU Cores:<br />
-          <span class="text-black dark:text-white text-lg font-semibold">
-            {basicData.GPU_Core_Count}</span
-          ></span
-        >
-        <span
-          class="text-base text-[#727272CC] bg-[#FAD2D2CC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
-          >CPU Power:<br />
-          <span class="text-black dark:text-white text-lg font-semibold">
-            {basicData.CPU_Power_W} W</span
-          ></span
-        >
-        <span
-          class="text-base text-[#727272CC] bg-[#FAE0D2CC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
-          >GPU Power:<br />
-          <span class="text-black dark:text-white text-lg font-semibold">
-            {basicData.GPU_Power_W} W</span
-          ></span
-        >
-        <span
-          class="text-base text-[#727272CC] bg-[#FAF1D2CC] rounded-lg row-span-1 col-span-1 p-4 font-medium"
-          >GPU Usage:<br />
-          <span class="text-black dark:text-white text-lg font-semibold">
-            {basicData.GPU_Usage} %</span
-          ></span
-        >
-      </div>
-    {/if}
+    <button
+      on:click={() => (view = 2)}
+      class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/3 h-full ${view === 2 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
+      >NVR</button
+    >
+    <button
+      on:click={() => (view = 3)}
+      class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/3 h-full ${view === 3 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
+      >Hard Disk</button
+    >
   </div>
-  <div
-    class="col-span-2 rounded-lg p-2 border-2 border-black/.23 border-solid flex gap-4"
-  >
-    <span class="flex flex-col flex-shrink-0">
-      <span class="font-medium text-lg text-[#323232] pb-2">CPU Usage</span>
-      {#if os !== "darwin"}
-        {#each cpuD as item, index}
-          <span class=" font-normal text-xs text-[#323232]"
-            >CPU {index} : {item.toFixed(2)} %</span
-          >
-        {/each}
-      {:else}
-        <span class=" font-normal text-xs text-[#323232]">
-          E-CPU :
-          <span class=" font-normal text-xs text-[#323232]">
-            {basicData.E_CPU_Usage} %</span
-          >
-        </span>
-        <span class=" font-normal text-xs text-[#323232]">
-          P-CPU :
-          <span class=" font-normal text-xs text-[#323232]"
-            >{basicData.P_CPU_Usage} %
-          </span>
-        </span>
-        <span class=" font-normal text-xs text-[#323232]">
-          CPU Power :
-          <span class=" font-normal text-xs text-[#323232]"
-            >{basicData.CPU_Power_W} W
-          </span>
-        </span>
-        <span class=" font-normal text-xs text-[#323232]">
-          GPU Power :
-          <span class=" font-normal text-xs text-[#323232]"
-            >{basicData.GPU_Power_W} W
-          </span>
-        </span>
-      {/if}
-    </span>
-    <div class=" w-full">
-      <button
-        on:click={() => {
-          cpuE = [...cpuE, Math.random() * 100];
-          cpuP = [...cpuP, Math.random() * 100];
-        }}>Manual Update</button
-      >
-      <div class="h-[90%]">
-        <Line
-          data={lineData}
-          options={{
-            maintainAspectRatio: false,
-            responsive: true,
-            scales: {
-              y: {
-                beginAtZero: true,
-                grid: {
-                  display: false,
-                },
-              },
-              x: {
-                grid: {
-                  display: false,
-                },
-                ticks: {
-                  display: false,
-                },
-              },
-            },
-          }}
+  {#if view === 1}
+    <div class="flex items-center justify-between p-4">
+      <div class="left flex flex-col gap-1">
+        <h2 class="font-medium text-xl text-[#323232]">Health Monitor</h2>
+        <h5 class="text-sm text-black/.5">
+          Streamlined insights into your device's vital stats for informed
+          decisions.
+        </h5>
+      </div>
+      <div class="flex items-center gap-2">
+        <!-- <Button variant="outline" class="flex items-center gap-2 text-sm"
+          ><MapPin size={18} /> Location</Button
+        > -->
+        <NodeSelection
+          isAllFullScreen={false}
+          {nodes}
+          url={data.url ?? "/"}
+          {data}
         />
+        <Button>Export</Button>
       </div>
     </div>
-  </div>
-  <div
-    class="col-span-2 rounded-lg p-2 border-2 border-black/.23 border-solid flex flex-col"
-  >
-    <span class="font-medium text-lg text-[#323232] pb-2"
-      >Memory Usage (RAM)</span
-    >
-    {#if os !== "darwin"}
-      <Bar
-        height={250}
-        high={ramD[0]}
-        low={0}
-        {data}
-        options={{
-          responsive: true,
-          indexAxis: "y",
-          scales: {
-            x: {
-              grid: {
-                display: false,
-              },
-            },
-            y: {
-              grid: {
-                display: false,
-              },
-            },
-          },
-          plugins: {
-            legend: {
-              display: false,
-            },
-          },
-        }}
-      />
-    {:else}
-      <span class="font-normal text-base text-[#323232]">
-        Current: <span class="text-primary font-semibold"
-          >{basicData.Memory_Used_GB?.toFixed(
-            2,
-          )}/{basicData.Memory_Total_GB?.toFixed(2)} GB</span
+    <div class="grid grid-cols-8 grid-rows-2 h-[320px] gap-4 px-4">
+      <div
+        class="gap-4 col-span-2 row-span-2 grid grid-rows-2 grid-cols-1 rounded-md"
+      >
+        <div
+          class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
         >
-      </span>
-      <Bar
-        height={200}
-        high={basicData.Memory_Total_GB}
-        low={0}
-        data={macRamD}
-        options={{
-          responsive: true,
-          indexAxis: "y",
-          scales: {
-            x: {
-              grid: {
-                display: false,
-              },
-            },
-            y: {
-              grid: {
-                display: false,
-              },
-            },
-          },
-          plugins: {
-            legend: {
-              display: false,
-            },
-          },
-        }}
-      />
-    {/if}
-  </div>
-  <div
-    class="col-span-2 rounded-lg p-2 border-2 border-black/.23 border-solid flex flex-col"
-  >
-    <span class="font-medium text-lg text-[#323232] pb-2"
-      >{#if os === "darwin"}Network & Disk Info{:else}
-        Network Data{/if}
-    </span>
-    {#if os === "darwin"}
-      <div class="grid grid-rows-3 grid-cols-3 gap-4 w-full h-full">
-        {#each Object.entries(networkDiskD) as [key, value]}
-          <span class="font-normal text-sm text-[#727272]">
-            {key}: <br />
-            <span class="text-black dar:text-white font-bold text-xl"
-              >{value}</span
+          <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
+            <span class="text-lg font-semibold leading-6">Camera Count & Status</span>
+            <span class="flex items-center gap-2 text-2xl font-bold leading-8"
+              >{uniqueCams.length}
+              <span class="flex items-center gap-1 text-sm text-[#00B69B]">
+                <TrendingUp size={18} /> 1.3%
+              </span>
+            </span>
+            <span class="flex items-center gap-3">
+              <span class="flex items-center gap-1 text-sm">
+                <span class="h-2 w-2 rounded-full bg-[#5B93FF]" /> Active</span
+              >
+              <span class="flex items-center gap-1 text-sm"
+                ><span class="h-2 w-2 rounded-full bg-[#FFD66B]" /> Inactive</span
+              >
+            </span>
+          </span>
+          <span class="col-span-1"></span>
+        </div>
+        <div
+          class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
+        >
+          <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
+            <span class="text-lg font-semibold leading-6">Alerts</span>
+            <span class="flex items-center gap-2 text-2xl font-bold leading-8"
+              >100
+              <span class="flex items-center gap-1 text-sm text-[#00B69B]">
+                <TrendingUp size={18} /> 1.3%
+              </span>
+            </span>
+            <span class="flex items-center gap-3">
+              <span class="flex items-center gap-1">
+                <span class="h-2 w-2 rounded-full bg-[#99A2FB]" /> Critical</span
+              >
+              <span class="flex items-center gap-1"
+                ><span class="h-2 w-2 rounded-full bg-[#FB99B0]" /> Non-critical</span
+              >
+            </span>
+          </span>
+          <span class="col-span-1"></span>
+        </div>
+      </div>
+      <div class=" col-span-3 row-span-2 border p-2 rounded-md">
+        <div class="flex items-center justify-between pt-2">
+          <p class="text-lg font-medium leading-5">Map View</p>
+          <span class="flex items-center gap-3">
+            <span class="flex items-center gap-2">
+              <span class="h-2 w-2 bg-[#03A185] rounded-full" /> Active</span
+            >
+            <span class="flex items-center gap-2">
+              <span class="h-2 w-2 bg-[#B5496E] rounded-full" /> Critical</span
+            >
+            <span class="flex items-center gap-2">
+              <span class="h-2 w-2 bg-[#EBB62D] rounded-full" /> Non-Critical</span
             >
           </span>
-        {/each}
+        </div>
+        <div class="h-[95%] w-full">
+          <MapMultiCameras />
+        </div>
       </div>
-    {:else}
-      <div class="h-full">
-        <Line
-          height={200}
-          data={netwD}
-          options={{
-            maintainAspectRatio: false,
-            responsive: true,
-            scales: {
-              y: {
-                beginAtZero: true,
-                grid: {
-                  display: false,
-                },
-              },
-              x: {
-                grid: {
-                  display: false,
-                },
-                ticks: {
-                  display: false,
-                },
-              },
-            },
-          }}
+      <div class=" col-span-3 row-span-2 border p-2 rounded-md">
+        <div class="flex items-center justify-between">
+          <span class="text-lg font-medium">Area Analysis</span>
+          <div class="flex items-center gap-2">
+            <Select.Root>
+              <Select.Trigger class="w-[180px]">
+                <Select.Value placeholder="Sort By: Area" />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value="population">Sort By: Population</Select.Item
+                >
+                <Select.Item value="density">Sort By: Density</Select.Item>
+                <Select.Item value="growth">Sort By:Growth Rate</Select.Item>
+              </Select.Content>
+            </Select.Root>
+            <MoreVertical size={18} />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="h-full w-full p-4 flex flex-col gap-2">
+      <p class="font-medium text-lg">List of Cameras</p>
+      <Table.Root class="mx-auto w-full flex flex-col pb-10">
+        <Table.Header
+          class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
+        >
+          <Table.Row
+            class="bg-transparent flex items-center justify-between p-3 w-full"
+          >
+            <Table.Head class="text-[#727272] h-full w-[10%]">ID</Table.Head>
+            <Table.Head class="text-[#727272]  h-full w-[12%]">Name</Table.Head>
+            <Table.Head class="text-[#727272]  h-full w-[12%]"
+              >Severity</Table.Head
+            >
+            <Table.Head class="text-[#727272]  h-full w-[12%]"
+              >Downtime</Table.Head
+            >
+            <Table.Head class="text-[#727272]  h-full w-[12%]"
+              >Status</Table.Head
+            >
+            <Table.Head class="text-[#727272]  h-full w-[12%]"
+              >Exiting alert</Table.Head
+            >
+            <Table.Head class="text-[#727272]  pr-0 h-full w-[20%]"
+              >Actions</Table.Head
+            >
+          </Table.Row>
+        </Table.Header>
+        <Table.Body
+          class="overflow-y-scroll max-h-[calc(100vh-650px)] hide-scrollbar pb-10"
+        >
+          {#each cameraList as item, index}
+            <Table.Row
+              class="bg-transparent flex items-center justify-between mt-4 rounded-lg  border-2 border-solid border-[#e4e4e4] px-3"
+            >
+              <Table.Cell class="text-black w-[10%] h-full">#{index}</Table.Cell
+              >
+              <Table.Cell class="text-[#727272] w-[12%]  h-full text-sm ml-2"
+                >{item.expand.camera.name}</Table.Cell
+              >
+              <Table.Cell class="text-[#727272] w-[12%]  h-full text-sm"
+                >severity</Table.Cell
+              >
+              <Table.Cell class="text-[#727272] w-[12%] h-full text-sm"
+                >downtime</Table.Cell
+              >
+              <Table.Cell class="text-[#727272] w-[12%] h-full text-sm"
+                >{item.status}</Table.Cell
+              >
+              <Table.Cell class="text-[#727272] w-[12%] h-full text-sm"
+                >exiting alert</Table.Cell
+              >
+              <Table.Cell
+                class="text-[#727272] w-[20%] h-full text-sm flex items-center gap-2"
+              >
+                <button
+                  class="text-[#4976F4] bg-[#4976F4] flex items-center gap-1 rounded-xl py-1 px-2 text-xs bg-opacity-15 whitespace-nowrap"
+                  ><User size={16} /> Assign Technician</button
+                >
+                <button
+                  class="text-[#D53228CC] bg-[#D53228] flex items-center gap-1 rounded-xl py-1 px-2 text-xs bg-opacity-15 whitespace-nowrap"
+                >
+                  <Trash size={16} /> Delete</button
+                >
+              </Table.Cell>
+            </Table.Row>
+          {/each}
+        </Table.Body>
+      </Table.Root>
+    </div>
+  {/if}
+  {#if view === 2 && $selectedNvr === null}
+    <div class="flex items-center justify-between p-4">
+      <div class="left flex flex-col gap-1">
+        <h2 class="font-medium text-xl text-[#323232]">Health Monitor</h2>
+        <h5 class="text-sm text-black/.5">
+          Streamlined insights into your device's vital stats for informed
+          decisions.
+        </h5>
+      </div>
+      <div class="flex items-center gap-2">
+        <NodeSelection
+          isAllFullScreen={false}
+          {nodes}
+          url={data.url ?? "/"}
+          {data}
         />
+        <!-- <Button variant="outline" class="flex items-center gap-2 text-sm"
+          ><MapPin size={18} /> Location</Button
+        > -->
+        <Button>Export</Button>
       </div>
-    {/if}
-  </div>
-</section>
+    </div>
+    <div class="grid grid-cols-8 grid-rows-2 h-[320px] gap-4 px-4">
+      <div class="gap-4 col-span-2 row-span-2 grid grid-rows-2 grid-cols-1">
+        <div
+          class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
+        >
+          <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
+            <span class="text-lg font-semibold leading-6">NVR Count & Status</span>
+            <span class="flex items-center gap-2 text-2xl font-bold leading-8"
+              >{NvrData?.length}
+              <span class="flex items-center gap-1 text-sm text-[#00B69B]">
+                <TrendingUp size={18} /> 1.3%
+              </span>
+            </span>
+            <span class="flex items-center gap-3">
+              <span class="flex items-center gap-1">
+                <span class="h-2 w-2 rounded-full bg-[#5B93FF]" /> Active</span
+              >
+              <span class="flex items-center gap-1"
+                ><span class="h-2 w-2 rounded-full bg-[#FFD66B]" /> Inactive</span
+              >
+            </span>
+          </span>
+          <span class="col-span-1">
+
+          </span>
+        </div>
+        <div
+          class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
+        >
+          <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
+            <span class="text-lg font-semibold leading-6">Alerts</span>
+            <span class="flex items-center gap-2 text-2xl font-bold leading-8"
+              >100
+              <span class="flex items-center gap-1 text-sm text-[#00B69B]">
+                <TrendingUp size={18} /> 1.3%
+              </span>
+            </span>
+            <span class="flex items-center gap-3">
+              <span class="flex items-center gap-1">
+                <span class="h-2 w-2 rounded-full bg-[#99A2FB]" /> Critical</span
+              >
+              <span class="flex items-center gap-1"
+                ><span class="h-2 w-2 rounded-full bg-[#FB99B0]" /> Non-critical</span
+              >
+            </span>
+          </span>
+          <span class="col-span-1"></span>
+        </div>
+      </div>
+      <div class=" col-span-3 row-span-2 border p-2 rounded-md">
+        <div class="flex items-center justify-between pt-2">
+          <p class="text-lg font-medium leading-5">Map View</p>
+          <span class="flex items-center gap-3">
+            <span class="flex items-center gap-2">
+              <span class="h-2 w-2 bg-[#03A185] rounded-full" /> Active</span
+            >
+            <span class="flex items-center gap-2">
+              <span class="h-2 w-2 bg-[#B5496E] rounded-full" /> Inactive</span
+            >
+          </span>
+        </div>
+        <div class="h-[95%] w-full">
+          {#if NvrData}
+            <MapNvr {NvrData} />
+          {/if}
+        </div>
+      </div>
+      <div class=" col-span-3 row-span-2 border p-2 rounded-md">
+        <div class="flex items-center justify-between">
+          <span class="text-lg font-medium">Area Analysis</span>
+          <div class="flex items-center gap-2">
+            <Select.Root>
+              <Select.Trigger class="w-[180px]">
+                <Select.Value placeholder="Sort By: Area" />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value="population">Sort By: Population</Select.Item
+                >
+                <Select.Item value="density">Sort By: Density</Select.Item>
+                <Select.Item value="growth">Sort By:Growth Rate</Select.Item>
+              </Select.Content>
+            </Select.Root>
+            <MoreVertical size={18} />
+            <MoreVertical size={18} />
+          </div>
+        </div>
+        <div>
+          {#if NvrData}
+            <AreaAnalysis {NvrData} />
+          {/if}
+        </div>
+      </div>
+    </div>
+    <span class=" flex items-center gap-4 pt-4 px-4">
+      <span class="text-xl font-bold leading-8 tracking-wide"
+        >List of Network Video Recorder
+      </span>
+      <span class="ml-auto relative"
+        ><Search class="absolute top-1/2 -translate-y-1/2 left-4" size={18} />
+        <Input class="w-[300px] pl-12" placeholder="Search by name" /></span
+      >
+      <span class=" flex items-center gap-2">
+        <FilterIcon /> Filters
+      </span>
+    </span>
+    <div
+      class="flex flex-wrap items-center gap-4 p-4 overflow-y-scroll max-h-[calc(100vh-525px)] hide-scrollbar"
+    >
+      {#each NvrData as nvr, i}
+        <HealthNvrcard {selectedNvr} {nvr} />
+      {/each}
+    </div>
+  {/if}
+  {#if view === 3}
+    <section
+      class="flex flex-col max-h-[calc(100vh-120px)] overflow-y-auto hide-scrollbar"
+    >
+      <div class="flex items-center justify-between p-4">
+        <div class="left flex flex-col gap-1">
+          <h2 class="font-medium text-xl text-[#323232]">
+            Hard Disk Health Monitor
+          </h2>
+          <h5 class="text-sm text-black/.5">
+            Streamlined insights into your device's vital stats for informed
+            decisions.
+          </h5>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- <Button variant="outline" class="flex items-center gap-2 text-sm"
+            ><MapPin size={18} /> Location</Button
+          > -->
+          <NodeSelection
+            isAllFullScreen={false}
+            {nodes}
+            url={data.url ?? "/"}
+            {data}
+          />
+          <Button>Export</Button>
+        </div>
+      </div>
+      <div class="grid grid-cols-8 grid-rows-3 h-[450px] gap-4 px-4">
+        <div class="gap-4 col-span-8 row-span-1 grid grid-rows-1 grid-cols-8">
+          <div
+            class="p-2 col-span-2 row-span-1 border rounded-md grid grid-rows-2 grid-cols-3 gap-1 relative"
+          >
+            <span class="col-span-3 flex items-start justify-between">
+              <span class="flex flex-col gap-1">
+                <p class="font-medium text-black">Total Storage</p>
+                <p class="text-xs text-black/[.6]">
+                  Includes storage on all Location
+                </p>
+                <p class="text-lg font-semibold text-black">320TB</p>
+              </span>
+              <span
+                class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#F7E8FF]"
+              >
+                <ArrowUpRight size={24} />
+              </span>
+            </span>
+            <img
+              src="/images/storage1.png"
+              alt="graph"
+              class="absolute bottom-2 left-1/2 -translate-x-1/2 scale-90"
+            />
+          </div>
+          <div
+            class="p-2 col-span-2 row-span-1 border rounded-md grid grid-rows-2 grid-cols-3 gap-1 relative"
+          >
+            <span class="col-span-3 flex items-start justify-between">
+              <span class="flex flex-col gap-1">
+                <p class="font-medium text-black">Total Used Storage</p>
+                <p class="text-xs text-black/[.6]">Summary of used storage</p>
+                <p class="text-lg font-semibold text-black">20TB</p>
+              </span>
+              <span
+                class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#FFE5F7]"
+              >
+                <ArrowUpRight size={24} />
+              </span>
+            </span>
+            <img
+              src="/images/storage2.png"
+              alt="graph"
+              class="absolute bottom-2 scale-90 left-1/2 -translate-x-1/2"
+            />
+          </div>
+          <div
+            class="p-2 col-span-2 row-span-1 border rounded-md grid grid-rows-2 grid-cols-3 gap-1 relative"
+          >
+            <span class="col-span-3 flex items-start justify-between">
+              <span class="flex flex-col gap-1">
+                <p class="font-medium text-black">Available Storage</p>
+                <p class="text-xs text-black/[.6]">Summary of all Storage</p>
+                <p class="text-lg font-semibold text-black">320TB</p>
+              </span>
+              <span
+                class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#FFEAE4]"
+              >
+                <ArrowUpRight size={24} />
+              </span>
+            </span>
+            <img
+              src="/images/storage3.png"
+              alt="graph"
+              class="absolute bottom-2 scale-90 left-1/2 -translate-x-1/2"
+            />
+          </div>
+          <div
+            class="p-2 col-span-2 row-span-1 border rounded-md grid grid-rows-2 grid-cols-3 gap-1 relative"
+          >
+            <span class="col-span-3 flex items-start justify-between">
+              <span class="flex flex-col gap-1">
+                <p class="font-medium text-black">Total Storage per NVR</p>
+                <p class="text-xs text-black/[.6]">Avg storage per NVR</p>
+                <p class="text-lg font-semibold text-black">320TB</p>
+              </span>
+              <span
+                class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#FFE8ED]"
+              >
+                <ArrowUpRight size={24} />
+              </span>
+            </span>
+            <img
+              src="/images/storage4.png"
+              alt="graph"
+              class="absolute bottom-2 scale-90 left-1/2 -translate-x-1/2"
+            />
+          </div>
+        </div>
+        <div
+          class="col-span-6 row-span-2 rounded-lg p-2 border-2 border-black/.23 border-solid flex flex-col"
+        >
+          <span class="font-semibold text-lg text-[#323232]"
+            >Reports & Analytics</span
+          >
+          <span class="text-sm font-medium">Average Storage Usage</span>
+          <span class="w-full flex items-center justify-between"
+            ><span class="flex items-center gap-2 tex-lg font-medium">
+              64.23% <span
+                class="text-xs text-[#589e67] bg-[#EEF5F0] rounded-xl p-1 w-[50px] h-[25px] flex items-center gap-1"
+                ><TrendingUp class="h-[14px] w-[14px]" /> 12%</span
+              >
+            </span>
+            <span class="flex items-center gap-1">
+              <button
+                class="flex items-center gap-2 px-2 py-1 w-[150px] rounded-md border-[1px] border-solid border-[#e0e0e0] text-medium text-base text-[#4f4f4f]"
+                ><CalendarDays class="text-[#4f4f4f]" /> Date</button
+              >
+              <button
+                class="flex items-center gap-2 px-2 py-1 w-[100px] rounded-md border-[1px] border-solid border-[#e0e0e0] text-medium text-base text-[#4f4f4f]"
+                ><Filter class="text-[#4f4f4f]" /> Filter</button
+              >
+            </span></span
+          >
+          <span class="text-sm text-opacity-60"
+            >Average storage used in a month</span
+          >
+          <span class="h-full w-full overflow-clip"
+            ><img
+              src="/images/Graph01.png"
+              alt="garph"
+              class="h-full w-full"
+            /></span
+          >
+        </div>
+
+        <div class=" col-span-2 row-span-2 border p-2">
+          <span class="w-full flex items-center justify-between">
+            <p class="text-xl font-semibold">Available Storage</p>
+            <Button variant="outline" class="flex items-center gap-2">
+              <FilterIcon size={20} /> Filter</Button
+            >
+          </span>
+          <p class="text-sm text-[#727272] w-[80%] py-2">
+            The data below show the available storage location wise
+          </p>
+          <span class=" w-full flex items-center justify-between pb-2">
+            <span class="flex font-semibold items-center gap-2 tex-lg">
+              64.23%
+              <span
+                class="text-xs text-[#589e67] bg-[#EEF5F0] rounded-xl p-1 w-[50px] h-[25px] flex items-center gap-1"
+                ><TrendingUp class="h-[14px] w-[14px]" /> 12%</span
+              >
+            </span>
+          </span>
+
+          <div class="grid grid-rows-2 grid-cols-3">
+            <span class="flex items-center gap-2 col-span-1"
+              ><span class="h-2 w-2 rounded-full bg-black" /> location
+            </span>
+            <span class="flex items-center gap-2 col-span-1"
+              ><span class="h-2 w-2 rounded-full bg-[#0D454B]" /> location
+            </span>
+            <span class="flex items-center gap-2 col-span-1"
+              ><span class="h-2 w-2 rounded-full bg-[#015A62]" /> location
+            </span>
+            <span class="flex items-center gap-2 col-span-1"
+              ><span class="h-2 w-2 rounded-full bg-[#027680]" /> location
+            </span>
+            <span class="flex items-center gap-2 col-span-1"
+              ><span class="h-2 w-2 rounded-full bg-[#00A3B2]" /> location
+            </span>
+            <span class="flex items-center gap-2 col-span-1"
+              ><span class="h-2 w-2 rounded-full bg-[#06D2E5]" /> location
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center justify-between p-4">
+        <div class="left flex flex-col gap-1">
+          <h2 class="font-medium text-xl text-[#323232]">Storage per NVR</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- <Button variant="ghost" class="flex items-center gap-2 text-sm"
+            ><MapPin size={18} /> Location</Button
+          > -->
+          <Button>Export</Button>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-5 pb-10">
+        {#if NvrStorageData}
+        {#each NvrStorageData as sd,index}
+        <StorageNvrCard {sd}/>
+        {/each}
+        {/if}
+      </div>
+    </section>
+  {/if}
+  {#if view === 2 && $selectedNvr}
+    <div class="p-4">
+      <div class="flex items-start justify-between p-4">
+        <div class="left flex flex-col gap-1">
+          <h2
+            class="flex items-center font-medium text-xl text-[#323232] gap-2"
+          >
+            <button on:click={() => selectedNvr.set(null)}>
+              <ArrowLeft size={20} />
+            </button>
+            {$selectedNvr.name}
+          </h2>
+          <span
+            class={$selectedNvr?.status?.status === true
+              ? "text-sm ml-5 text-black/.5 flex items-center text-[#03A185] gap-2"
+              : "text-sm ml-5 text-black/.5 flex items-center text-[#B5496E] gap-2"}
+          >
+            {#if $selectedNvr?.status?.status === true}
+              <span class="h-3 w-3 rounded-full bg-[#03A185]" /> Active
+            {:else}
+              <span class="h-3 w-3 rounded-full bg-[#B5496E]" /> Inactive
+            {/if}
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- <Button variant="outline" class="flex items-center gap-2 text-sm"
+            ><MapPin size={18} /> Location</Button
+          > -->
+          <Button>Export</Button>
+        </div>
+      </div>
+      <div
+        class="h-[calc(100vh-250px)] grid grid-cols-4 grid-rows-2 gap-4 w-full"
+      >
+        <div
+          class="col-span-2 row-span-1 rounded-md border flex flex-col gap-2 p-2"
+        >
+          <span class="text-lg font-semibold">Device Information</span>
+          <span class="grid grid-cols-3 grid-rows-3 gap-5 py-2">
+            <span>
+              <p class=" font-medium">Device Name</p>
+              <p>{parseDetail($selectedNvr?.details, "Device Name")}</p>
+            </span>
+            <span>
+              <p class="font-medium">Device Type</p>
+              <p>{parseDetail($selectedNvr?.details, "Device Type")}</p>
+            </span>
+            <span>
+              <p class="font-medium">Device Model</p>
+              <p>{parseDetail($selectedNvr?.details, "Model")}</p>
+            </span>
+            <span>
+              <p class="font-medium">Location</p>
+              <p>{$selectedNvr?.expand?.ip_address?.location}</p>
+            </span>
+            <span>
+              <p class="font-medium">Region</p>
+              <p>{$selectedNvr?.expand?.ip_address?.region}</p>
+            </span>
+            <span>
+              <p class="font-medium">Firmware version</p>
+              <p>{parseDetail($selectedNvr?.details, "Firmware Version")}</p>
+            </span>
+            <span>
+              <p class="font-medium">IP address</p>
+              <p>{$selectedNvr?.expand?.ip_address?.query}</p>
+            </span>
+            <span>
+              <p class="font-medium">Mac address</p>
+              <p>{parseDetail($selectedNvr?.details, "MAC Address")}</p>
+            </span>
+            <span>
+              <p class="font-medium">Storage usage</p>
+              <p>Storage usage</p>
+            </span>
+          </span>
+        </div>
+        <div class="col-span-2 row-span-1 rounded-md border p-2">
+          <span class="flex items-center justify-between">
+            <span>Event Logs</span>
+            <span class="flex items-center gap-2">
+              <Select.Root>
+                <Select.Trigger class="w-[180px]">
+                  <Select.Value placeholder="Sort By: Area" />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="population"
+                    >Sort By: Population</Select.Item
+                  >
+                  <Select.Item value="density">Sort By: Density</Select.Item>
+                  <Select.Item value="growth">Sort By:Growth Rate</Select.Item>
+                </Select.Content>
+              </Select.Root>
+              <MoreVertical size={18} />
+              <MoreVertical size={18} />
+            </span>
+          </span>
+          <div class="overflow-y-auto max-h-[200px]">
+            <Table.Root>
+              <Table.Caption>A list of your recent invoices.</Table.Caption>
+              <Table.Header>
+                <Table.Row>
+                  <Table.Head class="w-[100px]">Invoice</Table.Head>
+                  <Table.Head>Status</Table.Head>
+                  <Table.Head>Method</Table.Head>
+                  <Table.Head class="text-right">Amount</Table.Head>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {#each invoices as invoice, i (i)}
+                  <Table.Row>
+                    <Table.Cell class="font-medium"
+                      >{invoice.invoice}</Table.Cell
+                    >
+                    <Table.Cell>{invoice.paymentStatus}</Table.Cell>
+                    <Table.Cell>{invoice.paymentMethod}</Table.Cell>
+                    <Table.Cell class="text-right"
+                      >{invoice.totalAmount}</Table.Cell
+                    >
+                  </Table.Row>
+                {/each}
+              </Table.Body>
+            </Table.Root>
+          </div>
+        </div>
+        <div class="col-span-2 row-span-1 rounded-md border p-2">
+          <div class="flex items-center justify-between pt-2">
+            <p class="text-lg font-medium leading-5">Location</p>
+            <span class="flex items-center gap-3">
+              <span class="flex items-center gap-2">
+                <span class="h-2 w-2 bg-[#03A185] rounded-full" /> Active</span
+              >
+              <span class="flex items-center gap-2">
+                <span class="h-2 w-2 bg-[#B5496E] rounded-full" /> Inactive</span
+              >
+            </span>
+          </div>
+          <div class="h-[95%] w-full">
+            {#if $selectedNvr}
+              <MapNvr NvrData={[$selectedNvr]} />
+            {/if}
+          </div>
+        </div>
+        <div class="col-span-2 row-span-1 rounded-md border p-2">
+          <div class="flex items-center justify-between">
+            <span class="text-lg font-medium">Usage Trend</span>
+            <div class="flex items-center gap-2">
+              <Select.Root>
+                <Select.Trigger class="w-[180px]">
+                  <Select.Value placeholder="Sort By: Area" />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="population"
+                    >Sort By: Population</Select.Item
+                  >
+                  <Select.Item value="density">Sort By: Density</Select.Item>
+                  <Select.Item value="growth">Sort By:Growth Rate</Select.Item>
+                </Select.Content>
+              </Select.Root>
+              <MoreVertical size={18} />
+              <MoreVertical size={18} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
+</div>

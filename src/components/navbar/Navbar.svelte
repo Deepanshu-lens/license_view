@@ -127,7 +127,7 @@
       >
         {#each menuList as item}
           {#key item}
-            {#if item.text === "Live" || item.text === "Atlas"}
+            {#if item.text === "Live" || item.text === "Atlas" || item.text === 'Configuration' || item.text === 'Reports'}
               <a
                 href={item.href}
                 on:click={() => {
@@ -177,7 +177,7 @@
             </span>
             </a>
         {/if} -->
-        <!-- {#if session.playback}
+        {#if session.playback}
           <a
             href={playback.href}
             on:click={() => {
@@ -194,7 +194,7 @@
               {playback.text}
             </span>
           </a>
-        {/if} -->
+        {/if}
         {#if session.anpr}
           <a
             href={anpr.href}

@@ -3,7 +3,7 @@
   import { mode } from "mode-watcher";
   import { activeCamera, topPanelHide } from "@/lib/stores";
   import { cn } from "@/lib";
-  import { selectedNode } from "@/lib/stores";
+  import { selectedNode, filteredNodeCameras } from "@/lib/stores";
   import Stream from "@/components/stream/Stream.svelte";
   import type { Camera } from "@/types.d.ts";
   import * as Carousel from "@/components/ui/carousel/index.js";
@@ -40,9 +40,7 @@
   const neededUrl = $page.url.hostname;
 
   const initVideo = async (camera: Camera) => {
-    const index = $selectedNode.camera.findIndex(
-      (cam) => cam.id === camera.id,
-    );
+    const index = $selectedNode.camera.findIndex((cam) => cam.id === camera.id);
     // console.log(index, "newIndex init video");
     if (videos[camera.id]) {
       console.log("video c.id exists", camera.name);
@@ -55,7 +53,7 @@
     // console.log(codec)
 
     // video.mode = $page.url.hostname.includes("116") ? "mse" : "webrtc";
-    video.mode = 'webrtc'
+    video.mode = "webrtc";
     video.url = camera.url;
     camera?.subUrl?.length === 0
       ? (video.src = new URL(
@@ -203,7 +201,7 @@
     slideIndex = 0;
     $selectedNode.camera.map((c) => {
       if (!videos[c.id]) {
-        console.log('c',c);
+        console.log("c", c);
         initVideo(c);
       } else {
         if (videos[c.id].url !== c.url) {
@@ -219,13 +217,15 @@
 
     if (maxStreamsPerPage === 0) {
       // Automatic Layout
+      // const squareRoot = Math.ceil(Math.sqrt(streamCount !== $filteredNodeCameras?.length ? $filteredNodeCameras?.length :streamCount));
       const squareRoot = Math.ceil(Math.sqrt(streamCount));
       if (Number.isInteger(Math.sqrt(streamCount))) {
         layoutColumns = squareRoot;
       } else {
         layoutColumns = squareRoot <= 4 ? squareRoot : 5;
       }
-      layoutRows = Math.ceil(streamCount / layoutColumns);
+      // layoutRows = Math.ceil(streamCount !== $filteredNodeCameras?.length ? $filteredNodeCameras?.length :streamCount / layoutColumns);
+      layoutRows = Math.ceil(streamCount/layoutColumns);
     } else if (
       streamCount !== 0 &&
       maxStreamsPerPage !== 10 &&
@@ -372,88 +372,296 @@
 
 {#if streamCount > 0 && Object.keys(videos).length > 0}
   <!-- svelte-ignore a11y-no-static-element-interactions -->
-
-  <Carousel.Root
-    class="w-full h-full flex justify-center items-center"
-    opts={{ watchDrag: false }}
-  >
-    <Carousel.Content class="w-full h-full mx-0 px-0">
-      {#each Array(totalPages) as _, pageIndex}
-        <Carousel.Item class="h-full w-full px-0 mx-0">
-          <div
-            class={cn(
-              `grid gap-1 w-full h-full ${$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : !$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : isAllFullScreen ? "max-h-screen" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
-              $selectedNode.maxStreamsPerPage === 13 && "grid-area-13",
-              $selectedNode.maxStreamsPerPage === 10 && "grid-area-10",
-              $selectedNode.maxStreamsPerPage === 5 && "grid-area-5",
-              $selectedNode.maxStreamsPerPage === 7 && "grid-area-7",
-            )}
-            bind:this={cells}
-          >
-            {#each Array($selectedNode.maxStreamsPerPage !== 0 && $selectedNode.maxStreamsPerPage !== 5 && $selectedNode.maxStreamsPerPage !== 7 ? $selectedNode.maxStreamsPerPage : $selectedNode.maxStreamsPerPage === 5 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : layoutRows * layoutColumns) as _, slotIndex}
-              {#if pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex < streamCount}
-                <!-- svelte-ignore a11y-no-static-element-interactions -->
-                {#key pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex}
-                  <!-- svelte-ignore a11y-click-events-have-key-events -->
-                  <div
-                    id={`grid-cell-${slotIndex}`}
-                    class="relative h-full"
-                    style={$selectedNode.maxStreamsPerPage === 10 &&
-                    slotIndex === 0
-                      ? "grid-area: bigCell1"
-                      : $selectedNode.maxStreamsPerPage === 10 &&
-                          slotIndex === 1
-                        ? "grid-area: bigCell2"
-                        : bigCellIndex === slotIndex
-                          ? "grid-area: bigCell1"
-                          : ""}
-                  >
-                    {#if [5, 7, 13].includes($selectedNode.maxStreamsPerPage) && bigCellIndex !== slotIndex}
-                      <button disabled
-                        on:click={() => setBigCell(slotIndex)}
-                        class={`cursor-pointer disabled:cursor-not-allowed absolute rounded top-4 ${isAllFullScreen ? "right-12" : "right-20"} flex-shrink-0 p-1 bg-[rgba(0,0,0,.5)] text-white z-20`}
-                      >
-                        <AArrowUp size={18} />
-                      </button>
-                    {/if}
-                    <Stream
-                      videoElement={videos[
-                        $selectedNode.camera[
-                          pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
-                            slotIndex
-                        ].id
-                      ]}
-                      camera={$selectedNode.camera[
-                        pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex
-                      ]}
-                    />
-                    <span
-                      class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-90 z-20"
+  <!-- {#if streamCount !== $filteredNodeCameras.length && $filteredNodeCameras.length !== 0}
+    <div
+      class={cn(
+        `grid gap-1 w-full h-full ${$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : !$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : isAllFullScreen ? "max-h-screen" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
+      )}
+      bind:this={cells}
+    >
+      {#each Array($filteredNodeCameras.length) as _, newIndex}
+          {#key newIndex}
+            <Stream
+videoElement={videos[
+  $filteredNodeCameras[
+      newIndex
+  ].id
+]}
+camera={$filteredNodeCameras[newIndex]}
+/>
+          {/key}
+      {/each}
+    </div>
+  {:else} -->
+    <Carousel.Root
+      class="w-full h-full flex justify-center items-center"
+      opts={{ watchDrag: false }}
+    >
+      <Carousel.Content class="w-full h-full mx-0 px-0">
+        {#each Array(totalPages) as _, pageIndex}
+          <Carousel.Item class="h-full w-full px-0 mx-0">
+            <div
+              class={cn(
+                `grid gap-1 w-full h-full ${$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : !$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : isAllFullScreen ? "max-h-screen" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
+                $selectedNode.maxStreamsPerPage === 13 && "grid-area-13",
+                $selectedNode.maxStreamsPerPage === 10 && "grid-area-10",
+                $selectedNode.maxStreamsPerPage === 5 && "grid-area-5",
+                $selectedNode.maxStreamsPerPage === 7 && "grid-area-7",
+              )}
+              bind:this={cells}
+            >
+              {#each Array($selectedNode.maxStreamsPerPage !== 0 && $selectedNode.maxStreamsPerPage !== 5 && $selectedNode.maxStreamsPerPage !== 7 ? $selectedNode.maxStreamsPerPage : $selectedNode.maxStreamsPerPage === 5 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : layoutRows * layoutColumns) as _, slotIndex}
+                {#if pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex < streamCount}
+                  <!-- svelte-ignore a11y-no-static-element-interactions -->
+                  {#key pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex}
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <div
+                      id={`grid-cell-${slotIndex}`}
+                      class="relative h-full"
+                      style={$selectedNode.maxStreamsPerPage === 10 &&
+                      slotIndex === 0
+                        ? "grid-area: bigCell1"
+                        : $selectedNode.maxStreamsPerPage === 10 &&
+                            slotIndex === 1
+                          ? "grid-area: bigCell2"
+                          : bigCellIndex === slotIndex
+                            ? "grid-area: bigCell1"
+                            : ""}
                     >
-                      <span
-                        class={`h-2 w-2 ${
+                      {#if [5, 7, 13].includes($selectedNode.maxStreamsPerPage) && bigCellIndex !== slotIndex}
+                        <button
+                          disabled
+                          on:click={() => setBigCell(slotIndex)}
+                          class={`cursor-pointer disabled:cursor-not-allowed absolute rounded top-4 ${isAllFullScreen ? "right-12" : "right-20"} flex-shrink-0 p-1 bg-[rgba(0,0,0,.5)] text-white z-20`}
+                        >
+                          <AArrowUp size={18} />
+                        </button>
+                      {/if}
+                      <Stream
+                        videoElement={videos[
                           $selectedNode.camera[
-                            pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
+                            pageIndex *
+                              ($selectedNode.maxStreamsPerPage === 5 ||
+                              $selectedNode.maxStreamsPerPage === 7
+                                ? $selectedNode.maxStreamsPerPage + 1
+                                : $selectedNode.maxStreamsPerPage) +
                               slotIndex
-                          ].save === true
-                            ? "bg-[#C12828]"
-                            : "bg-[#589e67]"
-                        } rounded-full`}
-                      />
-                      <span class="text-xs font-extrabold">
-                        {$selectedNode.camera[
-                          pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
+                          ].id
+                        ]}
+                        camera={$selectedNode.camera[
+                          pageIndex *
+                            ($selectedNode.maxStreamsPerPage === 5 ||
+                            $selectedNode.maxStreamsPerPage === 7
+                              ? $selectedNode.maxStreamsPerPage + 1
+                              : $selectedNode.maxStreamsPerPage) +
                             slotIndex
-                        ].name}
-                      </span>
-                    </span>
-
-                    {#if $activeCamera === $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex].id}
-                      <div
-                        id={`${$activeCamera}-menu`}
-                        class="z-20 flex justify-center items-center gap-4 self-end mt-auto absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-3 rounded-xl bg-gradient-to-bl from-[rgba(217,217,217,.2)] to-[rgba(217,217,217,.1)] border border-solid border-[#d3d3d3]"
+                        ]}
+                      />
+                      <span
+                        class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-90 z-20"
                       >
-                        <button disabled
+                        <span
+                          class={`h-2 w-2 ${
+                            $selectedNode.camera[
+                              pageIndex *
+                                ($selectedNode.maxStreamsPerPage === 5 ||
+                                $selectedNode.maxStreamsPerPage === 7
+                                  ? $selectedNode.maxStreamsPerPage + 1
+                                  : $selectedNode.maxStreamsPerPage) +
+                                slotIndex
+                            ].save === true
+                              ? "bg-[#C12828]"
+                              : "bg-[#589e67]"
+                          } rounded-full`}
+                        />
+                        <span class="text-xs font-extrabold">
+                          {$selectedNode.camera[
+                            pageIndex *
+                              ($selectedNode.maxStreamsPerPage === 5 ||
+                              $selectedNode.maxStreamsPerPage === 7
+                                ? $selectedNode.maxStreamsPerPage + 1
+                                : $selectedNode.maxStreamsPerPage) +
+                              slotIndex
+                          ].name}
+                        </span>
+                      </span>
+
+                      {#if $activeCamera === $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex].id}
+                        <div
+                          id={`${$activeCamera}-menu`}
+                          class="z-20 flex justify-center items-center gap-4 self-end mt-auto absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-3 rounded-xl bg-gradient-to-bl from-[rgba(217,217,217,.2)] to-[rgba(217,217,217,.1)] border border-solid border-[#d3d3d3]"
+                        >
+                          <button
+                            disabled
+                            on:click={() => {
+                              if (isSingleFullscreen === true) {
+                                exitSingleFullscreen();
+                                const streamElement =
+                                  videos[
+                                    $selectedNode.camera[
+                                      pageIndex *
+                                        ($selectedNode.maxStreamsPerPage ===
+                                          5 ||
+                                        $selectedNode.maxStreamsPerPage === 7
+                                          ? $selectedNode.maxStreamsPerPage + 1
+                                          : $selectedNode.maxStreamsPerPage) +
+                                        slotIndex
+                                    ].id
+                                  ];
+                                console.log(streamElement);
+                                if (streamElement) {
+                                  console.log("first");
+                                  streamElement.remove();
+                                  delete videos[
+                                    $selectedNode.camera[
+                                      pageIndex *
+                                        ($selectedNode.maxStreamsPerPage ===
+                                          5 ||
+                                        $selectedNode.maxStreamsPerPage === 7
+                                          ? $selectedNode.maxStreamsPerPage + 1
+                                          : $selectedNode.maxStreamsPerPage) +
+                                        slotIndex
+                                    ].id
+                                  ];
+                                }
+                                initVideo(
+                                  $selectedNode.camera[
+                                    pageIndex *
+                                      ($selectedNode.maxStreamsPerPage === 5 ||
+                                      $selectedNode.maxStreamsPerPage === 7
+                                        ? $selectedNode.maxStreamsPerPage + 1
+                                        : $selectedNode.maxStreamsPerPage) +
+                                      slotIndex
+                                  ],
+                                );
+                              } else {
+                                singleFullscreen(slotIndex);
+                                const streamElement =
+                                  videos[
+                                    $selectedNode.camera[
+                                      pageIndex *
+                                        ($selectedNode.maxStreamsPerPage ===
+                                          5 ||
+                                        $selectedNode.maxStreamsPerPage === 7
+                                          ? $selectedNode.maxStreamsPerPage + 1
+                                          : $selectedNode.maxStreamsPerPage) +
+                                        slotIndex
+                                    ].id
+                                  ];
+                                console.log(streamElement);
+                                if (streamElement) {
+                                  console.log("first");
+                                  streamElement.remove();
+                                  delete videos[
+                                    $selectedNode.camera[
+                                      pageIndex *
+                                        ($selectedNode.maxStreamsPerPage ===
+                                          5 ||
+                                        $selectedNode.maxStreamsPerPage === 7
+                                          ? $selectedNode.maxStreamsPerPage + 1
+                                          : $selectedNode.maxStreamsPerPage) +
+                                        slotIndex
+                                    ].id
+                                  ];
+                                }
+                                initVideo(
+                                  $selectedNode.camera[
+                                    pageIndex *
+                                      ($selectedNode.maxStreamsPerPage === 5 ||
+                                      $selectedNode.maxStreamsPerPage === 7
+                                        ? $selectedNode.maxStreamsPerPage + 1
+                                        : $selectedNode.maxStreamsPerPage) +
+                                      slotIndex
+                                  ],
+                                );
+                              }
+
+                              addUserLog(
+                                `user clicked single camera fulscreen for camera ${
+                                  $selectedNode.camera[
+                                    pageIndex *
+                                      ($selectedNode.maxStreamsPerPage === 5 ||
+                                      $selectedNode.maxStreamsPerPage === 7
+                                        ? $selectedNode.maxStreamsPerPage + 1
+                                        : $selectedNode.maxStreamsPerPage) +
+                                      slotIndex
+                                  ].name
+                                } having url "${
+                                  $selectedNode.camera[
+                                    pageIndex *
+                                      ($selectedNode.maxStreamsPerPage === 5 ||
+                                      $selectedNode.maxStreamsPerPage === 7
+                                        ? $selectedNode.maxStreamsPerPage + 1
+                                        : $selectedNode.maxStreamsPerPage) +
+                                      slotIndex
+                                  ].url
+                                }" `,
+                              );
+                            }}
+                            class=" disabled:cursor-not-allowed rounded bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
+                          >
+                            {#if !isSingleFullscreen}
+                              <Expand size={18} />{:else}
+                              <Shrink size={18} />{/if}
+                          </button>
+                          <!-- <span
+                          class="rounded bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
+                          ><Disc2 size={18} />
+                        </span> -->
+                          <button
+                            disabled
+                            on:click={(e) => {
+                              e.preventDefault();
+                              handleSingleSS();
+
+                              addUserLog(
+                                `user clicked capture single screenshot for camera ${
+                                  $selectedNode.camera[
+                                    pageIndex *
+                                      ($selectedNode.maxStreamsPerPage === 5 ||
+                                      $selectedNode.maxStreamsPerPage === 7
+                                        ? $selectedNode.maxStreamsPerPage + 1
+                                        : $selectedNode.maxStreamsPerPage) +
+                                      slotIndex
+                                  ].name
+                                } having url "${
+                                  $selectedNode.camera[
+                                    pageIndex *
+                                      ($selectedNode.maxStreamsPerPage === 5 ||
+                                      $selectedNode.maxStreamsPerPage === 7
+                                        ? $selectedNode.maxStreamsPerPage + 1
+                                        : $selectedNode.maxStreamsPerPage) +
+                                      slotIndex
+                                  ].url
+                                }"`,
+                              );
+                            }}
+                            class="rounded disabled:cursor-not-allowed bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
+                            ><ImageDown size={18} />
+                          </button>
+                          <button
+                            disabled
+                            on:click={() => {
+                              const cameraId =
+                                $selectedNode.camera[
+                                  pageIndex *
+                                    ($selectedNode.maxStreamsPerPage === 5 ||
+                                    $selectedNode.maxStreamsPerPage === 7
+                                      ? $selectedNode.maxStreamsPerPage + 1
+                                      : $selectedNode.maxStreamsPerPage) +
+                                    slotIndex
+                                ].id;
+                              // console.log(cameraId);
+                              refreshVideoStream(cameraId);
+                              // addUserLog(`user refreshed video stream for camera ${cameraId}`);
+                            }}
+                            class="rounded disabled:cursor-not-allowed bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
+                          >
+                            <RefreshCcw size={18} />
+                          </button>
+                        </div>
+                      {:else}
+                        <button
                           on:click={() => {
                             if (isSingleFullscreen === true) {
                               exitSingleFullscreen();
@@ -461,7 +669,10 @@
                                 videos[
                                   $selectedNode.camera[
                                     pageIndex *
-                                    ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
+                                      ($selectedNode.maxStreamsPerPage === 5 ||
+                                      $selectedNode.maxStreamsPerPage === 7
+                                        ? $selectedNode.maxStreamsPerPage + 1
+                                        : $selectedNode.maxStreamsPerPage) +
                                       slotIndex
                                   ].id
                                 ];
@@ -472,14 +683,21 @@
                                 delete videos[
                                   $selectedNode.camera[
                                     pageIndex *
-                                    ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
+                                      ($selectedNode.maxStreamsPerPage === 5 ||
+                                      $selectedNode.maxStreamsPerPage === 7
+                                        ? $selectedNode.maxStreamsPerPage + 1
+                                        : $selectedNode.maxStreamsPerPage) +
                                       slotIndex
                                   ].id
                                 ];
                               }
                               initVideo(
                                 $selectedNode.camera[
-                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
+                                  pageIndex *
+                                    ($selectedNode.maxStreamsPerPage === 5 ||
+                                    $selectedNode.maxStreamsPerPage === 7
+                                      ? $selectedNode.maxStreamsPerPage + 1
+                                      : $selectedNode.maxStreamsPerPage) +
                                     slotIndex
                                 ],
                               );
@@ -489,7 +707,10 @@
                                 videos[
                                   $selectedNode.camera[
                                     pageIndex *
-                                    ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
+                                      ($selectedNode.maxStreamsPerPage === 5 ||
+                                      $selectedNode.maxStreamsPerPage === 7
+                                        ? $selectedNode.maxStreamsPerPage + 1
+                                        : $selectedNode.maxStreamsPerPage) +
                                       slotIndex
                                   ].id
                                 ];
@@ -500,14 +721,21 @@
                                 delete videos[
                                   $selectedNode.camera[
                                     pageIndex *
-                                    ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
+                                      ($selectedNode.maxStreamsPerPage === 5 ||
+                                      $selectedNode.maxStreamsPerPage === 7
+                                        ? $selectedNode.maxStreamsPerPage + 1
+                                        : $selectedNode.maxStreamsPerPage) +
                                       slotIndex
                                   ].id
                                 ];
                               }
                               initVideo(
                                 $selectedNode.camera[
-                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
+                                  pageIndex *
+                                    ($selectedNode.maxStreamsPerPage === 5 ||
+                                    $selectedNode.maxStreamsPerPage === 7
+                                      ? $selectedNode.maxStreamsPerPage + 1
+                                      : $selectedNode.maxStreamsPerPage) +
                                     slotIndex
                                 ],
                               );
@@ -516,220 +744,108 @@
                             addUserLog(
                               `user clicked single camera fulscreen for camera ${
                                 $selectedNode.camera[
-                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
+                                  pageIndex *
+                                    ($selectedNode.maxStreamsPerPage === 5 ||
+                                    $selectedNode.maxStreamsPerPage === 7
+                                      ? $selectedNode.maxStreamsPerPage + 1
+                                      : $selectedNode.maxStreamsPerPage) +
                                     slotIndex
                                 ].name
                               } having url "${
                                 $selectedNode.camera[
-                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
+                                  pageIndex *
+                                    ($selectedNode.maxStreamsPerPage === 5 ||
+                                    $selectedNode.maxStreamsPerPage === 7
+                                      ? $selectedNode.maxStreamsPerPage + 1
+                                      : $selectedNode.maxStreamsPerPage) +
                                     slotIndex
                                 ].url
                               }" `,
                             );
                           }}
-                          class=" disabled:cursor-not-allowed rounded bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
-                        >
-                          {#if !isSingleFullscreen}
+                          class="absolute p-1 top-4 right-4 cursor-pointer bg-[rgba(0,0,0,.5)] text-white rounded z-20 disabled:cursor-not-allowed"
+                          disabled
+                          >{#if !isSingleFullscreen}
                             <Expand size={18} />{:else}
                             <Shrink size={18} />{/if}
                         </button>
-                        <!-- <span
-                          class="rounded bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
-                          ><Disc2 size={18} />
-                        </span> -->
-                        <button disabled
-                          on:click={(e) => {
-                            e.preventDefault();
-                            handleSingleSS();
+                      {/if}
 
-                            addUserLog(
-                              `user clicked capture single screenshot for camera ${
-                                $selectedNode.camera[
-                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
-                                    slotIndex
-                                ].name
-                              } having url "${
-                                $selectedNode.camera[
-                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
-                                    slotIndex
-                                ].url
-                              }"`,
-                            );
-                          }}
-                          class="rounded disabled:cursor-not-allowed bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
-                          ><ImageDown size={18} />
-                        </button>
-                        <button disabled
-                          on:click={() => {
-                            const cameraId =
-                              $selectedNode.camera[
-                                pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
-                                  slotIndex
-                              ].id;
-                            // console.log(cameraId);
-                            refreshVideoStream(cameraId);
-                            // addUserLog(`user refreshed video stream for camera ${cameraId}`);
-                          }}
-                          class="rounded disabled:cursor-not-allowed bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
+                      {#if !isAllFullScreen}
+                        <span
+                          class="cursor-grab grab-handle absolute rounded top-4 right-12 flex-shrink-0 p-1 bg-[rgba(0,0,0,.5)] text-white z-20"
                         >
-                          <RefreshCcw size={18} />
-                        </button>
-                      </div>
-                    {:else}
-                      <button
-                        on:click={() => {
-                          if (isSingleFullscreen === true) {
-                            exitSingleFullscreen();
-                            const streamElement =
-                              videos[
-                                $selectedNode.camera[
-                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
-                                    slotIndex
-                                ].id
-                              ];
-                            console.log(streamElement);
-                            if (streamElement) {
-                              console.log("first");
-                              streamElement.remove();
-                              delete videos[
-                                $selectedNode.camera[
-                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
-                                    slotIndex
-                                ].id
-                              ];
-                            }
-                            initVideo(
-                              $selectedNode.camera[
-                                pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
-                                  slotIndex
-                              ],
-                            );
-                          } else {
-                            singleFullscreen(slotIndex);
-                            const streamElement =
-                              videos[
-                                $selectedNode.camera[
-                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
-                                    slotIndex
-                                ].id
-                              ];
-                            console.log(streamElement);
-                            if (streamElement) {
-                              console.log("first");
-                              streamElement.remove();
-                              delete videos[
-                                $selectedNode.camera[
-                                  pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
-                                    slotIndex
-                                ].id
-                              ];
-                            }
-                            initVideo(
-                              $selectedNode.camera[
-                                pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
-                                  slotIndex
-                              ],
-                            );
-                          }
+                          <Menu size={18} />
+                        </span>
+                      {/if}
 
-                          addUserLog(
-                            `user clicked single camera fulscreen for camera ${
-                              $selectedNode.camera[
-                                pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
-                                  slotIndex
-                              ].name
-                            } having url "${
-                              $selectedNode.camera[
-                                pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) +
-                                  slotIndex
-                              ].url
-                            }" `,
-                          );
-                        }}
-                        class="absolute p-1 top-4 right-4 cursor-pointer bg-[rgba(0,0,0,.5)] text-white rounded z-20 disabled:cursor-not-allowed"
-                        disabled
-                        >{#if !isSingleFullscreen}
-                          <Expand size={18} />{:else}
-                          <Shrink size={18} />{/if}
-                      </button>
-                    {/if}
-
-                    {#if !isAllFullScreen}
-                      <span
-                        class="cursor-grab grab-handle absolute rounded top-4 right-12 flex-shrink-0 p-1 bg-[rgba(0,0,0,.5)] text-white z-20"
-                      >
-                        <Menu size={18} />
-                      </span>
-                    {/if}
-
-                    <img
-                      src="/images/logo-black.png"
-                      alt="logo"
-                      class="object-contain w-[15%] absolute right-4 bottom-4 z-20"
-                    />
-                  </div>
-                {/key}
-              {:else}
-                <div
-                  class="h-full w-full relative"
-                  style={$selectedNode.maxStreamsPerPage === 13 &&
-                  slotIndex === 0
-                    ? "grid-area: bigCell1"
-                    : $selectedNode.maxStreamsPerPage === 10 && slotIndex === 0
+                      <img
+                        src="/images/logo-black.png"
+                        alt="logo"
+                        class="object-contain w-[15%] absolute right-4 bottom-4 z-20"
+                      />
+                    </div>
+                  {/key}
+                {:else}
+                  <div
+                    class="h-full w-full relative"
+                    style={$selectedNode.maxStreamsPerPage === 13 &&
+                    slotIndex === 0
                       ? "grid-area: bigCell1"
                       : $selectedNode.maxStreamsPerPage === 10 &&
-                          slotIndex === 1
-                        ? "grid-area: bigCell2"
-                        : $selectedNode.maxStreamsPerPage === 5 &&
-                            slotIndex === 0
-                          ? "grid-area: bigCell1"
-                          : $selectedNode.maxStreamsPerPage === 7 &&
+                          slotIndex === 0
+                        ? "grid-area: bigCell1"
+                        : $selectedNode.maxStreamsPerPage === 10 &&
+                            slotIndex === 1
+                          ? "grid-area: bigCell2"
+                          : $selectedNode.maxStreamsPerPage === 5 &&
                               slotIndex === 0
                             ? "grid-area: bigCell1"
-                            : ""}
-                >
-                  <AddCameraDialog nodes={data.nodes} sNode={""}>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                    <button
-                    class=" disabled:cursor-not-allowed"
-                    disabled
-                    >
-                      <img
-                        on:click={() => {
-                          addUserLog(
-                            `user clicked on add camera on stream panel`,
-                          );
-                        }}
-                        alt="add camera"
-                        src={$mode === "light" && !isAllFullScreen
-                          ? "/images/plusLight.png"
-                          : "/images/plusDark.png"}
-                        class="h-full w-full object-contain scale-50 2xl:scale-[.35] absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
-                      />
-                    </button>
-                  </AddCameraDialog>
-                  <!-- <span
+                            : $selectedNode.maxStreamsPerPage === 7 &&
+                                slotIndex === 0
+                              ? "grid-area: bigCell1"
+                              : ""}
+                  >
+                    <AddCameraDialog nodes={data.nodes} sNode={""}>
+                      <!-- svelte-ignore a11y-click-events-have-key-events -->
+                      <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                      <button class=" disabled:cursor-not-allowed" disabled>
+                        <img
+                          on:click={() => {
+                            addUserLog(
+                              `user clicked on add camera on stream panel`,
+                            );
+                          }}
+                          alt="add camera"
+                          src={$mode === "light" && !isAllFullScreen
+                            ? "/images/plusLight.png"
+                            : "/images/plusDark.png"}
+                          class="h-full w-full object-contain scale-50 2xl:scale-[.35] absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
+                        />
+                      </button>
+                    </AddCameraDialog>
+                    <!-- <span
                     class="cursor-grab grab-handle absolute rounded top-4 right-12 flex-shrink-0 p-1 bg-[rgba(0,0,0,.5)] text-white z-20"
                   >
                     <Menu size={18} />
                   </span> -->
-                </div>
-              {/if}
-            {/each}
-          </div>
-        </Carousel.Item>
-      {/each}
-    </Carousel.Content>
-    <Carousel.Previous
-      onClick={handlePrevious}
-      class="left-8 disabled:invisible text-bold text-[#015a62] dark:text-white"
-    />
-    <Carousel.Next
-      onClick={handleNext}
-      class="right-8 disabled:invisible text-bold text-[#015a62] dark:text-white"
-    />
-  </Carousel.Root>
+                  </div>
+                {/if}
+              {/each}
+            </div>
+          </Carousel.Item>
+        {/each}
+      </Carousel.Content>
+      <Carousel.Previous
+        onClick={handlePrevious}
+        class="left-8 disabled:invisible text-bold text-[#015a62] dark:text-white"
+      />
+      <Carousel.Next
+        onClick={handleNext}
+        class="right-8 disabled:invisible text-bold text-[#015a62] dark:text-white"
+      />
+    </Carousel.Root>
+  <!-- {/if} -->
   <!-- </div> -->
 {:else}
   <div
