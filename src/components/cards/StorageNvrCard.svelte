@@ -24,7 +24,7 @@
   <span class="flex pt-2 flex-col">
     <span class="flex items-center gap-2">
         <p class=" whitespace-nowrap text-sm text-[#727272]">
-            NVR: <span class="text-sm text-primary font-medium">{sd?.expand?.nvr.name}</span>
+            NVR: <span class="text-sm text-primary font-medium">{sd?.expand?.nvr?.name}</span>
         </p>
         <p class=" whitespace-nowrap text-sm text-[#727272]">
             Type: <span class="text-sm text-primary font-medium">{sd?.type}</span>

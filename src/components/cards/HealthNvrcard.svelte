@@ -4,6 +4,8 @@
   import PocketBase from "pocketbase";
   export let nvr;
   export let selectedNvr;
+
+  console.log(nvr)
 </script>
 
 <article class="w-[250px] h-[130px] border-[#e4e4e4] rounded-md p-2 border">
@@ -39,6 +41,6 @@
   </p>
   <Button disabled={nvr.expand?.ip_address?.location === undefined}
     size="sm" class=' disabled:cursor-not-allowed'
-    on:click={() =>selectedNvr.set({ ...nvr, status })}>View Details</Button
+    on:click={() =>selectedNvr.set({ ...nvr })}>View Details</Button
   >
 </article>

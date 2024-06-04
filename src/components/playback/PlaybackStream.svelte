@@ -7,13 +7,17 @@
 
   
     const attachVideo = (videoElement) => {
-      parentDiv.appendChild(videoElement);
+        console.log(videoElement)
+        console.log(parentDiv.contains(videoElement))
+        console.log(parentDiv.querySelector('video-stream'))
+        if(parentDiv.querySelector('video-stream')=== null) {
+            parentDiv.appendChild(videoElement);
+        }
+
       const realVideo = videoElement.querySelector("video");
       if (!realVideo) {
         console.error("could not find real video");
-        console.log('first')
     } else {
-          console.log('2')
         realVideo.controls = false;
         realVideo.style.maxWidth = "100%";
         realVideo.style.objectFit = "fill";

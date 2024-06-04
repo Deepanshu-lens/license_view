@@ -9,9 +9,8 @@
   let endTime;
   import { Calendar } from "@/components/ui/calendar";
   import { toast } from "svelte-sonner";
-  import { selectedNode, convertedVideos, allVideos } from "@/lib/stores";
+  import { convertedVideos, allVideos } from "@/lib/stores";
   import { ChevronDown, CalendarDaysIcon, PlusCircle, X } from "lucide-svelte";
-  import * as Select from "@/components/ui/select/index";
   export let nodes;
   export let cameraList;
   let chosenNode;
@@ -67,91 +66,55 @@
   }
 
   async function fetchPlaybackData(cameraId, date, startTime, endTime) {
-    // rtsp://10.10.102.10/Streaming/tracks/101/?starttime=20240602T000026Z&endtime=20240602T000102Z&name=00010007178004201&size=10228800
-    console.log(cameraId, date, startTime, endTime)
+    console.log(cameraId, date, startTime, endTime);
 
-    const startTimeFormatted = startTime.replace(':', '');
-    const endTimeFormatted = endTime.replace(':', '');
-    // const formattedDate = new Date(date).toISOString().split('T')[0]; // Extract only the date part in YYYY-MM-DD format
-    // console.log(startTimeFormatted)
-    // console.log(endTimeFormatted)
-    // console.log(formattedDate)
+    const startTimeFormatted = startTime.replace(":", "");
+    const endTimeFormatted = endTime.replace(":", "");
+    const startDateTime = new Date(date);
+    startDateTime.setHours(
+      parseInt(startTimeFormatted.slice(0, 2)),
+      parseInt(startTimeFormatted.slice(2, 4)),
+    );
 
-// Step 3: Create datetime objects for start and end times
-const startDateTime = new Date(date);
-startDateTime.setHours(parseInt(startTimeFormatted.slice(0, 2)), parseInt(startTimeFormatted.slice(2, 4)));
+    const endDateTime = new Date(date);
+    endDateTime.setHours(
+      parseInt(endTimeFormatted.slice(0, 2)),
+      parseInt(endTimeFormatted.slice(2, 4)),
+    );
 
-const endDateTime = new Date(date);
-endDateTime.setHours(parseInt(endTimeFormatted.slice(0, 2)), parseInt(endTimeFormatted.slice(2, 4)));
+    const startTimeUTC = startDateTime.toISOString();
+    const endTimeUTC = endDateTime.toISOString();
+    const s = startTimeUTC.replace(/[-_:.]/g, "");
+    const e = endTimeUTC.replace(/[-_:.]/g, "");
 
-// Step 4: Convert to UTC format
-const startTimeUTC = startDateTime.toISOString();
-const endTimeUTC = endDateTime.toISOString();
-    // const startTimeUTC = new Date(`${formattedDate}T${startTimeFormatted}:00Z`).toISOString(); // Added ':00' to ensure proper time format
-    // const endTimeUTC = new Date(`${formattedDate}T${endTimeFormatted}:00Z`).toISOString(); // Added ':00' to ensure proper time format
- const s = startTimeUTC.replace(/[-_:.]/g, '')
-const e = endTimeUTC.replace(/[-_:.]/g, '')
+    const genratedLink = `rtsp://${cameraId.nvrData.user_id}:${cameraId.nvrData.password}@${cameraId.nvrData.ip}:554/Streaming/tracks/${cameraId.channelId}/?startTime=${s}&endtime=${e}&size=290328`;
 
-    const genratedLink =  `rtsp://${cameraId.nvrData.user_id}:${cameraId.nvrData.password}@${cameraId.nvrData.ip}:554/Streaming/tracks/${cameraId.channelId}/?startTime=${s}&endtime=${e}&size=290328`
+    console.log(genratedLink);
+    await fetch(
+      `http://localhost:8085/api/startplayback?id=${cameraId.nvrData.ip + "/" + cameraId.channelId}&name=${cameraId.channelId}&url=${genratedLink}&subUrl=${genratedLink}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    )
+      .then(async (res) => {
+        const data = await res.json();
+        if (data === "Success") {
+          if($convertedVideos.length === 0) {
+            convertedVideos.set([cameraId]);
+          }
+          else if ($convertedVideos.length < 4) {
+            convertedVideos.update(videos => [...videos, cameraId]);
+          } else {
+            toast.error("Maximum limit of 4 videos reached");
+          }
+         
+        }
+      })
+      .catch((err) => console.log(err));
 
-    console.log(genratedLink)
-    // http://localhost:8085/api/startplayback?id=1234&name=Pranit&url=rtsp://admin:Admin7890@10.20.30.14&subUrl=rtsp://admin:Admin7890@10.20.30.15&node=123
-    await fetch(`http://localhost:8085/api/startplayback?id=${cameraId.nvrData.ip+'/'+cameraId.channelId}&name=${cameraId.channelId}&url=${genratedLink}&subUrl=${genratedLink}`,{
-      method: 'POST', headers: {
-        'Content-Type': 'application/json'
-      }
-    }).then(async(res) => {console.log(res);
-const data= await res.json()
-console.log(data)
-if(data === 'Success') {
-  console.log('success')
-  convertedVideos.set([cameraId])
-}
-    
-    }).catch((err) => console.log(err))
-
-    // const url = "/api/playbackVideo/get";
-    // const payload = {
-    //   cameraId,
-    //   date,
-    //   startTime,
-    //   endTime,
-    // };
-
-    // try {
-    //   const response = await fetch(url, {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(payload),
-    //   });
-
-    //   if (!response.ok) {
-    //     const errorData = await response.json();
-    //     throw new Error(errorData.error || "Unknown error occurred");
-    //   }
-
-    //   const data = await response.json();
-    //   console.log("Playback Data:", data);
-    //   if (data?.playback_data?.length > 0) {
-    //     // convertedVideos.set(data.playback_data);
-    //     if ($convertedVideos.length <= 3) {
-    //       convertedVideos.update((videos) => [
-    //         ...videos,
-    //         data.playback_data[0],
-    //       ]);
-    //     } else {
-    //       toast.error("Maximum limit of 4 videos reached");
-    //     }
-    //   } else {
-    //     console.log("no videos with this time range");
-    //     toast.error("No videos in this time range");
-    //   }
-    //   return data;
-    // } catch (error) {
-    //   console.error("Error fetching playback data:", error);
-    // }
   }
 
   async function fetchFromDate(date) {
@@ -306,7 +269,36 @@ if(data === 'Success') {
     </button>
   </div>
 {:else}
-  <div class="relative w-full p-4">
+
+<div class="mt-2 w-full flex flex-col gap-2">
+  <label for="date" class="text-black/[.7] dark:text-slate-200 text-sm px-4"
+    >Select Camera</label
+  >
+  <div class="relative w-full px-4">
+    <select
+      bind:value={selectedCamera}
+      class={`block text-primary capitalize font-semibold rounded-md appearance-none w-full bg-[#F6F6F6] dark:bg-black border-2 py-2 text-sm px-2 leading-tight `}
+    >
+      <option value="" disabled selected>Select from list</option>
+      <!-- {#each $selectedNode?.camera as cam}
+        <option value={cam.id}>{cam.name}</option>
+      {/each} -->
+      {#if cameraList?.length !== 0}
+        {#each cameraList as cam}
+          <option value={cam}>{cam.matchedChannelName}</option>
+        {/each}
+      {/if}
+    </select>
+    <ChevronDown
+      size={22}
+      class="text-[#727272] absolute top-1/2 -translate-y-1/2 right-6 pointer-events-none cursor-pointer outline-none"
+    />
+  </div>
+
+  <label for="camera" class="text-black/[.7] dark:text-slate-200 text-sm px-4 pb-2"
+    >Select Date</label
+  >
+  <div class="relative w-full px-4 ">
     <button
       on:click={() => (showCalendar = !showCalendar)}
       class="absolute top-1/2 -translate-y-1/2 left-[1.5rem] grid place-items-center"
@@ -336,15 +328,14 @@ if(data === 'Success') {
     </button>
     {#if showCalendar}
       <Calendar
-        {markedDates}
-        {selectedCamera}
         bind:value
         class=" bg-white dark:bg-black absolute top-14 right-0 z-[99999999] px-4 py-2 flex flex-col items-center justify-center rounded-md border border-solid border-[#929292]"
       />
     {/if}
   </div>
+</div>
 
-  {#if searchDate}
+  {#if searchDate && selectedCamera}
     <div class="px-4 w-full">
       <button
         on:click={() => fetchFromDate(searchDate)}
@@ -355,7 +346,7 @@ if(data === 'Success') {
     </div>
   {/if}
 
-  {#if $allVideos?.length > 0}
+  <!-- {#if $allVideos?.length > 0}
     <div
       class="video-entry flex flex-col w-full h-full gap-4 mt-4 max-h-[calc(100vh-260px)] pb-20 overflow-y-scroll"
     >
@@ -373,9 +364,6 @@ if(data === 'Success') {
           {/each}
         </Select.Content>
       </Select.Root>
-      <!-- {#each $allVideos as video}
-        <NewPlaybackCard {video} />
-      {/each} -->
       {#if filteredVideos.length !== 0}
         {#each filteredVideos as video}
           <NewPlaybackCard {video} />
@@ -387,4 +375,5 @@ if(data === 'Success') {
       {/if}
     </div>
   {/if}
+{/if} -->
 {/if}

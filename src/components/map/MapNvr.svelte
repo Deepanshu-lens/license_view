@@ -30,7 +30,7 @@
 
     map = leafletInstance.map("map", {
       center: [averageLatitude, averageLongitude],
-      zoom: 5,
+      zoom: 3,
     });
 
     leafletInstance

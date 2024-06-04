@@ -19,7 +19,7 @@
     import * as Select from '@/components/ui/select/index'
     import { toast } from "svelte-sonner";
     import PlaybackStream from "./PlaybackStream.svelte";
-
+    import { onDestroy } from 'svelte';
   let showRightPanel: boolean = true;
   let playbackFullscreen = false;
   let showFilters = false;
@@ -40,18 +40,14 @@ if ($selectedNode) {
 }
   })
 
-  // $: {
-  //   console.log($convertedVideos);
-  //   console.log(nvrList)
-  // }
   const initVideo = async (camera,index) => {
-    // console.log(index, "newIndex init video");
-    console.log(camera)
+    console.log(index)
+
     if (videos[camera.id]) {
       console.log("video c.id exists", camera.name);
       return;
     }
-    // console.log("camera init", camera);
+    console.log(`ws://${$page.url.hostname}:8082/api/ws?src=${camera.nvrData.ip+'/'+camera.channelId}&nodeID=${1}&cn=${camera.matchedChannelName}`)
     let video = document.createElement("video-stream") as VideoStreamType;
     video.id = `stream-${camera.id}`;
     video.mode = "webrtc";
@@ -65,6 +61,8 @@ if ($selectedNode) {
     video.visibilityCheck = false;
     videos[index] = video;
     // console.log(videos[camera.id]);
+
+    // console.log(videos)
   };
 
   async function getList(item) {
@@ -88,12 +86,31 @@ if ($selectedNode) {
   }
 
 $: if ($convertedVideos.length > 0) {
+  console.log('first')
   $convertedVideos.forEach((video, index) => {
     initVideo(video,index);
   });
 }
+// $:console.log($convertedVideos)
 
-$: console.log(videos)
+// $: console.log(videos)
+onDestroy(() => {
+    $convertedVideos.forEach(async (video) => {
+      await fetch(`http://localhost:8085/api/endplayback?id=${video.nvrData.user_id + '/' + video.channelId}&name=${video.channelId}&url=url&subUrl=subUrl`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(async (res) => {
+        const data = await res.json();
+        console.log(data);
+      const videoStreams = document.querySelectorAll('video-stream');
+      videoStreams.forEach(vs => {
+        vs.remove();
+      });
+      }).catch((err) => console.log(err));
+    });
+  });
 
 </script>
 
@@ -114,7 +131,22 @@ $: console.log(videos)
         {#each $convertedVideos as video, index}
           <div class="grid place-items-center h-full w-full relative">
             <PlaybackStream videoElement={videos[index]}/>
-           
+          <button
+            class="absolute top-2 right-2 text-white cursor-pointer z-10"
+            on:click={async() => {
+              convertedVideos.update(videos => videos.filter((_, i) => i !== index));
+            await fetch(`http://localhost:8085/api/endplayback?id=${video.nvrData.user_id + '/' + video.channelId}&name=${video.channelId}&url=url&subUrl=subUrl`,{
+              method: "POST",  headers: {
+          "Content-Type": "application/json",
+        },
+            }).then(async (res) => {
+              const data = await res.json()
+              console.log(data)
+            }).catch((err) => console.log(err))
+            }}
+          >
+<X/>
+          </button>
           </div>
         {/each}
       </div>

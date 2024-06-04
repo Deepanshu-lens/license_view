@@ -522,7 +522,7 @@
     <span class="group flex-col flex items-center justify-center gap-0.5">
       <!-- <button
       disabled={!features.includes("Change Layouts")} -->
-      <button disabled
+      <button 
         on:click={() => {
           displayLayouts = !displayLayouts;
           nodeCameras = false;

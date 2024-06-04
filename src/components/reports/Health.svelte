@@ -181,6 +181,8 @@
 
   $: $selectedNode, fetchNvrData(), getNvrStorageData();
 
+  $: console.log($selectedNvr)
+
   function parseDetail(detailString, key) {
     const lines = detailString.split("\n");
     const line = lines.find((line) => line.startsWith(key));
@@ -554,7 +556,7 @@
       </span>
     </span>
     <div
-      class="flex flex-wrap items-center gap-4 p-4 overflow-y-scroll max-h-[calc(100vh-525px)] hide-scrollbar"
+      class="flex flex-wrap items-center gap-4 p-4 overflow-y-scroll max-h-[calc(100vh-580px)] hide-scrollbar pb-20"
     >
       {#each NvrData as nvr, i}
         <HealthNvrcard {selectedNvr} {nvr} />
@@ -811,7 +813,7 @@
         class="h-[calc(100vh-250px)] grid grid-cols-4 grid-rows-2 gap-4 w-full"
       >
         <div
-          class="col-span-2 row-span-1 rounded-md border flex flex-col gap-2 p-2"
+          class="col-span-2 row-span-2 rounded-md border flex flex-col gap-2 p-2"
         >
           <span class="text-lg font-semibold">Device Information</span>
           <span class="grid grid-cols-3 grid-rows-3 gap-5 py-2">
@@ -853,7 +855,7 @@
             </span>
           </span>
         </div>
-        <div class="col-span-2 row-span-1 rounded-md border p-2">
+        <!-- <div class="col-span-2 row-span-1 rounded-md border p-2">
           <span class="flex items-center justify-between">
             <span>Event Logs</span>
             <span class="flex items-center gap-2">
@@ -900,8 +902,8 @@
               </Table.Body>
             </Table.Root>
           </div>
-        </div>
-        <div class="col-span-2 row-span-1 rounded-md border p-2">
+        </div> -->
+        <div class="col-span-2 row-span-2 rounded-md border p-2">
           <div class="flex items-center justify-between pt-2">
             <p class="text-lg font-medium leading-5">Location</p>
             <span class="flex items-center gap-3">
@@ -919,7 +921,7 @@
             {/if}
           </div>
         </div>
-        <div class="col-span-2 row-span-1 rounded-md border p-2">
+        <!-- <div class="col-span-2 row-span-1 rounded-md border p-2">
           <div class="flex items-center justify-between">
             <span class="text-lg font-medium">Usage Trend</span>
             <div class="flex items-center gap-2">
@@ -939,7 +941,7 @@
               <MoreVertical size={18} />
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   {/if}
