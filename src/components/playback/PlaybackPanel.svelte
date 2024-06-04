@@ -18,12 +18,14 @@
     import { onMount } from "svelte";
     import * as Select from '@/components/ui/select/index'
     import { toast } from "svelte-sonner";
+    import PlaybackStream from "./PlaybackStream.svelte";
 
   let showRightPanel: boolean = true;
   let playbackFullscreen = false;
   let showFilters = false;
   let nvrList = []
   let cameraList = []
+  let videos: { [key: string]: HTMLElement } = {};
 
   export let data;
   const nodes = data.nodes;
@@ -42,7 +44,28 @@ if ($selectedNode) {
   //   console.log($convertedVideos);
   //   console.log(nvrList)
   // }
-
+  const initVideo = async (camera,index) => {
+    // console.log(index, "newIndex init video");
+    console.log(camera)
+    if (videos[camera.id]) {
+      console.log("video c.id exists", camera.name);
+      return;
+    }
+    // console.log("camera init", camera);
+    let video = document.createElement("video-stream") as VideoStreamType;
+    video.id = `stream-${camera.id}`;
+    video.mode = "webrtc";
+    video.url = camera.url;
+    video.src = new URL(`ws://${$page.url.hostname}:8082/api/ws?src=${camera.nvrData.ip+'/'+camera.channelId}&nodeID=${1}&cn=${camera.matchedChannelName}`)
+    video.style.position = "relative";
+    video.style.width = "100%";
+    video.style.height = "100%";
+    video.style.zIndex = "10";
+    video.background = true;
+    video.visibilityCheck = false;
+    videos[index] = video;
+    // console.log(videos[camera.id]);
+  };
 
   async function getList(item) {
     await fetch('/api/playbackCameraList',{
@@ -63,6 +86,15 @@ if ($selectedNode) {
       cameraList= data.matchedChannels
     }).catch((err) => console.log(err))
   }
+
+$: if ($convertedVideos.length > 0) {
+  $convertedVideos.forEach((video, index) => {
+    initVideo(video,index);
+  });
+}
+
+$: console.log(videos)
+
 </script>
 
 <section
@@ -79,33 +111,14 @@ if ($selectedNode) {
       <div
         class={`bg-[#333] h-[calc(100vh-75px)] grid place-items-center gap-1 w-full  ${$convertedVideos.length === 1 ? "grid-cols-1 grid-rows-1" : $convertedVideos.length === 2 ? "grid-cols-2 grid-rows-1" : "grid-rows-2 grid-cols-2"}`}
       >
-        {#each $convertedVideos as video, idx (video.id)}
-          {@const videos = {
-            controls: true,
-            srcs: [
-              {
-                src: video.url,
-                type: "video/mp4",
-              },
-            ],
-          }}
+        {#each $convertedVideos as video, index}
           <div class="grid place-items-center h-full w-full relative">
-            <Player {videos} {idx} />
-            <button
-              class="absolute z-20 top-4 right-4 text-white"
-              on:click={() => {
-                $convertedVideos = $convertedVideos.filter(
-                  (_, index) => index !== idx,
-                );
-              }}
-            >
-              <X size={18} class="text-white" />
-            </button>
+            <PlaybackStream videoElement={videos[index]}/>
+           
           </div>
         {/each}
       </div>
     {/if}
-    <!-- <Custom/> -->
   </div>
   <div
     class={`h-[calc(100vh-75px)] ${showRightPanel ? "w-1/4 max-w-72 " : "w-0"} transition-width ease-in-out duration-500 dark:border-[#292929] border-x-[1px] relative`}

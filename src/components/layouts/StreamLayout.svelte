@@ -368,6 +368,8 @@
     // Replace this with your actual implementation
     // list = newOrder;
   }
+
+  $: console.log(videos)
 </script>
 
 {#if streamCount > 0 && Object.keys(videos).length > 0}
