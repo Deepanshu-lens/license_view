@@ -13,7 +13,9 @@
   import { ChevronDown, CalendarDaysIcon, PlusCircle, X } from "lucide-svelte";
   import * as Select from '@/components/ui/select/index'
   export let nodes;
+  export let cameraList;
   let chosenNode;
+  let markedDates=[];
 
   $: if (value) {
     const date = new Date(value.year, value.month - 1, value.day);
@@ -36,6 +38,30 @@
       allVideos.set(null)
     }
   }
+
+  $: if (selectedCamera) {
+    handleCameraChange(selectedCamera)
+  }
+
+  async function handleCameraChange (cam) {
+  await fetch('/api/playbackCalendar', {
+  method: 'POST', headers: {
+    'Content-Type': 'application/json'
+  }, body: JSON.stringify({
+    nvr_ip: cam.nvrData.ip,
+    http_port: cam.nvrData.http_port,
+    username: cam.nvrData.user_id,
+    password: cam.nvrData.password,
+    camera_id: cam.channelId,
+    year: new Date().getFullYear().toString(),
+    month: (new Date().getMonth() + 1).toString()
+  })
+}).then(async(res) => {
+  // const data = await res.json();
+  markedDates = await res.json()
+}).catch((err) => console.log(err))
+  }
+
 
   async function fetchPlaybackData(cameraId, date, startTime, endTime) {
     const url = "/api/playbackVideo/get";
@@ -110,7 +136,6 @@ $: filteredVideos = $allVideos?.filter(video =>
     !chosenNode?.value || chosenNode.value === 'all' || chosenNode.value === video.cameraNode
   );
 
-  // $: console.log(filteredVideos)
 </script>
 
 <div
@@ -140,9 +165,14 @@ $: filteredVideos = $allVideos?.filter(video =>
         class={`block text-primary capitalize font-semibold rounded-md appearance-none w-full bg-[#F6F6F6] dark:bg-black border-2 py-2 text-sm px-2 leading-tight `}
       >
         <option value="" disabled selected>Select from list</option>
-        {#each $selectedNode?.camera as cam}
+        <!-- {#each $selectedNode?.camera as cam}
           <option value={cam.id}>{cam.name}</option>
+        {/each} -->
+        {#if cameraList?.length !== 0}
+        {#each cameraList as cam}
+        <option value={cam}>{cam.matchedChannelName}</option>
         {/each}
+        {/if}
       </select>
       <ChevronDown
         size={22}
@@ -171,7 +201,7 @@ $: filteredVideos = $allVideos?.filter(video =>
         />
       </button>
       {#if showCalendar}
-        <Calendar
+        <Calendar {markedDates} { selectedCamera}
           bind:value
           class=" bg-white dark:bg-black absolute top-14 right-0 z-[99999999] px-4 py-2 flex flex-col items-center justify-center rounded-md border border-solid border-[#929292]"
         />
@@ -246,7 +276,7 @@ $: filteredVideos = $allVideos?.filter(video =>
       <X class="text-[#727272]" size={20} />
     </button>
     {#if showCalendar}
-      <Calendar
+    <Calendar {markedDates} { selectedCamera}
         bind:value
         class=" bg-white dark:bg-black absolute top-14 right-0 z-[99999999] px-4 py-2 flex flex-col items-center justify-center rounded-md border border-solid border-[#929292]"
       />

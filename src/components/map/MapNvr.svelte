@@ -1,12 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
-
   let leafletInstance: any;
   let map: any;
-  let customIcon: any;
 
   export let NvrData;
-
 
   let data = NvrData.map((record) => ({
     as: record.expand.ip_address?.as,
@@ -18,7 +15,7 @@
     location: record.expand.ip_address?.location,
     region: record.expand.ip_address?.region,
     zip: record.expand.ip_address?.zip,
-    status: record.expand.ip_address?.status,
+    status: record?.status?.status,
     userid: record.user_id,
     password: record.password,
   }));
@@ -53,7 +50,7 @@
       if (item.latitude !== undefined && !isNaN(item.latitude) && item.longitude !== undefined && !isNaN(item.longitude)) {
         const customIcon = leafletInstance.icon({
           iconUrl:
-            item.status === "success" ? "/svg/mapicon3.svg" : "/svg/mapicon1.svg",
+            item.status ? "/svg/mapicon3.svg" : "/svg/mapicon1.svg",
           iconSize: [32, 32],
         });
         const marker = leafletInstance

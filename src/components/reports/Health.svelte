@@ -11,6 +11,7 @@
     Trash,
     TrendingUp,
     User,
+    WebcamIcon,
   } from "lucide-svelte";
   import Button from "../ui/button/button.svelte";
   import { MoreVertical } from "lucide-svelte";
@@ -27,7 +28,6 @@
   export let nodes;
   let selectedNvr = writable(null);
   let cameraList = [];
-
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
@@ -80,13 +80,24 @@
   import { onDestroy } from "svelte";
   import AreaAnalysis from "./charts/AreaAnalysis.svelte";
   import { Input } from "../ui/input";
-    import StorageNvrCard from "../cards/StorageNvrCard.svelte";
+  import StorageNvrCard from "../cards/StorageNvrCard.svelte";
+  import Doughnut from "./charts/Doughnut.svelte";
+  import Doughnut2 from "./charts/Doughnut2.svelte";
+    import { BellRing } from "lucide-svelte";
 
   let NvrData;
   let NvrStorageData;
   let uniqueCams = [];
-  let activeCams;
-  let inactiveCams;
+  let activeCams = 0;
+  let inactiveCams = 0;
+  let activeNvr = 0;
+  let inactiveNvr = 0;
+  let totalCapacity = 0;
+  let totalFreeSpace = 0;
+  let delayedFlag = false;
+  setTimeout(() => {
+    delayedFlag = true;
+  }, 1000);
 
   async function fetchNvrData() {
     if ($selectedNode) {
@@ -94,19 +105,36 @@
         filter: `node~"${$selectedNode.id}"`,
         expand: "ip_address",
       });
+
+      for (let i = 0; i < NvrData.length; i++) {
+        const nvr = NvrData[i];
+        const status = await PB.collection("nvr_ping_status").getFirstListItem(`nvr="${nvr.id}"`);
+        NvrData[i].status = status;
+
+        if (
+          nvr.status &&
+          nvr.status.status === true
+        ) {
+          activeNvr += 1;
+        } else {
+          inactiveNvr += 1;
+        }
+      }
     }
   }
 
-async function getNvrStorageData() {
-    if($selectedNode) {
-        NvrStorageData = await PB.collection('nvr_storage').getFullList({
-            filter:`node~"${$selectedNode.id}"`,
-            expand: `nvr`
-        })
-
-        // calculateTotalStorage(NvrStorageData)
+  async function getNvrStorageData() {
+    if ($selectedNode) {
+      NvrStorageData = await PB.collection("nvr_storage").getFullList({
+        filter: `node~"${$selectedNode.id}"`,
+        expand: `nvr`,
+      });
+      NvrStorageData.forEach((storage) => {
+        totalCapacity += storage.capacity / 1024 / 1024 ; // Convert MB to PB
+        totalFreeSpace += storage.free_space/ 1024 /1024;
+      });
     }
-}
+  }
 
   async function getCameraList() {
     PB.autoCancellation(false);
@@ -144,8 +172,7 @@ async function getNvrStorageData() {
 
   onMount(async () => {
     cameraList = await getCameraList();
-    PB.collection("camera_ping_status").subscribe("*", async (e) => {
-    });
+    PB.collection("camera_ping_status").subscribe("*", async (e) => {});
   });
 
   onDestroy(() => {
@@ -162,8 +189,6 @@ async function getNvrStorageData() {
     }
     return "Not available"; // Default value if key is not found
   }
-
-
 </script>
 
 <div class="w-full h-[calc(100vh-75px)]">
@@ -216,7 +241,9 @@ async function getNvrStorageData() {
           class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
         >
           <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
-            <span class="text-lg font-semibold leading-6">Camera Count & Status</span>
+            <span class="text-lg font-semibold leading-6"
+              >Camera Count & Status</span
+            >
             <span class="flex items-center gap-2 text-2xl font-bold leading-8"
               >{uniqueCams.length}
               <span class="flex items-center gap-1 text-sm text-[#00B69B]">
@@ -232,7 +259,16 @@ async function getNvrStorageData() {
               >
             </span>
           </span>
-          <span class="col-span-1"></span>
+          <span class="col-span-1 relative">
+            {#if delayedFlag}<Doughnut
+                activeCameras={activeCams}
+                inactiveCameras={inactiveCams}
+              />
+              <span id='bell' class="h-[30px] w-[30px] rounded-full bg-[#5B93FF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]">
+                <WebcamIcon size={18} class='text-[#5B93FF]'/>
+              </span>
+            {/if}</span
+          >
         </div>
         <div
           class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
@@ -254,7 +290,14 @@ async function getNvrStorageData() {
               >
             </span>
           </span>
-          <span class="col-span-1"></span>
+          <span class="col-span-1 relative"
+            >{#if delayedFlag}<Doughnut2
+                critical={6}
+                nonCritical={5}
+              /><span id='bell' class="h-[30px] w-[30px] rounded-full bg-[#605BFF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]">
+                <BellRing size={18} class='text-[#605BFF]'/>
+              </span>{/if}</span
+          >
         </div>
       </div>
       <div class=" col-span-3 row-span-2 border p-2 rounded-md">
@@ -276,8 +319,8 @@ async function getNvrStorageData() {
           <MapMultiCameras />
         </div>
       </div>
-      <div class=" col-span-3 row-span-2 border p-2 rounded-md">
-        <div class="flex items-center justify-between">
+      <div class=" col-span-3 row-span-2 border p-2 rounded-md overflow-clip">
+        <div class="flex items-center justify-between mb-8">
           <span class="text-lg font-medium">Area Analysis</span>
           <div class="flex items-center gap-2">
             <Select.Root>
@@ -285,15 +328,18 @@ async function getNvrStorageData() {
                 <Select.Value placeholder="Sort By: Area" />
               </Select.Trigger>
               <Select.Content>
-                <Select.Item value="population">Sort By: Population</Select.Item
+                <!-- <Select.Item value="population">Sort By: Population</Select.Item
                 >
                 <Select.Item value="density">Sort By: Density</Select.Item>
-                <Select.Item value="growth">Sort By:Growth Rate</Select.Item>
+                <Select.Item value="growth">Sort By:Growth Rate</Select.Item> -->
               </Select.Content>
             </Select.Root>
             <MoreVertical size={18} />
           </div>
         </div>
+        {#if NvrData && uniqueCams && delayedFlag}
+        <AreaAnalysis {NvrData} {uniqueCams}/>
+      {/if}
       </div>
     </div>
     <div class="h-full w-full p-4 flex flex-col gap-2">
@@ -343,7 +389,7 @@ async function getNvrStorageData() {
                 >downtime</Table.Cell
               >
               <Table.Cell class="text-[#727272] w-[12%] h-full text-sm"
-                >{item.status}</Table.Cell
+                >{#if item.status} <span class="bg-[#EDF2FE] text-[#4976F4] px-2 py-1 rounded-md font-medium text-sm">Active</span> {:else} <span class="bg-[#F7F7E8] text-[#D28E3D] px-2 py-1 rounded-md font-medium text-sm">Inactive</span> {/if}</Table.Cell
               >
               <Table.Cell class="text-[#727272] w-[12%] h-full text-sm"
                 >exiting alert</Table.Cell
@@ -395,7 +441,9 @@ async function getNvrStorageData() {
           class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
         >
           <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
-            <span class="text-lg font-semibold leading-6">NVR Count & Status</span>
+            <span class="text-lg font-semibold leading-6"
+              >NVR Count & Status</span
+            >
             <span class="flex items-center gap-2 text-2xl font-bold leading-8"
               >{NvrData?.length}
               <span class="flex items-center gap-1 text-sm text-[#00B69B]">
@@ -411,9 +459,16 @@ async function getNvrStorageData() {
               >
             </span>
           </span>
-          <span class="col-span-1">
-
-          </span>
+          <span class="col-span-1 relative"
+            >{#if delayedFlag}<Doughnut
+                activeCameras={activeNvr}
+                inactiveCameras={inactiveNvr}
+              />
+              <span id='bell' class="h-[30px] w-[30px] rounded-full bg-[#5B93FF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]">
+                <WebcamIcon size={18} class='text-[#5B93FF]'/>
+              </span>
+              {/if}</span
+          >
         </div>
         <div
           class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
@@ -435,7 +490,14 @@ async function getNvrStorageData() {
               >
             </span>
           </span>
-          <span class="col-span-1"></span>
+          <span class="col-span-1 relative"
+            >{#if delayedFlag}<Doughnut2
+                critical={3}
+                nonCritical={5}
+              /> <span id='bell' class="h-[30px] w-[30px] rounded-full bg-[#605BFF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]">
+                <BellRing size={18} class='text-[#605BFF]'/>
+              </span>{/if}</span
+          >
         </div>
       </div>
       <div class=" col-span-3 row-span-2 border p-2 rounded-md">
@@ -456,8 +518,8 @@ async function getNvrStorageData() {
           {/if}
         </div>
       </div>
-      <div class=" col-span-3 row-span-2 border p-2 rounded-md">
-        <div class="flex items-center justify-between">
+      <div class=" col-span-3 row-span-2 border p-2 rounded-md overflow-clip">
+        <div class="flex items-center justify-between mb-8">
           <span class="text-lg font-medium">Area Analysis</span>
           <div class="flex items-center gap-2">
             <Select.Root>
@@ -465,21 +527,18 @@ async function getNvrStorageData() {
                 <Select.Value placeholder="Sort By: Area" />
               </Select.Trigger>
               <Select.Content>
-                <Select.Item value="population">Sort By: Population</Select.Item
-                >
-                <Select.Item value="density">Sort By: Density</Select.Item>
-                <Select.Item value="growth">Sort By:Growth Rate</Select.Item>
+                <!-- <Select.Item value="population">Sort By: Population</Select.Item
+                > -->
+                <!-- <Select.Item value="density">Sort By: Density</Select.Item> -->
+                <!-- <Select.Item value="growth">Sort By:Growth Rate</Select.Item> -->
               </Select.Content>
             </Select.Root>
             <MoreVertical size={18} />
-            <MoreVertical size={18} />
           </div>
         </div>
-        <div>
-          {#if NvrData}
-            <AreaAnalysis {NvrData} />
+          {#if NvrData && uniqueCams && delayedFlag}
+            <AreaAnalysis {NvrData} {uniqueCams}/>
           {/if}
-        </div>
       </div>
     </div>
     <span class=" flex items-center gap-4 pt-4 px-4">
@@ -540,7 +599,7 @@ async function getNvrStorageData() {
                 <p class="text-xs text-black/[.6]">
                   Includes storage on all Location
                 </p>
-                <p class="text-lg font-semibold text-black">320TB</p>
+                <p class="text-lg font-semibold text-black">{totalCapacity.toFixed(2)}TB</p>
               </span>
               <span
                 class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#F7E8FF]"
@@ -561,7 +620,7 @@ async function getNvrStorageData() {
               <span class="flex flex-col gap-1">
                 <p class="font-medium text-black">Total Used Storage</p>
                 <p class="text-xs text-black/[.6]">Summary of used storage</p>
-                <p class="text-lg font-semibold text-black">20TB</p>
+                <p class="text-lg font-semibold text-black">{(totalCapacity - totalFreeSpace).toFixed(2)} TB</p>
               </span>
               <span
                 class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#FFE5F7]"
@@ -582,7 +641,7 @@ async function getNvrStorageData() {
               <span class="flex flex-col gap-1">
                 <p class="font-medium text-black">Available Storage</p>
                 <p class="text-xs text-black/[.6]">Summary of all Storage</p>
-                <p class="text-lg font-semibold text-black">320TB</p>
+                <p class="text-lg font-semibold text-black">{totalFreeSpace.toFixed(2)} TB</p>
               </span>
               <span
                 class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#FFEAE4]"
@@ -603,7 +662,7 @@ async function getNvrStorageData() {
               <span class="flex flex-col gap-1">
                 <p class="font-medium text-black">Total Storage per NVR</p>
                 <p class="text-xs text-black/[.6]">Avg storage per NVR</p>
-                <p class="text-lg font-semibold text-black">320TB</p>
+                <p class="text-lg font-semibold text-black">{(totalCapacity.toFixed(2) / NvrData.length).toFixed(2)} TB</p>
               </span>
               <span
                 class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#FFE8ED]"
@@ -710,9 +769,9 @@ async function getNvrStorageData() {
       </div>
       <div class="flex flex-wrap items-center gap-5 pb-10">
         {#if NvrStorageData}
-        {#each NvrStorageData as sd,index}
-        <StorageNvrCard {sd}/>
-        {/each}
+          {#each NvrStorageData as sd}
+            <StorageNvrCard {sd} />
+          {/each}
         {/if}
       </div>
     </section>

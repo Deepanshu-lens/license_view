@@ -1,18 +1,9 @@
 <script>
   import { HardDrive } from "lucide-svelte";
   import { Button } from "../ui/button";
-  import { page } from "$app/stores";
   import PocketBase from "pocketbase";
-  import { onMount } from "svelte";
   export let nvr;
   export let selectedNvr;
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
-  let status;
-  onMount(async () => {
-    status = await PB.collection("nvr_ping_status").getFirstListItem(
-      `nvr="${nvr.id}"`,
-    );
-  });
 </script>
 
 <article class="w-[250px] h-[130px] border-[#e4e4e4] rounded-md p-2 border">
@@ -25,7 +16,7 @@
       >
       <p class="text-xl font-semibold">{nvr.name}</p>
     </span>
-    {#if status?.status === true}
+    {#if nvr.status?.status === true}
       <span
         class="flex items-center gap-2 text-[#03A185] bg-[#03A185] bg-opacity-20 rounded-xl px-2 py-1 text-sm"
       >

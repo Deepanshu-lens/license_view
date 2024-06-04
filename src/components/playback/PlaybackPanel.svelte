@@ -12,20 +12,56 @@
   import NodeSelection from "../node/NodeSelection.svelte";
   import PlaybackList from "../lists/PlaybackList.svelte";
   import { page } from "$app/stores";
-  import { convertedVideos } from "@/lib/stores";
+  import { convertedVideos, selectedNode } from "@/lib/stores";
   import Player from "../player/Player.svelte";
+  import Custom from "../ui/video/Custom.svelte";
+    import { onMount } from "svelte";
+    import * as Select from '@/components/ui/select/index'
+    import { toast } from "svelte-sonner";
 
   let showRightPanel: boolean = true;
   let playbackFullscreen = false;
   let showFilters = false;
+  let nvrList = []
+  let cameraList = []
 
   export let data;
   const nodes = data.nodes;
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
-  $: {
-    console.log($convertedVideos);
+  onMount(async() => {
+if ($selectedNode) {
+  nvrList = await PB.collection('nvr').getFullList({
+    filter: `node~"${$selectedNode.id}"`
+  })
+}
+  })
+
+  // $: {
+  //   console.log($convertedVideos);
+  //   console.log(nvrList)
+  // }
+
+
+  async function getList(item) {
+    await fetch('/api/playbackCameraList',{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }, body : JSON.stringify({
+        nvr_ip: item.ip,
+        http_port: item.http_port,
+        username: item.user_id,
+        password: item.password
+      })
+    }).then(async res => {
+      const data = await res.json();
+      data.matchedChannels.forEach((channel, index) => {
+        data.matchedChannels[index] = { ...channel, nvrData: item };
+      });
+      cameraList= data.matchedChannels
+    }).catch((err) => console.log(err))
   }
 </script>
 
@@ -69,6 +105,7 @@
         {/each}
       </div>
     {/if}
+    <!-- <Custom/> -->
   </div>
   <div
     class={`h-[calc(100vh-75px)] ${showRightPanel ? "w-1/4 max-w-72 " : "w-0"} transition-width ease-in-out duration-500 dark:border-[#292929] border-x-[1px] relative`}
@@ -84,13 +121,26 @@
     <div
       class={`${showRightPanel ? "opacity-100" : "opacity-0"} transtion-opacity ease-in-out duration-500 `}
     >
-      <NodeSelection
-      {data}
+      <!-- <NodeSelection
+        {data}
         {nodes}
         url={data.url ?? "/"}
         isAllFullScreen={playbackFullscreen}
-      />
-      <PlaybackList {nodes}/>
+      /> -->
+      <Select.Root on:change={getList}>
+        <Select.Trigger class="w-full border-none">
+          <Select.Value placeholder='Select NVR' />
+        </Select.Trigger>
+        <Select.Content>
+          {#each nvrList as item}
+          <Select.Item value={item} on:click={() => getList(item)}>{item.name}</Select.Item
+          >
+          {/each}
+          <!-- <Select.Item value="density">Sort By: Density</Select.Item>
+          <Select.Item value="growth">Sort By:Growth Rate</Select.Item> -->
+        </Select.Content>
+      </Select.Root>
+      <PlaybackList {nodes} {cameraList}/>
     </div>
   </div>
   <div

@@ -37,7 +37,8 @@
 		"@radix-ui/react-dialog": "^1.0.5",
 		"agentkeepalive": "^4.5.0",
 		"bits-ui": "^0.17.0",
-		"chart.js": "^4.4.2",
+		"chart.js": "^4.4.3",
+		"chartjs-plugin-datalabels": "^2.2.0",
 		"class-variance-authority": "^0.7.0",
 		"clsx": "^2.1.0",
 		"date-fns": "^3.6.0",
@@ -59,6 +60,7 @@
 		"lucide-svelte": "^0.321.0",
 		"mode-watcher": "^0.2.0",
 		"mpegts.js": "^1.7.3",
+		"node-fetch": "^3.3.2",
 		"pocketbase": "^0.15.2",
 		"sortablejs": "^1.15.2",
 		"stripe": "^14.11.0",
@@ -69,6 +71,7 @@
 		"tailwind-variants": "^0.1.20",
 		"tailwindcss-animate": "^1.0.7",
 		"vaul-svelte": "^0.3.0",
-		"ws": "^8.17.0"
+		"ws": "^8.17.0",
+		"xml2js": "^0.6.2"
 	}
 }
