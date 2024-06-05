@@ -11,6 +11,7 @@
   import { toast } from "svelte-sonner";
   import { convertedVideos, allVideos } from "@/lib/stores";
   import { ChevronDown, CalendarDaysIcon, PlusCircle, X } from "lucide-svelte";
+    import { generateAsync } from "jszip";
   export let nodes;
   export let cameraList;
   let chosenNode;
@@ -89,7 +90,7 @@
       formattedDate + startTime.split(":")[0] + startTime.split(":")[1] + "00Z";
     const e =
       formattedDate + endTime.split(":")[0] + endTime.split(":")[1] + "00Z";
-    const genratedLink = `rtsp://${cameraId.nvrData.user_id}:${cameraId.nvrData.password}@${cameraId.nvrData.ip}:554/Streaming/tracks/${cameraId.channelId}/?startTime=${s}&endtime=${e}&size=290328`;
+    const genratedLink = `rtsp://${cameraId.nvrData.user_id}:${cameraId.nvrData.password}@${cameraId.nvrData.ip}:554/Streaming/tracks/${cameraId.channelId}`;
 
     console.log(genratedLink);
     await fetch(
@@ -98,16 +99,25 @@
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-        },
+        }, body: JSON.stringify({
+          startTime: s,
+          endTime: e,
+          size: 209328,
+          url: genratedLink
+        })
       },
     )
       .then(async (res) => {
         const data = await res.json();
         if (data === "Success") {
           if ($convertedVideos.length === 0) {
-            convertedVideos.set([cameraId]);
+            setTimeout(() => {
+              convertedVideos.set([cameraId]);
+            }, 2000);
           } else if ($convertedVideos.length < 4) {
-            convertedVideos.update((videos) => [...videos, cameraId]);
+            setTimeout(() => {
+              convertedVideos.update((videos) => [...videos, cameraId]);
+            }, 2000);
           } else {
             toast.error("Maximum limit of 4 videos reached");
           }

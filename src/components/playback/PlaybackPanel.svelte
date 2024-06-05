@@ -48,7 +48,7 @@
       return;
     }
     console.log(
-      `ws://${$page.url.hostname}:8082/api/ws?src=${camera.nvrData.ip.replace(/\./g, '_') + "/" + camera.channelId}&nodeID=${1}&cn=${camera.matchedChannelName}`,
+      `ws://${$page.url.hostname}:8082/api/ws?src=${camera.nvrData.ip + "/" + camera.channelId}&nodeID=${1}&cn=${camera.matchedChannelName}`,
     );
     let video = document.createElement("video-stream") as VideoStreamType;
     video.id = `playback-stream-${index}`;
@@ -93,7 +93,7 @@
   }
 
   $: if ($convertedVideos.length > 0) {
-    console.log("first");
+    // console.log("first");
     $convertedVideos.forEach((video, index) => {
       if (videos[index]) {
         console.log("video exists", index);
@@ -142,7 +142,7 @@
   async function removePlayers () {
     $convertedVideos.forEach(async (video,index) => {
       await fetch(
-        `http://localhost:8085/api/endplayback?id=${video.nvrData.ip + "/" + video.channelId}&name=${video.channelId}&url=url&subUrl=subUrl`,
+        `http://localhost:8085/api/endplayback?id=${video.nvrData.ip.replace(/\./g, "_") + "_" + video.channelId}&name=${video.channelId}&url=url&subUrl=subUrl`,
         {
           method: "POST",
           headers: {
