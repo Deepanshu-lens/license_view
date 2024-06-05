@@ -13,33 +13,26 @@
   });
 
   console.log(NvrData);
-
   const nvrDataset = {
-    labels: NvrData.map((nvr) => nvr.expand?.ip_address?.location).filter(
-      (location) => location !== undefined,
-    ),
+    labels: NvrData.filter((nvr) => nvr.expand?.ip_address?.country === 'India')
+                    .map((nvr) => nvr.expand?.ip_address?.location)
+                    .filter((location) => location !== undefined),
     dataSet: [
       {
         label: "active cams",
-        data: NvrData.filter(
-          (nvr) => nvr.expand?.ip_address?.location !== undefined,
-        ).map((nvr) =>
-          nvr.cams ? nvr.cams.filter((cam) => cam.status).length : 0,
-        ),
+        data: NvrData.filter((nvr) => nvr.expand?.ip_address?.country === 'India' && nvr.expand?.ip_address?.location !== undefined)
+                     .map((nvr) => nvr.cams ? nvr.cams.filter((cam) => cam.status).length : 0),
         backgroundColor: "rgba(153, 162, 251, 1)",
         stack: 'Stack 0',
         barThickness: 30,
-    },
-    {
+      },
+      {
         label: "inactive cams",
-        data: NvrData.filter(
-            (nvr) => nvr.expand?.ip_address?.location !== undefined,
-            ).map((nvr) =>
-            nvr.cams ? nvr.cams.filter((cam) => !cam.status).length : 0,
-            ),
-            backgroundColor: "rgba(219, 222, 251, 1)",
-            stack: 'Stack 0',
-            barThickness: 30,
+        data: NvrData.filter((nvr) => nvr.expand?.ip_address?.country === 'India' && nvr.expand?.ip_address?.location !== undefined)
+                     .map((nvr) => nvr.cams ? nvr.cams.filter((cam) => !cam.status).length : 0),
+        backgroundColor: "rgba(219, 222, 251, 1)",
+        stack: 'Stack 0',
+        barThickness: 30,
       },
     ],
   };

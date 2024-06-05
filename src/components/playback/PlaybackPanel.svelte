@@ -44,7 +44,7 @@
     console.log(index);
 
     if (videos[index]) {
-      console.log("video c.id exists", camera.name);
+      console.log("video c.id exists", index);
       return;
     }
     console.log(

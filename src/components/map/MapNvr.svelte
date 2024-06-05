@@ -19,6 +19,8 @@
     userid: record.user_id,
     password: record.password,
   }));
+
+
   onMount(() => {
     leafletInstance = window.L;
 
@@ -47,7 +49,7 @@
       .addTo(map);
 
     data.forEach((item) => {
-      if (item.latitude !== undefined && !isNaN(item.latitude) && item.longitude !== undefined && !isNaN(item.longitude)) {
+      if (item.latitude !== undefined && !isNaN(item.latitude) && item.longitude !== undefined && !isNaN(item.longitude) && item.country === 'India') {
         const customIcon = leafletInstance.icon({
           iconUrl:
             item.status ? "/svg/mapicon3.svg" : "/svg/mapicon1.svg",

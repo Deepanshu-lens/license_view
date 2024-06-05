@@ -20,7 +20,7 @@
     import { page } from "$app/stores";
     const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
-  let selectedScreen = 5;
+  let selectedScreen = 1;
   export let data: PageServerData;
   const session = data.session;
   let nodes: Node[] = [];
@@ -32,7 +32,6 @@
         expand: "camera",
         filter: `session~"${session.id}"`,
       });
-      console.log("getnodes", nodes);
       return nodes.map(
         (node) =>
           ({
