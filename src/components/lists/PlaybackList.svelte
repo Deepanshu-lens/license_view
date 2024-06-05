@@ -68,25 +68,27 @@
   async function fetchPlaybackData(cameraId, date, startTime, endTime) {
     console.log(cameraId, date, startTime, endTime);
 
-    const startTimeFormatted = startTime.replace(":", "");
-    const endTimeFormatted = endTime.replace(":", "");
-    const startDateTime = new Date(date);
-    startDateTime.setHours(
-      parseInt(startTimeFormatted.slice(0, 2)),
-      parseInt(startTimeFormatted.slice(2, 4)),
-    );
-
-    const endDateTime = new Date(date);
-    endDateTime.setHours(
-      parseInt(endTimeFormatted.slice(0, 2)),
-      parseInt(endTimeFormatted.slice(2, 4)),
-    );
-
-    const startTimeUTC = startDateTime.toISOString();
-    const endTimeUTC = endDateTime.toISOString();
-    const s = startTimeUTC.replace(/[-_:.]/g, "");
-    const e = endTimeUTC.replace(/[-_:.]/g, "");
-
+    const dateParts = date.split(" ");
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const monthIndex = monthNames.indexOf(dateParts[1]) + 1;
+    const formattedDate = `${dateParts[2]}${monthIndex.toString().padStart(2, "0")}${dateParts[0].toString().padStart(2, "0")}T`;
+    const s =
+      formattedDate + startTime.split(":")[0] + startTime.split(":")[1] + "00Z";
+    const e =
+      formattedDate + endTime.split(":")[0] + endTime.split(":")[1] + "00Z";
     const genratedLink = `rtsp://${cameraId.nvrData.user_id}:${cameraId.nvrData.password}@${cameraId.nvrData.ip}:554/Streaming/tracks/${cameraId.channelId}/?startTime=${s}&endtime=${e}&size=290328`;
 
     console.log(genratedLink);
@@ -102,19 +104,16 @@
       .then(async (res) => {
         const data = await res.json();
         if (data === "Success") {
-          if($convertedVideos.length === 0) {
+          if ($convertedVideos.length === 0) {
             convertedVideos.set([cameraId]);
-          }
-          else if ($convertedVideos.length < 4) {
-            convertedVideos.update(videos => [...videos, cameraId]);
+          } else if ($convertedVideos.length < 4) {
+            convertedVideos.update((videos) => [...videos, cameraId]);
           } else {
             toast.error("Maximum limit of 4 videos reached");
           }
-         
         }
       })
       .catch((err) => console.log(err));
-
   }
 
   async function fetchFromDate(date) {
@@ -269,71 +268,72 @@
     </button>
   </div>
 {:else}
-
-<div class="mt-2 w-full flex flex-col gap-2">
-  <label for="date" class="text-black/[.7] dark:text-slate-200 text-sm px-4"
-    >Select Camera</label
-  >
-  <div class="relative w-full px-4">
-    <select
-      bind:value={selectedCamera}
-      class={`block text-primary capitalize font-semibold rounded-md appearance-none w-full bg-[#F6F6F6] dark:bg-black border-2 py-2 text-sm px-2 leading-tight `}
+  <div class="mt-2 w-full flex flex-col gap-2">
+    <label for="date" class="text-black/[.7] dark:text-slate-200 text-sm px-4"
+      >Select Camera</label
     >
-      <option value="" disabled selected>Select from list</option>
-      <!-- {#each $selectedNode?.camera as cam}
+    <div class="relative w-full px-4">
+      <select
+        bind:value={selectedCamera}
+        class={`block text-primary capitalize font-semibold rounded-md appearance-none w-full bg-[#F6F6F6] dark:bg-black border-2 py-2 text-sm px-2 leading-tight `}
+      >
+        <option value="" disabled selected>Select from list</option>
+        <!-- {#each $selectedNode?.camera as cam}
         <option value={cam.id}>{cam.name}</option>
       {/each} -->
-      {#if cameraList?.length !== 0}
-        {#each cameraList as cam}
-          <option value={cam}>{cam.matchedChannelName}</option>
-        {/each}
+        {#if cameraList?.length !== 0}
+          {#each cameraList as cam}
+            <option value={cam}>{cam.matchedChannelName}</option>
+          {/each}
+        {/if}
+      </select>
+      <ChevronDown
+        size={22}
+        class="text-[#727272] absolute top-1/2 -translate-y-1/2 right-6 pointer-events-none cursor-pointer outline-none"
+      />
+    </div>
+
+    <label
+      for="camera"
+      class="text-black/[.7] dark:text-slate-200 text-sm px-4 pb-2"
+      >Select Date</label
+    >
+    <div class="relative w-full px-4">
+      <button
+        on:click={() => (showCalendar = !showCalendar)}
+        class="absolute top-1/2 -translate-y-1/2 left-[1.5rem] grid place-items-center"
+      >
+        <CalendarDaysIcon
+          size={20}
+          class="text-[#727272]  pointer-events-none cursor-pointer outline-none"
+        />
+      </button>
+      <input
+        bind:value={searchDate}
+        disabled
+        on:change={(e) => (searchDate = e.target.value)}
+        type="text"
+        placeholder="DD MONTH, YY"
+        class=" h-full block rounded-md capitalize border-2 text-sm pl-8 pr-4 py-2 leading-tight w-full bg-[#f6f6f6] text-[#979797] dark:bg-black"
+      />
+
+      <button
+        class="absolute top-1/2 -translate-y-1/2 right-[1.5rem] grid place-items-center"
+        on:click={() => {
+          value = null;
+          searchDate = null;
+        }}
+      >
+        <X class="text-[#727272]" size={20} />
+      </button>
+      {#if showCalendar}
+        <Calendar
+          bind:value
+          class=" bg-white dark:bg-black absolute top-14 right-0 z-[99999999] px-4 py-2 flex flex-col items-center justify-center rounded-md border border-solid border-[#929292]"
+        />
       {/if}
-    </select>
-    <ChevronDown
-      size={22}
-      class="text-[#727272] absolute top-1/2 -translate-y-1/2 right-6 pointer-events-none cursor-pointer outline-none"
-    />
+    </div>
   </div>
-
-  <label for="camera" class="text-black/[.7] dark:text-slate-200 text-sm px-4 pb-2"
-    >Select Date</label
-  >
-  <div class="relative w-full px-4 ">
-    <button
-      on:click={() => (showCalendar = !showCalendar)}
-      class="absolute top-1/2 -translate-y-1/2 left-[1.5rem] grid place-items-center"
-    >
-      <CalendarDaysIcon
-        size={20}
-        class="text-[#727272]  pointer-events-none cursor-pointer outline-none"
-      />
-    </button>
-    <input
-      bind:value={searchDate}
-      disabled
-      on:change={(e) => (searchDate = e.target.value)}
-      type="text"
-      placeholder="DD MONTH, YY"
-      class=" h-full block rounded-md capitalize border-2 text-sm pl-8 pr-4 py-2 leading-tight w-full bg-[#f6f6f6] text-[#979797] dark:bg-black"
-    />
-
-    <button
-      class="absolute top-1/2 -translate-y-1/2 right-[1.5rem] grid place-items-center"
-      on:click={() => {
-        value = null;
-        searchDate = null;
-      }}
-    >
-      <X class="text-[#727272]" size={20} />
-    </button>
-    {#if showCalendar}
-      <Calendar
-        bind:value
-        class=" bg-white dark:bg-black absolute top-14 right-0 z-[99999999] px-4 py-2 flex flex-col items-center justify-center rounded-md border border-solid border-[#929292]"
-      />
-    {/if}
-  </div>
-</div>
 
   {#if searchDate && selectedCamera}
     <div class="px-4 w-full">

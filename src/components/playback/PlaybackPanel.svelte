@@ -15,16 +15,16 @@
   import { convertedVideos, selectedNode } from "@/lib/stores";
   import Player from "../player/Player.svelte";
   import Custom from "../ui/video/Custom.svelte";
-    import { onMount } from "svelte";
-    import * as Select from '@/components/ui/select/index'
-    import { toast } from "svelte-sonner";
-    import PlaybackStream from "./PlaybackStream.svelte";
-    import { onDestroy } from 'svelte';
+  import { onMount } from "svelte";
+  import * as Select from "@/components/ui/select/index";
+  import { toast } from "svelte-sonner";
+  import PlaybackStream from "./PlaybackStream.svelte";
+  import { onDestroy } from "svelte";
   let showRightPanel: boolean = true;
   let playbackFullscreen = false;
   let showFilters = false;
-  let nvrList = []
-  let cameraList = []
+  let nvrList = [];
+  let cameraList = [];
   let videos: { [key: string]: HTMLElement } = {};
 
   export let data;
@@ -32,27 +32,31 @@
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
-  onMount(async() => {
-if ($selectedNode) {
-  nvrList = await PB.collection('nvr').getFullList({
-    filter: `node~"${$selectedNode.id}"`
-  })
-}
-  })
+  onMount(async () => {
+    if ($selectedNode) {
+      nvrList = await PB.collection("nvr").getFullList({
+        filter: `node~"${$selectedNode.id}"`,
+      });
+    }
+  });
 
-  const initVideo = async (camera,index) => {
-    console.log(index)
+  const initVideo = async (camera, index) => {
+    console.log(index);
 
-    if (videos[camera.id]) {
+    if (videos[index]) {
       console.log("video c.id exists", camera.name);
       return;
     }
-    console.log(`ws://${$page.url.hostname}:8082/api/ws?src=${camera.nvrData.ip+'/'+camera.channelId}&nodeID=${1}&cn=${camera.matchedChannelName}`)
+    console.log(
+      `ws://${$page.url.hostname}:8082/api/ws?src=${camera.nvrData.ip + "/" + camera.channelId}&nodeID=${1}&cn=${camera.matchedChannelName}`,
+    );
     let video = document.createElement("video-stream") as VideoStreamType;
-    video.id = `stream-${camera.id}`;
-    video.mode = "webrtc";
+    video.id = `playback-stream-${index}`;
+    video.mode = "mse";
     video.url = camera.url;
-    video.src = new URL(`ws://${$page.url.hostname}:8082/api/ws?src=${camera.nvrData.ip+'/'+camera.channelId}&nodeID=${1}&cn=${camera.matchedChannelName}`)
+    video.src = new URL(
+      `ws://${$page.url.hostname}:8082/api/ws?src=${camera.nvrData.ip + "/" + camera.channelId}&nodeID=${1}&cn=${camera.matchedChannelName}`,
+    );
     video.style.position = "relative";
     video.style.width = "100%";
     video.style.height = "100%";
@@ -66,52 +70,64 @@ if ($selectedNode) {
   };
 
   async function getList(item) {
-    await fetch('/api/playbackCameraList',{
-      method: 'POST',
+    await fetch("/api/playbackCameraList", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
-      }, body : JSON.stringify({
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         nvr_ip: item.ip,
         http_port: item.http_port,
         username: item.user_id,
-        password: item.password
+        password: item.password,
+      }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        data.matchedChannels.forEach((channel, index) => {
+          data.matchedChannels[index] = { ...channel, nvrData: item };
+        });
+        cameraList = data.matchedChannels;
       })
-    }).then(async res => {
-      const data = await res.json();
-      data.matchedChannels.forEach((channel, index) => {
-        data.matchedChannels[index] = { ...channel, nvrData: item };
-      });
-      cameraList= data.matchedChannels
-    }).catch((err) => console.log(err))
+      .catch((err) => console.log(err));
   }
 
-$: if ($convertedVideos.length > 0) {
-  console.log('first')
-  $convertedVideos.forEach((video, index) => {
-    initVideo(video,index);
-  });
-}
-// $:console.log($convertedVideos)
+  $: if ($convertedVideos.length > 0) {
+    console.log("first");
+    $convertedVideos.forEach((video, index) => {
+      if (videos[index]) {
+        console.log("video exists", index);
+      } else {
+        console.log("initing video", index);
+        initVideo(video, index);
+      }
+    });
+  }
+  // $:console.log($convertedVideos)
 
-// $: console.log(videos)
-onDestroy(() => {
+  // $: console.log(videos)
+  onDestroy(() => {
     $convertedVideos.forEach(async (video) => {
-      await fetch(`http://localhost:8085/api/endplayback?id=${video.nvrData.user_id + '/' + video.channelId}&name=${video.channelId}&url=url&subUrl=subUrl`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      await fetch(
+        `http://localhost:8085/api/endplayback?id=${video.nvrData.user_id + "/" + video.channelId}&name=${video.channelId}&url=url&subUrl=subUrl`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      }).then(async (res) => {
-        const data = await res.json();
-        console.log(data);
-      const videoStreams = document.querySelectorAll('video-stream');
-      videoStreams.forEach(vs => {
-        vs.remove();
-      });
-      }).catch((err) => console.log(err));
+      )
+        .then(async (res) => {
+          const data = await res.json();
+          console.log(data);
+          const videoStreams = document.querySelectorAll("video-stream");
+          videoStreams.forEach((vs) => {
+            vs.remove();
+          });
+        })
+        .catch((err) => console.log(err));
     });
   });
-
 </script>
 
 <section
@@ -130,23 +146,31 @@ onDestroy(() => {
       >
         {#each $convertedVideos as video, index}
           <div class="grid place-items-center h-full w-full relative">
-            <PlaybackStream videoElement={videos[index]}/>
-          <button
-            class="absolute top-2 right-2 text-white cursor-pointer z-10"
-            on:click={async() => {
-              convertedVideos.update(videos => videos.filter((_, i) => i !== index));
-            await fetch(`http://localhost:8085/api/endplayback?id=${video.nvrData.user_id + '/' + video.channelId}&name=${video.channelId}&url=url&subUrl=subUrl`,{
-              method: "POST",  headers: {
-          "Content-Type": "application/json",
-        },
-            }).then(async (res) => {
-              const data = await res.json()
-              console.log(data)
-            }).catch((err) => console.log(err))
-            }}
-          >
-<X/>
-          </button>
+            <PlaybackStream videoElement={videos[index]} />
+            <button
+              class="absolute top-2 right-2 text-white cursor-pointer z-10"
+              on:click={async () => {
+                convertedVideos.update((videos) =>
+                  videos.filter((_, i) => i !== index),
+                );
+                await fetch(
+                  `http://localhost:8085/api/endplayback?id=${video.nvrData.user_id + "/" + video.channelId}&name=${video.channelId}&url=url&subUrl=subUrl`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  },
+                )
+                  .then(async (res) => {
+                    const data = await res.json();
+                    console.log(data);
+                  })
+                  .catch((err) => console.log(err));
+              }}
+            >
+              <X />
+            </button>
           </div>
         {/each}
       </div>
@@ -174,18 +198,19 @@ onDestroy(() => {
       /> -->
       <Select.Root on:change={getList}>
         <Select.Trigger class="w-full border-none">
-          <Select.Value placeholder='Select NVR' />
+          <Select.Value placeholder="Select NVR" />
         </Select.Trigger>
         <Select.Content>
           {#each nvrList as item}
-          <Select.Item value={item} on:click={() => getList(item)}>{item.name}</Select.Item
-          >
+            <Select.Item value={item} on:click={() => getList(item)}
+              >{item.name}</Select.Item
+            >
           {/each}
           <!-- <Select.Item value="density">Sort By: Density</Select.Item>
           <Select.Item value="growth">Sort By:Growth Rate</Select.Item> -->
         </Select.Content>
       </Select.Root>
-      <PlaybackList {nodes} {cameraList}/>
+      <PlaybackList {nodes} {cameraList} />
     </div>
   </div>
   <div
