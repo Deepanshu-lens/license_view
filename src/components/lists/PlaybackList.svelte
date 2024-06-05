@@ -93,7 +93,7 @@
 
     console.log(genratedLink);
     await fetch(
-      `http://localhost:8085/api/startplayback?id=${cameraId.nvrData.ip + "/" + cameraId.channelId}&name=${cameraId.channelId}&url=${genratedLink}&subUrl=${genratedLink}`,
+      `http://localhost:8085/api/startplayback?id=${cameraId.nvrData.ip.replace(/\./g, '_') + "_" + cameraId.channelId}&name=${cameraId.channelId}&url=${genratedLink}&subUrl=${genratedLink}`,
       {
         method: "POST",
         headers: {

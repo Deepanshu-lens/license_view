@@ -48,14 +48,14 @@
       return;
     }
     console.log(
-      `ws://${$page.url.hostname}:8082/api/ws?src=${camera.nvrData.ip + "/" + camera.channelId}&nodeID=${1}&cn=${camera.matchedChannelName}`,
+      `ws://${$page.url.hostname}:8082/api/ws?src=${camera.nvrData.ip.replace(/\./g, '_') + "/" + camera.channelId}&nodeID=${1}&cn=${camera.matchedChannelName}`,
     );
     let video = document.createElement("video-stream") as VideoStreamType;
     video.id = `playback-stream-${index}`;
     video.mode = "mse";
     video.url = camera.url;
     video.src = new URL(
-      `ws://${$page.url.hostname}:8082/api/ws?src=${camera.nvrData.ip + "/" + camera.channelId}&nodeID=${1}&cn=${camera.matchedChannelName}`,
+      `ws://${$page.url.hostname}:8082/api/ws?src=${camera.nvrData.ip.replace(/\./g, '_') + "_" + camera.channelId}&nodeID=${1}&cn=${camera.matchedChannelName}`,
     );
     video.style.position = "relative";
     video.style.width = "100%";
@@ -105,11 +105,44 @@
   }
   // $:console.log($convertedVideos)
 
-  // $: console.log(videos)
-  onDestroy(() => {
-    $convertedVideos.forEach(async (video) => {
+  // async function singlerefresh (video,index) {
+  //   await fetch(
+  //       `http://localhost:8085/api/endplayback?id=${video.nvrData.ip + "/" + video.channelId}&name=${video.channelId}&url=url&subUrl=subUrl`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       },
+  //     )
+  //       .then(async (res) => {
+  //         const data = await res.json();
+  //         console.log(data);
+  //         // const videoStreams = document.querySelectorAll("video-stream");
+
+  //         // videoStreams.forEach((vs) => {
+  //         //   vs.remove();
+  //         // });
+  //         if(videos[index]) {
+  //           if(videos[index].src instanceof WebSocket && videoElement.src.readyState === WebSocket.OPEN) {
+  //             videos[index].src.close()
+  //           }
+  //           videos[index].remove()
+  //           delete videos[index]
+  //           setTimeout(() => {
+  //             initVideo(video,index)
+  //           }, 100);
+
+  //         }
+
+  //       })
+  //       .catch((err) => console.log(err));
+  // }
+
+  async function removePlayers () {
+    $convertedVideos.forEach(async (video,index) => {
       await fetch(
-        `http://localhost:8085/api/endplayback?id=${video.nvrData.user_id + "/" + video.channelId}&name=${video.channelId}&url=url&subUrl=subUrl`,
+        `http://localhost:8085/api/endplayback?id=${video.nvrData.ip + "/" + video.channelId}&name=${video.channelId}&url=url&subUrl=subUrl`,
         {
           method: "POST",
           headers: {
@@ -120,13 +153,26 @@
         .then(async (res) => {
           const data = await res.json();
           console.log(data);
-          const videoStreams = document.querySelectorAll("video-stream");
-          videoStreams.forEach((vs) => {
-            vs.remove();
-          });
+          if(videos[index]) {
+            if(videos[index].src instanceof WebSocket && videoElement.src.readyState === WebSocket.OPEN) {
+              videos[index].src.close()
+            }
+            videos[index].remove()
+            delete videos[index]
+            convertedVideos.set([])
+            // setTimeout(() => {
+            //   initVideo(video,index)
+            // }, 100);
+
+          }
         })
         .catch((err) => console.log(err));
     });
+  }
+
+  // $: console.log(videos)
+  onDestroy(async() => {
+    await removePlayers()
   });
 </script>
 
@@ -171,6 +217,9 @@
             >
               <X />
             </button>
+            <!-- <button class="text-red-600 absolute top-6 right-2 z-20" on:click={() => singlerefresh(video,index)}>
+              refresh
+            </button> -->
           </div>
         {/each}
       </div>
@@ -354,3 +403,4 @@
     grid-template-columns: repeat(2, 49.6%);
   }
 </style>
+
