@@ -2,7 +2,8 @@
     import * as Table from "@/components/ui/table/index";
 </script>
 
-<Table.Root class="mx-auto w-full flex flex-col pb-10">
+<Table.Root    class="mx-auto h-full w-full flex flex-col max-w-[calc(100vw-8.3rem)] max-h-[calc(100vh-310px)] hide-scrollbar overflow-x-auto"
+>
     <Table.Header
       class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
     >

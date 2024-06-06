@@ -8,26 +8,17 @@ export const POST: RequestHandler = async ({
 
   try {
     const updates = await request.json();
-
     for (const update of updates) {
       const { id, features } = update;
-
+      console.log(id,features)
       if (features.length === 0) {
         console.log(`Skipping update for id ${id} as features array is empty`);
         continue;
       }
-
-    //   console.log(id);
-    //   console.log(features);
-
       const data = {
         features: features,
       };
-
-    //   console.log(data);
-
-      const record = await locals.pb?.collection('users').update(`${id}`, data);
-    //   console.log(record);
+      await locals.pb?.collection('users').update(`${id}`, data);
     }
 
     return new Response(JSON.stringify({ message: "All records updated successfully" }), { status: 200 });

@@ -94,7 +94,7 @@
 
     console.log(genratedLink);
     await fetch(
-      `http://localhost:8085/api/startplayback?id=${cameraId.nvrData.ip.replace(/\./g, '_') + "_" + cameraId.channelId}&name=${cameraId.channelId}&url=${genratedLink}&subUrl=${genratedLink}`,
+      `http://localhost:8085/api/startplayback?id=${cameraId.nvrData.ip.replace(/\./g, '_') + "_" + cameraId.channelId}&name=${cameraId.channelId}&url=${genratedLink}&subUrl=${genratedLink}&startTime=${s}&endTime=${e}&size=209328`,
       {
         method: "POST",
         headers: {
@@ -114,12 +114,12 @@
             setTimeout(() => {
               convertedVideos.set([cameraId]);
             }, 2000);
-          } else if ($convertedVideos.length < 4) {
+          } else if ($convertedVideos.length < 1) {
             setTimeout(() => {
               convertedVideos.update((videos) => [...videos, cameraId]);
             }, 2000);
           } else {
-            toast.error("Maximum limit of 4 videos reached");
+            toast.error("Maximum limit of videos reached");
           }
         }
       })

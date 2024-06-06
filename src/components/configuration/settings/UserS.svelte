@@ -82,19 +82,22 @@
   let fetchingUsers = false;
 
 
-  async function fetchFeatures(path: string) {
-  try {
-    const response = await fetch(`/api/features/${path}`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data.features.items;
-  } catch (error) {
-    console.error(`Error fetching features from ${path}:`, error);
-    return [];
-  }
-}
+  $: console.log(data)
+
+
+//   async function fetchFeatures(path: string) {
+//   try {
+//     const response = await fetch(`/api/features/${path}`);
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+//     const data = await response.json();
+//     return data.features.items;
+//   } catch (error) {
+//     console.error(`Error fetching features from ${path}:`, error);
+//     return [];
+//   }
+// }
 
   async function fetchAllUsers() {
     if (fetchingUsers) return;
@@ -114,7 +117,7 @@
       }
       const d = await live.json()
       // console.log(d)
-      liveFeatures= d.features.items;
+      liveFeatures= d?.features?.items;
       fetched = true;
       return data;
     } catch (error) {
@@ -492,23 +495,23 @@
           <!-- live content -->
         </Tabs.Content>
         <Tabs.Content value="playback">
-          <PlaybackTable/>
+          <PlaybackTable {allUsers}/>
           <!-- playback content -->
         </Tabs.Content>
         <Tabs.Content value="events">
-          <EventsTable />
+          <EventsTable {allUsers}/>
           <!-- events content -->
         </Tabs.Content>
         <Tabs.Content value="gallery">
-          <GalleryTable />
+          <GalleryTable {allUsers}/>
           <!-- gallery content -->
         </Tabs.Content>
         <Tabs.Content value="config">
-          <ConfigurationTable />
+          <ConfigurationTable {allUsers}/>
           <!-- config content -->
         </Tabs.Content>
         <Tabs.Content value="reports">
-          <ReportsTable />
+          <ReportsTable {allUsers}/>
           <!-- reports content -->
         </Tabs.Content>
       </Tabs.Root>

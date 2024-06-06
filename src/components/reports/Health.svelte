@@ -33,57 +33,13 @@
 
   let view = 1;
 
-  const invoices = [
-    {
-      invoice: "INV001",
-      paymentStatus: "Paid",
-      totalAmount: "$250.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV002",
-      paymentStatus: "Pending",
-      totalAmount: "$150.00",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV003",
-      paymentStatus: "Unpaid",
-      totalAmount: "$350.00",
-      paymentMethod: "Bank Transfer",
-    },
-    {
-      invoice: "INV004",
-      paymentStatus: "Paid",
-      totalAmount: "$450.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV005",
-      paymentStatus: "Paid",
-      totalAmount: "$550.00",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV006",
-      paymentStatus: "Pending",
-      totalAmount: "$200.00",
-      paymentMethod: "Bank Transfer",
-    },
-    {
-      invoice: "INV007",
-      paymentStatus: "Unpaid",
-      totalAmount: "$300.00",
-      paymentMethod: "Credit Card",
-    },
-  ];
   import { onDestroy } from "svelte";
   import AreaAnalysis from "./charts/AreaAnalysis.svelte";
   import { Input } from "../ui/input";
   import StorageNvrCard from "../cards/StorageNvrCard.svelte";
   import Doughnut from "./charts/Doughnut.svelte";
   import Doughnut2 from "./charts/Doughnut2.svelte";
-    import { BellRing } from "lucide-svelte";
+  import { BellRing } from "lucide-svelte";
 
   let NvrData;
   let NvrStorageData;
@@ -103,18 +59,18 @@
     if ($selectedNode) {
       NvrData = await PB.collection("nvr").getFullList({
         filter: `node~"${$selectedNode.id}"`,
+        sort: "-created",
         expand: "ip_address",
       });
 
       for (let i = 0; i < NvrData.length; i++) {
         const nvr = NvrData[i];
-        const status = await PB.collection("nvr_ping_status").getFirstListItem(`nvr="${nvr.id}"`);
+        const status = await PB.collection("nvr_ping_status").getFirstListItem(
+          `nvr="${nvr.id}"`,
+        );
         NvrData[i].status = status;
 
-        if (
-          nvr.status &&
-          nvr.status.status === true
-        ) {
+        if (nvr.status && nvr.status.status === true) {
           activeNvr += 1;
         } else {
           inactiveNvr += 1;
@@ -127,11 +83,12 @@
     if ($selectedNode) {
       NvrStorageData = await PB.collection("nvr_storage").getFullList({
         filter: `node~"${$selectedNode.id}"`,
+        sort: "-created",
         expand: `nvr`,
       });
       NvrStorageData.forEach((storage) => {
-        totalCapacity += storage.capacity / 1024 / 1024 ; // Convert MB to PB
-        totalFreeSpace += storage.free_space/ 1024 /1024;
+        totalCapacity += storage.capacity / 1024 / 1024; // Convert MB to PB
+        totalFreeSpace += storage.free_space / 1024 / 1024;
       });
     }
   }
@@ -139,16 +96,17 @@
   async function getCameraList() {
     PB.autoCancellation(false);
     try {
-      const res = await PB.collection("camera_ping_status").getList(1, 50, {
+      const res = await PB.collection("camera_ping_status").getList(1, 25, {
         filter: `node~"${$selectedNode.id}"`,
         sort: "-created",
         expand: "camera",
       });
+      console.log(res)
       const uniqueCameras = new Map();
       activeCams = 0;
       inactiveCams = 0;
       res.items.forEach((item) => {
-        const cameraId = item.expand.camera.id;
+        const cameraId = item?.expand?.camera?.id;
         if (
           !uniqueCameras.has(cameraId) ||
           new Date(item.created) > new Date(uniqueCameras.get(cameraId).created)
@@ -172,16 +130,29 @@
 
   onMount(async () => {
     cameraList = await getCameraList();
-    PB.collection("camera_ping_status").subscribe("*", async (e) => {});
+
+    PB.collection("nvr_ping_status").subscribe("*", async (e) => {
+      console.log(e.action);
+      if (e.action === "create") {
+        fetchNvrData();
+      }
+    });
+    // PB.collection("camera_ping_status").subscribe("*", async (e) => {
+    //   console.log(e.action);
+    //   if (e.action === "create") {
+    //     getCameraList();
+    //   }
+    // });
   });
 
   onDestroy(() => {
-    PB.collection("camera_ping_status").unsubscribe("*");
+    PB.collection("nvr_ping_status").unsubscribe("*");
+    // PB.collection("camera_ping_status").unsubscribe("*");
   });
 
   $: $selectedNode, fetchNvrData(), getNvrStorageData();
 
-  $: console.log($selectedNvr)
+  $: console.log($selectedNvr);
 
   function parseDetail(detailString, key) {
     const lines = detailString.split("\n");
@@ -195,7 +166,7 @@
 
 <div class="w-full h-[calc(100vh-75px)]">
   <div
-    class="flex items-center justify-center rounded-lg border-black/[.13] border-solid border-[1px] p-1 w-[500px] h-[40px] mx-auto mt-4"
+    class="flex items-center justify-center rounded-lg border-black/[.13] dark:border-white/[.13] border-solid border-[1px] p-1 w-[500px] h-[40px] mx-auto mt-4"
   >
     <button
       on:click={() => (view = 1)}
@@ -214,208 +185,228 @@
     >
   </div>
   {#if view === 1}
-    <div class="flex items-center justify-between p-4">
-      <div class="left flex flex-col gap-1">
-        <h2 class="font-medium text-xl text-[#323232]">Health Monitor</h2>
-        <h5 class="text-sm text-black/.5">
-          Streamlined insights into your device's vital stats for informed
-          decisions.
-        </h5>
-      </div>
-      <div class="flex items-center gap-2">
-        <!-- <Button variant="outline" class="flex items-center gap-2 text-sm"
+    <section
+      class="flex flex-col max-h-[calc(100vh-120px)] overflow-y-auto hide-scrollbar pb-10"
+    >
+      <div class="flex items-center justify-between p-4">
+        <div class="left flex flex-col gap-1">
+          <h2 class="font-medium text-xl text-[#323232] dark:text-slate-200">Health Monitor</h2>
+          <h5 class="text-sm text-black/[.5] dark:text-white/[.5]">
+            Streamlined insights into your device's vital stats for informed
+            decisions.
+          </h5>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- <Button variant="outline" class="flex items-center gap-2 text-sm"
           ><MapPin size={18} /> Location</Button
         > -->
-        <NodeSelection
-          isAllFullScreen={false}
-          {nodes}
-          url={data.url ?? "/"}
-          {data}
-        />
-        <Button>Export</Button>
+          <NodeSelection
+            isAllFullScreen={false}
+            {nodes}
+            url={data.url ?? "/"}
+            {data}
+          />
+          <Button>Export</Button>
+        </div>
       </div>
-    </div>
-    <div class="grid grid-cols-8 grid-rows-2 h-[320px] gap-4 px-4">
-      <div
-        class="gap-4 col-span-2 row-span-2 grid grid-rows-2 grid-cols-1 rounded-md"
-      >
+      <div class="grid grid-cols-8 grid-rows-2 h-[320px] gap-4 px-4">
         <div
-          class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
+          class="gap-4 col-span-2 row-span-2 grid grid-rows-2 grid-cols-1 rounded-md"
         >
-          <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
-            <span class="text-lg font-semibold leading-6"
-              >Camera Count & Status</span
-            >
-            <span class="flex items-center gap-2 text-2xl font-bold leading-8"
-              >{uniqueCams.length}
-              <span class="flex items-center gap-1 text-sm text-[#00B69B]">
-                <TrendingUp size={18} /> 1.3%
-              </span>
-            </span>
-            <span class="flex items-center gap-3">
-              <span class="flex items-center gap-1 text-sm">
-                <span class="h-2 w-2 rounded-full bg-[#5B93FF]" /> Active</span
-              >
-              <span class="flex items-center gap-1 text-sm"
-                ><span class="h-2 w-2 rounded-full bg-[#FFD66B]" /> Inactive</span
-              >
-            </span>
-          </span>
-          <span class="col-span-1 relative">
-            {#if delayedFlag}<Doughnut
-                activeCameras={activeCams}
-                inactiveCameras={inactiveCams}
-              />
-              <span id='bell' class="h-[30px] w-[30px] rounded-full bg-[#5B93FF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]">
-                <WebcamIcon size={18} class='text-[#5B93FF]'/>
-              </span>
-            {/if}</span
+          <div
+            class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
           >
-        </div>
-        <div
-          class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
-        >
-          <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
-            <span class="text-lg font-semibold leading-6">Alerts</span>
-            <span class="flex items-center gap-2 text-2xl font-bold leading-8"
-              >100
-              <span class="flex items-center gap-1 text-sm text-[#00B69B]">
-                <TrendingUp size={18} /> 1.3%
+            <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
+              <span class="text-lg font-semibold leading-6"
+                >Camera Count & Status</span
+              >
+              <span class="flex items-center gap-2 text-2xl font-bold leading-8"
+                >{uniqueCams.length}
+                <span class="flex items-center gap-1 text-sm text-[#00B69B]">
+                  <TrendingUp size={18} /> 1.3%
+                </span>
+              </span>
+              <span class="flex items-center gap-3">
+                <span class="flex items-center gap-1 text-sm">
+                  <span class="h-2 w-2 rounded-full bg-[#5B93FF]" /> Active</span
+                >
+                <span class="flex items-center gap-1 text-sm"
+                  ><span class="h-2 w-2 rounded-full bg-[#FFD66B]" /> Inactive</span
+                >
               </span>
             </span>
+            <span class="col-span-1 relative">
+              {#if delayedFlag}<Doughnut
+                  activeCameras={activeCams}
+                  inactiveCameras={inactiveCams}
+                />
+                <span
+                  id="bell"
+                  class="h-[30px] w-[30px] rounded-full bg-[#5B93FF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]"
+                >
+                  <WebcamIcon size={18} class="text-[#5B93FF]" />
+                </span>
+              {/if}</span
+            >
+          </div>
+          <div
+            class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
+          >
+            <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
+              <span class="text-lg font-semibold leading-6">Alerts</span>
+              <span class="flex items-center gap-2 text-2xl font-bold leading-8"
+                >100
+                <span class="flex items-center gap-1 text-sm text-[#00B69B]">
+                  <TrendingUp size={18} /> 1.3%
+                </span>
+              </span>
+              <span class="flex items-center gap-3">
+                <span class="flex items-center gap-1">
+                  <span class="h-2 w-2 rounded-full bg-[#99A2FB]" /> Critical</span
+                >
+                <span class="flex items-center gap-1"
+                  ><span class="h-2 w-2 rounded-full bg-[#FB99B0]" /> Non-critical</span
+                >
+              </span>
+            </span>
+            <span class="col-span-1 relative"
+              >{#if delayedFlag}<Doughnut2 critical={6} nonCritical={5} /><span
+                  id="bell"
+                  class="h-[30px] w-[30px] rounded-full bg-[#605BFF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]"
+                >
+                  <BellRing size={18} class="text-[#605BFF]" />
+                </span>{/if}</span
+            >
+          </div>
+        </div>
+        <div class=" col-span-3 row-span-2 border p-2 rounded-md">
+          <div class="flex items-center justify-between pt-2">
+            <p class="text-lg font-medium leading-5">Map View</p>
             <span class="flex items-center gap-3">
-              <span class="flex items-center gap-1">
-                <span class="h-2 w-2 rounded-full bg-[#99A2FB]" /> Critical</span
+              <span class="flex items-center gap-2">
+                <span class="h-2 w-2 bg-[#03A185] rounded-full" /> Active</span
               >
-              <span class="flex items-center gap-1"
-                ><span class="h-2 w-2 rounded-full bg-[#FB99B0]" /> Non-critical</span
+              <span class="flex items-center gap-2">
+                <span class="h-2 w-2 bg-[#B5496E] rounded-full" /> Inactive</span
               >
             </span>
-          </span>
-          <span class="col-span-1 relative"
-            >{#if delayedFlag}<Doughnut2
-                critical={6}
-                nonCritical={5}
-              /><span id='bell' class="h-[30px] w-[30px] rounded-full bg-[#605BFF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]">
-                <BellRing size={18} class='text-[#605BFF]'/>
-              </span>{/if}</span
-          >
+          </div>
+          <div class="h-[95%] w-full">
+            {#if NvrData && delayedFlag}
+            <MapNvr {NvrData} />
+          {/if}
+          </div>
         </div>
-      </div>
-      <div class=" col-span-3 row-span-2 border p-2 rounded-md">
-        <div class="flex items-center justify-between pt-2">
-          <p class="text-lg font-medium leading-5">Map View</p>
-          <span class="flex items-center gap-3">
-            <span class="flex items-center gap-2">
-              <span class="h-2 w-2 bg-[#03A185] rounded-full" /> Active</span
-            >
-            <span class="flex items-center gap-2">
-              <span class="h-2 w-2 bg-[#B5496E] rounded-full" /> Critical</span
-            >
-            <span class="flex items-center gap-2">
-              <span class="h-2 w-2 bg-[#EBB62D] rounded-full" /> Non-Critical</span
-            >
-          </span>
-        </div>
-        <div class="h-[95%] w-full">
-          <MapMultiCameras />
-        </div>
-      </div>
-      <div class=" col-span-3 row-span-2 border p-2 rounded-md overflow-clip">
-        <div class="flex items-center justify-between mb-8">
-          <span class="text-lg font-medium">Area Analysis</span>
-          <div class="flex items-center gap-2">
-            <Select.Root>
-              <Select.Trigger class="w-[180px]">
-                <Select.Value placeholder="Sort By: Area" />
-              </Select.Trigger>
-              <Select.Content>
-                <!-- <Select.Item value="population">Sort By: Population</Select.Item
+        <div class=" col-span-3 row-span-2 border p-2 rounded-md overflow-clip">
+          <div class="flex items-center justify-between mb-8">
+            <span class="text-lg font-medium">Area Analysis</span>
+            <div class="flex items-center gap-2">
+              <Select.Root>
+                <Select.Trigger class="w-[180px] focus:ring-0">
+                  <Select.Value placeholder="Sort By: Area" />
+                </Select.Trigger>
+                <Select.Content>
+                  <!-- <Select.Item value="population">Sort By: Population</Select.Item
                 >
                 <Select.Item value="density">Sort By: Density</Select.Item>
                 <Select.Item value="growth">Sort By:Growth Rate</Select.Item> -->
-              </Select.Content>
-            </Select.Root>
-            <MoreVertical size={18} />
+                </Select.Content>
+              </Select.Root>
+              <MoreVertical size={18} />
+            </div>
           </div>
+          {#if NvrData && uniqueCams && delayedFlag}
+            <AreaAnalysis {NvrData} {uniqueCams} />
+          {/if}
         </div>
-        {#if NvrData && uniqueCams && delayedFlag}
-        <AreaAnalysis {NvrData} {uniqueCams}/>
-      {/if}
       </div>
-    </div>
-    <div class="h-full w-full p-4 flex flex-col gap-2">
-      <p class="font-medium text-lg">List of Cameras</p>
-      <Table.Root class="mx-auto w-full flex flex-col pb-10">
-        <Table.Header
-          class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
-        >
-          <Table.Row
-            class="bg-transparent flex items-center justify-between p-3 w-full"
+      <div class="h-full w-full p-4 flex flex-col gap-2">
+        <p class="font-medium text-lg">List of Cameras</p>
+        <Table.Root class="mx-auto w-full flex flex-col pb-10">
+          <Table.Header
+            class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9] dark:bg-black"
           >
-            <Table.Head class="text-[#727272] h-full w-[10%]">ID</Table.Head>
-            <Table.Head class="text-[#727272]  h-full w-[12%]">Name</Table.Head>
-            <Table.Head class="text-[#727272]  h-full w-[12%]"
-              >Severity</Table.Head
-            >
-            <Table.Head class="text-[#727272]  h-full w-[12%]"
-              >Downtime</Table.Head
-            >
-            <Table.Head class="text-[#727272]  h-full w-[12%]"
-              >Status</Table.Head
-            >
-            <Table.Head class="text-[#727272]  h-full w-[12%]"
-              >Exiting alert</Table.Head
-            >
-            <Table.Head class="text-[#727272]  pr-0 h-full w-[20%]"
-              >Actions</Table.Head
-            >
-          </Table.Row>
-        </Table.Header>
-        <Table.Body
-          class="overflow-y-scroll max-h-[calc(100vh-650px)] hide-scrollbar pb-10"
-        >
-          {#each cameraList as item, index}
             <Table.Row
-              class="bg-transparent flex items-center justify-between mt-4 rounded-lg  border-2 border-solid border-[#e4e4e4] px-3"
+              class="bg-transparent flex items-center justify-between p-3 w-full"
             >
-              <Table.Cell class="text-black w-[10%] h-full">#{index}</Table.Cell
+              <Table.Head class="text-[#727272] h-full w-[10%] dark:text-slate-50">ID</Table.Head>
+              <Table.Head class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
+                >Name</Table.Head
               >
-              <Table.Cell class="text-[#727272] w-[12%]  h-full text-sm ml-2"
-                >{item.expand.camera.name}</Table.Cell
+              <Table.Head class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
+                >Severity</Table.Head
               >
-              <Table.Cell class="text-[#727272] w-[12%]  h-full text-sm"
-                >severity</Table.Cell
+              <Table.Head class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
+                >Downtime</Table.Head
               >
-              <Table.Cell class="text-[#727272] w-[12%] h-full text-sm"
-                >downtime</Table.Cell
+              <Table.Head class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
+                >Status</Table.Head
               >
-              <Table.Cell class="text-[#727272] w-[12%] h-full text-sm"
-                >{#if item.status} <span class="bg-[#EDF2FE] text-[#4976F4] px-2 py-1 rounded-md font-medium text-sm">Active</span> {:else} <span class="bg-[#F7F7E8] text-[#D28E3D] px-2 py-1 rounded-md font-medium text-sm">Inactive</span> {/if}</Table.Cell
+              <Table.Head class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
+                >Exiting alert</Table.Head
               >
-              <Table.Cell class="text-[#727272] w-[12%] h-full text-sm"
-                >exiting alert</Table.Cell
+              <Table.Head class="text-[#727272]  pr-0 h-full w-[20%] dark:text-slate-50"
+                >Actions</Table.Head
               >
-              <Table.Cell
-                class="text-[#727272] w-[20%] h-full text-sm flex items-center gap-2"
-              >
-                <button
-                  class="text-[#4976F4] bg-[#4976F4] flex items-center gap-1 rounded-xl py-1 px-2 text-xs bg-opacity-15 whitespace-nowrap"
-                  ><User size={16} /> Assign Technician</button
-                >
-                <button
-                  class="text-[#D53228CC] bg-[#D53228] flex items-center gap-1 rounded-xl py-1 px-2 text-xs bg-opacity-15 whitespace-nowrap"
-                >
-                  <Trash size={16} /> Delete</button
-                >
-              </Table.Cell>
             </Table.Row>
-          {/each}
-        </Table.Body>
-      </Table.Root>
-    </div>
+          </Table.Header>
+          <Table.Body>
+            {#each cameraList as item, index}
+              <Table.Row
+                class="bg-transparent flex items-center justify-between mt-4 rounded-lg  border-2 border-solid border-[#e4e4e4] px-3"
+              >
+                <Table.Cell class="text-black dark:text-slate-50 w-[10%] h-full"
+                  >#{index}</Table.Cell
+                >
+                <Table.Cell class="text-[#727272] w-[12%]  h-full text-sm ml-2"
+                  >{item?.expand?.camera?.name}</Table.Cell
+                >
+                <Table.Cell class="text-[#727272] w-[12%]  h-full text-sm"
+                  >severity</Table.Cell
+                >
+                <Table.Cell class="text-[#727272] w-[12%] h-full text-sm"
+                  >downtime</Table.Cell
+                >
+                <Table.Cell class="text-[#727272] w-[12%] h-full text-sm"
+                >{#if item.status}
+                <span
+                      class="bg-[#EDF2FE] dark:bg-transparent dark:border-[#EDF2FE] text-[#4976F4] px-2 py-1 rounded-md font-medium text-sm"
+                      >Active</span
+                    >
+                  {:else}
+                    <span
+                      class="bg-[#F7F7E8] dark:bg-transparent dark:border-[#F7F7e8] text-[#D28E3D] px-2 py-1 rounded-md font-medium text-sm"
+                      >Inactive</span
+                    >
+                  {/if}</Table.Cell
+                >
+                <Table.Cell class="text-[#727272] w-[12%] h-full text-sm"
+                  >exiting alert</Table.Cell
+                >
+                <Table.Cell
+                  class="text-[#727272] w-[20%] h-full text-sm flex items-center gap-2"
+                >
+                  <button
+                    class="text-[#4976F4] bg-[#4976F4] flex items-center gap-1 rounded-xl py-1 px-2 text-xs bg-opacity-15 whitespace-nowrap"
+                    ><User size={16} /> Assign Technician</button
+                  >
+                  <button
+                    class="text-[#D53228CC] bg-[#D53228] flex items-center gap-1 rounded-xl py-1 px-2 text-xs bg-opacity-15 whitespace-nowrap"
+                  >
+                    <Trash size={16} /> Delete</button
+                  >
+                </Table.Cell>
+              </Table.Row>
+            {/each}
+          </Table.Body>
+        </Table.Root>
+      </div>
+    </section>
   {/if}
   {#if view === 2 && $selectedNvr === null}
+  <section
+  class="flex flex-col max-h-[calc(100vh-120px)] overflow-y-auto hide-scrollbar pb-10"
+>
     <div class="flex items-center justify-between p-4">
       <div class="left flex flex-col gap-1">
         <h2 class="font-medium text-xl text-[#323232]">Health Monitor</h2>
@@ -466,10 +457,13 @@
                 activeCameras={activeNvr}
                 inactiveCameras={inactiveNvr}
               />
-              <span id='bell' class="h-[30px] w-[30px] rounded-full bg-[#5B93FF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]">
-                <WebcamIcon size={18} class='text-[#5B93FF]'/>
+              <span
+                id="bell"
+                class="h-[30px] w-[30px] rounded-full bg-[#5B93FF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]"
+              >
+                <WebcamIcon size={18} class="text-[#5B93FF]" />
               </span>
-              {/if}</span
+            {/if}</span
           >
         </div>
         <div
@@ -493,11 +487,12 @@
             </span>
           </span>
           <span class="col-span-1 relative"
-            >{#if delayedFlag}<Doughnut2
-                critical={3}
-                nonCritical={5}
-              /> <span id='bell' class="h-[30px] w-[30px] rounded-full bg-[#605BFF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]">
-                <BellRing size={18} class='text-[#605BFF]'/>
+            >{#if delayedFlag}<Doughnut2 critical={3} nonCritical={5} />
+              <span
+                id="bell"
+                class="h-[30px] w-[30px] rounded-full bg-[#605BFF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]"
+              >
+                <BellRing size={18} class="text-[#605BFF]" />
               </span>{/if}</span
           >
         </div>
@@ -515,7 +510,7 @@
           </span>
         </div>
         <div class="h-[95%] w-full">
-          {#if NvrData}
+          {#if NvrData && delayedFlag}
             <MapNvr {NvrData} />
           {/if}
         </div>
@@ -538,9 +533,9 @@
             <MoreVertical size={18} />
           </div>
         </div>
-          {#if NvrData && uniqueCams && delayedFlag}
-            <AreaAnalysis {NvrData} {uniqueCams}/>
-          {/if}
+        {#if NvrData && uniqueCams && delayedFlag}
+          <AreaAnalysis {NvrData} {uniqueCams} />
+        {/if}
       </div>
     </div>
     <span class=" flex items-center gap-4 pt-4 px-4">
@@ -556,12 +551,13 @@
       </span>
     </span>
     <div
-      class="flex flex-wrap items-center gap-4 p-4 overflow-y-scroll max-h-[calc(100vh-580px)] hide-scrollbar pb-20"
+      class="flex flex-wrap items-center gap-4 p-4"
     >
       {#each NvrData as nvr, i}
         <HealthNvrcard {selectedNvr} {nvr} />
       {/each}
     </div>
+    </section>
   {/if}
   {#if view === 3}
     <section
@@ -597,14 +593,16 @@
           >
             <span class="col-span-3 flex items-start justify-between">
               <span class="flex flex-col gap-1">
-                <p class="font-medium text-black">Total Storage</p>
-                <p class="text-xs text-black/[.6]">
+                <p class="font-medium text-black dark:text-white">Total Storage</p>
+                <p class="text-xs text-black/[.6] dark:text-white/[.6]">
                   Includes storage on all Location
                 </p>
-                <p class="text-lg font-semibold text-black">{totalCapacity.toFixed(2)}TB</p>
+                <p class="text-lg font-semibold text-black dark:text-white">
+                  {totalCapacity?.toFixed(2)}TB
+                </p>
               </span>
               <span
-                class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#F7E8FF]"
+                class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#F7E8FF] dark:text-black"
               >
                 <ArrowUpRight size={24} />
               </span>
@@ -620,12 +618,14 @@
           >
             <span class="col-span-3 flex items-start justify-between">
               <span class="flex flex-col gap-1">
-                <p class="font-medium text-black">Total Used Storage</p>
-                <p class="text-xs text-black/[.6]">Summary of used storage</p>
-                <p class="text-lg font-semibold text-black">{(totalCapacity - totalFreeSpace).toFixed(2)} TB</p>
+                <p class="font-medium text-black dark:text-white">Total Used Storage</p>
+                <p class="text-xs text-black/[.6] dark:text-white/[.6]">Summary of used storage</p>
+                <p class="text-lg font-semibold text-black dark:text-white" >
+                  {(totalCapacity - totalFreeSpace)?.toFixed(2)} TB
+                </p>
               </span>
               <span
-                class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#FFE5F7]"
+                class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#FFE5F7] dark:text-black"
               >
                 <ArrowUpRight size={24} />
               </span>
@@ -641,9 +641,11 @@
           >
             <span class="col-span-3 flex items-start justify-between">
               <span class="flex flex-col gap-1">
-                <p class="font-medium text-black">Available Storage</p>
-                <p class="text-xs text-black/[.6]">Summary of all Storage</p>
-                <p class="text-lg font-semibold text-black">{totalFreeSpace.toFixed(2)} TB</p>
+                <p class="font-medium text-black dark:text-white">Available Storage</p>
+                <p class="text-xs text-black/[.6] dark:text-white/[.6]">Summary of all Storage</p>
+                <p class="text-lg font-semibold text-black dark:text-white">
+                  {totalFreeSpace?.toFixed(2)} TB
+                </p>
               </span>
               <span
                 class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#FFEAE4]"
@@ -662,12 +664,14 @@
           >
             <span class="col-span-3 flex items-start justify-between">
               <span class="flex flex-col gap-1">
-                <p class="font-medium text-black">Total Storage per NVR</p>
-                <p class="text-xs text-black/[.6]">Avg storage per NVR</p>
-                <p class="text-lg font-semibold text-black">{(totalCapacity.toFixed(2) / NvrData.length).toFixed(2)} TB</p>
+                <p class="font-medium text-black dark:text-white">Total Storage per NVR</p>
+                <p class="text-xs text-black/[.6] dark:text-white/[.6]">Avg storage per NVR</p>
+                <p class="text-lg font-semibold text-black dark:text-white">
+                  {(totalCapacity?.toFixed(2) / NvrData?.length)?.toFixed(2)} TB
+                </p>
               </span>
               <span
-                class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#FFE8ED]"
+                class="h-[40px] w-[40px] grid place-items-center rounded-md bg-[#FFE8ED] dark:text-black"
               >
                 <ArrowUpRight size={24} />
               </span>

@@ -25,9 +25,13 @@
   export let handleSingleSS: () => void;
   export let isAllFullScreen: boolean;
   export let data;
-  // export let slideIndex: number | undefined | null;
 
-  let streamCount = $selectedNode.camera.length; // Number of video streams
+  let streamCount =
+    $selectedNode.camera.length === $filteredNodeCameras.length
+      ? $selectedNode.camera.length
+      : $filteredNodeCameras.length === 0
+        ? $selectedNode.camera.length
+        : $filteredNodeCameras.length; // Number of video streams
   let layoutRows = 1; // Default layout rows
   let layoutColumns = 1; // Default layout columns
   let totalPages = 1;
@@ -41,18 +45,13 @@
 
   const initVideo = async (camera: Camera) => {
     const index = $selectedNode.camera.findIndex((cam) => cam.id === camera.id);
-    // console.log(index, "newIndex init video");
     if (videos[camera.id]) {
       console.log("video c.id exists", camera.name);
       return;
     }
-    // console.log("camera init", camera);
+
     let video = document.createElement("video-stream") as VideoStreamType;
     video.id = `stream-${camera.id}`;
-    // const codec = await  video.checkCodec()
-    // console.log(codec)
-
-    // video.mode = $page.url.hostname.includes("116") ? "mse" : "webrtc";
     video.mode = "webrtc";
     video.url = camera.url;
     camera?.subUrl?.length === 0
@@ -82,7 +81,6 @@
     video.background = true;
     video.visibilityCheck = false;
     videos[camera.id] = video;
-    // console.log(videos[camera.id]);
   };
 
   const singleFullscreen = (slotIndex: number) => {
@@ -155,12 +153,7 @@
     const endIndex = startIndex + $selectedNode.maxStreamsPerPage;
     const camerasOnSlide = $selectedNode.camera.slice(startIndex, endIndex);
     const cameraIds = camerasOnSlide.map((camera) => camera.id);
-    console.log("Camera IDs on current slide:", cameraIds);
-    // Call your function here with cameraIds
-    console.log(camerasOnSlide);
-    // yourFunction(cameraIds);
     cameraIds.forEach((cameraId) => {
-      console.log("cameraId refreshing", cameraId);
       refreshVideoStream(cameraId);
     });
   }
@@ -181,13 +174,7 @@
 
   let prevName = $selectedNode.name;
 
-  // $: console.log(slideIndex);
-
   const updateLayout = (maxStreamsPerPage: number) => {
-    // currentIndex = 0
-    // setTimeout(() => {
-    //   refreshCameras()
-    // }, 2*60*1000);
     if ($selectedNode.name !== prevName) {
       Object.keys(videos).forEach((videoId) => {
         const videoElement = videos[videoId];
@@ -213,11 +200,17 @@
       }
     });
 
-    streamCount = $selectedNode.camera.length;
+    streamCount =
+      $selectedNode.camera.length === $filteredNodeCameras.length
+        ? $selectedNode.camera.length
+        : $filteredNodeCameras.length === 0
+          ? $selectedNode.camera.length
+          : $filteredNodeCameras.length;
 
     if (maxStreamsPerPage === 0) {
       // Automatic Layout
       // const squareRoot = Math.ceil(Math.sqrt(streamCount !== $filteredNodeCameras?.length ? $filteredNodeCameras?.length :streamCount));
+      // console.log(streamCount)
       const squareRoot = Math.ceil(Math.sqrt(streamCount));
       if (Number.isInteger(Math.sqrt(streamCount))) {
         layoutColumns = squareRoot;
@@ -225,7 +218,7 @@
         layoutColumns = squareRoot <= 4 ? squareRoot : 5;
       }
       // layoutRows = Math.ceil(streamCount !== $filteredNodeCameras?.length ? $filteredNodeCameras?.length :streamCount / layoutColumns);
-      layoutRows = Math.ceil(streamCount/layoutColumns);
+      layoutRows = Math.ceil(streamCount / layoutColumns);
     } else if (
       streamCount !== 0 &&
       maxStreamsPerPage !== 10 &&
@@ -249,6 +242,7 @@
       layoutColumns = 3;
       layoutRows = 3;
     }
+
     totalPages =
       maxStreamsPerPage === 10
         ? Math.ceil(streamCount / 10)
@@ -259,9 +253,19 @@
             : maxStreamsPerPage === 7
               ? Math.ceil(streamCount / 8)
               : Math.ceil(streamCount / (layoutRows * layoutColumns));
+
+    setTimeout(() => {
+      initSortable();
+    }, 500);
   };
 
-  $: updateLayout($selectedNode.maxStreamsPerPage);
+  $: {
+    if ($filteredNodeCameras.length === $selectedNode.camera.length) {
+      updateLayout($selectedNode.maxStreamsPerPage);
+    } else {
+      updateLayout(0);
+    }
+  }
   $: {
     if (isSingleFullscreen) {
       document.addEventListener("fullscreenchange", onFullscreenChange);
@@ -270,8 +274,13 @@
     }
   }
 
-  onMount(function () {
-    // getUpdatedConfig()
+  onMount(() => {
+    setTimeout(() => {
+      initSortable();
+    }, 100);
+  });
+
+  function initSortable() {
     if (cells) {
       Sortable.create(cells, {
         animation: 250,
@@ -279,19 +288,15 @@
         dragClass: "dragged",
         handle: ".grab-handle",
         onEnd: function (evt) {
-          // Get the new order of elements
-          console.log(evt);
           const newOrder = Array.from(cells.children).map((child) => child.id);
           const draggedElement = evt.item;
-
-          // Update the list with the new order
           updateListWithNewOrder(newOrder, draggedElement);
         },
       });
     } else {
       console.log("sortable cells not found");
     }
-  });
+  }
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
   onMount(async () => {
@@ -349,9 +354,6 @@
   }
 
   function updateListWithNewOrder(newOrder, draggedItem) {
-    // Perform actions to update the list with the new order
-    console.log("New order of elements:", newOrder);
-    console.log("dragged item", draggedItem);
     const cell = document.getElementById("grid-cell-0");
     const stream = cell?.querySelector("video-stream");
     if (stream) {
@@ -359,42 +361,81 @@
         (c) => c.url === stream.url,
       );
       const matchingCameraId = matchingCamera ? matchingCamera.id : null;
-
-      console.log(matchingCameraId);
     } else {
       console.log("here");
     }
-    // Example: Update the state or data structure with the new order
-    // Replace this with your actual implementation
-    // list = newOrder;
   }
-
-  $: console.log(videos)
 </script>
 
 {#if streamCount > 0 && Object.keys(videos).length > 0}
   <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <!-- {#if streamCount !== $filteredNodeCameras.length && $filteredNodeCameras.length !== 0}
+  {#if $selectedNode.camera.length !== $filteredNodeCameras.length && $filteredNodeCameras.length !== 0}
     <div
       class={cn(
-        `grid gap-1 w-full h-full ${$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : !$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : isAllFullScreen ? "max-h-screen" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
+        `grid relative gap-1 w-full h-full ${$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : !$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : isAllFullScreen ? "max-h-screen" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
       )}
       bind:this={cells}
     >
       {#each Array($filteredNodeCameras.length) as _, newIndex}
-          {#key newIndex}
+        {#key newIndex}
+          <div id={`grid-cell-${newIndex}`}>
             <Stream
-videoElement={videos[
-  $filteredNodeCameras[
-      newIndex
-  ].id
-]}
-camera={$filteredNodeCameras[newIndex]}
-/>
-          {/key}
+              videoElement={videos[$filteredNodeCameras[newIndex].id]}
+              camera={$filteredNodeCameras[newIndex]}
+            />
+            <span
+              class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-90 z-20"
+            >
+              <span
+                class={`h-2 w-2 ${
+                  $filteredNodeCameras[newIndex].save === true
+                    ? "bg-[#C12828]"
+                    : "bg-[#589e67]"
+                } rounded-full`}
+              />
+              <span class="text-xs font-extrabold">
+                {$filteredNodeCameras[newIndex].name}
+              </span>
+            </span>
+            <button
+              on:click={() => {
+                if (isSingleFullscreen === true) {
+                  exitSingleFullscreen();
+                  const streamElement =
+                    videos[$filteredNodeCameras[newIndex].id];
+                  console.log(streamElement);
+                  if (streamElement) {
+                    console.log("first");
+                    streamElement.remove();
+                    delete videos[$filteredNodeCameras[newIndex].id];
+                  }
+                  initVideo($filteredNodeCameras[newIndex]);
+                } else {
+                  singleFullscreen(newIndex);
+                  const streamElement =
+                    videos[$filteredNodeCameras[newIndex].id];
+                  if (streamElement) {
+                    console.log("first");
+                    streamElement.remove();
+                    delete videos[$filteredNodeCameras[newIndex].id];
+                  }
+                  initVideo($filteredNodeCameras[newIndex]);
+                }
+
+                addUserLog(
+                  `user clicked single camera fulscreen for camera ${$filteredNodeCameras[newIndex].name} having url "${$filteredNodeCameras[newIndex].url}" `,
+                );
+              }}
+              class="absolute p-1 top-4 right-4 cursor-pointer bg-[rgba(0,0,0,.5)] text-white rounded z-20 disabled:cursor-not-allowed"
+              >{#if !isSingleFullscreen}
+                <Expand size={18} />{:else}
+                <Shrink size={18} />{/if}
+            </button>
+          </div>
+        {/key}
       {/each}
     </div>
-  {:else} -->
+  {:else}
     <Carousel.Root
       class="w-full h-full flex justify-center items-center"
       opts={{ watchDrag: false }}
@@ -826,11 +867,6 @@ camera={$filteredNodeCameras[newIndex]}
                         />
                       </button>
                     </AddCameraDialog>
-                    <!-- <span
-                    class="cursor-grab grab-handle absolute rounded top-4 right-12 flex-shrink-0 p-1 bg-[rgba(0,0,0,.5)] text-white z-20"
-                  >
-                    <Menu size={18} />
-                  </span> -->
                   </div>
                 {/if}
               {/each}
@@ -847,7 +883,7 @@ camera={$filteredNodeCameras[newIndex]}
         class="right-8 disabled:invisible text-bold text-[#015a62] dark:text-white"
       />
     </Carousel.Root>
-  <!-- {/if} -->
+  {/if}
   <!-- </div> -->
 {:else}
   <div

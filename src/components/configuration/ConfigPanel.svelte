@@ -174,7 +174,9 @@
     {:else if search === "System"}
       <System />
     {:else if search === "Camera"}
-      <Camera {user} />
+      <Camera {user}
+      />
+      <!-- {data} -->
     {:else if search === "License"}
       <License session={data.session} />
     {:else}

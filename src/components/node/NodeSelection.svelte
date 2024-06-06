@@ -240,9 +240,7 @@
         </button>
       </EditNodeDialog>
       <AlertDeleteNode onDelete={onDeleteNode}
-        ><button disabled
-          variant="ghost"
-          size="icon"
+        ><button 
           class={`w-[26px] h-[26px] disabled:cursor-not-allowed bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"}`}
           ><Trash
             size={18}

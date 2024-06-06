@@ -3,27 +3,46 @@
   export let liveFeatures;
     import Button from "@/components/ui/button/button.svelte";
   import * as Table from "@/components/ui/table/index";
+    import { onMount } from "svelte";
+    import { writable } from "svelte/store";
+  let userFeatures = writable([])
 
-  // console.log(allUsers)
+  import { get } from 'svelte/store';
 
-  let userFeatures = allUsers.map(user => ({
-    id: user.id,
-    features: user.features ? [...user.features] : []
-  }));
+  onMount(() => {
+    initializeUserFeatures();
+  });
+
+  function initializeUserFeatures() {
+    const features = allUsers.map(user => ({
+      id: user.id,
+      features: user.features ? [...user.features] : []
+    }));
+    userFeatures.set(features);
+  }
 
   function handleFeatureChange(userId, featureId, isChecked) {
-    const user = userFeatures.find(u => u.id === userId);
-    if (user) {
+    let currentFeatures = get(userFeatures);
+    if (currentFeatures.length === 0) {
+      initializeUserFeatures();
+      currentFeatures = get(userFeatures);
+    }
+    const userIndex = currentFeatures.findIndex(u => u.id === userId);
+    if (userIndex !== -1) {
+      const user = currentFeatures[userIndex];
       if (isChecked) {
-        user.features.push(featureId);
+        if (!user.features.includes(featureId)) {
+          user.features.push(featureId);
+        }
       } else {
         user.features = user.features.filter(f => f !== featureId);
       }
+      userFeatures.update(features => {
+        features[userIndex] = user;
+        return features;
+      });
     }
-    console.log(userFeatures)
   }
-
-  $: console.log(userFeatures)
 
   function handleLivefeaturesUpdate () {
     fetch('/api/features/addFeature', {
@@ -31,7 +50,7 @@
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(userFeatures)
+      body: JSON.stringify($userFeatures)
     })
     .then(response => response.json())
     .then(data => {
@@ -43,10 +62,9 @@
   }
 </script>
 
-<div class="w-full h-full flex flex-col">
   <Table.Root class="mx-auto h-full w-full flex flex-col max-w-[calc(100vw-8.3rem)] max-h-[calc(100vh-310px)] hide-scrollbar overflow-x-auto">
     <Table.Header
-      class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9] w-max"
+      class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9] w-max min-w-full"
     >
       <Table.Row class="bg-transparent flex items-center justify-between p-3">
         <Table.Head class="text-[#727272] h-full w-[50px]"
@@ -69,7 +87,7 @@
     >
       {#each allUsers as user}
         <Table.Row
-          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4] w-max"
+          class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4] w-max min-w-full"
         >
           <Table.Cell class="text-black h-full w-[50px]">
             <input type="checkbox">
@@ -99,4 +117,3 @@
     </Button>
   </Table.Root>
 
-</div>

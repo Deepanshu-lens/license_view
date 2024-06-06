@@ -1,46 +1,125 @@
 <script>
-    import * as Table from "@/components/ui/table/index";
+  import * as Table from "@/components/ui/table/index";
+  export let allUsers;
+  import { writable, get } from "svelte/store";
+  import { onMount } from "svelte";
+  import { Button } from "@/components/ui/button";
+  let eventFeatures = [];
+  let userFeatures = writable([]);
+  onMount(async () => {
+    const events = await fetch("/api/features/event");
+    if (!events.ok) {
+      throw new Error(
+        `failed to fetch events features, HTTP error! status: ${events.status}`,
+      );
+    }
+    const p = await events.json();
+    console.log(p);
+    eventFeatures = p?.features?.items;
+    initializeUserFeatures();
+  });
+  function initializeUserFeatures() {
+    const features = allUsers.map((user) => ({
+      id: user.id,
+      features: user.features ? [...user.features] : [],
+    }));
+    userFeatures.set(features);
+  }
+
+  function handleFeatureChange(userId, featureId, isChecked) {
+    console.log(userId, featureId, isChecked);
+    let currentFeatures = get(userFeatures);
+    const userIndex = currentFeatures.findIndex((u) => u.id === userId);
+    if (userIndex !== -1) {
+      const user = currentFeatures[userIndex];
+      if (isChecked) {
+        if (!user.features.includes(featureId)) {
+          user.features.push(featureId);
+          console.log("first");
+        }
+      } else {
+        user.features = user.features.filter((f) => f !== featureId);
+        console.log("second");
+      }
+      userFeatures.update((features) => {
+        features[userIndex] = user;
+        return features;
+      });
+    }
+  }
+
+   function handleFeaturesUpdate() {
+    fetch('/api/features/updateFeature', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify($userFeatures)
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Success:', data);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+  }
+
 </script>
 
-<Table.Root class="mx-auto w-full flex flex-col pb-10">
-    <Table.Header
-      class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
-    >
-      <Table.Row
-        class="bg-transparent flex items-center justify-between p-3"
+<Table.Root
+  class="mx-auto h-full w-full flex flex-col max-w-[calc(100vw-8.3rem)] max-h-[calc(100vh-310px)] hide-scrollbar overflow-x-auto"
+>
+  <Table.Header
+    class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9] w-max min-w-full"
+  >
+    <Table.Row class="bg-transparent flex items-center justify-between p-3">
+      <Table.Head class="text-[#727272] h-full w-[50px]"
+        ><input type="checkbox" name="" id="" /></Table.Head
       >
-        <Table.Head class="text-[#727272] h-full">User role</Table.Head>
-        <Table.Head class="text-[#727272] h-full">Feature 1</Table.Head>
-        <Table.Head class="text-[#727272] h-full">Feature 2</Table.Head>
-        <Table.Head class="text-[#727272] h-full">Feature 3</Table.Head>
-        <Table.Head class="text-[#727272] h-full">Feature 4</Table.Head>
-      </Table.Row>
-    </Table.Header>
-    <Table.Body
-      class="overflow-y-scroll max-h-[calc(100vh-285px)] hide-scrollbar pb-10"
-    >
-      <Table.Row
-        class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-      >
-        <Table.Cell class="text-black h-full"
-          ><span
-            class="flex items-center gap-2 capitalize font-semibold"
+      <Table.Head class="text-[#727272] h-full w-[200px]">User Name</Table.Head>
+      {#if eventFeatures}
+        {#each eventFeatures as feature}
+          <Table.Head class="text-[#727272] h-full w-[200px]"
+            >{feature.feature}</Table.Head
           >
-            user 1
+        {/each}
+      {/if}
+    </Table.Row>
+  </Table.Header>
+  <Table.Body class=" pb-10">
+    {#each allUsers as user}
+      <Table.Row
+        class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4] w-max min-w-full"
+      >
+        <Table.Cell class="text-black h-full w-[50px]">
+          <input type="checkbox" />
+        </Table.Cell>
+        <Table.Cell class="text-black h-full">
+          <span class="flex flex-col font-semibold text-primary">
+            <span>
+              Name: {user?.name.length > 0 ? user.name : "-"}
+            </span>
+            <span class="text-xs">
+              Id: {user.id}
+            </span>
           </span>
         </Table.Cell>
-        <Table.Cell class="text-[#727272] h-full text-sm ">
-          <input type="checkbox" />
-        </Table.Cell>
-        <Table.Cell class="text-[#727272] h-full text-sm">
-          <input type="checkbox" />
-        </Table.Cell>
-        <Table.Cell class="text-[#727272] h-full text-sm ">
-          <input type="checkbox" />
-        </Table.Cell>
-        <Table.Cell class="text-[#727272] h-full  ">
-          <input type="checkbox" />
-        </Table.Cell>
+        {#each eventFeatures as feature}
+          <Table.Cell class="text-[#727272] h-full  w-[180px]">
+            <!-- <input type="checkbox" /> -->
+            <input
+              type="checkbox"
+              checked={user?.features
+                ? user?.features.includes(feature.id)
+                : false}
+              on:change={(e) =>
+                handleFeatureChange(user.id, feature.id, e.target.checked)}
+            />
+          </Table.Cell>
+        {/each}
       </Table.Row>
-    </Table.Body>
-  </Table.Root>
+    {/each}
+  </Table.Body>
+  <Button on:click={handleFeaturesUpdate} class="mr-auto">Save</Button>
+</Table.Root>

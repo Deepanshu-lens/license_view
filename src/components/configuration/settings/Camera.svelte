@@ -15,6 +15,9 @@
   import { page } from "$app/stores";
   import * as Select from "@/components/ui/select";
   import CameraDeleteDialog from "@/components/dialogs/CameraDeleteDialog.svelte";
+  // export let data;
+
+  // const nodeD = data.nodes;
 
   let selected = 1;
   let detailIndex: number | null = null;
@@ -57,7 +60,9 @@
         return;
       }
       const result = await data.json();
-      nodeData.set(result?.nodeData.map(node => ({ ...node, session: user.session })));
+      nodeData.set(
+        result?.nodeData.map((node) => ({ ...node, session: user.session })),
+      );
     } else {
       console.log("no selected node");
     }
@@ -97,7 +102,7 @@
   };
 
   $: {
-    console.log($nodeData)
+    // console.log($nodeData);
     newData =
       $nodeData.length > 0
         ? $nodeData.filter((item: any) => {
@@ -116,6 +121,7 @@
     }
   }
 
+  // $: console.log($selectedNode);
 </script>
 
 <div
@@ -424,6 +430,13 @@
                         type="checkbox"
                         checked={nodeIndex === index}
                       />
+                        <!-- on:click={() => {
+                          console.log($selectedNode);
+                          const foundNode = nodeD.find(
+                            (node) => node.id === data.id,
+                          );
+                          console.log("Found node:", foundNode);
+                        }} -->
                     </div>
                   </td>
                 </tr>
