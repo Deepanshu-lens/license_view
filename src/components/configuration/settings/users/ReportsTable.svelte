@@ -3,6 +3,7 @@
   import * as Table from "@/components/ui/table/index";
   export let allUsers;
   import { onMount } from "svelte";
+    import { toast } from "svelte-sonner";
     import { writable,get } from "svelte/store";
   let reportsFeatures = [];
   let userFeatures = writable([]);
@@ -50,7 +51,7 @@
   }
 
    function handleFeaturesUpdate() {
-    fetch('/api/features/updateFeature', {
+    fetch('/api/features/addFeature', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -60,9 +61,11 @@
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
+      toast('Permissions Updated for Reports page!')
     })
     .catch((error) => {
       console.error('Error:', error);
+      toast.error('Error in updating permissions!')
     });
   }
 

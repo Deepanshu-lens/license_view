@@ -1,7 +1,7 @@
 <script lang="ts">
   import PocketBase from "pocketbase";
   import { mode } from "mode-watcher";
-  import { activeCamera, topPanelHide } from "@/lib/stores";
+  import { activeCamera } from "@/lib/stores";
   import { cn } from "@/lib";
   import { selectedNode, filteredNodeCameras } from "@/lib/stores";
   import Stream from "@/components/stream/Stream.svelte";
@@ -372,13 +372,13 @@
   {#if $selectedNode.camera.length !== $filteredNodeCameras.length && $filteredNodeCameras.length !== 0}
     <div
       class={cn(
-        `grid relative gap-1 w-full h-full ${$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : !$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : isAllFullScreen ? "max-h-screen" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
+        `grid  gap-1 w-full h-full ${!isAllFullScreen ? "max-h-[calc(100vh-76px)]": "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
       )}
       bind:this={cells}
     >
       {#each Array($filteredNodeCameras.length) as _, newIndex}
         {#key newIndex}
-          <div id={`grid-cell-${newIndex}`}>
+          <div id={`grid-cell-${newIndex}`} class='relative'>
             <Stream
               videoElement={videos[$filteredNodeCameras[newIndex].id]}
               camera={$filteredNodeCameras[newIndex]}
@@ -445,7 +445,7 @@
           <Carousel.Item class="h-full w-full px-0 mx-0">
             <div
               class={cn(
-                `grid gap-1 w-full h-full ${$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : !$topPanelHide && !isAllFullScreen ? "max-h-[calc(100vh-76px)]" : isAllFullScreen ? "max-h-screen" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
+                `grid gap-1 w-full h-full ${!isAllFullScreen ? "max-h-[calc(100vh-76px)]" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
                 $selectedNode.maxStreamsPerPage === 13 && "grid-area-13",
                 $selectedNode.maxStreamsPerPage === 10 && "grid-area-10",
                 $selectedNode.maxStreamsPerPage === 5 && "grid-area-5",

@@ -32,6 +32,9 @@
           maintainAspectRatio: false,
           cutout: '65%', 
           plugins: {
+            tooltip: {
+                enabled :false
+            },
             datalabels: {
                 color: '#000',
                 backgroundColor: '#fff', 

@@ -1,11 +1,10 @@
 <script>
-	import RecursiveNode from './RecursiveNode.svelte';
+  import RecursiveNode from "./RecursiveNode.svelte";
   import { ChevronRight } from "lucide-svelte";
-  import { Dropdown, DropdownDivider, DropdownItem } from "flowbite-svelte";
+  import { Dropdown, DropdownItem } from "flowbite-svelte";
 
   export let node;
   export let handleNodeSelect;
-
   const hasChildren = node?.nodes?.[0]?.nodes !== undefined;
 </script>
 
@@ -14,6 +13,12 @@
   on:click={() => {
     if (!hasChildren) {
       handleNodeSelect({ target: { value: node.name } });
+      const tooltip = document.getElementById("nodeSelect")
+      if(tooltip) {
+        setTimeout(() => {
+          tooltip?.remove()
+        }, 100)
+      }
     }
   }}
 >
@@ -28,7 +33,10 @@
 </DropdownItem>
 <!-- <DropdownDivider /> -->
 {#if hasChildren}
-<Dropdown placement="bottom" class="z-[99999999] dark:text-slate-200 dark:bg-black border dark:border-slate-300 dark:border-opacity-35 rounded-sm min-w-[10rem]">
+  <Dropdown
+    placement="bottom"
+    class="z-[99999999] dark:text-slate-200 dark:bg-black border dark:border-slate-300 dark:border-opacity-35 rounded-sm min-w-[10rem]"
+  >
     {#each node.nodes as subnode}
       <RecursiveNode node={subnode} {handleNodeSelect} />
     {/each}

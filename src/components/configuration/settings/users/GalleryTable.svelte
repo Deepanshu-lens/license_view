@@ -4,6 +4,7 @@
   export let allUsers;
   import { onMount } from "svelte";
     import { Button } from '@/components/ui/button';
+    import { toast } from 'svelte-sonner';
   let galleryFeatures = [];
   let userFeatures = writable([]);
   onMount(async () => {
@@ -51,7 +52,7 @@
   }
 
      function handleFeaturesUpdate() {
-    fetch('/api/features/updateFeature', {
+    fetch('/api/features/addFeature', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -61,9 +62,11 @@
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
+      toast('Permissions Updated for Gallery page!')
     })
     .catch((error) => {
       console.error('Error:', error);
+      toast.error('Error in updating permissions!')
     });
   }
 

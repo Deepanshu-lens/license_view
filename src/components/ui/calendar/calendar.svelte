@@ -15,21 +15,47 @@
 	let className: $$Props["class"] = undefined;
 	export { className as class };
   
-	function isMarked(date) {
-	  const currentDate = new Date(date);
-	  const dayOfMonth = currentDate.getDate().toString();
-	  const month = (currentDate.getMonth() + 1).toString(); // Adjusting for JavaScript's 0-indexed months
-	  const year = currentDate.getFullYear().toString();
+	// function isMarked(date) {
+	//   const currentDate = new Date(date);
+	//   const dayOfMonth = currentDate.getDate().toString();
+	//   const month = (currentDate.getMonth() + 1).toString(); // Adjusting for JavaScript's 0-indexed months
+	//   const year = currentDate.getFullYear().toString();
+
   
-	  return markedDates.some((d) => {
-		return (
-		  d.dayOfMonth === dayOfMonth &&
-		  d.record === "true" &&
-		  d.month.toString() === month && // Ensure month is a string for comparison
-		  d.year === year
-		);
-	  });
-	}
+	//   return markedDates?.some((d) => {
+	// 	return (
+	// 	  d.dayOfMonth === dayOfMonth &&
+	// 	  d.record === "true" &&
+	// 	  d.month.toString() === month && // Ensure month is a string for comparison
+	// 	  d.year === year
+	// 	);
+	//   });
+	// }
+
+	function isMarked(date) {
+  if (!Array.isArray(markedDates)) {
+    return false; // Return false if markedDates is not an array
+  }
+
+  const currentDate = new Date(date);
+  if (isNaN(currentDate.getTime())) {
+    return false; // Return false if date is invalid
+  }
+
+  const dayOfMonth = currentDate.getDate().toString();
+  const month = (currentDate.getMonth() + 1).toString(); // Adjusting for JavaScript's 0-indexed months
+  const year = currentDate.getFullYear().toString();
+
+  return markedDates.some((d) => {
+    // Check if each property exists and is in the expected format before comparing
+    return (
+      d.dayOfMonth === dayOfMonth &&
+      d.record === "true" &&
+      d.month && d.month.toString() === month && // Ensure month is a string for comparison
+      d.year === year
+    );
+  });
+}
   
 	console.log(markedDates)
   </script>

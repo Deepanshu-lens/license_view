@@ -13,7 +13,7 @@
   import { page } from "$app/stores";
   import { addUserLog } from "@/lib/addUserLog";
   import PocketBase from "pocketbase";
-  import { Dropdown, DropdownItem, DropdownDivider } from "flowbite-svelte";
+  import { Dropdown, DropdownItem } from "flowbite-svelte";
   export let data: PageServerData;
   export let url: string;
   export let nodes: Node[];
@@ -181,7 +181,7 @@
       {/each}
     </select> -->
 
-    <button 
+    <button
       class={`text-start disabled:cursor-not-allowed block text-primary text-xs outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
       >{$selectedNode && $selectedNode.name.includes("_")
         ? $selectedNode.name.substring($selectedNode.name.lastIndexOf("_") + 1)
@@ -190,13 +190,14 @@
           : $selectedNode.name}</button
     >
 
-    <Dropdown
-      class="z-[99999999] dark:text-slate-200 dark:bg-black border dark:border-slate-300 dark:border-opacity-35 min-w-[10rem] rounded-sm"
+    <Dropdown placement='bottom' id='nodeSelect' class="z-[99999999] dark:text-slate-200 dark:bg-black border dark:border-slate-300 dark:border-opacity-35 min-w-[10rem] rounded-sm "
     >
-    <!-- on:click={() => handleNodeSelect({ target: { value: "Add Node +" } })} -->
-      <DropdownItem class='flex w-full justify-between items-center text-primary pl-3 pr-5 cursor-not-allowed'
+      <!-- on:click={() => handleNodeSelect({ target: { value: "Add Node +" } })} -->
+      <DropdownItem
+        class="flex w-full justify-between items-center text-primary pl-3 pr-5 cursor-not-allowed"
       >
-        Add Node <PlusCircle class='text-primary' size={18}/>      </DropdownItem>
+        Add Node <PlusCircle class="text-primary" size={18} />
+      </DropdownItem>
       {#if resultGroupNodes?.length !== 0}
         {#each resultGroupNodes as node}
           <RecursiveNode {node} {handleNodeSelect} />
@@ -226,21 +227,23 @@
   {#if url.includes(`/session/`)}
     <span class="flex items-center gap-2 justify-between">
       <AddCameraDialog sNode={""} {nodes}>
-        <button disabled
+        <button
+          disabled
           class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center disabled:cursor-not-allowed`}
         >
           <PlusCircle size={18} class="text-[#727272] dark:text-[#f9f9f9]" />
         </button>
       </AddCameraDialog>
       <EditNodeDialog>
-        <button disabled
+        <button
+          disabled
           class={`w-[26px] disabled:cursor-not-allowed h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center`}
         >
           <Edit size={18} class="text-[#727272] dark:text-[#f9f9f9]" />
         </button>
       </EditNodeDialog>
       <AlertDeleteNode onDelete={onDeleteNode}
-        ><button 
+        ><button
           class={`w-[26px] h-[26px] disabled:cursor-not-allowed bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"}`}
           ><Trash
             size={18}

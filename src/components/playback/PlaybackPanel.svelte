@@ -9,22 +9,23 @@
   } from "lucide-svelte";
   import PocketBase from "pocketbase";
   import { addUserLog } from "@/lib/addUserLog";
-  import NodeSelection from "../node/NodeSelection.svelte";
   import PlaybackList from "../lists/PlaybackList.svelte";
   import { page } from "$app/stores";
-  import { convertedVideos, selectedNode } from "@/lib/stores";
-  import Player from "../player/Player.svelte";
-  import Custom from "../ui/video/Custom.svelte";
+  import { convertedVideos, selectedNode, uniqueUrlList } from "@/lib/stores";
   import { onMount } from "svelte";
   import * as Select from "@/components/ui/select/index";
-  import { toast } from "svelte-sonner";
   import PlaybackStream from "./PlaybackStream.svelte";
   import { onDestroy } from "svelte";
+    import { writable } from "svelte/store";
+  import NodeSelection from "../node/NodeSelection.svelte";
+
+
   let showRightPanel: boolean = true;
   let playbackFullscreen = false;
   let showFilters = false;
-  let nvrList = [];
+  let nvrList = writable([]);
   let cameraList = [];
+  let currentNvr;
   let videos: { [key: string]: HTMLElement } = {};
 
   export let data;
@@ -32,30 +33,42 @@
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
+  import { get } from 'svelte/store';
+
   onMount(async () => {
-    if ($selectedNode) {
-      nvrList = await PB.collection("nvr").getFullList({
+    // if (get(selectedNode)) {
+      const list = await PB.collection("nvr").getFullList({
         filter: `node~"${$selectedNode.id}"`,
       });
-    }
+      nvrList.set(list);
+    // }
   });
 
+  $: if (selectedNode) {
+    (async () => {
+      const list = await PB.collection("nvr").getFullList({
+        filter: `node~"${$selectedNode.id}"`,
+      });
+      nvrList.set(list);
+    })();
+  }
+
   const initVideo = async (camera, index) => {
-    console.log(index);
+console.log(camera)
 
     if (videos[index]) {
       console.log("video c.id exists", index);
       return;
     }
     console.log(
-      `ws://${$page.url.hostname}:8082/api/ws?src=${camera.nvrData.ip + "/" + camera.channelId}&nodeID=${1}&cn=${camera.matchedChannelName}`,
+      `ws://${$page.url.hostname}:8082/api/ws?src=${currentNvr?.ip + "/" + camera.url.split('channels/'[1])}&nodeID=${1}&cn=${camera?.expand?.camera?.name}`,
     );
     let video = document.createElement("video-stream") as VideoStreamType;
     video.id = `playback-stream-${index}`;
-    video.mode = "mse";
+    video.mode = "webrtc";
     video.url = camera.url;
     video.src = new URL(
-      `ws://${$page.url.hostname}:8082/api/ws?src=${camera.nvrData.ip.replace(/\./g, '_') + "_" + camera.channelId}&nodeID=${1}&cn=${camera.matchedChannelName}`,
+      `ws://${$page.url.hostname}:8082/api/ws?src=${currentNvr?.ip.replace(/\./g, '_') + "_" + camera.url.split('channels/')[1]}&nodeID=${1}&cn=${camera?.expand.camera.name}`,
     );
     video.style.position = "relative";
     video.style.width = "100%";
@@ -70,27 +83,43 @@
   };
 
   async function getList(item) {
-    await fetch("/api/playbackCameraList", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nvr_ip: item.ip,
-        http_port: item.http_port,
-        username: item.user_id,
-        password: item.password,
-      }),
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        data.matchedChannels.forEach((channel, index) => {
-          data.matchedChannels[index] = { ...channel, nvrData: item };
-        });
-        cameraList = data.matchedChannels;
-      })
-      .catch((err) => console.log(err));
-  }
+    // await fetch("/api/playbackCameraList", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     nvr_ip: item.ip,
+    //     http_port: item.http_port,
+    //     username: item.user_id,
+    //     password: item.password,
+    //   }),
+    // })
+    //   .then(async (res) => {
+    //     const data = await res.json();
+    //     data.matchedChannels.forEach((channel, index) => {
+    //       data.matchedChannels[index] = { ...channel, nvrData: item };
+    //     });
+    //     cameraList = data.matchedChannels;
+    //   })
+    //   .catch((err) => console.log(err));
+      const list = await PB.collection('camera_ping_status').getList(1,100,{
+        filter: `node~"${$selectedNode.id}"`,
+        sort: "-created",
+        expand: 'camera'
+        
+      });
+      console.log(list)
+  list.items.forEach(item => {
+    if (!$uniqueUrlList.some(uniqueItem => uniqueItem.url === item.url)) {
+      uniqueUrlList.update(currentList => {
+        currentList.push(item);
+        return currentList;
+      });
+    }
+  });
+}
+console.log($uniqueUrlList);
 
   $: if ($convertedVideos.length > 0) {
     // console.log("first");
@@ -103,46 +132,11 @@
       }
     });
   }
-  // $:console.log($convertedVideos)
-
-  // async function singlerefresh (video,index) {
-  //   await fetch(
-  //       `http://localhost:8085/api/endplayback?id=${video.nvrData.ip + "/" + video.channelId}&name=${video.channelId}&url=url&subUrl=subUrl`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //       },
-  //     )
-  //       .then(async (res) => {
-  //         const data = await res.json();
-  //         console.log(data);
-  //         // const videoStreams = document.querySelectorAll("video-stream");
-
-  //         // videoStreams.forEach((vs) => {
-  //         //   vs.remove();
-  //         // });
-  //         if(videos[index]) {
-  //           if(videos[index].src instanceof WebSocket && videoElement.src.readyState === WebSocket.OPEN) {
-  //             videos[index].src.close()
-  //           }
-  //           videos[index].remove()
-  //           delete videos[index]
-  //           setTimeout(() => {
-  //             initVideo(video,index)
-  //           }, 100);
-
-  //         }
-
-  //       })
-  //       .catch((err) => console.log(err));
-  // }
 
   async function removePlayers () {
     $convertedVideos.forEach(async (video,index) => {
       await fetch(
-        `http://localhost:8085/api/endplayback?id=${video.nvrData.ip.replace(/\./g, "_") + "_" + video.channelId}&name=${video.channelId}&url=url&subUrl=subUrl`,
+        `http://${$page.url.hostname}:8085/api/endplayback?id=${currentNvr.ip.replace(/\./g, "_") + "_" + video.url.split("channels/")[1]}&name=${video.url.split("channels/")[1]}&url=url&subUrl=subUrl`,
         {
           method: "POST",
           headers: {
@@ -174,6 +168,8 @@
   onDestroy(async() => {
     await removePlayers()
   });
+
+  $: console.log(currentNvr)
 </script>
 
 <section
@@ -200,7 +196,7 @@
                   videos.filter((_, i) => i !== index),
                 );
                 await fetch(
-                  `http://localhost:8085/api/endplayback?id=${video.nvrData.user_id + "/" + video.channelId}&name=${video.channelId}&url=url&subUrl=subUrl`,
+                  `http://${$page.url.hostname}:8085/api/endplayback?id=${currentNvr.ip.replace(/\./g, "_") + "/" + video.url.split('/channels/')[1]}&name=${video.url.split('/channels/')[1]}&url=url&subUrl=subUrl`,
                   {
                     method: "POST",
                     headers: {
@@ -239,19 +235,19 @@
     <div
       class={`${showRightPanel ? "opacity-100" : "opacity-0"} transtion-opacity ease-in-out duration-500 `}
     >
-      <!-- <NodeSelection
+      <NodeSelection
         {data}
         {nodes}
         url={data.url ?? "/"}
         isAllFullScreen={playbackFullscreen}
-      /> -->
+      />
       <Select.Root on:change={getList}>
-        <Select.Trigger class="w-full border-none">
+        <Select.Trigger class="w-full border-none focus:ring-0">
           <Select.Value placeholder="Select NVR" />
         </Select.Trigger>
         <Select.Content>
-          {#each nvrList as item}
-            <Select.Item value={item} on:click={() => getList(item)}
+          {#each $nvrList as item}
+            <Select.Item value={item} on:click={() => {currentNvr = item; getList(item)}}
               >{item.name}</Select.Item
             >
           {/each}
@@ -259,7 +255,7 @@
           <Select.Item value="growth">Sort By:Growth Rate</Select.Item> -->
         </Select.Content>
       </Select.Root>
-      <PlaybackList {nodes} {cameraList} />
+      <PlaybackList {nodes} {cameraList} {uniqueUrlList} {currentNvr}/>
     </div>
   </div>
   <div

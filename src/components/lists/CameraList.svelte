@@ -70,15 +70,20 @@
     };
   });
 
-  $: { if ($selectedNode?.camera) {
+  $: if ($selectedNode?.camera) {
       if (filterText) {
-        filteredNodeCameras.set($selectedNode.camera.filter((camera: Camera) =>
-          camera.name.toLowerCase().includes(filterText.toLowerCase())
-        ));
+        const exactMatches = $selectedNode.camera.filter((camera: Camera) =>
+          camera.name.toLowerCase() === filterText.toLowerCase()
+        );
+        filteredNodeCameras.set(exactMatches.length > 0 ? exactMatches : 
+          $selectedNode.camera.filter((camera: Camera) =>
+            camera.name.toLowerCase().includes(filterText.toLowerCase())
+          )
+        );
       } else {
         filteredNodeCameras.set($selectedNode.camera);
       }
-    }
+    // }
     // if (filterText) {
     //   filteredCameras = $selectedNode?.camera.filter((camera: Camera) =>
     //     camera.name.toLowerCase().includes(filterText.toLowerCase()),

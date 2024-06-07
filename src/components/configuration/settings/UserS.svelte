@@ -14,6 +14,7 @@
   import ConfigurationTable from "./users/ConfigurationTable.svelte";
   import ReportsTable from "./users/ReportsTable.svelte";
     import NodesTable from "./nodes/NodesTable.svelte";
+    import NavbarTable from "./users/NavbarTable.svelte";
   export let user: User;
   export let records: LoginEvent[];
   export let logs: UserLog[];
@@ -459,7 +460,7 @@
       </span>
     </div>
     {#if selectedP === 1}
-      <Tabs.Root class="mx-auto w-full px-6 pb-10 bg-transparent">
+      <Tabs.Root class="mx-auto w-full px-6 pb-0 bg-transparent">
         <Tabs.List class="flex items-center w-full bg-white dark:bg-black ">
           <Tabs.Trigger
             value="live"
@@ -489,30 +490,38 @@
             class="rounded-t-md flex items-center justify-start px-2 gap-4 border-[#eaecf0] border-[1px] border-solid border-b-0 w-full data-[state=active]:bg-[#f8f8f8] "
             value="reports"><input type="checkbox" /> Reports</Tabs.Trigger
           >
+          <Tabs.Trigger
+            class="rounded-t-md flex items-center justify-start px-2 gap-4 border-[#eaecf0] border-[1px] border-solid border-b-0 w-full data-[state=active]:bg-[#f8f8f8] "
+            value="navbar"><input type="checkbox" /> Navbar</Tabs.Trigger
+          >
         </Tabs.List>
-        <Tabs.Content value="live">
+        <Tabs.Content value="live" class='-mt-1'>
           <LiveTable {liveFeatures} {allUsers} />
           <!-- live content -->
         </Tabs.Content>
-        <Tabs.Content value="playback">
+        <Tabs.Content value="playback" class='-mt-1'>
           <PlaybackTable {allUsers}/>
           <!-- playback content -->
         </Tabs.Content>
-        <Tabs.Content value="events">
+        <Tabs.Content value="events" class='-mt-1'>
           <EventsTable {allUsers}/>
           <!-- events content -->
         </Tabs.Content>
-        <Tabs.Content value="gallery">
+        <Tabs.Content value="gallery" class='-mt-1'>
           <GalleryTable {allUsers}/>
           <!-- gallery content -->
         </Tabs.Content>
-        <Tabs.Content value="config">
+        <Tabs.Content value="config" class='-mt-1'>
           <ConfigurationTable {allUsers}/>
           <!-- config content -->
         </Tabs.Content>
-        <Tabs.Content value="reports">
+        <Tabs.Content value="reports" class='-mt-1'>
           <ReportsTable {allUsers}/>
           <!-- reports content -->
+        </Tabs.Content>
+        <Tabs.Content value="navbar" class='-mt-1'>
+          <NavbarTable {allUsers}/>
+          <!-- navbar content -->
         </Tabs.Content>
       </Tabs.Root>
     {:else}

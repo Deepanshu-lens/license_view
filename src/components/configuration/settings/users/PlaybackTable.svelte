@@ -80,6 +80,7 @@
   import { page } from "$app/stores";
   import { onMount } from "svelte";
     import { Button } from "@/components/ui/button";
+    import { toast } from "svelte-sonner";
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
   let playbackFeatures = [];
   let userFeatures = writable([]);
@@ -126,7 +127,27 @@
     }
   }
 
-  $: console.log($userFeatures)
+     function handleFeaturesUpdate() {
+    console.log('first',$userFeatures)
+
+    fetch('/api/features/addFeature', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify($userFeatures)
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Success:', data);
+      toast('Permissions Updated for Playback page!')
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+      toast.error('Error in updating permissions!')
+    });
+  }
+
 
 
 </script>

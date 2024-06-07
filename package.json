@@ -51,7 +51,6 @@
 		"fs-extra": "^11.2.0",
 		"hls.js": "^1.5.8",
 		"html2canvas": "^1.4.1",
-		"http": "^0.0.1-security",
 		"javascript-time-ago": "^2.5.9",
 		"jsonwebtoken": "^9.0.2",
 		"jszip": "^3.10.1",

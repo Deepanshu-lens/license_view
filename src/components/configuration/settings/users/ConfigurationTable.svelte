@@ -3,6 +3,7 @@
   import * as Table from "@/components/ui/table/index";
   export let allUsers;
   import { onMount } from "svelte";
+    import { toast } from "svelte-sonner";
   import {get,writable} from 'svelte/store';
   let configurationFeatures = [];
   let userFeatures= writable([]);
@@ -60,9 +61,11 @@
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
+      toast('Permissions Updated for Configuration page!')
     })
     .catch((error) => {
       console.error('Error:', error);
+      toast.error('Error in updating permissions!')
     });
   }
 

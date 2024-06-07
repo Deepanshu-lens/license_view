@@ -1,5 +1,17 @@
 <script>
-  import NewPlaybackCard from "./../cards/NewPlaybackCard.svelte";
+
+  import { Calendar } from "@/components/ui/calendar";
+  import { toast } from "svelte-sonner";
+  import { convertedVideos, allVideos } from "@/lib/stores";
+  import { ChevronDown, CalendarDaysIcon, PlusCircle, X } from "lucide-svelte";
+  import { uniqueUrlList } from "@/lib/stores";
+import { page } from "$app/stores";
+  export let nodes;
+  export let cameraList;
+  export let currentNvr;
+
+  // let chosenNode;
+  let markedDates = [];
   let selectedMode = 1;
   let showCalendar = false;
   let value = null;
@@ -7,15 +19,6 @@
   let selectedCamera;
   let startTime;
   let endTime;
-  import { Calendar } from "@/components/ui/calendar";
-  import { toast } from "svelte-sonner";
-  import { convertedVideos, allVideos } from "@/lib/stores";
-  import { ChevronDown, CalendarDaysIcon, PlusCircle, X } from "lucide-svelte";
-    import { generateAsync } from "jszip";
-  export let nodes;
-  export let cameraList;
-  let chosenNode;
-  let markedDates = [];
 
   $: if (value) {
     const date = new Date(value.year, value.month - 1, value.day);
@@ -31,30 +34,32 @@
     value = null;
   }
 
-  $: if (selectedMode) {
-    value = null;
-    searchDate = null;
-    if (selectedMode === 1) {
-      allVideos.set(null);
-    }
-  }
+  // $: if (selectedMode) {
+  //   value = null;
+  //   searchDate = null;
+  //   if (selectedMode === 1) {
+  //     allVideos.set(null);
+  //   }
+  // }
 
   $: if (selectedCamera) {
     handleCameraChange(selectedCamera);
   }
 
   async function handleCameraChange(cam) {
+    // console.log(currentNvr)
+    // console.log(cam)
     await fetch("/api/playbackCalendar", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        nvr_ip: cam.nvrData.ip,
-        http_port: cam.nvrData.http_port,
-        username: cam.nvrData.user_id,
-        password: cam.nvrData.password,
-        camera_id: cam.channelId,
+        nvr_ip: currentNvr.ip,
+        http_port: currentNvr.http_port,
+        username: currentNvr.user_id,
+        password: currentNvr.password,
+        camera_id: cam?.url?.split('channels/')[1],
         year: new Date().getFullYear().toString(),
         month: (new Date().getMonth() + 1).toString(),
       }),
@@ -90,21 +95,22 @@
       formattedDate + startTime.split(":")[0] + startTime.split(":")[1] + "00Z";
     const e =
       formattedDate + endTime.split(":")[0] + endTime.split(":")[1] + "00Z";
-    const genratedLink = `rtsp://${cameraId.nvrData.user_id}:${cameraId.nvrData.password}@${cameraId.nvrData.ip}:554/Streaming/tracks/${cameraId.channelId}`;
+    const genratedLink = `rtsp://${currentNvr?.user_id}:${currentNvr?.password}@${currentNvr?.ip}:554/Streaming/tracks/${cameraId?.url?.split('channels/')[1]}`;
 
     console.log(genratedLink);
     await fetch(
-      `http://localhost:8085/api/startplayback?id=${cameraId.nvrData.ip.replace(/\./g, '_') + "_" + cameraId.channelId}&name=${cameraId.channelId}&url=${genratedLink}&subUrl=${genratedLink}&startTime=${s}&endTime=${e}&size=209328`,
+      `http://${$page.url.hostname}:8085/api/startplayback?id=${currentNvr?.ip?.replace(/\./g, "_") + "_" + cameraId?.url?.split('channels/')[1]}&name=${cameraId?.url?.split('channels/')[1]}&url=${genratedLink}&subUrl=${genratedLink}&startTime=${s}&endTime=${e}&size=209328`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-        }, body: JSON.stringify({
-          startTime: s,
-          endTime: e,
-          size: 209328,
-          url: genratedLink
-        })
+        },
+        // body: JSON.stringify({
+        //   startTime: s,
+        //   endTime: e,
+        //   size: 209328,
+        //   url: genratedLink,
+        // }),
       },
     )
       .then(async (res) => {
@@ -143,21 +149,19 @@
 
     const data = await response.json();
     console.log("data from data", data);
-    allVideos.set(data.playback_data);
+    // allVideos.set(data.playback_data);
     if (data.playback_data?.length === 0) {
       toast.error(`No Recordings on chosen Date: ${searchDate}`);
     }
     return data;
   }
 
-  // $: console.log(chosenNode)
-
-  $: filteredVideos = $allVideos?.filter(
-    (video) =>
-      !chosenNode?.value ||
-      chosenNode.value === "all" ||
-      chosenNode.value === video.cameraNode,
-  );
+  // $: filteredVideos = $allVideos?.filter(
+  //   (video) =>
+  //     !chosenNode?.value ||
+  //     chosenNode.value === "all" ||
+  //     chosenNode.value === video.cameraNode,
+  // );
 </script>
 
 <div
@@ -186,15 +190,15 @@
     <div class="relative w-full">
       <select
         bind:value={selectedCamera}
-        class={`block text-primary capitalize font-semibold rounded-md appearance-none w-full bg-[#F6F6F6] dark:bg-black border-2 py-2 text-sm px-2 leading-tight `}
+        class={`block text-primary focus:ring-primary capitalize font-semibold rounded-md appearance-none w-full bg-[#F6F6F6] dark:bg-black border-2 py-2 text-sm px-2 leading-tight `}
       >
         <option value="" disabled selected>Select from list</option>
         <!-- {#each $selectedNode?.camera as cam}
           <option value={cam.id}>{cam.name}</option>
         {/each} -->
-        {#if cameraList?.length !== 0}
-          {#each cameraList as cam}
-            <option value={cam}>{cam.matchedChannelName}</option>
+        {#if $uniqueUrlList?.length !== 0}
+          {#each $uniqueUrlList as cam}
+            <option value={cam}>{cam?.expand?.camera?.name}</option>
           {/each}
         {/if}
       </select>
