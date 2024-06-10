@@ -117,15 +117,15 @@
       <div
         class="cursor-pointer flex items-center gap-2 justify-center px-2"
       >
-        <!-- <img
-          src={$mode === "light" ? "/images/green.svg" : "/images/white.svg"}
+          <!-- <img
+        src='/images/sparsh.png'
           alt="logo"
           class="w-24"
         /> -->
-         <img
+ <img
           src={$mode === "light"
-            ? "/images/coreIp.jpg"
-            : "/images/navCoreWhite.png"}
+            ? "/images/sparsh.png"
+            : "/images/sparsh-white.png"}
           alt="logo"
           class="w-24"
         />
@@ -133,7 +133,7 @@
       <div
         class={`flex flex-row items-center justify-center py-6 px-4 gap-14 `}
       >
-        {#each menuList as item}
+        <!-- {#each menuList as item}
           {#key item}
             {#if item.text === "Live" || item.text === "Atlas" || item.text === 'Configuration' || item.text === 'Reports'}
               <a
@@ -166,8 +166,8 @@
               </button>
             {/if}
           {/key}
-        {/each}
-        <!-- {#if session.frs}
+        {/each} -->
+        <!-- {#if session.frs} -->
           <a
             href={frs.href}
             on:click={() => {
@@ -184,8 +184,8 @@
               {frs.text}
             </span>
             </a>
-        {/if} -->
-        {#if session.playback}
+        <!-- {/if} -->
+        <!-- {#if session.playback}
           <a
             href={playback.href}
             on:click={() => {
@@ -202,8 +202,8 @@
               {playback.text}
             </span>
           </a>
-        {/if}
-        {#if session.anpr}
+        {/if} -->
+        <!-- {#if session.anpr}
           <a
             href={anpr.href}
             on:click={() => {
@@ -220,7 +220,7 @@
               {anpr.text}
             </span>
           </a>
-        {/if}
+        {/if} -->
       </div>
 
       <div
@@ -249,7 +249,7 @@
         {#if user}
           <button
             on:click={toggleOpen}
-            class="cursor-pointer rounded-[50%] w-10 h-10 p-2 bg-[#015a62] flex items-center justify-center text-white"
+            class="cursor-pointer rounded-full w-10 h-10 p-2 bg-[#015a62] flex items-center justify-center text-white"
           >
             <UserIcon size={18} />
           </button>

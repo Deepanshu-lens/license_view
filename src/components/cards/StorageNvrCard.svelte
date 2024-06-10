@@ -1,6 +1,8 @@
 <script>
   import { ServerIcon } from "lucide-svelte";
   export let sd;
+
+  console.log(sd)
 </script>
 
 <article class="w-[250px] h-[130px] border-[#e4e4e4] rounded-md p-2 border">

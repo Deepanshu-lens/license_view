@@ -9,6 +9,7 @@
   import Switch from "../ui/switch/switch.svelte";
   import { ChevronDown, PlusCircle } from "lucide-svelte";
   import * as Select from "@/components/ui/select/index";
+    import { page } from "$app/stores";
 
   let cameraName = "";
   let cameraURL = "";
@@ -29,7 +30,7 @@
   let mode = 2;
   let uploadMode = 1;
   let addMode = 1;
-  let modeAdd = 1;
+  let modeAdd = $page.url.pathname.includes('frs') ? 3 : 1;
   let addNodeCounter = 1;
   let subNodeCounter = 1;
   let addDevice = 1;
@@ -268,14 +269,14 @@
       <Dialog.Title>Add Network</Dialog.Title>
     </Dialog.Header>
     <div class="flex items-center justify-between w-full">
-      <button
-        on:click={() => (modeAdd = 1)}
-        class={`${modeAdd === 1 ? "bg-white dark:bg-slate-700" : "bg-[#f5f5f5] dark:bg-slate-800"} w-full text-[#4f4f4f] dark:text-slate-200 font-medium text-lg border-r border-black/.13 `}
-        >Add Node</button
+      <button disabled={$page.url.pathname.includes('frs')}
+      on:click={() => (modeAdd = 1)}
+      class={`${modeAdd === 1 ? "bg-white dark:bg-slate-700" : "bg-[#f5f5f5] dark:bg-slate-800"} w-full text-[#4f4f4f] dark:text-slate-200 font-medium text-lg border-r border-black/.13 disabled:cursor-not-allowed`}
+      >Add Node</button
       >
-      <button
+      <button disabled={$page.url.pathname.includes('frs')}
         on:click={() => (modeAdd = 2)}
-        class={`${modeAdd === 2 ? "bg-white dark:bg-slate-700" : "bg-[#f5f5f5] dark:bg-slate-800"} w-full text-[#4f4f4f] dark:text-slate-200 font-medium text-lg border-r border-black/.13 `}
+        class={`${modeAdd === 2 ? "bg-white dark:bg-slate-700" : "bg-[#f5f5f5] dark:bg-slate-800"} w-full text-[#4f4f4f] dark:text-slate-200 font-medium text-lg border-r border-black/.13 disabled:cursor-not-allowed`}
         >Add SubNode</button
       >
       <button
@@ -295,9 +296,9 @@
               class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${addDevice === 1 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
               >Camera</button
             >
-            <button
+            <button disabled={$page.url.pathname.includes('frs')}
               on:click={() => (addDevice = 2)}
-              class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${addDevice === 2 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
+              class={`disabled:cursor-not-allowed rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${addDevice === 2 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
               >NVR</button
             >
           </div>

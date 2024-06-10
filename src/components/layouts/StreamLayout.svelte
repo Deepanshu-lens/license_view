@@ -822,16 +822,11 @@
                         </span>
                       {/if}
 
-                      <!-- <img
+                      <img
                         src="/images/logo-black.png"
                         alt="logo"
                         class="object-contain w-[15%] absolute right-4 bottom-4 z-20"
-                      /> -->
-                       <img
-                    src="/images/navCoreWhite.png"
-                    alt="logo"
-                    class="object-contain w-[15%] absolute right-4 bottom-4 z-20"
-                  />
+                      />
                     </div>
                   {/key}
                 {:else}

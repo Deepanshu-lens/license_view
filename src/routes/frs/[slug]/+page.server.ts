@@ -1,6 +1,8 @@
 export const ssr = false;
 
 export async function load({ locals }) {
+
+  // console.log(locals.user.record.session)
   const events = await locals.pb?.collection("events").getList(1, 25, {
     sort: "-created",
   });

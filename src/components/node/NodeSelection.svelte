@@ -14,7 +14,6 @@
   import { addUserLog } from "@/lib/addUserLog";
   import PocketBase from "pocketbase";
   import { Dropdown, DropdownItem } from "flowbite-svelte";
-  // export let data: PageServerData;
   export let url: string;
   export let nodes: Node[];
   export let isAllFullScreen: boolean;
@@ -80,9 +79,6 @@
 
   const handleNodeSelect = async (event: Event) => {
     const selectedOption = (event.target as HTMLSelectElement).value;
-
-    console.log("selectedOPtion for nodeSelect", selectedOption);
-
     if (selectedOption === "Add Node +") {
       console.log("adding node");
       showAddNode = true;
@@ -90,43 +86,10 @@
     }
 
     try {
-      // const response = await fetch("/api/node/getMany", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     session: $selectedNode.session,
-      //   }),
-      // });
-
-      // if (!response.ok) {
-      //   throw new Error("Failed to fetch node data");
-      // }
-      // console.log(response)
-      // console.log(selectedOption);
       const test = await PB.collection("node").getFullList({
         expand: "camera",
         filter: `name="${selectedOption}"&&session~"${$selectedNode.session}"`,
       });
-      // console.log(test);
-
-      // const { nodeData } = await response.json();
-      // console.log(nodeData);
-      // const selected = nodeData.find((node) => node.name === selectedOption);
-
-      // if (!selected) {
-      //   throw new Error("Selected node not found");
-      // }
-
-      // const nodes = await PB.collection("node").getFullList(200, {
-      //   expand: "camera",
-      //   filter: `id="${selected.id}"`,
-      // });
-
-      // console.log(nodes);
-
-      // console.log('nodes,nodeselect',nodes)
       const formattedNodes = test.map((node) => ({
         ...node,
         session: $selectedNode.session,
@@ -153,14 +116,12 @@
             : [],
       }));
       selectedNode.set(formattedNodes[0]);
-      console.log("updated selectedNode", $selectedNode.name);
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong. Please try again");
     }
   };
 
-  // console.log(data)
 </script>
 
 <div
@@ -169,18 +130,6 @@
   <div
     class={`relative inline-block min-w-[140px] ${$page.route.id.includes("/session") ? "w-max" : "w-full"} ${isAllFullScreen && "bg-black"}`}
   >
-    <!-- <select
-  class={`block text-primary text-xs outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
-  value={$selectedNode && $selectedNode.name}
-      on:change={handleNodeSelect}
-    >
-      <option>Add Node +</option>
-      {#each nodes as node}
-      {@const name = node.name}
-        <option id={node.id}>{name}</option>
-      {/each}
-    </select> -->
-
     <button
       class={`text-start disabled:cursor-not-allowed block text-primary text-xs outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
       >{$selectedNode && $selectedNode.name.includes("_")
@@ -192,12 +141,13 @@
 
     <Dropdown placement='bottom' id='nodeSelect' class="z-[99999999] dark:text-slate-200 dark:bg-black border dark:border-slate-300 dark:border-opacity-35 min-w-[10rem] rounded-sm "
     >
-      <!-- on:click={() => handleNodeSelect({ target: { value: "Add Node +" } })} -->
+      {#if $page?.url?.pathname?.includes('session')}
       <DropdownItem
         class="flex w-full justify-between items-center text-primary pl-3 pr-5 cursor-not-allowed"
       >
         Add Node <PlusCircle class="text-primary" size={18} />
       </DropdownItem>
+      {/if}
       {#if resultGroupNodes?.length !== 0}
         {#each resultGroupNodes as node}
           <RecursiveNode {node} {handleNodeSelect} />

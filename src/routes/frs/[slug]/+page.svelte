@@ -9,6 +9,7 @@
     Filter,
     Search,
     CalendarDays,
+    CameraIcon,
   } from "lucide-svelte";
   import type { PageServerData } from "./$types";
   import type { Event } from "@/types";
@@ -22,6 +23,7 @@
   import FrsModal from "@/components/modal/FrsModal.svelte";
   import RegisterEventDialog from "@/components/dialogs/RegisterEventDialog.svelte";
   import FrsMatchModal from "@/components/modal/FrsMatchModal.svelte";
+  import AddCameraDialog from "@/components/dialogs/AddCameraDialog.svelte";
   TimeAgo.addLocale(en);
   const timeAgo = new TimeAgo("en-US");
   let selectedEvent = null;
@@ -98,53 +100,60 @@
 
 <section class="h-full w-full flex items-center justify-center">
   <div class="w-full h-full p-6">
-    <h1 class="text-xl font-semibold pb-4 pl-4">FRS</h1>
+    <div class="px-4 w-full flex items-center justify-between pb-4 ">
+      <h1 class="text-xl font-semibold">FRS</h1>
+      <AddCameraDialog nodes={data.nodes} sNode=''>
+        <button class="px-2 py-1 rounded-xl bg-[#FBF4EC] text-[#D28E3D] text-sm font-medium flex items-center gap-1"
+          ><CameraIcon size={16} />Add camera</button
+        >
+      </AddCameraDialog>
+    </div>
 
     <Table.Root class="mx-auto w-[98%] flex flex-col pb-10">
       <Table.Header
-        class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
+        class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9] dark:bg-black"
       >
         <Table.Row class="bg-transparent flex items-center justify-between p-3">
-          <Table.Head class="text-[#727272] w-full h-full">
+          <Table.Head class="text-[#727272] dark:text-slate-100 w-full h-full">
             <span class="flex items-center gap-1">
               Alert
               <!-- <ChevronsUpDown class="scale-75" /> -->
             </span>
           </Table.Head>
-          <Table.Head class="text-[#727272] w-full h-full">
+          <Table.Head class="text-[#727272] w-full h-full dark:text-slate-100">
             <span class="flex items-center gap-1"> Image </span>
           </Table.Head>
-          <Table.Head class="text-[#727272] w-full h-full">
+          <Table.Head class="text-[#727272] w-full h-full dark:text-slate-100">
             <span class="flex items-center gap-1">
               Camera <ChevronsUpDown class="scale-75" />
             </span>
           </Table.Head>
-          <Table.Head class="text-[#727272] w-full h-full">
+          <Table.Head class="text-[#727272] w-full h-full dark:text-slate-100">
             <span class="flex items-center gap-1">
               Date <ChevronsUpDown class="scale-75" />
             </span></Table.Head
           >
-          <Table.Head class="text-[#727272] w-full h-full">
+          <Table.Head class="text-[#727272] w-full h-full dark:text-slate-100">
             <span class="flex items-center gap-1">
               Time <ChevronsUpDown class="scale-75" />
             </span></Table.Head
           >
-          <Table.Head class="text-[#727272] w-full h-full">
+          <Table.Head class="text-[#727272] w-full h-full dark:text-slate-100">
             <span class="flex items-center gap-1">
               Last Seen <ChevronsUpDown class="scale-75" />
             </span></Table.Head
           >
-          <Table.Head class="text-[#727272] w-full h-full whitespace-nowrap">
+          <Table.Head class="text-[#727272] w-full h-full whitespace-nowrap dark:text-slate-100">
             <span class="flex items-center gap-1 flex-shrink-0">
               Detection Score <ChevronsUpDown class="scale-75" />
             </span></Table.Head
           >
-          <Table.Head class="text-[#727272] w-full h-full whitespace-nowrap">
+          <Table.Head class="text-[#727272] w-full h-full whitespace-nowrap dark:text-slate-100">
             <span class="flex items-center gap-1">
               Similarity Score <ChevronsUpDown class="scale-75" />
             </span></Table.Head
           >
-          <Table.Head class="text-[#727272] w-full h-full">Actions</Table.Head>
+          <Table.Head class="text-[#727272] dark:text-slate-100 w-full h-full">Actions</Table.Head >
         </Table.Row>
       </Table.Header>
       <Table.Body class="overflow-y-scroll max-h-[calc(100vh-205px)]">
@@ -154,9 +163,9 @@
             on:click={() => {
               openEventDialog(event);
             }}
-            class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-2 rounded-lg  border-2 border-solid border-[#e4e4e4]"
+            class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-2 rounded-lg  border-2 border-solid border-[#e4e4e4] dark:border-[#727272]"
           >
-            <Table.Cell class="text-black w-full h-full"
+            <Table.Cell class="text-black dark:text-slate-100 w-full h-full"
               ><span class="flex items-center gap-2 capitalize">
                 {event.title}
               </span>

@@ -49,29 +49,22 @@
       <div
         class="flex items-center sm:justify-start sm:self-start gap-4 sm:-ml-4 pt-[2rem] sm:pt-0"
       >
-        <!-- <img
-          src={"/images/white.svg"}
+      
+         <!-- <img
+        src='/images/sparsh.png'
           alt="logo"
           height={80}
           width={140}
-          class="hidden dark:block"
-        />
-        <img
-          src={"/images/green.svg"}
-          alt="logo"
-          height={80}
-          width={140}
-          class="block dark:hidden"
         /> -->
          <img
-          src={"/images/coreIp.jpg"}
+          src={"/images/sparsh.png"}
           alt="logo"
           height={80}
           width={140}
           class="block dark:hidden"
         />
         <img
-          src={"/images/coreIP2.png"}
+          src={"/images/sparsh-white.png"}
           alt="logo"
           height={80}
           width={140}

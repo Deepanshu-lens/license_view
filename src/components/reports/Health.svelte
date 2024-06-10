@@ -1,5 +1,4 @@
 <script>
-  import MapMultiCameras from "./../map/MapMultiCameras.svelte";
   import PocketBase from "pocketbase";
   import {
     ArrowLeft,
@@ -86,6 +85,7 @@
         sort: "-created",
         expand: `nvr`,
       });
+
       NvrStorageData.forEach((storage) => {
         totalCapacity += storage.capacity / 1024 / 1024; // Convert MB to PB
         totalFreeSpace += storage.free_space / 1024 / 1024;
@@ -93,7 +93,7 @@
     }
   }
 
-  async function getCameraList() {
+ async function getCameraList() {
     PB.autoCancellation(false);
     try {
       const res = await PB.collection("camera_ping_status").getList(1, 25, {
@@ -137,31 +137,39 @@
         fetchNvrData();
       }
     });
-    // PB.collection("camera_ping_status").subscribe("*", async (e) => {
-    //   console.log(e.action);
-    //   if (e.action === "create") {
-    //     getCameraList();
-    //   }
-    // });
+    PB.collection("camera_ping_status").subscribe("*", async (e) => {
+      console.log(e.action);
+      if (e.action === "create") {
+        cameraList = await getCameraList();
+      }
+    });
   });
 
   onDestroy(() => {
     PB.collection("nvr_ping_status").unsubscribe("*");
-    // PB.collection("camera_ping_status").unsubscribe("*");
+    PB.collection("camera_ping_status").unsubscribe("*");
   });
 
-  $: $selectedNode, fetchNvrData(), getNvrStorageData();
+  // $: $selectedNode, fetchNvrData(), getNvrStorageData();
 
-  $: console.log($selectedNvr);
+   $: if ($selectedNode) {
+    fetchNvrData();
+    getNvrStorageData();
+    getCameraList();
+  }
 
   function parseDetail(detailString, key) {
     const lines = detailString.split("\n");
     const line = lines.find((line) => line.startsWith(key));
     if (line) {
-      return line.split(": ")[1]; // Assuming there is a space after the colon
+      return line.split(": ")[1]; 
     }
-    return "Not available"; // Default value if key is not found
+    return "Not available"; 
   }
+
+  $: mapData = NvrData
+ $:  console.log(activeCams)
+  $:console.log(inactiveCams)
 </script>
 
 <div class="w-full h-[calc(100vh-75px)]">
@@ -293,7 +301,7 @@
           </div>
           <div class="h-[95%] w-full">
             {#if NvrData && delayedFlag}
-            <MapNvr {NvrData} />
+            <MapNvr NvrData={mapData} />
           {/if}
           </div>
         </div>
@@ -316,7 +324,7 @@
             </div>
           </div>
           {#if NvrData && uniqueCams && delayedFlag}
-            <AreaAnalysis {NvrData} {uniqueCams} />
+            <AreaAnalysis NvrData={mapData} {uniqueCams} />
           {/if}
         </div>
       </div>

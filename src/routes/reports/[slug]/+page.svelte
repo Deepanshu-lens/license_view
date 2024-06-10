@@ -28,7 +28,7 @@
   async function getNodes(): Promise<Node[]> {
     if (session?.node.length > 0) {
       const nodes = await PB.collection("node").getFullList(200, {
-        sort: "-created",
+        sort: "created",
         expand: "camera",
         filter: `session~"${session.id}"`,
       });
