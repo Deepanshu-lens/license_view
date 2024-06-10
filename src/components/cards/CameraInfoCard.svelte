@@ -108,7 +108,7 @@
         `user clicked on camera settings for camera with name  ${name}`,
       );
     }}>
-      <!-- <CameraSettingsDialog
+      <CameraSettingsDialog
         cameraName={name}
         {save}
         {face}
@@ -124,8 +124,8 @@
         {motion}
         {priority}
         cameraURL={url}><Settings class="h-4 w-4" /></CameraSettingsDialog
-      > -->
-      <Settings size={16}/>
+      >
+      <!-- <Settings size={16}/> -->
     </button>
 
     </li>

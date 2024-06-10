@@ -916,16 +916,16 @@
     grid-template-rows: repeat(1, 100%);
   }
   .grid-rows-2 {
-    grid-template-rows: repeat(2, 50%);
+    grid-template-rows: repeat(2, 1fr);
   }
   .grid-rows-3 {
-    grid-template-rows: repeat(3, 33%);
+    grid-template-rows: repeat(3, 1fr);
   }
   .grid-rows-4 {
-    grid-template-rows: repeat(4, 25%);
+    grid-template-rows: repeat(4, 1fr);
   }
   .grid-rows-5 {
-    grid-template-rows: repeat(5, 20%);
+    grid-template-rows: repeat(5, 1fr);
   }
   .grid-rows-6 {
     grid-template-rows: repeat(6, 16.2%);
@@ -946,16 +946,16 @@
     grid-template-columns: repeat(1, 100%);
   }
   .grid-cols-2 {
-    grid-template-columns: repeat(2, 50%);
+    grid-template-columns: repeat(2, 1fr);
   }
   .grid-cols-3 {
-    grid-template-columns: repeat(3, 33.2%);
+    grid-template-columns: repeat(3, 1fr);
   }
   .grid-cols-4 {
-    grid-template-columns: repeat(4, 25%);
+    grid-template-columns: repeat(4, 1fr);
   }
   .grid-cols-5 {
-    grid-template-columns: repeat(5, 20%);
+    grid-template-columns: repeat(5, 1fr);
   }
   .grid-cols-6 {
     grid-template-columns: repeat(6, 16.35%);

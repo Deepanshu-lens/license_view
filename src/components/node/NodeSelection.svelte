@@ -14,7 +14,7 @@
   import { addUserLog } from "@/lib/addUserLog";
   import PocketBase from "pocketbase";
   import { Dropdown, DropdownItem } from "flowbite-svelte";
-  export let data: PageServerData;
+  // export let data: PageServerData;
   export let url: string;
   export let nodes: Node[];
   export let isAllFullScreen: boolean;
