@@ -51,7 +51,7 @@
           class="hidden dark:block"
         />
         <span class="w-[1px] h-[80%] bg-slate-300" /> -->
-        <img
+        <!-- <img
           src={"/images/white.svg"}
           alt="logo"
           height={80}
@@ -64,6 +64,20 @@
           height={80}
           width={140}
           class="block dark:hidden"
+        /> -->
+         <img
+          src={"/images/coreIp.jpg"}
+          alt="logo"
+          height={80}
+          width={140}
+          class="block dark:hidden"
+        />
+        <img
+          src={"/images/coreIP2.png"}
+          alt="logo"
+          height={80}
+          width={140}
+          class="hidden dark:block"
         />
       </div>
       <h2 class="font-semibold text-2xl sm:self-start text-[#212B36] font-mono">

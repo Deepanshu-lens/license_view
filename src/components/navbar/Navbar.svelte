@@ -92,6 +92,7 @@
   }
 
   const getSession = async () => {
+    PB.autoCancellation(false)
     const updatedSession = await PB.collection("session").getFullList({
       filter: `id="${user.session}"`,
     });
@@ -116,8 +117,15 @@
       <div
         class="cursor-pointer flex items-center gap-2 justify-center px-2"
       >
-        <img
+        <!-- <img
           src={$mode === "light" ? "/images/green.svg" : "/images/white.svg"}
+          alt="logo"
+          class="w-24"
+        /> -->
+         <img
+          src={$mode === "light"
+            ? "/images/coreIp.jpg"
+            : "/images/navCoreWhite.png"}
           alt="logo"
           class="w-24"
         />

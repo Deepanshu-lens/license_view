@@ -49,7 +49,7 @@
       <div
         class="flex items-center sm:justify-start sm:self-start gap-4 sm:-ml-4 pt-[2rem] sm:pt-0"
       >
-        <img
+        <!-- <img
           src={"/images/white.svg"}
           alt="logo"
           height={80}
@@ -62,6 +62,20 @@
           height={80}
           width={140}
           class="block dark:hidden"
+        /> -->
+         <img
+          src={"/images/coreIp.jpg"}
+          alt="logo"
+          height={80}
+          width={140}
+          class="block dark:hidden"
+        />
+        <img
+          src={"/images/coreIP2.png"}
+          alt="logo"
+          height={80}
+          width={140}
+          class="hidden dark:block"
         />
       </div>
       <h2
