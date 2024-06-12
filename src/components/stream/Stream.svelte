@@ -3,9 +3,11 @@
   import { VideoStream } from "@/lib/video-stream";
   import { activeCamera, hoveredCamera, fullscreen } from "@/lib/stores";
   import { cn } from "@/lib";
+  import { toast } from "svelte-sonner";
   export let camera: Camera;
   export let videoElement: HTMLElement;
-
+  import { createEventDispatcher } from "svelte";
+  const dispatch = createEventDispatcher();
   let parentDiv: HTMLDivElement;
 
   let videoStarted = false;
@@ -30,17 +32,85 @@
       });
     }
   };
-  $: document && parentDiv && videoElement && attachVideo(videoElement);
-</script>
 
+  $: console.log(videoElement?.divError)
+
+  $: document && parentDiv && videoElement && attachVideo(videoElement);
+
+   $: if (videoElement && videoElement.divError) {
+    console.log("Error message:", videoElement.divError);
+    if (videoElement.divError.includes("codecs not matched: H265")) {
+      console.log('first');
+      toast.error(`H265 codec error detected for: ${camera.name}`);
+      dispatch("h265Error", { cameraId: camera.id });
+    } else {
+      toast.error('error',videoElement.divError, camera.name)
+    }
+  }
+
+  //  if (videoElement && videoElement.divError && videoElement.divError.includes("codecs not matched: H265")) {
+  //   console.log('first');
+  //   toast.error(`H265 codec error detected for: ${camera.name}`);
+  //   dispatch("h265Error", { cameraId: camera.id });
+  // }
+</script>
 <!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- 
+<script lang="ts">
+  import type { Camera } from "@/types";
+  import { activeCamera, hoveredCamera, fullscreen } from "@/lib/stores";
+  import { cn } from "@/lib";
+  import { toast } from "svelte-sonner";
+  import { createEventDispatcher } from "svelte";
+
+  export let camera: Camera;
+  export let videoElement: HTMLElement;
+  const dispatch = createEventDispatcher();
+  let parentDiv: HTMLDivElement;
+  let videoStarted = false;
+
+  const attachVideo = (videoElement) => {
+    parentDiv.appendChild(videoElement);
+    const realVideo = videoElement.querySelector("video");
+    if (!realVideo) {
+      console.error("could not find real video");
+    } else {
+      realVideo.controls = false;
+      realVideo.style.maxWidth = "100%";
+      realVideo.style.objectFit = "fill";
+      realVideo.className = "rounded-lg video-element";
+      realVideo.background = true;
+      realVideo.visibilityCheck = false;
+      realVideo.addEventListener("play", () => videoStarted = true);
+      realVideo.addEventListener("pause", () => videoStarted = false);
+    }
+  };
+
+  function checkForErrors(videoElement) {
+    console.log('runnin')
+    if (videoElement?.divError) {
+      console.log("Error message:", videoElement.divError);
+      if (videoElement.divError.includes("codecs not matched: H265")) {
+        toast.error(`H265 codec error detected for: ${camera.name}`);
+        dispatch("h265Error", { cameraId: camera.id });
+      }
+    }
+  }
+
+  $: if (document && parentDiv && videoElement) {
+    attachVideo(videoElement);
+    checkForErrors(videoElement);
+  }
+</script> -->
+
+
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
   class={cn(
     `mx-auto w-full h-full relative 
      rounded-lg  flex items-center justify-center`,
     // !videoStarted &&
-    "min-w-full  h-full flex-shrink-0 bg-gradient-to-r from-slate-300 via-slate-500 to-slate-700",
+    "min-w-full  h-full flex-shrink-0 bg-gradient-to-r from-slate-300 via-slate-500 to-slate-700 ",
     !$fullscreen &&
       ($activeCamera === camera.id
         ? `animate-gradient-border border-4`
@@ -80,7 +150,7 @@
       z-index: 1;
     }
     50% {
-      opacity: 0.5;
+      opacity: 0.75;
       z-index: 1;
     }
   }

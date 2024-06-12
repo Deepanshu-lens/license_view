@@ -35,14 +35,14 @@
     //   text: "Gallery",
     //   href: `/gallery/${sessionId}`,
     // },
-    {
-      text: "Configuration",
-      href: `/configuration/${sessionId}?section=Remote`,
-    },
-    {
-      text: "Reports",
-      href: `/reports/${sessionId}`,
-    },
+    // {
+    //   text: "Configuration",
+    //   href: `/configuration/${sessionId}?section=Remote`,
+    // },
+    // {
+    //   text: "Reports",
+    //   href: `/reports/${sessionId}`,
+    // },
     {
       text: "Atlas",
       href: `/atlas/${sessionId}`,
@@ -117,23 +117,17 @@
       <div
         class="cursor-pointer flex items-center gap-2 justify-center px-2"
       >
-          <!-- <img
-        src='/images/sparsh.png'
-          alt="logo"
-          class="w-24"
-        /> -->
- <img
-          src={$mode === "light"
-            ? "/images/sparsh.png"
-            : "/images/sparsh-white.png"}
+        <img
+          src={$mode === "light" ? "/images/green.svg" : "/images/white.svg"}
           alt="logo"
           class="w-24"
         />
       </div>
+
       <div
         class={`flex flex-row items-center justify-center py-6 px-4 gap-14 `}
       >
-        <!-- {#each menuList as item}
+        {#each menuList as item}
           {#key item}
             {#if item.text === "Live" || item.text === "Atlas" || item.text === 'Configuration' || item.text === 'Reports'}
               <a
@@ -166,8 +160,8 @@
               </button>
             {/if}
           {/key}
-        {/each} -->
-        <!-- {#if session.frs} -->
+        {/each}
+        {#if session.frs}
           <a
             href={frs.href}
             on:click={() => {
@@ -184,8 +178,8 @@
               {frs.text}
             </span>
             </a>
-        <!-- {/if} -->
-        <!-- {#if session.playback}
+        {/if}
+        {#if session.playback}
           <a
             href={playback.href}
             on:click={() => {
@@ -202,8 +196,8 @@
               {playback.text}
             </span>
           </a>
-        {/if} -->
-        <!-- {#if session.anpr}
+        {/if}
+        {#if session.anpr}
           <a
             href={anpr.href}
             on:click={() => {
@@ -220,7 +214,7 @@
               {anpr.text}
             </span>
           </a>
-        {/if} -->
+        {/if}
       </div>
 
       <div

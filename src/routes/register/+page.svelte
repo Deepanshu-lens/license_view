@@ -46,31 +46,25 @@
     <div
       class="form-cont flex flex-col h-full items-center justify-center gap-4 w-[350px] mx-auto scale-[.85] sm:scale-100 xl:scale-100 2xl:scale-125 lg:scale-90 md:scale-75"
     >
-      <div
+       <div
         class="flex items-center sm:justify-start sm:self-start gap-4 sm:-ml-4 pt-[2rem] sm:pt-0"
       >
-      
-         <!-- <img
-        src='/images/sparsh.png'
-          alt="logo"
-          height={80}
-          width={140}
-        /> -->
-         <img
-          src={"/images/sparsh.png"}
-          alt="logo"
-          height={80}
-          width={140}
-          class="block dark:hidden"
-        />
         <img
-          src={"/images/sparsh-white.png"}
+          src={"/images/white.svg"}
           alt="logo"
           height={80}
           width={140}
           class="hidden dark:block"
         />
+        <img
+          src={"/images/green.svg"}
+          alt="logo"
+          height={80}
+          width={140}
+          class="block dark:hidden"
+        />
       </div>
+
       <h2
         class="font-semibold text-2xl self-center sm:self-start text-[#212B36] font-mono"
       >

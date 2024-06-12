@@ -119,7 +119,7 @@ $: if (chart && activeCameras && inactiveCameras) {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '65%',
+        cutout: '75%',
         plugins: {
           tooltip: {
             enabled: false
@@ -166,7 +166,8 @@ $: if (chart && activeCameras && inactiveCameras) {
   canvas {
     width: 100%;
     height: 100%;
+aspect-ratio: 1/1;
   }
 </style>
 
-<canvas bind:this={canvas}></canvas>
+<canvas class="xl:max-h-[180px]" bind:this={canvas}></canvas>

@@ -43,16 +43,34 @@
 
   const neededUrl = $page.url.hostname;
 
-  const initVideo = async (camera: Camera) => {
+  const handleH265Error = (event) => {
+    console.log("first");
+    console.log(event);
+    const { cameraId } = event.detail;
+    console.log(`Handling H265 error for camera ID: ${cameraId}`); // Debug: Log when handling
+    const video = videos[cameraId];
+    if (video) {
+      video.mode = "mse";
+      if (video) {
+        video.remove();
+        delete videos[cameraId];
+      }
+      initVideo($selectedNode.camera.find((c) => c.id === cameraId), "mse");
+      // initVideo($selectedNode.camera.find((c) => c.id === cameraId));
+    }
+  };
+
+  const initVideo = async (camera: Camera, mode) => {
     const index = $selectedNode.camera.findIndex((cam) => cam.id === camera.id);
     if (videos[camera.id]) {
       console.log("video c.id exists", camera.name);
       return;
     }
-
     let video = document.createElement("video-stream") as VideoStreamType;
     video.id = `stream-${camera.id}`;
-    video.mode = "webrtc";
+    // video.mode = mode !== undefined ? mode : "webrtc";
+    video.mode = mode !== undefined ? mode : "webrtc";
+    // console.log(video.mode)
     video.url = camera.url;
     camera?.subUrl?.length === 0
       ? (video.src = new URL(
@@ -137,11 +155,11 @@
         console.log("first");
         videoElement.src.close();
       }
-      console.log(videoElement);
+      // console.log(videoElement);
       videoElement.remove();
       delete videos[cameraId];
       const camera = $selectedNode.camera.find((c) => c.id === cameraId);
-      console.log(camera.name);
+      // console.log(camera.name);
       if (camera) {
         initVideo(camera);
       }
@@ -172,6 +190,45 @@
     handleSlideChange();
   }
 
+  let currentIndex = 0;
+  let refreshInterval;
+
+  function refreshCamera() {
+    const camera = $selectedNode.camera[currentIndex];
+    if (camera) {
+      refreshVideoStream(camera.id);
+      console.log(
+        "Refreshing camera with index & name:",
+        currentIndex,
+        camera.name,
+      );
+    }
+    currentIndex = (currentIndex + 1) % $selectedNode.camera.length;
+  }
+
+  function startRefreshing() {
+    // refreshCamera(); // Immediately refresh the first camera
+    refreshInterval = setInterval(refreshCamera, 60000); // Continue refreshing every minute
+  }
+
+  onMount(() => {
+    if($selectedNode) {
+      startRefreshing();
+    }
+  });
+
+  onDestroy(() => {
+    clearInterval(refreshInterval); // Clear the interval when the component is destroyed
+  });
+
+  // Reactive statement to handle changes in the camera array
+  $: if ($selectedNode.camera.length > 0 && !refreshInterval) {
+    startRefreshing();
+  } else if ($selectedNode.camera.length === 0 && refreshInterval) {
+    clearInterval(refreshInterval);
+    refreshInterval = null; 
+  }
+
   let prevName = $selectedNode.name;
 
   const updateLayout = (maxStreamsPerPage: number) => {
@@ -188,7 +245,7 @@
     slideIndex = 0;
     $selectedNode.camera.map((c) => {
       if (!videos[c.id]) {
-        console.log("c", c);
+        // console.log("c", c);
         initVideo(c);
       } else {
         if (videos[c.id].url !== c.url) {
@@ -327,7 +384,7 @@
   onDestroy(() => {
     PB.collection("configuration").unsubscribe("*");
   });
-  let currentIndex = 0;
+  // let currentIndex = 0;
 
   // $: {
   //   if(currentIndex === streamCount) {
@@ -372,16 +429,17 @@
   {#if $selectedNode.camera.length !== $filteredNodeCameras.length && $filteredNodeCameras.length !== 0}
     <div
       class={cn(
-        `grid  gap-1 w-full h-full ${!isAllFullScreen ? "max-h-[calc(100vh-76px)]": "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
+        `grid  gap-1 w-full h-full ${!isAllFullScreen ? "max-h-[calc(100vh-76px)]" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
       )}
       bind:this={cells}
     >
       {#each Array($filteredNodeCameras.length) as _, newIndex}
         {#key newIndex}
-          <div id={`grid-cell-${newIndex}`} class='relative'>
+          <div id={`grid-cell-${newIndex}`} class="relative">
             <Stream
               videoElement={videos[$filteredNodeCameras[newIndex].id]}
               camera={$filteredNodeCameras[newIndex]}
+              on:h265Error={handleH265Error}
             />
             <span
               class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-90 z-20"
@@ -499,6 +557,7 @@
                               : $selectedNode.maxStreamsPerPage) +
                             slotIndex
                         ]}
+                        on:h265Error={handleH265Error}
                       />
                       <span
                         class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-90 z-20"
@@ -916,16 +975,16 @@
     grid-template-rows: repeat(1, 100%);
   }
   .grid-rows-2 {
-    grid-template-rows: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 49.75%);
   }
   .grid-rows-3 {
-    grid-template-rows: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 33.25%);
   }
   .grid-rows-4 {
-    grid-template-rows: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 24.7%);
   }
   .grid-rows-5 {
-    grid-template-rows: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 19.7%);
   }
   .grid-rows-6 {
     grid-template-rows: repeat(6, 16.2%);
@@ -946,16 +1005,16 @@
     grid-template-columns: repeat(1, 100%);
   }
   .grid-cols-2 {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 50%);
   }
   .grid-cols-3 {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 33.3%);
   }
   .grid-cols-4 {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 24.7%);
   }
   .grid-cols-5 {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, 19.7%);
   }
   .grid-cols-6 {
     grid-template-columns: repeat(6, 16.35%);

@@ -120,7 +120,7 @@
         </span>
       </span>
     </div>
-    <Table.Root class="mx-auto w-[98%] flex flex-col pb-10">
+    <Table.Root class="mx-auto w-full flex flex-col pb-10">
       <Table.Header
         class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
       >

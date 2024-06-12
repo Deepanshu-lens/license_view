@@ -7,6 +7,7 @@ export const POST: RequestHandler = async ({
 }: RequestEvent) => {
   try {
     const { date, nodeId } = await request.json();
+    console.log(date,nodeId)
 
     function formatDate(dateString: string) {
       var date = new Date(dateString);
@@ -25,11 +26,22 @@ export const POST: RequestHandler = async ({
     const endOfDay = new Date(formattedStartDate);
     endOfDay.setHours(23, 59, 59, 999);
     const formattedEndDate = endOfDay.toISOString();
+    const formattedStartDateReplaced = formattedStartDate.replace('T', ' ');
+    const formattedEndDateReplaced = formattedEndDate.replace('T', ' ');
+
 
     const playback_data = await locals.pb?.collection("playback").getFullList({
-      filter: `startTime >= "${formattedStartDate}" && startTime <= "${formattedEndDate}"`,
-      expand: 'camera'
+      filter: `startTime>="${formattedStartDateReplaced}"&&startTime<="${formattedEndDateReplaced}"`,
+      expand: 'camera',
     });
+
+    // const pd = await locals.pb?.collection('playback').getFullList({
+    //   expand: 'camera',
+    //   sort:'created'
+
+    // })
+
+    // console.log(pd[0].created)
 
     // Filter playback_data based on nodeId
     console.log(playback_data)
@@ -52,7 +64,7 @@ export const POST: RequestHandler = async ({
     if (!simplifiedPlaybackData?.length) {
       return new Response(
         JSON.stringify({
-          error: "No data found for the provided camera, date, or node ID",
+          error: "No recordings found for the provided date and node",
         }),
         { status: 404 },
       );

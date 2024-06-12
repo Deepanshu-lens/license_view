@@ -132,7 +132,7 @@
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
     <li class="cursor-pointer hover:scale-125" >
-      <button class=" disabled:cursor-not-allowed" disabled on:click={deleteCamera}>
+      <button class=" disabled:cursor-not-allowed" on:click={deleteCamera}>
         <Trash class="h-4 w-4" />
       </button>
     </li>

@@ -1,15 +1,12 @@
 <script>
+	import Row from './tableRow/Row.svelte';
   import PocketBase from "pocketbase";
   import {
     ArrowLeft,
     ArrowUpRight,
-    CalendarDays,
-    Filter,
     FilterIcon,
     Search,
-    Trash,
     TrendingUp,
-    User,
     WebcamIcon,
   } from "lucide-svelte";
   import Button from "../ui/button/button.svelte";
@@ -52,7 +49,7 @@
   let delayedFlag = false;
   setTimeout(() => {
     delayedFlag = true;
-  }, 1000);
+  }, 4000);
 
   async function fetchNvrData() {
     if ($selectedNode) {
@@ -61,7 +58,6 @@
         sort: "-created",
         expand: "ip_address",
       });
-
       for (let i = 0; i < NvrData.length; i++) {
         const nvr = NvrData[i];
         const status = await PB.collection("nvr_ping_status").getFirstListItem(
@@ -80,8 +76,8 @@
 
   async function getNvrStorageData() {
     if ($selectedNode) {
-      NvrStorageData = await PB.collection("nvr_storage").getFullList({
-        filter: `node~"${$selectedNode.id}"`,
+    NvrStorageData = await PB.collection("nvr_storage").getFullList({
+      filter: `node~"${$selectedNode.id}"`,
         sort: "-created",
         expand: `nvr`,
       });
@@ -101,7 +97,7 @@
         sort: "-created",
         expand: "camera",
       });
-      console.log(res)
+      // console.log('res camera list ',res)
       const uniqueCameras = new Map();
       activeCams = 0;
       inactiveCams = 0;
@@ -122,6 +118,7 @@
 
       const latestUniqueCameras = Array.from(uniqueCameras.values());
       uniqueCams = latestUniqueCameras;
+      cameraList = latestUniqueCameras
       return latestUniqueCameras;
     } catch (err) {
       console.log(err);
@@ -129,18 +126,18 @@
   }
 
   onMount(async () => {
-    cameraList = await getCameraList();
+     await getCameraList();
 
     PB.collection("nvr_ping_status").subscribe("*", async (e) => {
       console.log(e.action);
       if (e.action === "create") {
-        fetchNvrData();
+        // fetchNvrData();
       }
     });
     PB.collection("camera_ping_status").subscribe("*", async (e) => {
       console.log(e.action);
       if (e.action === "create") {
-        cameraList = await getCameraList();
+        // cameraList = await getCameraList();
       }
     });
   });
@@ -153,9 +150,17 @@
   // $: $selectedNode, fetchNvrData(), getNvrStorageData();
 
    $: if ($selectedNode) {
-    fetchNvrData();
-    getNvrStorageData();
-    getCameraList();
+    fetchData()
+  }
+  
+  async function fetchData () {
+    activeNvr = 0;
+    inactiveNvr = 0
+    totalCapacity = 0;
+    await fetchNvrData();
+    await getNvrStorageData();
+     await getCameraList();
+
   }
 
   function parseDetail(detailString, key) {
@@ -167,9 +172,6 @@
     return "Not available"; 
   }
 
-  $: mapData = NvrData
- $:  console.log(activeCams)
-  $:console.log(inactiveCams)
 </script>
 
 <div class="w-full h-[calc(100vh-75px)]">
@@ -222,9 +224,9 @@
           class="gap-4 col-span-2 row-span-2 grid grid-rows-2 grid-cols-1 rounded-md"
         >
           <div
-            class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
+            class="border col-span-2 row-span-2 grid grid-cols-3 p-2 rounded-md"
           >
-            <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
+            <span class=" col-span-3 flex flex-col gap-4 h-full justify-center">
               <span class="text-lg font-semibold leading-6"
                 >Camera Count & Status</span
               >
@@ -243,21 +245,21 @@
                 >
               </span>
             </span>
-            <span class="col-span-1 relative">
+            <span class="col-span-3 row-span-1 relative">
               {#if delayedFlag}<Doughnut
                   activeCameras={activeCams}
                   inactiveCameras={inactiveCams}
                 />
                 <span
                   id="bell"
-                  class="h-[30px] w-[30px] rounded-full bg-[#5B93FF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]"
+                  class="h-[35px] w-[35px] rounded-full bg-[#5B93FF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]"
                 >
-                  <WebcamIcon size={18} class="text-[#5B93FF]" />
+                  <WebcamIcon size={24} class="text-[#5B93FF]" />
                 </span>
               {/if}</span
             >
           </div>
-          <div
+          <!-- <div
             class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
           >
             <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
@@ -285,7 +287,7 @@
                   <BellRing size={18} class="text-[#605BFF]" />
                 </span>{/if}</span
             >
-          </div>
+          </div> -->
         </div>
         <div class=" col-span-3 row-span-2 border p-2 rounded-md">
           <div class="flex items-center justify-between pt-2">
@@ -301,7 +303,7 @@
           </div>
           <div class="h-[95%] w-full">
             {#if NvrData && delayedFlag}
-            <MapNvr NvrData={mapData} />
+            <MapNvr {NvrData} />
           {/if}
           </div>
         </div>
@@ -324,7 +326,7 @@
             </div>
           </div>
           {#if NvrData && uniqueCams && delayedFlag}
-            <AreaAnalysis NvrData={mapData} {uniqueCams} />
+            <AreaAnalysis {NvrData} {uniqueCams} />
           {/if}
         </div>
       </div>
@@ -353,58 +355,14 @@
               <Table.Head class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
                 >Exiting alert</Table.Head
               >
-              <Table.Head class="text-[#727272]  pr-0 h-full w-[20%] dark:text-slate-50"
+              <Table.Head class="text-[#727272] text-center  pr-0 h-full w-[20%] dark:text-slate-50"
                 >Actions</Table.Head
               >
             </Table.Row>
           </Table.Header>
           <Table.Body>
             {#each cameraList as item, index}
-              <Table.Row
-                class="bg-transparent flex items-center justify-between mt-4 rounded-lg  border-2 border-solid border-[#e4e4e4] px-3"
-              >
-                <Table.Cell class="text-black dark:text-slate-50 w-[10%] h-full"
-                  >#{index}</Table.Cell
-                >
-                <Table.Cell class="text-[#727272] w-[12%]  h-full text-sm ml-2"
-                  >{item?.expand?.camera?.name}</Table.Cell
-                >
-                <Table.Cell class="text-[#727272] w-[12%]  h-full text-sm"
-                  >severity</Table.Cell
-                >
-                <Table.Cell class="text-[#727272] w-[12%] h-full text-sm"
-                  >downtime</Table.Cell
-                >
-                <Table.Cell class="text-[#727272] w-[12%] h-full text-sm"
-                >{#if item.status}
-                <span
-                      class="bg-[#EDF2FE] dark:bg-transparent dark:border-[#EDF2FE] text-[#4976F4] px-2 py-1 rounded-md font-medium text-sm"
-                      >Active</span
-                    >
-                  {:else}
-                    <span
-                      class="bg-[#F7F7E8] dark:bg-transparent dark:border-[#F7F7e8] text-[#D28E3D] px-2 py-1 rounded-md font-medium text-sm"
-                      >Inactive</span
-                    >
-                  {/if}</Table.Cell
-                >
-                <Table.Cell class="text-[#727272] w-[12%] h-full text-sm"
-                  >exiting alert</Table.Cell
-                >
-                <Table.Cell
-                  class="text-[#727272] w-[20%] h-full text-sm flex items-center gap-2"
-                >
-                  <button
-                    class="text-[#4976F4] bg-[#4976F4] flex items-center gap-1 rounded-xl py-1 px-2 text-xs bg-opacity-15 whitespace-nowrap"
-                    ><User size={16} /> Assign Technician</button
-                  >
-                  <button
-                    class="text-[#D53228CC] bg-[#D53228] flex items-center gap-1 rounded-xl py-1 px-2 text-xs bg-opacity-15 whitespace-nowrap"
-                  >
-                    <Trash size={16} /> Delete</button
-                  >
-                </Table.Cell>
-              </Table.Row>
+            <Row {item} {index} />
             {/each}
           </Table.Body>
         </Table.Root>
@@ -439,9 +397,9 @@
     <div class="grid grid-cols-8 grid-rows-2 h-[320px] gap-4 px-4">
       <div class="gap-4 col-span-2 row-span-2 grid grid-rows-2 grid-cols-1">
         <div
-          class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
+          class="border col-span-1 row-span-2 grid grid-cols-3 p-2 rounded-md"
         >
-          <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
+          <span class=" col-span-3 row-span-1 flex flex-col gap-4 h-full justify-center">
             <span class="text-lg font-semibold leading-6"
               >NVR Count & Status</span
             >
@@ -460,7 +418,7 @@
               >
             </span>
           </span>
-          <span class="col-span-1 relative"
+          <span class="col-span-3 row-span-1 relative"
             >{#if delayedFlag}<Doughnut
                 activeCameras={activeNvr}
                 inactiveCameras={inactiveNvr}
@@ -474,7 +432,7 @@
             {/if}</span
           >
         </div>
-        <div
+        <!-- <div
           class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
         >
           <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
@@ -503,7 +461,7 @@
                 <BellRing size={18} class="text-[#605BFF]" />
               </span>{/if}</span
           >
-        </div>
+        </div> -->
       </div>
       <div class=" col-span-3 row-span-2 border p-2 rounded-md">
         <div class="flex items-center justify-between pt-2">
@@ -582,9 +540,6 @@
           </h5>
         </div>
         <div class="flex items-center gap-2">
-          <!-- <Button variant="outline" class="flex items-center gap-2 text-sm"
-            ><MapPin size={18} /> Location</Button
-          > -->
           <NodeSelection
             isAllFullScreen={false}
             {nodes}
@@ -594,7 +549,7 @@
           <Button>Export</Button>
         </div>
       </div>
-      <div class="grid grid-cols-8 grid-rows-3 h-[450px] gap-4 px-4">
+      <div class="grid grid-cols-8 grid-rows-1 h-[150px] 2xl:h-[250px] gap-4 px-4">
         <div class="gap-4 col-span-8 row-span-1 grid grid-rows-1 grid-cols-8">
           <div
             class="p-2 col-span-2 row-span-1 border rounded-md grid grid-rows-2 grid-cols-3 gap-1 relative"
@@ -691,7 +646,8 @@
             />
           </div>
         </div>
-        <div
+
+        <!-- <div
           class="col-span-6 row-span-2 rounded-lg p-2 border-2 border-black/.23 border-solid flex flex-col"
         >
           <span class="font-semibold text-lg text-[#323232]"
@@ -768,7 +724,7 @@
               ><span class="h-2 w-2 rounded-full bg-[#06D2E5]" /> location
             </span>
           </div>
-        </div>
+        </div> -->
       </div>
       <div class="flex items-center justify-between p-4">
         <div class="left flex flex-col gap-1">

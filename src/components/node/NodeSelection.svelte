@@ -86,6 +86,8 @@
     }
 
     try {
+      PB.autoCancellation(false)
+      console.log($selectedNode.session,selectedOption)
       const test = await PB.collection("node").getFullList({
         expand: "camera",
         filter: `name="${selectedOption}"&&session~"${$selectedNode.session}"`,

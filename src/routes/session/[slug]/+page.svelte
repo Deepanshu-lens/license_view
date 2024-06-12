@@ -20,8 +20,9 @@
 
   async function getNodes(): Promise<Node[]> {
     if (session?.node.length > 0) {
+      PB.autoCancellation(false)
       const nodes = await PB.collection("node").getFullList(200, {
-        sort: "-created",
+        sort: "created",
         expand: "camera",
         filter: `session~"${session.id}"`,
       });
@@ -82,12 +83,17 @@
 
     PB.collection("camera").subscribe("*", async (e) => {
       nodes = await getNodes();
-      selectedNode.set(nodes[0]);
+      // selectedNode.set(nodes[0]);
     });
 
     PB.collection("node").subscribe("*", async (e) => {
       nodes = await getNodes();
-      selectedNode.set(nodes[0]);
+      console.log("change e nodes", e.record)
+      nodes.forEach((node) => {
+        if (e.record.id === node.id) {
+          selectedNode.set(node);
+        }
+      });
     });
 
     setTimeout(updateEvents, 1000);

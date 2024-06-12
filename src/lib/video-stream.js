@@ -56,6 +56,7 @@ export class VideoStream extends VideoRTC {
       switch (msg.type) {
         case "error":
           this.divError = msg.value;
+          console.log(msg.value)
           break;
         case "mse":
         case "hls":

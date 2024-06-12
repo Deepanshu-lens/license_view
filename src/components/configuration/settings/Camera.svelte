@@ -81,28 +81,29 @@
     PB.collection("camera").unsubscribe("*");
   });
 
-  const onDeleteNode = () => {
+  const onDeleteNode = async () => {
     const localCameraList =
-      $selectedNode.camera.length === 0 ? [] : $selectedNode.camera;
-    fetch("/api/node/delete", {
+      $nodeData[nodeIndex].camera.length === 0
+        ? []
+        : $nodeData[nodeIndex].camera;
+    await fetch("/api/node/delete", {
       method: "delete",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        cameras: $selectedNode.camera,
-        nodeId: $selectedNode.id,
+        cameras: $nodeData[nodeIndex].camera,
+        nodeId: $nodeData[nodeIndex].id,
       }),
     }).then(() => {
       localCameraList.map((c) =>
         document.getElementById(`stream-${c.id}`)?.remove(),
       );
-      toast("Node deleted");
+      toast(`Node: ${$nodeData[nodeIndex].name} deleted!`);
     });
   };
 
   $: {
-    // console.log($nodeData);
     newData =
       $nodeData.length > 0
         ? $nodeData.filter((item: any) => {
@@ -120,8 +121,6 @@
       detailIndex = null;
     }
   }
-
-  // $: console.log($selectedNode);
 </script>
 
 <div
@@ -279,8 +278,8 @@
             {:else}
               <button
                 class="dark:text-[#cac4d0] text-[#4f4f4f] font-xs bg-[#d9d9d9] border-none dark:bg-[#242424] rounded-md px-3 py-1.5 border-[#333] border dark:border-solid"
-                on:click={() => {
-                  const data = fetch("/api/node/update", {
+                on:click={async () => {
+                  await fetch("/api/node/update", {
                     method: "PATCH",
                     headers: {
                       "Content-Type": "application/json",
@@ -430,7 +429,7 @@
                         type="checkbox"
                         checked={nodeIndex === index}
                       />
-                        <!-- on:click={() => {
+                      <!-- on:click={() => {
                           console.log($selectedNode);
                           const foundNode = nodeD.find(
                             (node) => node.id === data.id,

@@ -51,7 +51,10 @@
       }
       const result = await data.json();
 
-      nodeData.set([...result?.nodeData]);
+      // nodeData.set([...result?.nodeData]);
+        nodeData.set(
+        result?.nodeData.map((node) => ({ ...node, session: user.session })),
+      );
     } else {
       console.log("no selected node");
     }
@@ -450,7 +453,7 @@
                   </td>
                 </tr>
               {/each}
-            {:else if newData && newData[nodeIndex].camera.length > 0}
+            {:else if newData && newData[nodeIndex]?.camera?.length > 0}
               {#each newData?.[nodeIndex].cameraData as item, index}
                 <tr
                   class={`${
