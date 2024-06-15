@@ -1,5 +1,4 @@
 import { redirect, error } from "@sveltejs/kit";
-import os from "os";
 export const actions = {
   login: async ({ locals, request }) => {
     console.log("LOGING ATTEMPT");
@@ -27,6 +26,32 @@ export const actions = {
       // throw error(err.status || 500, err.message || "An error occurred");
       throw redirect(303, `/login?message=${err.message}`);
     }
+    console.log('first')
     throw redirect(303, "/");
   },
+
+oauth: async ({
+  locals,
+  cookies,
+  url
+}) => {
+  console.log("Initiating Google OAuth for login");
+
+  const authMethods = await locals.pb.collection('users').listAuthMethods();
+  const googleAuthProvider = authMethods.authProviders.find(provider => provider.name === "google");
+
+  if (!googleAuthProvider) {
+    throw redirect(303, `/login?message=Google Auth not available.`);
+  }
+
+  const isProd = process.env.NODE_ENV === "production";
+  const redirectURL = `${url.origin}/login/oauth`;
+
+  cookies.set('state', googleAuthProvider.state, { path: '/', secure: isProd, sameSite: 'lax', httpOnly: true });
+  cookies.set('verifier', googleAuthProvider.codeVerifier, { path: '/', secure: isProd, sameSite: 'lax', httpOnly: true });
+console.log(redirectURL)
+  throw redirect(302, `${googleAuthProvider.authUrl}${redirectURL}`);
+}
+
+
 };

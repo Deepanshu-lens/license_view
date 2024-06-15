@@ -7,10 +7,13 @@
   export let camera: Camera;
   export let videoElement: HTMLElement;
   import { createEventDispatcher } from "svelte";
+    import { AlertCircle } from "lucide-svelte";
   const dispatch = createEventDispatcher();
   let parentDiv: HTMLDivElement;
 
   let videoStarted = false;
+  let startErrorWatching= false
+  let er = null
 
   const attachVideo = (videoElement) => {
     parentDiv.appendChild(videoElement);
@@ -18,6 +21,9 @@
     if (!realVideo) {
       console.error("could not find real video");
     } else {
+      setTimeout(() => {
+        startErrorWatching = true
+      }, 100);
       realVideo.controls = false;
       realVideo.style.maxWidth = "100%";
       realVideo.style.objectFit = "fill";
@@ -33,20 +39,22 @@
     }
   };
 
-  $: console.log(videoElement?.divError)
-
   $: document && parentDiv && videoElement && attachVideo(videoElement);
 
-   $: if (videoElement && videoElement.divError) {
+   $: if (startErrorWatching && videoElement?.divError) {
+    console.log('first')
     console.log("Error message:", videoElement.divError);
+    er = videoElement.divError
+
     if (videoElement.divError.includes("codecs not matched: H265")) {
-      console.log('first');
       toast.error(`H265 codec error detected for: ${camera.name}`);
       dispatch("h265Error", { cameraId: camera.id });
     } else {
-      toast.error('error',videoElement.divError, camera.name)
+      toast.error(`Error in ${camera?.name}: ${videoElement?.divError}`);
     }
   }
+
+
 
   //  if (videoElement && videoElement.divError && videoElement.divError.includes("codecs not matched: H265")) {
   //   console.log('first');
@@ -105,12 +113,13 @@
 
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
+ <!-- startErrorWatching && er ? 'from-pink-200 via-red-400 to-rose-600' : -->
 <div
   class={cn(
     `mx-auto w-full h-full relative 
      rounded-lg  flex items-center justify-center`,
     // !videoStarted &&
-    "min-w-full  h-full flex-shrink-0 bg-gradient-to-r from-slate-300 via-slate-500 to-slate-700 ",
+     "min-w-full  h-full flex-shrink-0 bg-gradient-to-r from-slate-300 via-slate-500 to-slate-700",
     !$fullscreen &&
       ($activeCamera === camera.id
         ? `animate-gradient-border border-4`
@@ -126,7 +135,17 @@
       previous === camera.id ? "" : camera.id,
     );
   }}
-/>
+>
+{#if startErrorWatching && er}
+<span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white font-bold text-sm flex-col text-center justify-center items-center w-[80%] "><span class="gap-2 flex flex-col items-center justify-center ">
+<img src='/images/456.png' class='w-12 h-12' alt="error"/>
+    Camera:
+   {camera.name} <br/>
+</span>
+error: {er}
+</span>
+{/if}
+</div>
 
 <style>
   .video-element {

@@ -1,12 +1,16 @@
 <script>
-	import Row from './tableRow/Row.svelte';
+  import Row from "./tableRow/Row.svelte";
   import PocketBase from "pocketbase";
   import {
     ArrowLeft,
     ArrowUpRight,
+    CalendarDays,
+    Filter,
     FilterIcon,
     Search,
+    Trash,
     TrendingUp,
+    User,
     WebcamIcon,
   } from "lucide-svelte";
   import Button from "../ui/button/button.svelte";
@@ -20,6 +24,7 @@
   import NodeSelection from "../node/NodeSelection.svelte";
   import { selectedNode } from "@/lib/stores";
   import MapNvr from "../map/MapNvr.svelte";
+  import Spinner from "@/components/ui/spinner/Spinner.svelte";
   export let data;
   export let nodes;
   let selectedNvr = writable(null);
@@ -29,13 +34,10 @@
 
   let view = 1;
 
-  import { onDestroy } from "svelte";
   import AreaAnalysis from "./charts/AreaAnalysis.svelte";
   import { Input } from "../ui/input";
   import StorageNvrCard from "../cards/StorageNvrCard.svelte";
   import Doughnut from "./charts/Doughnut.svelte";
-  import Doughnut2 from "./charts/Doughnut2.svelte";
-  import { BellRing } from "lucide-svelte";
 
   let NvrData;
   let NvrStorageData;
@@ -76,8 +78,8 @@
 
   async function getNvrStorageData() {
     if ($selectedNode) {
-    NvrStorageData = await PB.collection("nvr_storage").getFullList({
-      filter: `node~"${$selectedNode.id}"`,
+      NvrStorageData = await PB.collection("nvr_storage").getFullList({
+        filter: `node~"${$selectedNode.id}"`,
         sort: "-created",
         expand: `nvr`,
       });
@@ -89,15 +91,20 @@
     }
   }
 
- async function getCameraList() {
-    PB.autoCancellation(false);
+  async function getCameraList() {
     try {
-      const res = await PB.collection("camera_ping_status").getList(1, 25, {
+      PB.autoCancellation(false);
+      console.log("cameralist get inside try");
+      const res = await PB.collection("camera_ping_status").getList(1, 60, {
         filter: `node~"${$selectedNode.id}"`,
         sort: "-created",
         expand: "camera",
       });
-      // console.log('res camera list ',res)
+
+      // if(res.items.length === 0) {
+      //   console.log($selectedNode.camera)
+      // } else {}
+
       const uniqueCameras = new Map();
       activeCams = 0;
       inactiveCams = 0;
@@ -118,60 +125,61 @@
 
       const latestUniqueCameras = Array.from(uniqueCameras.values());
       uniqueCams = latestUniqueCameras;
-      cameraList = latestUniqueCameras
+      cameraList = latestUniqueCameras;
       return latestUniqueCameras;
     } catch (err) {
       console.log(err);
     }
   }
 
-  onMount(async () => {
-     await getCameraList();
+  // onMount(() => {
+  //   fet
+  // })
 
-    PB.collection("nvr_ping_status").subscribe("*", async (e) => {
-      console.log(e.action);
-      if (e.action === "create") {
-        // fetchNvrData();
-      }
-    });
-    PB.collection("camera_ping_status").subscribe("*", async (e) => {
-      console.log(e.action);
-      if (e.action === "create") {
-        // cameraList = await getCameraList();
-      }
-    });
-  });
+  // onMount(async () => {
+  //    await getCameraList();
 
-  onDestroy(() => {
-    PB.collection("nvr_ping_status").unsubscribe("*");
-    PB.collection("camera_ping_status").unsubscribe("*");
-  });
+  //   PB.collection("nvr_ping_status").subscribe("*", async (e) => {
+  //     console.log(e.action);
+  //     if (e.action === "create") {
+  //       // fetchNvrData();
+  //     }
+  //   });
+  //   PB.collection("camera_ping_status").subscribe("*", async (e) => {
+  //     console.log(e.action);
+  //     if (e.action === "create") {
+  //       // cameraList = await getCameraList();
+  //     }
+  //   });
+  // });
+
+  // onDestroy(() => {
+  //   PB.collection("nvr_ping_status").unsubscribe("*");
+  //   PB.collection("camera_ping_status").unsubscribe("*");
+  // });
 
   // $: $selectedNode, fetchNvrData(), getNvrStorageData();
 
-   $: if ($selectedNode) {
-    fetchData()
+  $: if ($selectedNode) {
+    fetchData();
   }
-  
-  async function fetchData () {
+
+  async function fetchData() {
     activeNvr = 0;
-    inactiveNvr = 0
-    totalCapacity = 0;
+    inactiveNvr = 0;
     await fetchNvrData();
     await getNvrStorageData();
-     await getCameraList();
-
+    await getCameraList();
   }
 
   function parseDetail(detailString, key) {
     const lines = detailString.split("\n");
     const line = lines.find((line) => line.startsWith(key));
     if (line) {
-      return line.split(": ")[1]; 
+      return line.split(": ")[1];
     }
-    return "Not available"; 
+    return "Not available";
   }
-
 </script>
 
 <div class="w-full h-[calc(100vh-75px)]">
@@ -200,7 +208,9 @@
     >
       <div class="flex items-center justify-between p-4">
         <div class="left flex flex-col gap-1">
-          <h2 class="font-medium text-xl text-[#323232] dark:text-slate-200">Health Monitor</h2>
+          <h2 class="font-medium text-xl text-[#323232] dark:text-slate-200">
+            Health Monitor
+          </h2>
           <h5 class="text-sm text-black/[.5] dark:text-white/[.5]">
             Streamlined insights into your device's vital stats for informed
             decisions.
@@ -256,6 +266,10 @@
                 >
                   <WebcamIcon size={24} class="text-[#5B93FF]" />
                 </span>
+                {:else}
+                <div class="w-full h-full grid place-items-center">
+                  <Spinner />
+                </div>
               {/if}</span
             >
           </div>
@@ -303,8 +317,12 @@
           </div>
           <div class="h-[95%] w-full">
             {#if NvrData && delayedFlag}
-            <MapNvr {NvrData} />
-          {/if}
+              <MapNvr {NvrData} />
+            {:else}
+              <div class="w-full h-full grid place-items-center">
+                <Spinner />
+              </div>
+            {/if}
           </div>
         </div>
         <div class=" col-span-3 row-span-2 border p-2 rounded-md overflow-clip">
@@ -327,6 +345,10 @@
           </div>
           {#if NvrData && uniqueCams && delayedFlag}
             <AreaAnalysis {NvrData} {uniqueCams} />
+            {:else}
+            <div class="w-full h-full grid place-items-center">
+              <Spinner />
+            </div>
           {/if}
         </div>
       </div>
@@ -339,30 +361,39 @@
             <Table.Row
               class="bg-transparent flex items-center justify-between p-3 w-full"
             >
-              <Table.Head class="text-[#727272] h-full w-[10%] dark:text-slate-50">ID</Table.Head>
-              <Table.Head class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
+              <Table.Head
+                class="text-[#727272] h-full w-[10%] dark:text-slate-50"
+                >ID</Table.Head
+              >
+              <Table.Head
+                class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
                 >Name</Table.Head
               >
-              <Table.Head class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
+              <Table.Head
+                class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
                 >Severity</Table.Head
               >
-              <Table.Head class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
+              <Table.Head
+                class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
                 >Downtime</Table.Head
               >
-              <Table.Head class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
+              <Table.Head
+                class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
                 >Status</Table.Head
               >
-              <Table.Head class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
+              <Table.Head
+                class="text-[#727272]  h-full w-[12%] dark:text-slate-50"
                 >Exiting alert</Table.Head
               >
-              <Table.Head class="text-[#727272] text-center  pr-0 h-full w-[20%] dark:text-slate-50"
+              <Table.Head
+                class="text-[#727272] text-center  pr-0 h-full w-[20%] dark:text-slate-50"
                 >Actions</Table.Head
               >
             </Table.Row>
           </Table.Header>
           <Table.Body>
             {#each cameraList as item, index}
-            <Row {item} {index} />
+              <Row {item} {index} />
             {/each}
           </Table.Body>
         </Table.Root>
@@ -370,69 +401,71 @@
     </section>
   {/if}
   {#if view === 2 && $selectedNvr === null}
-  <section
-  class="flex flex-col max-h-[calc(100vh-120px)] overflow-y-auto hide-scrollbar pb-10"
->
-    <div class="flex items-center justify-between p-4">
-      <div class="left flex flex-col gap-1">
-        <h2 class="font-medium text-xl text-[#323232]">Health Monitor</h2>
-        <h5 class="text-sm text-black/.5">
-          Streamlined insights into your device's vital stats for informed
-          decisions.
-        </h5>
-      </div>
-      <div class="flex items-center gap-2">
-        <NodeSelection
-          isAllFullScreen={false}
-          {nodes}
-          url={data.url ?? "/"}
-          {data}
-        />
-        <!-- <Button variant="outline" class="flex items-center gap-2 text-sm"
+    <section
+      class="flex flex-col max-h-[calc(100vh-120px)] overflow-y-auto hide-scrollbar pb-10"
+    >
+      <div class="flex items-center justify-between p-4">
+        <div class="left flex flex-col gap-1">
+          <h2 class="font-medium text-xl text-[#323232]">Health Monitor</h2>
+          <h5 class="text-sm text-black/.5">
+            Streamlined insights into your device's vital stats for informed
+            decisions.
+          </h5>
+        </div>
+        <div class="flex items-center gap-2">
+          <NodeSelection
+            isAllFullScreen={false}
+            {nodes}
+            url={data.url ?? "/"}
+            {data}
+          />
+          <!-- <Button variant="outline" class="flex items-center gap-2 text-sm"
           ><MapPin size={18} /> Location</Button
         > -->
-        <Button>Export</Button>
-      </div>
-    </div>
-    <div class="grid grid-cols-8 grid-rows-2 h-[320px] gap-4 px-4">
-      <div class="gap-4 col-span-2 row-span-2 grid grid-rows-2 grid-cols-1">
-        <div
-          class="border col-span-1 row-span-2 grid grid-cols-3 p-2 rounded-md"
-        >
-          <span class=" col-span-3 row-span-1 flex flex-col gap-4 h-full justify-center">
-            <span class="text-lg font-semibold leading-6"
-              >NVR Count & Status</span
-            >
-            <span class="flex items-center gap-2 text-2xl font-bold leading-8"
-              >{NvrData?.length}
-              <span class="flex items-center gap-1 text-sm text-[#00B69B]">
-                <TrendingUp size={18} /> 1.3%
-              </span>
-            </span>
-            <span class="flex items-center gap-3">
-              <span class="flex items-center gap-1">
-                <span class="h-2 w-2 rounded-full bg-[#5B93FF]" /> Active</span
-              >
-              <span class="flex items-center gap-1"
-                ><span class="h-2 w-2 rounded-full bg-[#FFD66B]" /> Inactive</span
-              >
-            </span>
-          </span>
-          <span class="col-span-3 row-span-1 relative"
-            >{#if delayedFlag}<Doughnut
-                activeCameras={activeNvr}
-                inactiveCameras={inactiveNvr}
-              />
-              <span
-                id="bell"
-                class="h-[30px] w-[30px] rounded-full bg-[#5B93FF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]"
-              >
-                <WebcamIcon size={18} class="text-[#5B93FF]" />
-              </span>
-            {/if}</span
-          >
+          <Button>Export</Button>
         </div>
-        <!-- <div
+      </div>
+      <div class="grid grid-cols-8 grid-rows-2 h-[320px] gap-4 px-4">
+        <div class="gap-4 col-span-2 row-span-2 grid grid-rows-2 grid-cols-1">
+          <div
+            class="border col-span-1 row-span-2 grid grid-cols-3 p-2 rounded-md"
+          >
+            <span
+              class=" col-span-3 row-span-1 flex flex-col gap-4 h-full justify-center"
+            >
+              <span class="text-lg font-semibold leading-6"
+                >NVR Count & Status</span
+              >
+              <span class="flex items-center gap-2 text-2xl font-bold leading-8"
+                >{NvrData?.length}
+                <span class="flex items-center gap-1 text-sm text-[#00B69B]">
+                  <TrendingUp size={18} /> 1.3%
+                </span>
+              </span>
+              <span class="flex items-center gap-3">
+                <span class="flex items-center gap-1">
+                  <span class="h-2 w-2 rounded-full bg-[#5B93FF]" /> Active</span
+                >
+                <span class="flex items-center gap-1"
+                  ><span class="h-2 w-2 rounded-full bg-[#FFD66B]" /> Inactive</span
+                >
+              </span>
+            </span>
+            <span class="col-span-3 row-span-1 relative"
+              >{#if delayedFlag}<Doughnut
+                  activeCameras={activeNvr}
+                  inactiveCameras={inactiveNvr}
+                />
+                <span
+                  id="bell"
+                  class="h-[30px] w-[30px] rounded-full bg-[#5B93FF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]"
+                >
+                  <WebcamIcon size={18} class="text-[#5B93FF]" />
+                </span>
+              {/if}</span
+            >
+          </div>
+          <!-- <div
           class="border col-span-1 row-span-1 grid grid-cols-3 p-2 rounded-md"
         >
           <span class=" col-span-2 flex flex-col gap-4 h-full justify-center">
@@ -462,67 +495,65 @@
               </span>{/if}</span
           >
         </div> -->
-      </div>
-      <div class=" col-span-3 row-span-2 border p-2 rounded-md">
-        <div class="flex items-center justify-between pt-2">
-          <p class="text-lg font-medium leading-5">Map View</p>
-          <span class="flex items-center gap-3">
-            <span class="flex items-center gap-2">
-              <span class="h-2 w-2 bg-[#03A185] rounded-full" /> Active</span
-            >
-            <span class="flex items-center gap-2">
-              <span class="h-2 w-2 bg-[#B5496E] rounded-full" /> Inactive</span
-            >
-          </span>
         </div>
-        <div class="h-[95%] w-full">
-          {#if NvrData && delayedFlag}
-            <MapNvr {NvrData} />
+        <div class=" col-span-3 row-span-2 border p-2 rounded-md">
+          <div class="flex items-center justify-between pt-2">
+            <p class="text-lg font-medium leading-5">Map View</p>
+            <span class="flex items-center gap-3">
+              <span class="flex items-center gap-2">
+                <span class="h-2 w-2 bg-[#03A185] rounded-full" /> Active</span
+              >
+              <span class="flex items-center gap-2">
+                <span class="h-2 w-2 bg-[#B5496E] rounded-full" /> Inactive</span
+              >
+            </span>
+          </div>
+          <div class="h-[95%] w-full">
+            {#if NvrData && delayedFlag}
+              <MapNvr {NvrData} />
+            {/if}
+          </div>
+        </div>
+        <div class=" col-span-3 row-span-2 border p-2 rounded-md overflow-clip">
+          <div class="flex items-center justify-between mb-8">
+            <span class="text-lg font-medium">Area Analysis</span>
+            <div class="flex items-center gap-2">
+              <Select.Root>
+                <Select.Trigger class="w-[180px]">
+                  <Select.Value placeholder="Sort By: Area" />
+                </Select.Trigger>
+                <Select.Content>
+                  <!-- <Select.Item value="population">Sort By: Population</Select.Item
+                > -->
+                  <!-- <Select.Item value="density">Sort By: Density</Select.Item> -->
+                  <!-- <Select.Item value="growth">Sort By:Growth Rate</Select.Item> -->
+                </Select.Content>
+              </Select.Root>
+              <MoreVertical size={18} />
+            </div>
+          </div>
+          {#if NvrData && uniqueCams && delayedFlag}
+            <AreaAnalysis {NvrData} {uniqueCams} />
           {/if}
         </div>
       </div>
-      <div class=" col-span-3 row-span-2 border p-2 rounded-md overflow-clip">
-        <div class="flex items-center justify-between mb-8">
-          <span class="text-lg font-medium">Area Analysis</span>
-          <div class="flex items-center gap-2">
-            <Select.Root>
-              <Select.Trigger class="w-[180px]">
-                <Select.Value placeholder="Sort By: Area" />
-              </Select.Trigger>
-              <Select.Content>
-                <!-- <Select.Item value="population">Sort By: Population</Select.Item
-                > -->
-                <!-- <Select.Item value="density">Sort By: Density</Select.Item> -->
-                <!-- <Select.Item value="growth">Sort By:Growth Rate</Select.Item> -->
-              </Select.Content>
-            </Select.Root>
-            <MoreVertical size={18} />
-          </div>
-        </div>
-        {#if NvrData && uniqueCams && delayedFlag}
-          <AreaAnalysis {NvrData} {uniqueCams} />
-        {/if}
+      <span class=" flex items-center gap-4 pt-4 px-4">
+        <span class="text-xl font-bold leading-8 tracking-wide"
+          >List of Network Video Recorder
+        </span>
+        <span class="ml-auto relative"
+          ><Search class="absolute top-1/2 -translate-y-1/2 left-4" size={18} />
+          <Input class="w-[300px] pl-12" placeholder="Search by name" /></span
+        >
+        <span class=" flex items-center gap-2">
+          <FilterIcon /> Filters
+        </span>
+      </span>
+      <div class="flex flex-wrap items-center gap-4 p-4">
+        {#each NvrData as nvr, i}
+          <HealthNvrcard {selectedNvr} {nvr} />
+        {/each}
       </div>
-    </div>
-    <span class=" flex items-center gap-4 pt-4 px-4">
-      <span class="text-xl font-bold leading-8 tracking-wide"
-        >List of Network Video Recorder
-      </span>
-      <span class="ml-auto relative"
-        ><Search class="absolute top-1/2 -translate-y-1/2 left-4" size={18} />
-        <Input class="w-[300px] pl-12" placeholder="Search by name" /></span
-      >
-      <span class=" flex items-center gap-2">
-        <FilterIcon /> Filters
-      </span>
-    </span>
-    <div
-      class="flex flex-wrap items-center gap-4 p-4"
-    >
-      {#each NvrData as nvr, i}
-        <HealthNvrcard {selectedNvr} {nvr} />
-      {/each}
-    </div>
     </section>
   {/if}
   {#if view === 3}
@@ -549,14 +580,18 @@
           <Button>Export</Button>
         </div>
       </div>
-      <div class="grid grid-cols-8 grid-rows-1 h-[150px] 2xl:h-[250px] gap-4 px-4">
+      <div
+        class="grid grid-cols-8 grid-rows-1 h-[150px] 2xl:h-[250px] gap-4 px-4"
+      >
         <div class="gap-4 col-span-8 row-span-1 grid grid-rows-1 grid-cols-8">
           <div
             class="p-2 col-span-2 row-span-1 border rounded-md grid grid-rows-2 grid-cols-3 gap-1 relative"
           >
             <span class="col-span-3 flex items-start justify-between">
               <span class="flex flex-col gap-1">
-                <p class="font-medium text-black dark:text-white">Total Storage</p>
+                <p class="font-medium text-black dark:text-white">
+                  Total Storage
+                </p>
                 <p class="text-xs text-black/[.6] dark:text-white/[.6]">
                   Includes storage on all Location
                 </p>
@@ -581,9 +616,13 @@
           >
             <span class="col-span-3 flex items-start justify-between">
               <span class="flex flex-col gap-1">
-                <p class="font-medium text-black dark:text-white">Total Used Storage</p>
-                <p class="text-xs text-black/[.6] dark:text-white/[.6]">Summary of used storage</p>
-                <p class="text-lg font-semibold text-black dark:text-white" >
+                <p class="font-medium text-black dark:text-white">
+                  Total Used Storage
+                </p>
+                <p class="text-xs text-black/[.6] dark:text-white/[.6]">
+                  Summary of used storage
+                </p>
+                <p class="text-lg font-semibold text-black dark:text-white">
                   {(totalCapacity - totalFreeSpace)?.toFixed(2)} TB
                 </p>
               </span>
@@ -604,8 +643,12 @@
           >
             <span class="col-span-3 flex items-start justify-between">
               <span class="flex flex-col gap-1">
-                <p class="font-medium text-black dark:text-white">Available Storage</p>
-                <p class="text-xs text-black/[.6] dark:text-white/[.6]">Summary of all Storage</p>
+                <p class="font-medium text-black dark:text-white">
+                  Available Storage
+                </p>
+                <p class="text-xs text-black/[.6] dark:text-white/[.6]">
+                  Summary of all Storage
+                </p>
                 <p class="text-lg font-semibold text-black dark:text-white">
                   {totalFreeSpace?.toFixed(2)} TB
                 </p>
@@ -627,8 +670,12 @@
           >
             <span class="col-span-3 flex items-start justify-between">
               <span class="flex flex-col gap-1">
-                <p class="font-medium text-black dark:text-white">Total Storage per NVR</p>
-                <p class="text-xs text-black/[.6] dark:text-white/[.6]">Avg storage per NVR</p>
+                <p class="font-medium text-black dark:text-white">
+                  Average Storage per NVR
+                </p>
+                <p class="text-xs text-black/[.6] dark:text-white/[.6]">
+                  Summray of avg storage
+                </p>
                 <p class="text-lg font-semibold text-black dark:text-white">
                   {(totalCapacity?.toFixed(2) / NvrData?.length)?.toFixed(2)} TB
                 </p>

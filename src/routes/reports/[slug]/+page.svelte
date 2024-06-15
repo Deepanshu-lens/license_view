@@ -32,6 +32,7 @@
         expand: "camera",
         filter: `session~"${session.id}"`,
       });
+      console.log("getnodes", nodes);
       return nodes.map(
         (node) =>
           ({
@@ -121,7 +122,7 @@
           Reports
         </p>
       </span>
-      <span class="group flex items-center justify-center gap-0.5 flex-col">
+      <!-- <span class="group flex items-center justify-center gap-0.5 flex-col">
         <button
           on:click={() => (selectedScreen = 3)}
           class={selectedScreen !== 3
@@ -134,8 +135,8 @@
         >
           Access
         </p>
-      </span>
-      <span class="group flex items-center justify-center gap-0.5 flex-col">
+      </span> -->
+      <!-- <span class="group flex items-center justify-center gap-0.5 flex-col">
         <button
           on:click={() => (selectedScreen = 4)}
           class={selectedScreen !== 4
@@ -148,7 +149,7 @@
         >
           Parking
         </p>
-      </span>
+      </span> -->
       <span class="group flex items-center justify-center gap-0.5 flex-col">
         <button
           on:click={() => (selectedScreen = 5)}

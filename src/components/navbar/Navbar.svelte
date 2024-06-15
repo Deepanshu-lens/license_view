@@ -35,14 +35,14 @@
     //   text: "Gallery",
     //   href: `/gallery/${sessionId}`,
     // },
-    // {
-    //   text: "Configuration",
-    //   href: `/configuration/${sessionId}?section=Remote`,
-    // },
-    // {
-    //   text: "Reports",
-    //   href: `/reports/${sessionId}`,
-    // },
+    {
+      text: "Configuration",
+      href: `/configuration/${sessionId}?section=Remote`,
+    },
+    {
+      text: "Reports",
+      href: `/reports/${sessionId}`,
+    },
     {
       text: "Atlas",
       href: `/atlas/${sessionId}`,
@@ -109,6 +109,8 @@
   onDestroy(() => {
     PB.collection("session").unsubscribe("*");
   });
+
+  console.log(user)
 </script>
 
 <header class="sm:flex border sticky top-0 left-0 w-full z-20 h-[75px] hidden">
@@ -243,9 +245,13 @@
         {#if user}
           <button
             on:click={toggleOpen}
-            class="cursor-pointer rounded-full w-10 h-10 p-2 bg-[#015a62] flex items-center justify-center text-white"
+            class={`cursor-pointer rounded-full w-10 h-10 ${user.avatar.length === 0 ? 'p-2' : ''} bg-[#015a62] flex items-center justify-center text-white`}
           >
-            <UserIcon size={18} />
+            {#if user.avatar?.length !== 0}
+              <img src={user.avatar} alt="User Avatar" class="w-full h-full rounded-full" />
+            {:else}
+              <UserIcon size={18} />
+            {/if}
           </button>
         {/if}
         {#if isOpen}

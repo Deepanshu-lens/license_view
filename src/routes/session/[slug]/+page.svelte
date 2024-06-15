@@ -22,7 +22,7 @@
     if (session?.node.length > 0) {
       PB.autoCancellation(false)
       const nodes = await PB.collection("node").getFullList(200, {
-        sort: "created",
+        sort: "-created",
         expand: "camera",
         filter: `session~"${session.id}"`,
       });

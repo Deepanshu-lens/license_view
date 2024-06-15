@@ -11,6 +11,8 @@ export const filteredNodeCameras = writable([])
 export const uniqueUrlList = writable([])
 export const fullscreen = persistedWritable("fullscreen", false);
 export const alertPanelHide = persistedWritable("alertPanelHide", true);
+export const markRoi = writable(false);
+export const canvasCoordinates = writable({})
 
 function persistedWritable(key: string, defaultValue: boolean) {
   let value = defaultValue;

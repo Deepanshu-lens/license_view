@@ -1,30 +1,36 @@
 <script lang="ts">
   import PocketBase from "pocketbase";
   import { mode } from "mode-watcher";
-  import { activeCamera } from "@/lib/stores";
+  import { activeCamera, markRoi } from "@/lib/stores";
   import { cn } from "@/lib";
-  import { selectedNode, filteredNodeCameras } from "@/lib/stores";
+  import { selectedNode, filteredNodeCameras,canvasCoordinates } from "@/lib/stores";
   import Stream from "@/components/stream/Stream.svelte";
   import type { Camera } from "@/types.d.ts";
   import * as Carousel from "@/components/ui/carousel/index.js";
   import AddCameraDialog from "../dialogs/AddCameraDialog.svelte";
+  import interact from 'interactjs';
   import {
     AArrowUp,
     Disc2,
     Expand,
     ImageDown,
     Menu,
+    PenTool,
     RefreshCcw,
+    X,
   } from "lucide-svelte";
   import { Shrink } from "lucide-svelte";
   import { addUserLog } from "@/lib/addUserLog";
   import { page } from "$app/stores";
   import Sortable from "sortablejs";
   import { onDestroy, onMount } from "svelte";
+    import { writable } from "svelte/store";
 
   export let handleSingleSS: () => void;
   export let isAllFullScreen: boolean;
   export let data;
+  export let currpanel;
+
 
   let streamCount =
     $selectedNode.camera.length === $filteredNodeCameras.length
@@ -55,7 +61,10 @@
         video.remove();
         delete videos[cameraId];
       }
-      initVideo($selectedNode.camera.find((c) => c.id === cameraId), "mse");
+      initVideo(
+        $selectedNode.camera.find((c) => c.id === cameraId),
+        "mse",
+      );
       // initVideo($selectedNode.camera.find((c) => c.id === cameraId));
     }
   };
@@ -207,12 +216,12 @@
   }
 
   function startRefreshing() {
-    // refreshCamera(); // Immediately refresh the first camera
+    refreshCamera(); // Immediately refresh the first camera
     refreshInterval = setInterval(refreshCamera, 60000); // Continue refreshing every minute
   }
 
   onMount(() => {
-    if($selectedNode) {
+    if ($selectedNode) {
       startRefreshing();
     }
   });
@@ -226,7 +235,7 @@
     startRefreshing();
   } else if ($selectedNode.camera.length === 0 && refreshInterval) {
     clearInterval(refreshInterval);
-    refreshInterval = null; 
+    refreshInterval = null;
   }
 
   let prevName = $selectedNode.name;
@@ -384,6 +393,7 @@
   onDestroy(() => {
     PB.collection("configuration").unsubscribe("*");
   });
+
   // let currentIndex = 0;
 
   // $: {
@@ -408,6 +418,78 @@
 
   function setBigCell(index) {
     bigCellIndex = index;
+  }
+
+  let draw = false;
+  let canvas, ctx, rect;
+
+ function setupCanvas() {
+    canvas = document.getElementById('roicanvas');
+    if (canvas instanceof HTMLCanvasElement) {
+        ctx = canvas.getContext('2d');
+        if (ctx) {
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.1)';
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 1;
+
+            rect = {
+                x: (canvas.width / 4),
+                y: (canvas.height / 4),
+                width: (canvas.width / 2),
+                height: (canvas.height / 2)
+            };
+            redraw();
+
+            interact(canvas)
+                .draggable({
+                    onmove: dragMoveListener,
+                  
+                })
+                
+
+            function dragMoveListener(event) {
+                rect.x += event.dx;
+                rect.y += event.dy;
+                rect.x = Math.max(0, Math.min(canvas.width - rect.width, rect.x));
+                rect.y = Math.max(0, Math.min(canvas.height - rect.height, rect.y));
+                updateCanvasCoordinates();
+                redraw();
+            }
+
+           
+
+            function updateCanvasCoordinates() {
+                const videoResolution = { width: 1920, height: 1080 };
+                const scaleX = videoResolution.width / canvas.width;
+                const scaleY = videoResolution.height / canvas.height;
+
+                canvasCoordinates.set({
+                    topLeft: { x: rect.x * scaleX, y: rect.y * scaleY },
+                    topRight: { x: (rect.x + rect.width) * scaleX, y: rect.y * scaleY },
+                    bottomLeft: { x: rect.x * scaleX, y: (rect.y + rect.height) * scaleY },
+                    bottomRight: { x: (rect.x + rect.width) * scaleX, y: (rect.y + rect.height) * scaleY }
+                });
+            }
+        }
+    }
+}
+
+  function redraw() {
+    if (ctx && rect) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+      ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+    }
+  }
+
+  function toggleDraw() {
+    draw = !draw;
+    if (draw) {
+      setTimeout(() => {
+        
+        setupCanvas();
+      }, 0);
+    }
   }
 
   function updateListWithNewOrder(newOrder, draggedItem) {
@@ -453,6 +535,7 @@
               />
               <span class="text-xs font-extrabold">
                 {$filteredNodeCameras[newIndex].name}
+                <!-- {currpanel} -->
               </span>
             </span>
             <button
@@ -489,6 +572,22 @@
                 <Expand size={18} />{:else}
                 <Shrink size={18} />{/if}
             </button>
+            {#if $markRoi && currpanel === 3}
+             {#if !draw} <button on:click={toggleDraw}
+                class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white p-2 absolute bottom-4 left-1/2 -translate-x-1/2 items-center rounded-xl scale-90 z-20"
+              ><PenTool size={22} /></button
+              >{:else}
+              <button on:click={toggleDraw}
+                class="flex gap-2 z-[100] bg-[rgba(0,0,0,.5)] text-white p-2 absolute bottom-4 left-1/2 -translate-x-1/2 items-center rounded-xl scale-90"
+              ><X size={22} /></button
+              >{/if}
+              {#if draw}
+                <canvas
+                  id="roicanvas"
+                  class="bg-transparent z-50 h-full w-full absolute top-0 left-0"
+                ></canvas>
+              {/if}
+            {/if}
           </div>
         {/key}
       {/each}

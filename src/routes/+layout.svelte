@@ -14,11 +14,11 @@
   const nodes = data.nodes;
 
   setContext("user", user);
+
 </script>
 
 <ModeWatcher defaultMode='light' />
 <Toaster richColors />
-
 {#if !user}
   <slot />
 {:else}

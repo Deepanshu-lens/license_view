@@ -25,6 +25,13 @@ export type Camera = {
   vehicleOCRThresh: number;
   motionThresh: number;
   priority: boolean;
+  maskDetection: boolean;
+  helmetDetection: boolean;
+  weaponDetection:boolean;
+  roiData: any;
+  cameraTamperDetection:boolean;
+  guardMissingDetection:boolean
+
 };
 
 export type Playback = {
