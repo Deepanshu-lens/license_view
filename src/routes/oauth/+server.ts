@@ -108,7 +108,7 @@ export const GET = async ({ locals, url, cookies }) => {
             redirectURL,
             { username: '', name: 'user', session: session.id }
         );
-        console.log(auth)
+        // console.log(auth)
 
         if (auth.record && auth.record.id) {
             console.log('updating user')
@@ -119,7 +119,7 @@ export const GET = async ({ locals, url, cookies }) => {
                 avatar: auth.meta?.avatarUrl
             })
 
-            console.log(update)
+            // console.log(update)
         }
 
         // If the returned record is not for a new user, create a new user explicitly

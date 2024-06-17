@@ -423,64 +423,7 @@
   let draw = false;
   let canvas, ctx, rect;
 
- function setupCanvas() {
-    canvas = document.getElementById('roicanvas');
-    if (canvas instanceof HTMLCanvasElement) {
-        ctx = canvas.getContext('2d');
-        if (ctx) {
-            ctx.fillStyle = 'rgba(255, 0, 0, 0.1)';
-            ctx.strokeStyle = '#ff0000';
-            ctx.lineWidth = 1;
 
-            rect = {
-                x: (canvas.width / 4),
-                y: (canvas.height / 4),
-                width: (canvas.width / 2),
-                height: (canvas.height / 2)
-            };
-            redraw();
-
-            interact(canvas)
-                .draggable({
-                    onmove: dragMoveListener,
-                  
-                })
-                
-
-            function dragMoveListener(event) {
-                rect.x += event.dx;
-                rect.y += event.dy;
-                rect.x = Math.max(0, Math.min(canvas.width - rect.width, rect.x));
-                rect.y = Math.max(0, Math.min(canvas.height - rect.height, rect.y));
-                updateCanvasCoordinates();
-                redraw();
-            }
-
-           
-
-            function updateCanvasCoordinates() {
-                const videoResolution = { width: 1920, height: 1080 };
-                const scaleX = videoResolution.width / canvas.width;
-                const scaleY = videoResolution.height / canvas.height;
-
-                canvasCoordinates.set({
-                    topLeft: { x: rect.x * scaleX, y: rect.y * scaleY },
-                    topRight: { x: (rect.x + rect.width) * scaleX, y: rect.y * scaleY },
-                    bottomLeft: { x: rect.x * scaleX, y: (rect.y + rect.height) * scaleY },
-                    bottomRight: { x: (rect.x + rect.width) * scaleX, y: (rect.y + rect.height) * scaleY }
-                });
-            }
-        }
-    }
-}
-
-  function redraw() {
-    if (ctx && rect) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
-      ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
-    }
-  }
 
   function toggleDraw() {
     draw = !draw;
@@ -490,6 +433,149 @@
         setupCanvas();
       }, 0);
     }
+  }
+  
+function setupCanvas() {
+    canvas = document.getElementById('roicanvas');
+    ctx = canvas.getContext('2d');
+    rect = canvas.getBoundingClientRect();
+
+    const points = [
+      { x: 50, y: 50, isDragging: false, color: 'red' },
+      { x: 150, y: 50, isDragging: false, color: 'red' },
+      { x: 150, y: 150, isDragging: false, color: 'red' },
+      { x: 50, y: 150, isDragging: false, color: 'red' }
+    ];
+
+    let shapeIsDragging = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    function updateCanvasCoordinates() {
+      const videoResolution = { width: 1920, height: 1080 };
+      canvasCoordinates.set(points.map(point => ({
+        x: Math.round(point.x / rect.width * videoResolution.width),
+        y: Math.round(point.y / rect.height * videoResolution.height)
+      })));
+    }
+
+    function drawPoints() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.1)'; 
+      ctx.fill();
+      ctx.stroke();
+      points.forEach((point) => {
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = point.color;
+        ctx.fill();
+      });
+    }
+
+    function pointInShape(x, y) {
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.closePath();
+      return ctx.isPointInPath(x, y);
+    }
+
+    function isWithinBounds(point) {
+      return point.x >= 0 && point.x <= rect.width && point.y >= 0 && point.y <= rect.height;
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      let onPoint = false;
+
+      points.forEach((point) => {
+        if (Math.abs(mouseX - point.x) < 10 && Math.abs(mouseY - point.y) < 10) {
+          point.isDragging = true;
+          onPoint = true;
+        }
+      });
+
+      if (!onPoint && pointInShape(mouseX, mouseY)) {
+        shapeIsDragging = true;
+        dragOffsetX = mouseX;
+        dragOffsetY = mouseY;
+      }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      if (shapeIsDragging) {
+        const dx = mouseX - dragOffsetX;
+        const dy = mouseY - dragOffsetY;
+        let allWithinBounds = true;
+        points.forEach(point => {
+          const newX = point.x + dx;
+          const newY = point.y + dy;
+          if (!isWithinBounds({ x: newX, y: newY })) {
+            allWithinBounds = false;
+          }
+        });
+
+        if (allWithinBounds) {
+          points.forEach(point => {
+            point.x += dx;
+            point.y += dy;
+          });
+          dragOffsetX = mouseX;
+          dragOffsetY = mouseY;
+          drawPoints();
+          updateCanvasCoordinates();
+        }
+      } else if (points.some(p => p.isDragging)) {
+        const point = points.find(p => p.isDragging);
+        const newX = mouseX;
+        const newY = mouseY;
+        if (isWithinBounds({ x: newX, y: newY })) {
+          point.x = newX;
+          point.y = newY;
+          drawPoints();
+          updateCanvasCoordinates();
+        }
+      }
+
+      if (pointInShape(mouseX, mouseY) || points.some(p => p.isDragging)) {
+        canvas.style.cursor = 'move';
+      } else {
+        canvas.style.cursor = 'default';
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      shapeIsDragging = false;
+      points.forEach((point) => {
+        point.isDragging = false;
+      });
+    });
+
+    canvas.addEventListener('mouseout', () => {
+      shapeIsDragging = false;
+      points.forEach((point) => {
+        point.isDragging = false;
+      });
+      canvas.style.cursor = 'default';
+    });
+
+    drawPoints();
+    updateCanvasCoordinates();
   }
 
   function updateListWithNewOrder(newOrder, draggedItem) {
@@ -504,11 +590,14 @@
       console.log("here");
     }
   }
+
+
 </script>
 
 {#if streamCount > 0 && Object.keys(videos).length > 0}
   <!-- svelte-ignore a11y-no-static-element-interactions -->
-  {#if $selectedNode.camera.length !== $filteredNodeCameras.length && $filteredNodeCameras.length !== 0}
+  <!-- {#if $selectedNode.camera.length !== $filteredNodeCameras.length && $filteredNodeCameras.length !== 0} -->
+  {#if $filteredNodeCameras.length === 1 ? ($markRoi) : $selectedNode.camera.length !== $filteredNodeCameras.length && $filteredNodeCameras.length !== 0}
     <div
       class={cn(
         `grid  gap-1 w-full h-full ${!isAllFullScreen ? "max-h-[calc(100vh-76px)]" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,

@@ -16,7 +16,7 @@
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
-  console.log("page on session page", $page);
+  // console.log("page on session page", $page);
 
   async function getNodes(): Promise<Node[]> {
     if (session?.node.length > 0) {
@@ -26,7 +26,7 @@
         expand: "camera",
         filter: `session~"${session.id}"`,
       });
-      console.log("getnodes", nodes);
+      // console.log("getnodes", nodes);
       return nodes.map(
         (node) =>
           ({

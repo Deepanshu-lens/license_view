@@ -110,7 +110,7 @@
     PB.collection("session").unsubscribe("*");
   });
 
-  console.log(user)
+  // console.log(user)
 </script>
 
 <header class="sm:flex border sticky top-0 left-0 w-full z-20 h-[75px] hidden">
