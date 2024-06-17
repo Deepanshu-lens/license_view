@@ -16,11 +16,12 @@
       >
         <HardDrive class="text-primary" size={16} /></span
       >
-      <p class="text-xl font-semibold">{nvr.name}</p>
+      <p class="text-sm font-semibold">{nvr.name}</p>
     </span>
     {#if nvr.status?.status === true}
       <span
-        class="flex items-center gap-2 text-[#03A185] bg-[#03A185] bg-opacity-20 rounded-xl px-2 py-1 text-sm"
+        class="flex items-center gap-2 text-[#03A185] bg-[#03A185] bg-opacity-20 rounded-xl px-2 py-1 text-xs"
+
       >
         <span class="h-2 w-2 rounded-full bg-[#03A185]" />
         Active
