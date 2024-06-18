@@ -37,7 +37,7 @@
   </span>
   <p class="text-sm py-1">
     Location: <span class="font-semibold"
-      >{nvr.expand?.ip_address?.location}</span
+      >{nvr.expand?.ip_address?.location === undefined ? 'Not Configured' : nvr.expand?.ip_address?.location}</span
     >
   </p>
   <Button disabled={nvr.expand?.ip_address?.location === undefined}

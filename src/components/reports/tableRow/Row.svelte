@@ -4,37 +4,62 @@
   export let item;
   export let index;
   import * as Table from "@/components/ui/table/index";
-  import { Trash, User } from "lucide-svelte";
+  import { CircleSlash, User } from "lucide-svelte";
   import { page } from "$app/stores";
-
-   let downtimeStart = null;
+  let hide = false
    let downtime = "-";
+   let lastTrue;
+   let lastFalse;
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
 
-  onMount( async () => {
-    PB.autoCancellation(false);
-     PB.collection("camera_ping_status").subscribe("*", async (event) => {
-      console.log(event);
-      if (event.record.id === item.id) {
-        if (event.record.status === false) {
-     downtimeStart = Date.now(); // Store start time as a timestamp
-   } else if (event.record.status === true && downtimeStart !== null) {
-     let now = Date.now();
-     downtime = `${(now - downtimeStart) / 1000} seconds`;
-     downtimeStart = null; // Reset start time
-   }
+  // onMount( async () => {
+  //   PB.autoCancellation(false);
+  //    PB.collection("camera_ping_status").subscribe("*", async (event) => {
+  //     console.log(event);
+  //     if (event.record.id === item.id) {
+  //       if (event.record.status === false) {
+  //    downtimeStart = Date.now(); // Store start time as a timestamp
+  //  } else if (event.record.status === true && downtimeStart !== null) {
+  //    let now = Date.now();
+  //    downtime = `${(now - downtimeStart) / 1000} seconds`;
+  //    downtimeStart = null; // Reset start time
+  //  }
+  //     }
+  //   });
+  // });
+
+  // onDestroy(() => {
+  //   PB.collection("camera_ping_status").unsubscribe("*");
+  // });
+  onMount(async () => {
+    // console.log(item.status);
+    if(item.status === false){
+      lastFalse = new Date(item.event_timestamp);
+      const response = await PB.collection('camera_ping_status').getFirstListItem(`url="${item.url}"`,{
+        sort: '-created',
+        filter: `status=true`
+      })
+      // console.log(response);
+      if (response) {
+        lastTrue = new Date(response.event_timestamp);
+        downtime = calculateDowntime(lastTrue, lastFalse);
       }
-    });
+    }
   });
 
-  onDestroy(() => {
-    PB.collection("camera_ping_status").unsubscribe("*");
-  });
+  function calculateDowntime(lastTrue, lastFalse) {
+    if (!lastTrue || !lastFalse) return '-';
+    // console.log('f',lastFalse)
+    // console.log('t',lastTrue)
+    let diff = lastFalse - lastTrue;
+    let seconds = Math.floor(diff / 1000);
+    return `${seconds} seconds`;
+  }
 </script>
 
 <Table.Row
-  class="bg-transparent flex items-center justify-between mt-4 rounded-lg  border-2 border-solid border-[#e4e4e4] px-3"
+  class={`bg-transparent items-center justify-between mt-4 rounded-lg  border-2 border-solid border-[#e4e4e4] px-3 ${hide ? 'hidden' : 'flex'}`}
 >
   <Table.Cell class="text-black dark:text-slate-50 w-[10%] h-full"
     >#{index + 1}</Table.Cell
@@ -71,10 +96,10 @@
       class="text-[#4976F4] bg-[#4976F4] flex items-center gap-1 rounded-xl py-1 px-2 text-xs bg-opacity-15 whitespace-nowrap"
       ><User size={16} /> Assign Technician</button
     >
-    <button
-      class="text-[#D53228CC] bg-[#D53228] flex items-center gap-1 rounded-xl py-1 px-2 text-xs bg-opacity-15 whitespace-nowrap"
+    <button on:click={() => hide =true}
+      class="text-[#FB8A2ECC] bg-[#FB8A2E] flex items-center gap-1 rounded-xl py-1 px-2 text-xs bg-opacity-15 whitespace-nowrap"
     >
-      <Trash size={16} /> Delete</button
+      <CircleSlash size={16} /> Hide</button
     >
   </Table.Cell>
 </Table.Row>

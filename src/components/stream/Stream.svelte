@@ -16,6 +16,11 @@
   let er = null
 
   const attachVideo = (videoElement) => {
+     const existingVideo = parentDiv.querySelector("video");
+    if (existingVideo) {
+      console.log("Video already attached.");
+      return;
+    }
     parentDiv.appendChild(videoElement);
     const realVideo = videoElement.querySelector("video");
     if (!realVideo) {
@@ -44,13 +49,21 @@
    $: if (startErrorWatching && videoElement?.divError) {
     console.log('first')
     console.log("Error message:", videoElement.divError);
-    er = videoElement.divError
-
-    if (videoElement.divError.includes("codecs not matched: H265")) {
+    er = videoElement?.divError
+    if (videoElement?.divError?.includes("codecs not matched: H265")) {
       toast.error(`H265 codec error detected for: ${camera.name}`);
       dispatch("h265Error", { cameraId: camera.id });
     } else {
-      toast.error(`Error in ${camera?.name}: ${videoElement?.divError}`);
+      // toast.error(`Error in ${camera?.name}: ${videoElement?.divError}`);
+      console.log(`Error in ${camera?.name}: ${videoElement?.divError}`)
+       const intervalId = setInterval(() => {
+      if (videoElement?.divError) {
+        console.log('first')
+        dispatch('refErr', { cameraId: camera.id });
+      } else {
+        clearInterval(intervalId);
+      }
+    }, 20000);
     }
   }
 

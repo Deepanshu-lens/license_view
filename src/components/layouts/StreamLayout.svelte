@@ -3,12 +3,15 @@
   import { mode } from "mode-watcher";
   import { activeCamera, markRoi } from "@/lib/stores";
   import { cn } from "@/lib";
-  import { selectedNode, filteredNodeCameras,canvasCoordinates } from "@/lib/stores";
+  import {
+    selectedNode,
+    filteredNodeCameras,
+    canvasCoordinates,
+  } from "@/lib/stores";
   import Stream from "@/components/stream/Stream.svelte";
   import type { Camera } from "@/types.d.ts";
   import * as Carousel from "@/components/ui/carousel/index.js";
   import AddCameraDialog from "../dialogs/AddCameraDialog.svelte";
-  import interact from 'interactjs';
   import {
     AArrowUp,
     Disc2,
@@ -24,13 +27,12 @@
   import { page } from "$app/stores";
   import Sortable from "sortablejs";
   import { onDestroy, onMount } from "svelte";
-    import { writable } from "svelte/store";
+  import { toast } from "svelte-sonner";
 
   export let handleSingleSS: () => void;
   export let isAllFullScreen: boolean;
   export let data;
   export let currpanel;
-
 
   let streamCount =
     $selectedNode.camera.length === $filteredNodeCameras.length
@@ -46,8 +48,15 @@
   let cells: HTMLDivElement;
   let ele;
   let slideIndex: number = 0;
+  let cameraStatusData = [];
 
   const neededUrl = $page.url.hostname;
+
+  const handleRefreshError = (event) => {
+    console.log("inside handle refresh error");
+    console.log(event);
+    refreshVideoStream(event.detail.cameraId);
+  };
 
   const handleH265Error = (event) => {
     console.log("first");
@@ -199,44 +208,114 @@
     handleSlideChange();
   }
 
+    $: if ($selectedNode) {
+    (async () => {
+      console.log('calling status data through $')
+      await getCameraStatusData();
+    })();
+  }
+
+  async function getCameraStatusData() {
+    const cameraStatus = await PB.collection("camera_ping_status").getList(
+      1,
+      100,
+      {
+        filter: `node~"${$selectedNode.id}"`,
+        sort: "-created",
+      },
+    );
+    const uniqueUrls = new Set();
+    const uniqueStatus = cameraStatus.items.filter((item) => {
+      if (!uniqueUrls.has(item.url)) {
+        uniqueUrls.add(item.url);
+        return true;
+      }
+      return false;
+    });
+    cameraStatusData = uniqueStatus;
+  }
+
   let currentIndex = 0;
   let refreshInterval;
+  
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  onMount(async () => {
+    PB.collection("camera_ping_status").subscribe("*", async (e) => {
+      console.log("new update in camera_ping_status", e.action, e.record);
+      if (e.action === "create") {
+        const rec = cameraStatusData.find(
+          (item) => item.camera === e.record.camera,
+        );
+        console.log(rec);
+        const index = cameraStatusData.findIndex(
+          (item) => item.camera === e.record.camera,
+        );
+        console.log(index);
+        if (index !== -1) {
+          console.log("oldStatus", cameraStatusData[index].status);
+          console.log("newStatus", e.record.status);
 
-  function refreshCamera() {
-    const camera = $selectedNode.camera[currentIndex];
-    if (camera) {
-      refreshVideoStream(camera.id);
-      console.log(
-        "Refreshing camera with index & name:",
-        currentIndex,
-        camera.name,
-      );
-    }
-    currentIndex = (currentIndex + 1) % $selectedNode.camera.length;
-  }
-
-  function startRefreshing() {
-    refreshCamera(); // Immediately refresh the first camera
-    refreshInterval = setInterval(refreshCamera, 60000); // Continue refreshing every minute
-  }
-
-  onMount(() => {
-    if ($selectedNode) {
-      startRefreshing();
-    }
+          if (cameraStatusData[index].status !== e.record.status) {
+            console.log(e.record.status);
+            {
+              if (e.record.status === true) {
+                setTimeout(() => {
+                  refreshVideoStream(e.record.camera);
+                }, 100);
+              } else {
+                toast.error(
+                  `Camera: ${$selectedNode.camera.find((item) => item.id === e.record.camera).name} is offline`,
+                );
+              }
+            }
+          }
+          cameraStatusData[index] = e.record;
+        } else {
+          console.log("updated ping record not from this node");
+        }
+      }
+    });
   });
 
   onDestroy(() => {
-    clearInterval(refreshInterval); // Clear the interval when the component is destroyed
+    PB.collection("camera_ping_status").unsubscribe("*");
   });
 
-  // Reactive statement to handle changes in the camera array
-  $: if ($selectedNode.camera.length > 0 && !refreshInterval) {
-    startRefreshing();
-  } else if ($selectedNode.camera.length === 0 && refreshInterval) {
-    clearInterval(refreshInterval);
-    refreshInterval = null;
-  }
+  // function refreshCamera() {
+  //   const camera = $selectedNode.camera[currentIndex];
+  //   if (camera) {
+  //     refreshVideoStream(camera.id);
+  //     console.log(
+  //       "Refreshing camera with index & name:",
+  //       currentIndex,
+  //       camera.name,
+  //     );
+  //   }
+  //   currentIndex = (currentIndex + 1) % $selectedNode.camera.length;
+  // }
+
+  // function startRefreshing() {
+  //   refreshCamera(); // Immediately refresh the first camera
+  //   refreshInterval = setInterval(refreshCamera, 60000); // Continue refreshing every minute
+  // }
+
+  // onMount(() => {
+  //   if ($selectedNode) {
+  //     startRefreshing();
+  //   }
+  // });
+
+  // onDestroy(() => {
+  //   clearInterval(refreshInterval); // Clear the interval when the component is destroyed
+  // });
+
+  // // Reactive statement to handle changes in the camera array
+  // $: if ($selectedNode.camera.length > 0 && !refreshInterval) {
+  //   startRefreshing();
+  // } else if ($selectedNode.camera.length === 0 && refreshInterval) {
+  //   clearInterval(refreshInterval);
+  //   refreshInterval = null;
+  // }
 
   let prevName = $selectedNode.name;
 
@@ -363,54 +442,6 @@
       console.log("sortable cells not found");
     }
   }
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
-
-  onMount(async () => {
-    PB.collection("configuration").subscribe("*", (e) => {
-      console.log("new update in gallery", e.action, e.record);
-      if (e.action === "create") {
-        const cameraIdsAndUrls = $selectedNode.camera.map((camera) => ({
-          id: camera.id,
-          url: camera.url,
-        }));
-        const cameraUrl = e.record.ipAddr;
-        const cameraUrlExists = cameraIdsAndUrls.some((camera) =>
-          camera.url.includes(cameraUrl),
-        );
-        if (cameraUrlExists) {
-          const cam = cameraIdsAndUrls.find((camera) =>
-            camera.url.includes(cameraUrl),
-          );
-          console.log("refreshing cam from subscription", cam);
-          setTimeout(() => {
-            refreshVideoStream(cam?.id);
-          }, 2000);
-        }
-      }
-    });
-  });
-
-  onDestroy(() => {
-    PB.collection("configuration").unsubscribe("*");
-  });
-
-  // let currentIndex = 0;
-
-  // $: {
-  //   if(currentIndex === streamCount) {
-
-  //   }
-  // }
-  //   const refreshCameras = () => {
-  //     const refreshInterval = 2 * 60 * 1000; // 2 minutes
-  //     const camera = $selectedNode.camera[currentIndex];
-  //     if (camera) {
-  //       refreshVideoStream(camera.id);
-  //       console.log("refreshing camera with index & name:", currentIndex, camera.name);
-  //     }
-  //     currentIndex = (currentIndex + 1) % $selectedNode.camera.length;
-  //     setTimeout(refreshCameras, refreshInterval);
-  //   };
 
   $: bigCellIndex = [10, 13, 5, 7].includes($selectedNode.maxStreamsPerPage)
     ? 0
@@ -423,28 +454,25 @@
   let draw = false;
   let canvas, ctx, rect;
 
-
-
   function toggleDraw() {
     draw = !draw;
     if (draw) {
       setTimeout(() => {
-        
         setupCanvas();
       }, 0);
     }
   }
-  
-function setupCanvas() {
-    canvas = document.getElementById('roicanvas');
-    ctx = canvas.getContext('2d');
+
+  function setupCanvas() {
+    canvas = document.getElementById("roicanvas");
+    ctx = canvas.getContext("2d");
     rect = canvas.getBoundingClientRect();
 
     const points = [
-      { x: 50, y: 50, isDragging: false, color: 'red' },
-      { x: 150, y: 50, isDragging: false, color: 'red' },
-      { x: 150, y: 150, isDragging: false, color: 'red' },
-      { x: 50, y: 150, isDragging: false, color: 'red' }
+      { x: 50, y: 50, isDragging: false, color: "red" },
+      { x: 150, y: 50, isDragging: false, color: "red" },
+      { x: 150, y: 150, isDragging: false, color: "red" },
+      { x: 50, y: 150, isDragging: false, color: "red" },
     ];
 
     let shapeIsDragging = false;
@@ -456,10 +484,12 @@ function setupCanvas() {
 
     function updateCanvasCoordinates() {
       const videoResolution = { width: 1920, height: 1080 };
-      canvasCoordinates.set(points.map(point => ({
-        x: Math.round(point.x / rect.width * videoResolution.width),
-        y: Math.round(point.y / rect.height * videoResolution.height)
-      })));
+      canvasCoordinates.set(
+        points.map((point) => ({
+          x: Math.round((point.x / rect.width) * videoResolution.width),
+          y: Math.round((point.y / rect.height) * videoResolution.height),
+        })),
+      );
     }
 
     function drawPoints() {
@@ -470,7 +500,7 @@ function setupCanvas() {
         ctx.lineTo(points[i].x, points[i].y);
       }
       ctx.closePath();
-      ctx.fillStyle = 'rgba(255, 0, 0, 0.1)'; 
+      ctx.fillStyle = "rgba(255, 0, 0, 0.1)";
       ctx.fill();
       ctx.stroke();
       points.forEach((point) => {
@@ -492,16 +522,24 @@ function setupCanvas() {
     }
 
     function isWithinBounds(point) {
-      return point.x >= 0 && point.x <= rect.width && point.y >= 0 && point.y <= rect.height;
+      return (
+        point.x >= 0 &&
+        point.x <= rect.width &&
+        point.y >= 0 &&
+        point.y <= rect.height
+      );
     }
 
-    canvas.addEventListener('mousedown', (e) => {
+    canvas.addEventListener("mousedown", (e) => {
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
       let onPoint = false;
 
       points.forEach((point) => {
-        if (Math.abs(mouseX - point.x) < 10 && Math.abs(mouseY - point.y) < 10) {
+        if (
+          Math.abs(mouseX - point.x) < 10 &&
+          Math.abs(mouseY - point.y) < 10
+        ) {
           point.isDragging = true;
           onPoint = true;
         }
@@ -514,7 +552,7 @@ function setupCanvas() {
       }
     });
 
-    canvas.addEventListener('mousemove', (e) => {
+    canvas.addEventListener("mousemove", (e) => {
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
 
@@ -522,7 +560,7 @@ function setupCanvas() {
         const dx = mouseX - dragOffsetX;
         const dy = mouseY - dragOffsetY;
         let allWithinBounds = true;
-        points.forEach(point => {
+        points.forEach((point) => {
           const newX = point.x + dx;
           const newY = point.y + dy;
           if (!isWithinBounds({ x: newX, y: newY })) {
@@ -531,7 +569,7 @@ function setupCanvas() {
         });
 
         if (allWithinBounds) {
-          points.forEach(point => {
+          points.forEach((point) => {
             point.x += dx;
             point.y += dy;
           });
@@ -540,8 +578,8 @@ function setupCanvas() {
           drawPoints();
           updateCanvasCoordinates();
         }
-      } else if (points.some(p => p.isDragging)) {
-        const point = points.find(p => p.isDragging);
+      } else if (points.some((p) => p.isDragging)) {
+        const point = points.find((p) => p.isDragging);
         const newX = mouseX;
         const newY = mouseY;
         if (isWithinBounds({ x: newX, y: newY })) {
@@ -552,26 +590,26 @@ function setupCanvas() {
         }
       }
 
-      if (pointInShape(mouseX, mouseY) || points.some(p => p.isDragging)) {
-        canvas.style.cursor = 'move';
+      if (pointInShape(mouseX, mouseY) || points.some((p) => p.isDragging)) {
+        canvas.style.cursor = "move";
       } else {
-        canvas.style.cursor = 'default';
+        canvas.style.cursor = "default";
       }
     });
 
-    canvas.addEventListener('mouseup', () => {
+    canvas.addEventListener("mouseup", () => {
       shapeIsDragging = false;
       points.forEach((point) => {
         point.isDragging = false;
       });
     });
 
-    canvas.addEventListener('mouseout', () => {
+    canvas.addEventListener("mouseout", () => {
       shapeIsDragging = false;
       points.forEach((point) => {
         point.isDragging = false;
       });
-      canvas.style.cursor = 'default';
+      canvas.style.cursor = "default";
     });
 
     drawPoints();
@@ -590,14 +628,12 @@ function setupCanvas() {
       console.log("here");
     }
   }
-
-
 </script>
 
 {#if streamCount > 0 && Object.keys(videos).length > 0}
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <!-- {#if $selectedNode.camera.length !== $filteredNodeCameras.length && $filteredNodeCameras.length !== 0} -->
-  {#if $filteredNodeCameras.length === 1 ? ($markRoi) : $selectedNode.camera.length !== $filteredNodeCameras.length && $filteredNodeCameras.length !== 0}
+  {#if $filteredNodeCameras.length === 1 ? $markRoi : $selectedNode.camera.length !== $filteredNodeCameras.length && $filteredNodeCameras.length !== 0}
     <div
       class={cn(
         `grid  gap-1 w-full h-full ${!isAllFullScreen ? "max-h-[calc(100vh-76px)]" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
@@ -611,6 +647,7 @@ function setupCanvas() {
               videoElement={videos[$filteredNodeCameras[newIndex].id]}
               camera={$filteredNodeCameras[newIndex]}
               on:h265Error={handleH265Error}
+              on:refErr={handleRefreshError}
             />
             <span
               class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-90 z-20"
@@ -662,14 +699,17 @@ function setupCanvas() {
                 <Shrink size={18} />{/if}
             </button>
             {#if $markRoi && currpanel === 3}
-             {#if !draw} <button on:click={toggleDraw}
-                class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white p-2 absolute bottom-4 left-1/2 -translate-x-1/2 items-center rounded-xl scale-90 z-20"
-              ><PenTool size={22} /></button
-              >{:else}
-              <button on:click={toggleDraw}
-                class="flex gap-2 z-[100] bg-[rgba(0,0,0,.5)] text-white p-2 absolute bottom-4 left-1/2 -translate-x-1/2 items-center rounded-xl scale-90"
-              ><X size={22} /></button
-              >{/if}
+              {#if !draw}
+                <button
+                  on:click={toggleDraw}
+                  class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white p-2 absolute bottom-4 left-1/2 -translate-x-1/2 items-center rounded-xl scale-90 z-20"
+                  ><PenTool size={22} /></button
+                >{:else}
+                <button
+                  on:click={toggleDraw}
+                  class="flex gap-2 z-[100] bg-[rgba(0,0,0,.5)] text-white p-2 absolute bottom-4 left-1/2 -translate-x-1/2 items-center rounded-xl scale-90"
+                  ><X size={22} /></button
+                >{/if}
               {#if draw}
                 <canvas
                   id="roicanvas"
@@ -746,6 +786,7 @@ function setupCanvas() {
                             slotIndex
                         ]}
                         on:h265Error={handleH265Error}
+                        on:refErr={handleRefreshError}
                       />
                       <span
                         class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-90 z-20"

@@ -10,6 +10,7 @@
     Calendar,
     Image,
     SettingsIcon,
+    ChevronDown,
   } from "lucide-svelte";
   export let user: User;
   export let session;
@@ -92,7 +93,7 @@
   }
 
   const getSession = async () => {
-    PB.autoCancellation(false)
+    PB.autoCancellation(false);
     const updatedSession = await PB.collection("session").getFullList({
       filter: `id="${user.session}"`,
     });
@@ -116,9 +117,7 @@
 <header class="sm:flex border sticky top-0 left-0 w-full z-20 h-[75px] hidden">
   <nav class="bg-background w-full flex flex-row items-center justify-center">
     <div class="flex w-full justify-between">
-      <div
-        class="cursor-pointer flex items-center gap-2 justify-center px-2"
-      >
+      <div class="cursor-pointer flex items-center gap-2 justify-center px-2">
         <img
           src={$mode === "light" ? "/images/green.svg" : "/images/white.svg"}
           alt="logo"
@@ -131,8 +130,9 @@
       >
         {#each menuList as item}
           {#key item}
-            {#if item.text === "Live" || item.text === "Atlas" || item.text === 'Configuration' || item.text === 'Reports'}
+            {#if item.text === "Live" || item.text === "Atlas" || item.text === "Configuration" || item.text === "Reports"}
               <a
+                data-svelte-prefetch
                 href={item.href}
                 on:click={() => {
                   addUserLog(`user clicked on navbar link "${item.text}"`);
@@ -165,6 +165,7 @@
         {/each}
         {#if session.frs}
           <a
+            data-svelte-prefetch
             href={frs.href}
             on:click={() => {
               addUserLog(`user clicked on navbar link "${frs.text}"`);
@@ -179,7 +180,7 @@
             >
               {frs.text}
             </span>
-            </a>
+          </a>
         {/if}
         {#if session.playback}
           <a
@@ -243,17 +244,25 @@
           <DarkModeSwitch />
         </span>
         {#if user}
-          <button
-            on:click={toggleOpen}
-            class={`cursor-pointer rounded-full w-10 h-10 ${user.avatar.length === 0 ? 'p-2' : ''} bg-[#015a62] flex items-center justify-center text-white`}
+          <span
+            class={`rounded-full w-8 h-8 ${user.avatar.length === 0 ? "p-2" : ""} bg-[#015a62] flex items-center justify-center text-white`}
           >
             {#if user.avatar?.length !== 0}
-              <img src={user.avatar} alt="User Avatar" class="w-full h-full rounded-full" />
+              <img
+                src={user.avatar}
+                alt="User Avatar"
+                class="w-full h-full rounded-full"
+              />
             {:else}
               <UserIcon size={18} />
             {/if}
-          </button>
+          </span>
         {/if}
+        <p>{user.name}</p>
+        <button on:click={toggleOpen}>
+
+          <ChevronDown />
+        </button>
         {#if isOpen}
           <div
             class="
@@ -307,66 +316,66 @@
           : "-mt-2"}
       >
         <!-- <a href={menu.href}> -->
-          <div class={`flex flex-col justify-center items-center pt-[8px] `}>
-            <span
-              class={`${
-                $page.url.pathname === menu.href.split("?")[0]
-                  ? "bg-white p-2 rounded-full"
-                  : "bg-transparent"
-              } `}
-            >
-              {#if menu.text === "Live"}
-                <Radio
-                  class={` h-[40px] w-[40px] p-2 ${
-                    $page.url.pathname === menu.href.split("?")[0]
-                      ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
-                      : "text-[#505050]"
-                  }`}
-                />
-              {:else if menu.text === "Playback"}
-                <PlayCircle
-                  class={` h-[40px] w-[40px] p-2 ${
-                    $page.url.pathname === menu.href.split("?")[0]
-                      ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
-                      : "text-[#505050]"
-                  }`}
-                />
-              {:else if menu.text === "Events"}
-                <Calendar
-                  class={` h-[40px] w-[40px] p-2 ${
-                    $page.url.pathname === menu.href.split("?")[0]
-                      ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
-                      : "text-[#505050]"
-                  }`}
-                />
-              {:else if menu.text === "Gallery"}
-                <Image
-                  class={` h-[40px] w-[40px] p-2 ${
-                    $page.url.pathname === menu.href.split("?")[0]
-                      ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
-                      : "text-[#505050]"
-                  }`}
-                />
-              {:else}
-                <SettingsIcon
-                  class={` h-[40px] w-[40px] p-2 ${
-                    $page.url.pathname === menu.href.split("?")[0]
-                      ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
-                      : "text-[#505050]"
-                  }`}
-                />
-              {/if}
-            </span>
-            <span
-              class={`text-[12px] font-medium ${
-                $page.url.pathname === menu.href.split("?")[0]
-                  ? "text-[#015a62]"
-                  : "text-[#505050] dark:text-[rgba(255,255,255,.6)"
-              }`}
-            >
-              {menu.text}
-            </span>
-          </div>
+        <div class={`flex flex-col justify-center items-center pt-[8px] `}>
+          <span
+            class={`${
+              $page.url.pathname === menu.href.split("?")[0]
+                ? "bg-white p-2 rounded-full"
+                : "bg-transparent"
+            } `}
+          >
+            {#if menu.text === "Live"}
+              <Radio
+                class={` h-[40px] w-[40px] p-2 ${
+                  $page.url.pathname === menu.href.split("?")[0]
+                    ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
+                    : "text-[#505050]"
+                }`}
+              />
+            {:else if menu.text === "Playback"}
+              <PlayCircle
+                class={` h-[40px] w-[40px] p-2 ${
+                  $page.url.pathname === menu.href.split("?")[0]
+                    ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
+                    : "text-[#505050]"
+                }`}
+              />
+            {:else if menu.text === "Events"}
+              <Calendar
+                class={` h-[40px] w-[40px] p-2 ${
+                  $page.url.pathname === menu.href.split("?")[0]
+                    ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
+                    : "text-[#505050]"
+                }`}
+              />
+            {:else if menu.text === "Gallery"}
+              <Image
+                class={` h-[40px] w-[40px] p-2 ${
+                  $page.url.pathname === menu.href.split("?")[0]
+                    ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
+                    : "text-[#505050]"
+                }`}
+              />
+            {:else}
+              <SettingsIcon
+                class={` h-[40px] w-[40px] p-2 ${
+                  $page.url.pathname === menu.href.split("?")[0]
+                    ? "text-white  bg-gradient-to-tr from-[#015a62] to-[#01b4c5] rounded-full "
+                    : "text-[#505050]"
+                }`}
+              />
+            {/if}
+          </span>
+          <span
+            class={`text-[12px] font-medium ${
+              $page.url.pathname === menu.href.split("?")[0]
+                ? "text-[#015a62]"
+                : "text-[#505050] dark:text-[rgba(255,255,255,.6)"
+            }`}
+          >
+            {menu.text}
+          </span>
+        </div>
         <!-- </a> -->
       </div>
     {/each}

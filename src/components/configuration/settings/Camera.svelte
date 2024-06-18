@@ -1,44 +1,44 @@
 <script lang="ts">
+  //  import * as Select from "/components/ui/select";
+  // import Icon from "@iconify/svelte";
+  import * as Table from "@/components/ui/table";
+  // import { onMount } from 'svelte';
+  let logs = [];
+  let allSelected = false;
+  // import { Checkbox } from "$lib/components/ui/checkbox";
 
+  onMount(() => {
+    logs = Array.from({ length: 50 }, (_, i) => ({
+      id: i + 1,
+      errorType: ["Syntax Error", "Runtime Error", "Logical Error"][
+        Math.floor(Math.random() * 3)
+      ],
+      severity: ["Critical", "Warning", "Informational"][
+        Math.floor(Math.random() * 3)
+      ],
+      frequency: `5 Apr, 2024; ${12 + (i % 12)}:00 PM IST`,
+      resolutionTime: "Solved within 2 hrs",
+      errorTrends: "9 AM to 9 PM",
+      rootCause: ["Recent code updates", "Database connection issues"][
+        Math.floor(Math.random() * 2)
+      ],
+      selected: false,
+    }));
+  });
 
-//  import * as Select from "/components/ui/select";
-    // import Icon from "@iconify/svelte";
-    import * as Table from "@/components/ui/table";
-    // import { onMount } from 'svelte';
-    let logs = [];
-    let allSelected = false;
-    // import { Checkbox } from "$lib/components/ui/checkbox";
+  let currentPage = 1;
+  const rowsPerPage = 20;
 
-    onMount(() => {
-        logs = Array.from({ length: 50 }, (_, i) => ({
-            id: i + 1,
-            errorType: ["Syntax Error", "Runtime Error", "Logical Error"][Math.floor(Math.random() * 3)],
-            severity: ["Critical", "Warning", "Informational"][Math.floor(Math.random() * 3)],
-            frequency: `5 Apr, 2024; ${12 + i % 12}:00 PM IST`,
-            resolutionTime: "Solved within 2 hrs",
-            errorTrends: "9 AM to 9 PM",
-            rootCause: ["Recent code updates", "Database connection issues"][Math.floor(Math.random() * 2)],
-            selected: false,
-        }));
-    });
+  function toggleAll() {
+    allSelected = !allSelected;
+    logs.forEach((log) => (log.selected = allSelected));
+  }
 
-    let currentPage = 1;
-    const rowsPerPage = 20;
+  $: allSelected = logs.every((log) => log.selected);
 
-    function toggleAll() {
-        allSelected = !allSelected;
-        logs.forEach(log => log.selected = allSelected);
-    }
-
-    $: allSelected = logs.every(log => log.selected);
-
-    function clearSelectedLogs() {
-        logs = logs.filter(log => !log.selected);
-    }
-
-
-
-
+  function clearSelectedLogs() {
+    logs = logs.filter((log) => !log.selected);
+  }
 
   import PocketBase from "pocketbase";
   import AddCameraDialog from "@/components/dialogs/AddCameraDialog.svelte";
@@ -46,7 +46,17 @@
   import AlertDeleteNode from "@/components/dialogs/alerts/AlertDeleteNode.svelte";
   import { selectedNode } from "@/lib/stores";
   import type { User } from "@/types";
-  import { AlertCircle, ArrowLeft, ArrowRight, Filter, InfoIcon, Search, Trash2, Trash2Icon, X } from "lucide-svelte";
+  import {
+    AlertCircle,
+    ArrowLeft,
+    ArrowRight,
+    Filter,
+    InfoIcon,
+    Search,
+    Trash2,
+    Trash2Icon,
+    X,
+  } from "lucide-svelte";
   export let user: User;
   import { onMount, onDestroy } from "svelte";
   import { toast } from "svelte-sonner";
@@ -55,9 +65,9 @@
   import { page } from "$app/stores";
   import * as Select from "@/components/ui/select";
   import CameraDeleteDialog from "@/components/dialogs/CameraDeleteDialog.svelte";
-    import { Input } from "@/components/ui/input";
+  import { Input } from "@/components/ui/input";
 
-  let selected = 4;
+  let selected = 1;
   let detailIndex: number | null = null;
   let nodeIndex: number | null = null;
   let modify: boolean = false;
@@ -77,6 +87,7 @@
   let newData = [];
   let view = 1;
   let change = "";
+  let camStatusData = [];
 
   // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
@@ -388,13 +399,32 @@
                   class={`dark:bg-[#1b1b1b] bg-[white] cursor-pointer border-b-[1px] border-solid dark:border-[#929292] ${
                     index === 0 ? "border-t-[1px]" : ""
                   } `}
-                  on:click={() => {
+                  on:click={async () => {
                     if (nodeIndex === index) {
                       if (!nodeModify) {
                         nodeIndex = null;
                       }
                     } else {
                       nodeIndex = index;
+                      console.log(filteredNodeNames[index].id);
+                      const status = await PB.collection(
+                        "camera_ping_status",
+                      ).getList(1, 100, {
+                        filter: `node~"${filteredNodeNames[index].id}"`,
+                        sort: "-created",
+                      });
+                      console.log("status", status);
+                      // camStatusData = [...new Set(status.items.map(item => item.url))];
+                      // camStatusData = [...new Set(status.items.map(item => item))];
+                      const uniqueUrls = new Set();
+                      const uniqueStatus = status.items.filter((item) => {
+                        if (!uniqueUrls.has(item.url)) {
+                          uniqueUrls.add(item.url);
+                          return true;
+                        }
+                        return false;
+                      });
+                      camStatusData = uniqueStatus;
                       addUserLog(
                         `user clicked on table row with node name ${item.name}`,
                       );
@@ -443,13 +473,32 @@
                   class={`dark:bg-[#1b1b1b] bg-[white] cursor-pointer border-b-[1px] border-solid dark:border-[#929292] ${
                     index === 0 ? "border-t-[1px]" : ""
                   } `}
-                  on:click={() => {
+                  on:click={async () => {
                     if (nodeIndex === index) {
                       if (!nodeModify) {
                         nodeIndex = null;
                       }
                     } else {
                       nodeIndex = index;
+                      console.log($nodeData[index].id);
+                      const status = await PB.collection(
+                        "camera_ping_status",
+                      ).getList(1, 100, {
+                        filter: `node~"${$nodeData[index].id}"`,
+                        sort: "-created",
+                      });
+                      console.log("status", status);
+                      // camStatusData = [...new Set(status.items.map(item => item.url))];
+                      // camStatusData = [...new Set(status.items.map(item => item))];
+                      const uniqueUrls = new Set();
+                      const uniqueStatus = status.items.filter((item) => {
+                        if (!uniqueUrls.has(item.url)) {
+                          uniqueUrls.add(item.url);
+                          return true;
+                        }
+                        return false;
+                      });
+                      camStatusData = uniqueStatus;
                       addUserLog(
                         `user clicked on table row with node name ${data.name}`,
                       );
@@ -1258,7 +1307,12 @@
                     <td
                       class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
                     >
-                      Status
+                      <!-- Status  -->
+                      {camStatusData.find(
+                        (status) => status.camera === item[0].id,
+                      )?.status
+                        ? "Online"
+                        : "Offline" || "Unknown"}
                     </td>
                     <td
                       class="py-2 px-4 border-r-[1px] border-solid dark:border-[#929292]"
@@ -1300,90 +1354,97 @@
   {/if}
 
   {#if selected === 4}
-  <section
-      class=" w-[94.5%] my-4 shad mx-6 flex flex-col"
-  >
-  <div class="flex items-center justify-between px-4 w-full">
-   <div class="left flex flex-col gap-1 ">
-          <h2 class="font-medium text-xl text-[#323232]">{view === 1 ? 'Camera' : 'Node'} Logs</h2>
+    <section class=" w-[94.5%] my-4 shad mx-6 flex flex-col">
+      <div class="flex items-center justify-between px-4 w-full">
+        <div class="left flex flex-col gap-1">
+          <h2 class="font-medium text-xl text-[#323232]">
+            {view === 1 ? "Camera" : "Node"} Logs
+          </h2>
           <h5 class="text-sm text-black/.5">
-Complete logs from all the {view === 1 ? 'cameras' : 'nodes'}
+            Complete logs from all the {view === 1 ? "cameras" : "nodes"}
           </h5>
         </div>
         <div
-    class="flex items-center justify-center rounded-lg border-black/[.13] dark:border-white/[.13] border-solid border-[1px] p-1 w-[300px] h-[40px] mt-4"
-  >
-    <button
-      on:click={() => (view = 1)}
-      class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${view === 1 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
-      >Cameras</button
-    >
-    <button
-      on:click={() => (view = 2)}
-      class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${view === 2 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
-      >Node</button
-    >
-  </div>
-  </div>
-{#if view === 1}
-<div class="flex flex-col gap-4 p-4 mt-8">
-    <div class="flex flex-row justify-between items-center">
-        <div class="flex items-center gap-5 ">
-          <span class="text-[#3c3c3c] font-semibold p-2 rounded-md bg-[#F1f1f1]">Total Cameras: $$</span>
-          <span class="text-[#6B6B6B] font-semibold">Not Started: $$</span>
-            <span class='text-[#E2A925] font-semibold'>Faulty $$</span>
-          <span class='text-[#55DE64] font-semibold'>Running: $$</span>
-          <span class='text-[#F93333] font-semibold'>Not Working: $$</span>
+          class="flex items-center justify-center rounded-lg border-black/[.13] dark:border-white/[.13] border-solid border-[1px] p-1 w-[300px] h-[40px] mt-4"
+        >
+          <button
+            on:click={() => (view = 1)}
+            class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${view === 1 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
+            >Cameras</button
+          >
+          <button
+            on:click={() => (view = 2)}
+            class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${view === 2 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
+            >Node</button
+          >
         </div>
-        <div class="flex items-center gap-5">
-          <button class="flex items-center gap-2"><Filter size={20}/> Filters</button>
-          <span class="relative">
-      <Input
-        placeholder="Search"
-        class="w-[250px] pl-8"
-      />
-      <Search size={18} class="absolute top-1/2 -translate-y-1/2 left-2" />
-    </span>
-        </div>
-    </div>
-        <Table.Root>
-            <Table.Header class="bg-[#F9f9f9] rounded-md border border-solid border-[#e4e4e4]">
-                <Table.Row  class="bg-transparent border-b-0 w-full"> 
-                    <Table.Head>Camera Name</Table.Head>
-                    <Table.Head>Location</Table.Head>
-                    <Table.Head>Uptime (%)</Table.Head>
-                    <Table.Head>Downtime (%)</Table.Head>
-                    <Table.Head>Last Maintenance</Table.Head>
-                    <Table.Head>Storage Usage (GB)</Table.Head>
-                    <Table.Head>Resolution</Table.Head>
-                    <Table.Head>Frame Rate (fps)</Table.Head>
-                    <Table.Head>Alerts Generated</Table.Head>
-                    <Table.Head>False Alerts</Table.Head>
-                    <Table.Head>Recent User Actions</Table.Head>
-                </Table.Row>
+      </div>
+      {#if view === 1}
+        <div class="flex flex-col gap-4 p-4 mt-8">
+          <div class="flex flex-row justify-between items-center">
+            <div class="flex items-center gap-5">
+              <span
+                class="text-[#3c3c3c] font-semibold p-2 rounded-md bg-[#F1f1f1]"
+                >Total Cameras: $$</span
+              >
+              <span class="text-[#6B6B6B] font-semibold">Not Started: $$</span>
+              <span class="text-[#E2A925] font-semibold">Faulty $$</span>
+              <span class="text-[#55DE64] font-semibold">Running: $$</span>
+              <span class="text-[#F93333] font-semibold">Not Working: $$</span>
+            </div>
+            <div class="flex items-center gap-5">
+              <button class="flex items-center gap-2"
+                ><Filter size={20} /> Filters</button
+              >
+              <span class="relative">
+                <Input placeholder="Search" class="w-[250px] pl-8" />
+                <Search
+                  size={18}
+                  class="absolute top-1/2 -translate-y-1/2 left-2"
+                />
+              </span>
+            </div>
+          </div>
+          <Table.Root>
+            <Table.Header
+              class="bg-[#F9f9f9] rounded-md border border-solid border-[#e4e4e4]"
+            >
+              <Table.Row class="bg-transparent border-b-0 w-full">
+                <Table.Head>Camera Name</Table.Head>
+                <Table.Head>Location</Table.Head>
+                <Table.Head>Uptime (%)</Table.Head>
+                <Table.Head>Downtime (%)</Table.Head>
+                <Table.Head>Last Maintenance</Table.Head>
+                <Table.Head>Storage Usage (GB)</Table.Head>
+                <Table.Head>Resolution</Table.Head>
+                <Table.Head>Frame Rate (fps)</Table.Head>
+                <Table.Head>Alerts Generated</Table.Head>
+                <Table.Head>False Alerts</Table.Head>
+                <Table.Head>Recent User Actions</Table.Head>
+              </Table.Row>
             </Table.Header>
-            <Table.Body >
-                <!-- {#each logs.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage) as log} -->
-                {#each Array(50) as _}
+            <Table.Body>
+              <!-- {#each logs.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage) as log} -->
+              {#each Array(50) as _}
                 <Table.Row class="border-b-[2px] border-opacity-40 ">
-                    <Table.Cell>Camera 123</Table.Cell>
-                    <Table.Cell>Locaiton</Table.Cell>
-                    <Table.Cell>99.9 </Table.Cell>
-                    <Table.Cell>0.1</Table.Cell>
-                    <Table.Cell>2024-06-01</Table.Cell>
-                    <Table.Cell>10</Table.Cell>
-                    <Table.Cell>1080p</Table.Cell>
-                    <Table.Cell>30</Table.Cell>
-                    <Table.Cell>20</Table.Cell>
-                    <Table.Cell>2</Table.Cell>
-                    <Table.Cell>View, Review</Table.Cell>
+                  <Table.Cell>Camera 123</Table.Cell>
+                  <Table.Cell>Locaiton</Table.Cell>
+                  <Table.Cell>99.9</Table.Cell>
+                  <Table.Cell>0.1</Table.Cell>
+                  <Table.Cell>2024-06-01</Table.Cell>
+                  <Table.Cell>10</Table.Cell>
+                  <Table.Cell>1080p</Table.Cell>
+                  <Table.Cell>30</Table.Cell>
+                  <Table.Cell>20</Table.Cell>
+                  <Table.Cell>2</Table.Cell>
+                  <Table.Cell>View, Review</Table.Cell>
                 </Table.Row>
-                {/each}
-                <!-- {/each} -->
+              {/each}
+              <!-- {/each} -->
             </Table.Body>
-        </Table.Root>
-       
-        <!-- <div class="flex flex-row items-center justify-center space-x-4 py-4 ">
+          </Table.Root>
+
+          <!-- <div class="flex flex-row items-center justify-center space-x-4 py-4 ">
             <button class="flex flex-row items-center bg-transparent hover:bg-transparent text-white gap-2"
             disabled={currentPage === 1} on:click={() => currentPage--}>
               <ArrowLeft size={18}/>
@@ -1398,67 +1459,74 @@ Complete logs from all the {view === 1 ? 'cameras' : 'nodes'}
             <ArrowRight size={18}/></button>
           
           </div> -->
-</div>
-{/if}
-{#if view === 2}
-<div class="flex flex-col gap-4 p-4 mt-8">
-    <div class="flex flex-row justify-between items-center">
-        <div class="flex items-center gap-5 ">
-          <span class="text-[#3c3c3c] font-semibold p-2 rounded-md bg-[#F1f1f1]">Total Nodes: $$</span>
-          <span class="text-[#6B6B6B] font-semibold">Not Started: $$</span>
-            <span class='text-[#E2A925] font-semibold'>Faulty $$</span>
-          <span class='text-[#55DE64] font-semibold'>Running: $$</span>
-          <span class='text-[#F93333] font-semibold'>Not Working: $$</span>
         </div>
-        <div class="flex items-center gap-5">
-          <button class="flex items-center gap-2"><Filter size={20}/> Filters</button>
-          <span class="relative">
-      <Input
-        placeholder="Search"
-        class="w-[250px] pl-8"
-      />
-      <Search size={18} class="absolute top-1/2 -translate-y-1/2 left-2" />
-    </span>
-        </div>
-    </div>
-        <Table.Root>
-            <Table.Header class="bg-[#F9f9f9] rounded-2xl border border-solid border-[#e4e4e4]">
-                <Table.Row  class="bg-transparent border-b-0 w-full rounded-2xl"> 
-                    <Table.Head>Node Name</Table.Head>
-                    <Table.Head>Location</Table.Head>
-                    <Table.Head>Uptime (%)</Table.Head>
-                    <Table.Head>Downtime (%)</Table.Head>
-                    <Table.Head>Last Maintenance</Table.Head>
-                    <Table.Head>Storage Capacity (GB)</Table.Head>
-                    <Table.Head>Available Storage</Table.Head>
-                    <Table.Head>Connected Cameras</Table.Head>
-                    <Table.Head>Alerts Generated</Table.Head>
-                    <Table.Head>False Alerts</Table.Head>
-                    <Table.Head>Recent User Actions</Table.Head>
-                </Table.Row>
+      {/if}
+      {#if view === 2}
+        <div class="flex flex-col gap-4 p-4 mt-8">
+          <div class="flex flex-row justify-between items-center">
+            <div class="flex items-center gap-5">
+              <span
+                class="text-[#3c3c3c] font-semibold p-2 rounded-md bg-[#F1f1f1]"
+                >Total Nodes: $$</span
+              >
+              <span class="text-[#6B6B6B] font-semibold">Not Started: $$</span>
+              <span class="text-[#E2A925] font-semibold">Faulty $$</span>
+              <span class="text-[#55DE64] font-semibold">Running: $$</span>
+              <span class="text-[#F93333] font-semibold">Not Working: $$</span>
+            </div>
+            <div class="flex items-center gap-5">
+              <button class="flex items-center gap-2"
+                ><Filter size={20} /> Filters</button
+              >
+              <span class="relative">
+                <Input placeholder="Search" class="w-[250px] pl-8" />
+                <Search
+                  size={18}
+                  class="absolute top-1/2 -translate-y-1/2 left-2"
+                />
+              </span>
+            </div>
+          </div>
+          <Table.Root>
+            <Table.Header
+              class="bg-[#F9f9f9] rounded-2xl border border-solid border-[#e4e4e4]"
+            >
+              <Table.Row class="bg-transparent border-b-0 w-full rounded-2xl">
+                <Table.Head>Node Name</Table.Head>
+                <Table.Head>Location</Table.Head>
+                <Table.Head>Uptime (%)</Table.Head>
+                <Table.Head>Downtime (%)</Table.Head>
+                <Table.Head>Last Maintenance</Table.Head>
+                <Table.Head>Storage Capacity (GB)</Table.Head>
+                <Table.Head>Available Storage</Table.Head>
+                <Table.Head>Connected Cameras</Table.Head>
+                <Table.Head>Alerts Generated</Table.Head>
+                <Table.Head>False Alerts</Table.Head>
+                <Table.Head>Recent User Actions</Table.Head>
+              </Table.Row>
             </Table.Header>
-            <Table.Body >
-                <!-- {#each logs.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage) as log} -->
-                {#each Array(50) as _}
+            <Table.Body>
+              <!-- {#each logs.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage) as log} -->
+              {#each Array(50) as _}
                 <Table.Row class="border-b-[2px] border-opacity-40 ">
-                    <Table.Cell>Node 123</Table.Cell>
-                    <Table.Cell>Locaiton</Table.Cell>
-                    <Table.Cell>99.9 </Table.Cell>
-                    <Table.Cell>0.1</Table.Cell>
-                    <Table.Cell>2024-06-01</Table.Cell>
-                    <Table.Cell>20</Table.Cell>
-                    <Table.Cell>5</Table.Cell>
-                    <Table.Cell>22</Table.Cell>
-                    <Table.Cell>200</Table.Cell>
-                    <Table.Cell>12</Table.Cell>
-                    <Table.Cell>Login, Configure</Table.Cell>
+                  <Table.Cell>Node 123</Table.Cell>
+                  <Table.Cell>Locaiton</Table.Cell>
+                  <Table.Cell>99.9</Table.Cell>
+                  <Table.Cell>0.1</Table.Cell>
+                  <Table.Cell>2024-06-01</Table.Cell>
+                  <Table.Cell>20</Table.Cell>
+                  <Table.Cell>5</Table.Cell>
+                  <Table.Cell>22</Table.Cell>
+                  <Table.Cell>200</Table.Cell>
+                  <Table.Cell>12</Table.Cell>
+                  <Table.Cell>Login, Configure</Table.Cell>
                 </Table.Row>
-                {/each}
-                <!-- {/each} -->
+              {/each}
+              <!-- {/each} -->
             </Table.Body>
-        </Table.Root>
-       
-        <!-- <div class="flex flex-row items-center justify-center space-x-4 py-4 ">
+          </Table.Root>
+
+          <!-- <div class="flex flex-row items-center justify-center space-x-4 py-4 ">
             <button class="flex flex-row items-center bg-transparent hover:bg-transparent text-white gap-2"
             disabled={currentPage === 1} on:click={() => currentPage--}>
               <ArrowLeft size={18}/>
@@ -1473,8 +1541,8 @@ Complete logs from all the {view === 1 ? 'cameras' : 'nodes'}
             <ArrowRight size={18}/></button>
           
           </div> -->
-</div>
-{/if}
-  </section>
+        </div>
+      {/if}
+    </section>
   {/if}
 </div>

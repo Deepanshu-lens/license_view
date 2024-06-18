@@ -5,6 +5,7 @@
     ArrowLeft,
     ArrowUpRight,
     CalendarDays,
+    DatabaseIcon,
     Filter,
     FilterIcon,
     Search,
@@ -95,7 +96,7 @@
     try {
       PB.autoCancellation(false);
       console.log("cameralist get inside try");
-      const res = await PB.collection("camera_ping_status").getList(1, 60, {
+      const res = await PB.collection("camera_ping_status").getList(1, 200, {
         filter: `node~"${$selectedNode.id}"`,
         sort: "-created",
         expand: "camera",
@@ -167,9 +168,16 @@
   async function fetchData() {
     activeNvr = 0;
     inactiveNvr = 0;
-    await fetchNvrData();
-    await getNvrStorageData();
-    await getCameraList();
+    totalCapacity = 0
+    totalFreeSpace = 0
+    // await fetchNvrData();
+    // await getNvrStorageData();
+    // await getCameraList();
+    await Promise.all([
+    fetchNvrData(),
+    getNvrStorageData(),
+    getCameraList()
+  ]);
   }
 
   function parseDetail(detailString, key) {
@@ -180,11 +188,13 @@
     }
     return "Not available";
   }
+
+  $: console.log('nvrdata',NvrData)
 </script>
 
 <div class="w-full h-[calc(100vh-75px)]">
   <div
-    class="flex items-center justify-center rounded-lg border-black/[.13] dark:border-white/[.13] border-solid border-[1px] p-1 w-[500px] h-[40px] mx-auto mt-4"
+    class="flex items-center justify-center rounded-lg border-black/[.13] dark:border-white/[.13] border-solid border-[1px] p-1 w-[500px] h-[40px] mx-auto my-4"
   >
     <button
       on:click={() => (view = 1)}
@@ -241,17 +251,17 @@
                 >Camera Count & Status</span
               >
               <span class="flex items-center gap-2 text-2xl font-bold leading-8"
-                >{uniqueCams.length}
+                >Total: {uniqueCams.length}
                 <span class="flex items-center gap-1 text-sm text-[#00B69B]">
                   <TrendingUp size={18} /> 1.3%
                 </span>
               </span>
               <span class="flex items-center gap-3">
                 <span class="flex items-center gap-1 text-sm">
-                  <span class="h-2 w-2 rounded-full bg-[#5B93FF]" /> Active</span
+                  <span class="h-2 w-2 rounded-full bg-[#5B93FF]" /> <strong>{activeCams}</strong> Active</span
                 >
                 <span class="flex items-center gap-1 text-sm"
-                  ><span class="h-2 w-2 rounded-full bg-[#FFD66B]" /> Inactive</span
+                  ><span class="h-2 w-2 rounded-full bg-[#FFD66B]" /><strong>{inactiveCams}</strong> Inactive</span
                 >
               </span>
             </span>
@@ -391,11 +401,17 @@
               >
             </Table.Row>
           </Table.Header>
+          {#if cameraList && delayedFlag}
           <Table.Body>
             {#each cameraList as item, index}
               <Row {item} {index} />
             {/each}
           </Table.Body>
+          {:else}
+          <div class="h-full w-full grid place-items-center mt-10">
+            <Spinner/>
+            </div>
+          {/if}
         </Table.Root>
       </div>
     </section>
@@ -437,17 +453,18 @@
                 >NVR Count & Status</span
               >
               <span class="flex items-center gap-2 text-2xl font-bold leading-8"
-                >{NvrData?.length}
+                >Total: {NvrData?.length}
                 <span class="flex items-center gap-1 text-sm text-[#00B69B]">
                   <TrendingUp size={18} /> 1.3%
                 </span>
               </span>
               <span class="flex items-center gap-3">
                 <span class="flex items-center gap-1">
-                  <span class="h-2 w-2 rounded-full bg-[#5B93FF]" /> Active</span
+                  <span class="h-2 w-2 rounded-full bg-[#5B93FF]" /><strong>{activeNvr}</strong> Active</span
                 >
                 <span class="flex items-center gap-1"
-                  ><span class="h-2 w-2 rounded-full bg-[#FFD66B]" /> Inactive</span
+                  ><span class="h-2 w-2 rounded-full bg-[#FFD66B]" />
+                <strong>{inactiveNvr}</strong> Inactive</span
                 >
               </span>
             </span>
@@ -460,7 +477,7 @@
                   id="bell"
                   class="h-[30px] w-[30px] rounded-full bg-[#5B93FF] bg-opacity-15 grid place-items-center absolute -translate-x-1/2 -translate-y-1/3 top-1/2 left-1/2 z-[200]"
                 >
-                  <WebcamIcon size={18} class="text-[#5B93FF]" />
+                  <DatabaseIcon size={18} class="text-[#5B93FF]" />
                 </span>
               {/if}</span
             >

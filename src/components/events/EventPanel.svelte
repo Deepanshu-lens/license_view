@@ -175,6 +175,7 @@
       class={`${showRightPanel ? "opacity-100" : "opacity-0"} transtion-opacity ease-in-out duration-500 `}
     >
       <NodeSelection
+      {data}
         {nodes}
         url={data.url ?? "/"}
         isAllFullScreen={eventFullscreen}
