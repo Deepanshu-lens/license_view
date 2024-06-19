@@ -1,7 +1,10 @@
 <script lang="ts">
+	import { size } from '@floating-ui/dom';
 	import { Accordion as AccordionPrimitive } from "bits-ui";
 	import ChevronDown from "lucide-svelte/icons/chevron-down";
 	import { cn } from "@/lib.js";
+	import { page } from "$app/stores";
+    import { Plus } from "lucide-svelte";
 
 	type $$Props = AccordionPrimitive.TriggerProps;
 	type $$Events = AccordionPrimitive.TriggerEvents;
@@ -21,6 +24,14 @@
 		on:click
 	>
 		<slot />
-		<ChevronDown class="h-4 w-4 transition-transform duration-200" />
+		{#if $page.url.pathname === '/home'}
+		 <!-- <span
+                class=" bg-primary rounded-lg p-1.5"
+              > -->
+			  <ChevronDown size={32} class="transition-transform duration-200 text-white bg-primary p-1.5 rounded-lg" />
+			<!-- </span> -->
+			{:else}
+			<ChevronDown class="h-4 w-4 transition-transform duration-200" />
+		{/if}
 	</AccordionPrimitive.Trigger>
 </AccordionPrimitive.Header>

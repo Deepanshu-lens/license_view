@@ -15,6 +15,9 @@
 
   setContext("user", user);
 
+
+  // console.log(data.url)
+
 </script>
 
 <ModeWatcher defaultMode='light' />
@@ -22,15 +25,15 @@
 {#if !user}
   <slot />
 {:else}
-  {#if !data.url.includes("login") && !data.url?.includes("register")}
+  {#if !data.url.includes("login") && !data.url?.includes("register") && !data.url?.includes('fullscreen')}
     <Navbar {user} sessionId={session?.id} {session} />
   {/if}
   {#if session && user}
     {#key data.url}
       <main
         class={cn(
-          "flex items-start justify-between bg-background w-full overflow-y-hidden",
-          data.url?.includes("login") || data.url?.includes("register")
+          "flex items-start justify-between bg-background w-full overflow-y-hidden hide-scrollbar",
+          data.url?.includes("login") || data.url?.includes("register") || data.url?.includes('fullscreen')
             ? "h-screen"
             : "max-h-[calc(100vh-76px)]",
         )}
@@ -39,7 +42,7 @@
           class={`
                 right
                 h-screen
-                transition-all ease-in-out duration-500 ${data.url?.includes("login") ? "h-screen" : "max-h-[calc(100vh-76px)]"}
+                transition-all ease-in-out duration-500 ${data.url?.includes("login") || data.url?.includes('fullscreen') ? "h-screen" : "max-h-[calc(100vh-76px)]"}
                 flex-1
                 overflow-x-clip
                 `}

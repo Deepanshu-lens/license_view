@@ -80,6 +80,9 @@ const config = {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+          'home-hero': 'url("/images/home/Hero.png")',
+          'home-hero2': 'url("/images/home/herobg.png")',
+          'home-foot': 'url("/images/home/foot.png")',
       },
     },
   },

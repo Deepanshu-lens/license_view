@@ -8,7 +8,9 @@
   export let videoElement: HTMLElement;
   import { createEventDispatcher } from "svelte";
     import { AlertCircle } from "lucide-svelte";
+    import { page } from "$app/stores";
   const dispatch = createEventDispatcher();
+  // console.log($page)
   let parentDiv: HTMLDivElement;
 
   let videoStarted = false;
@@ -32,7 +34,7 @@
       realVideo.controls = false;
       realVideo.style.maxWidth = "100%";
       realVideo.style.objectFit = "fill";
-      realVideo.className = "rounded-lg video-element";
+      $page.url.pathname.includes('fullscreen') ? realVideo.className = "video-element" : realVideo.className = "rounded-lg video-element";
       realVideo.background = true;
       realVideo.visibilityCheck = false;
       realVideo.addEventListener("play", () => {
@@ -133,7 +135,8 @@
      rounded-lg  flex items-center justify-center`,
     // !videoStarted &&
      "min-w-full  h-full flex-shrink-0 bg-gradient-to-r from-slate-300 via-slate-500 to-slate-700",
-    !$fullscreen &&
+    !$fullscreen && !$page.url.pathname.includes('fullscreen') &&
+    // End of  Selection
       ($activeCamera === camera.id
         ? `animate-gradient-border border-4`
         : $hoveredCamera === camera.id
@@ -149,7 +152,7 @@
     );
   }}
 >
-{#if startErrorWatching && er}
+<!-- {#if startErrorWatching && er}
 <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white font-bold text-sm flex-col text-center justify-center items-center w-[80%] "><span class="gap-2 flex flex-col items-center justify-center ">
 <img src='/images/456.png' class='w-12 h-12' alt="error"/>
     Camera:
@@ -157,7 +160,7 @@
 </span>
 error: {er}
 </span>
-{/if}
+{/if} -->
 </div>
 
 <style>

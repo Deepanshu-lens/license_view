@@ -7,5 +7,5 @@ export const load = async ({ locals, url, cookies }) => {
     throw redirect(302, "/session/" + JSON.parse(authToken).model.session[0]);
   }
   console.log("REDIRECTED FROM PAGE.SERVER");
-  throw redirect(302, "/login");
+  throw redirect(302, "/home");
 };

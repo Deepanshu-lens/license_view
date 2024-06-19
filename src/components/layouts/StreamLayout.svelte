@@ -237,7 +237,7 @@
 
   let currentIndex = 0;
   let refreshInterval;
-  
+
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
   onMount(async () => {
     PB.collection("camera_ping_status").subscribe("*", async (e) => {
@@ -822,9 +822,7 @@
                           id={`${$activeCamera}-menu`}
                           class="z-20 flex justify-center items-center gap-4 self-end mt-auto absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-3 rounded-xl bg-gradient-to-bl from-[rgba(217,217,217,.2)] to-[rgba(217,217,217,.1)] border border-solid border-[#d3d3d3]"
                         >
-                          <button
-                            disabled
-                            on:click={() => {
+                            <!-- on:click={() => {
                               if (isSingleFullscreen === true) {
                                 exitSingleFullscreen();
                                 const streamElement =
@@ -928,7 +926,21 @@
                                   ].url
                                 }" `,
                               );
-                            }}
+                            }} -->
+                          <button
+                            on:click={() => {
+                          const sessionId = $selectedNode.session;
+                          const cameraId = $selectedNode.camera[
+                            pageIndex *
+                            ($selectedNode.maxStreamsPerPage === 5 ||
+                            $selectedNode.maxStreamsPerPage === 7
+                            ? $selectedNode.maxStreamsPerPage + 1
+                            : $selectedNode.maxStreamsPerPage) +
+                            slotIndex
+                          ].id;
+                          const url = `/fullscreen/${sessionId}?query=${cameraId}`;
+                          window.location.href = url;
+                        }}
                             class=" disabled:cursor-not-allowed rounded bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
                           >
                             {#if !isSingleFullscreen}
@@ -992,8 +1004,7 @@
                           </button>
                         </div>
                       {:else}
-                        <button
-                          on:click={() => {
+                          <!-- on:click={() => {
                             if (isSingleFullscreen === true) {
                               exitSingleFullscreen();
                               const streamElement =
@@ -1093,9 +1104,24 @@
                                 ].url
                               }" `,
                             );
-                          }}
+                          }} -->
+                        <button
+                        on:click={() => {
+                          const sessionId = $selectedNode.session;
+                          const cameraId = $selectedNode.camera[
+                            pageIndex *
+                            ($selectedNode.maxStreamsPerPage === 5 ||
+                            $selectedNode.maxStreamsPerPage === 7
+                            ? $selectedNode.maxStreamsPerPage + 1
+                            : $selectedNode.maxStreamsPerPage) +
+                            slotIndex
+                          ].id;
+                          const url = `/fullscreen/${sessionId}?query=${cameraId}`;
+                          window.location.href = url;
+                        }
+                      } 
                           class="absolute p-1 top-4 right-4 cursor-pointer bg-[rgba(0,0,0,.5)] text-white rounded z-20 disabled:cursor-not-allowed"
-                          disabled
+                          
                           >{#if !isSingleFullscreen}
                             <Expand size={18} />{:else}
                             <Shrink size={18} />{/if}

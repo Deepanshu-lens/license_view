@@ -54,7 +54,15 @@
     // console.log('t',lastTrue)
     let diff = lastFalse - lastTrue;
     let seconds = Math.floor(diff / 1000);
-    return `${seconds} seconds`;
+    if (seconds < 60) {
+      return `${seconds} seconds`;
+    } else if (seconds < 3600) {
+      const minutes = Math.floor(seconds / 60);
+      return `${minutes} minutes`;
+    } else {
+      const hours = Math.floor(seconds / 3600);
+      return `${hours} hours`;
+    }
   }
 </script>
 

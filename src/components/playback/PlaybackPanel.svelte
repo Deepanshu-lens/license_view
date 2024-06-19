@@ -280,23 +280,33 @@ console.log($convertedVideos)
   // });
 
 
-  onMount(async () => {
-    if (get(selectedNode)) {
-      const list = await PB.collection("nvr").getFullList({
-        filter: `node~"${get(selectedNode).id}"`,
-      });
-      nvrList.set(list);
-    }
-  });
+  // onMount(async () => {
+  //   if (get(selectedNode)) {
+  //     const list = await PB.collection("nvr").getFullList({
+  //       filter: `node~"${get(selectedNode).id}"`,
+  //     });
+  //     nvrList.set(list);
+  //   }
+  // });
 
-  $: if (selectedNode) {
+  $: if ($selectedNode) {
     (async () => {
       const list = await PB.collection("nvr").getFullList({
         filter: `node~"${$selectedNode.id}"`,
       });
+      for (const nvr of list) {
+        const pingStatus = await PB.collection('nvr_ping_status').getList(1,1, {
+          filter: `nvr="${nvr.id}"`,
+          sort: '-created'
+        });
+        nvr.pingStatus = pingStatus.items[0];
+      }
+
       nvrList.set(list);
     })();
   }
+
+  $: console.log($nvrList)
 
   // onDestroy(() => {
   //   PB.collection('node').unsubscribe('*')
@@ -496,11 +506,16 @@ console.log($uniqueUrlList);
           <Select.Value placeholder="Select NVR" />
         </Select.Trigger>
         <Select.Content>
-          {#each $nvrList as item}
-            <Select.Item value={item} on:click={() => {currentNvr = item; getList(item)}}
-              >{item.name}</Select.Item
+          <!-- {#each $nvrList as item}
+            <Select.Item value={item} on:click={() => {currentNvr = item; getList(item)}} disabled={item.status === false} class={item.status === false ? 'cursor-not-allowed': 'cursor-pointer'}
+              >{item.expand.node.name.includes('_') ? item.expand.node.name.split('_').pop() :item.expand.node.name}</Select.Item
             >
-          {/each}
+          {/each} -->
+          {#each $nvrList as item}
+          <Select.Item value={item} on:click={() => {currentNvr = item; getList(item)}} disabled={item.pingStatus.status === false}
+            >{item.name}</Select.Item
+          >
+        {/each}
           <!-- <Select.Item value="density">Sort By: Density</Select.Item>
           <Select.Item value="growth">Sort By:Growth Rate</Select.Item> -->
         </Select.Content>
