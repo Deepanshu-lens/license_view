@@ -34,7 +34,8 @@
 
   import { Cctv, LayoutPanelLeft } from "lucide-svelte";
   import * as DropdownMenu from "@/components/ui/dropdown-menu";
-  import Button from "@/components/ui/button/Button.svelte";
+  // import Button from "@/components/ui/button/Button.svelte";
+  import { Button } from "../ui/button";
   import PocketBase from "pocketbase";
   import html2canvas from "html2canvas";
   import { Settings } from "lucide-svelte";
@@ -312,8 +313,10 @@
       toast.error(`Roi not set`)
       return;
     }
+
+    console.log(roiCamera)
     await PB.collection("camera")
-      .update(roiCamera.id, {
+      .update(roiCamera?.id, {
         roiData: $canvasCoordinates,
         maskDetection: $selectedDetections.includes("Mask Detection"),
         helmetDetection: $selectedDetections.includes("Helmet Detection"),
@@ -325,6 +328,8 @@
       .then((res) =>{ console.log(res); roiCamera = null;
         filteredNodeCameras.set($selectedNode.camera);
         $selectedDetections = [];
+        roiCamera = null
+        
         toast('ROI Data Updated!')
       })
       .catch((err) => console.log(err));

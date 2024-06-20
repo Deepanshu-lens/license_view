@@ -92,6 +92,8 @@
       nodes.forEach((node) => {
         if (e.record.id === node.id) {
           selectedNode.set(node);
+        } else {
+          selectedNode.set(nodes[0])
         }
       });
     });

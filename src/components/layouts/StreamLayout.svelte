@@ -52,6 +52,35 @@
 
   const neededUrl = $page.url.hostname;
 
+
+  // $: console.log($selectedNode.maxStreamsPerPage> 4 && $selectedNode.maxStreamsPerPage !== 0)
+
+  // onMount(async () => {
+  //   try {
+  //     const response = await fetch('/api/speedtest');
+  //     if (!response.ok) {
+  //       throw new Error('Failed to fetch speed test data');
+  //     }
+  //     const data = await response.json();
+  //     if(data.downloadSpeed.mbps <= 1.5) {
+  //       toast.error('Switching grid view to one that is good according to your network speed, Can be switched from Layouts option')
+  //       $selectedNode.maxStreamsPerPage = 1;
+  //     } else if (data.downloadSpeed.mbps > 1.5 && data.downloadSpeed.mbps < 3) {
+  //       toast.error('Switching grid view to one that is good according to your network speed, Can be switched from Layouts option')
+  //       $selectedNode.maxStreamsPerPage = $selectedNode.maxStreamsPerPage > 4 && $selectedNode.maxStreamsPerPage !== 0 && $selectedNode.camera.length > 4 ? 4 : $selectedNode.maxStreamsPerPage;
+  //     }
+  //     if (data.downloadSpeed.mbps > 3 && data.downloadSpeed.mbps < 5) {
+  //        toast.error('Switching grid view to one that is good according to your network speed, Can be switched from Layouts option')
+  //       $selectedNode.maxStreamsPerPage = $selectedNode.maxStreamsPerPage > 9 && $selectedNode.maxStreamsPerPage !== 0 && $selectedNode.camera.length > 9 ? 9 : $selectedNode.maxStreamsPerPage;
+
+  //   } else {
+  //       console.log('good network speed, not switching mode')
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching speed test data:', error);
+  //   }
+  // });
+
   const handleRefreshError = (event) => {
     console.log("inside handle refresh error");
     console.log(event);
@@ -492,6 +521,7 @@
       );
     }
 
+
     function drawPoints() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.beginPath();
@@ -500,8 +530,9 @@
         ctx.lineTo(points[i].x, points[i].y);
       }
       ctx.closePath();
-      ctx.fillStyle = "rgba(255, 0, 0, 0.1)";
+      ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
       ctx.fill();
+      ctx.strokeStyle = "red";
       ctx.stroke();
       points.forEach((point) => {
         ctx.beginPath();

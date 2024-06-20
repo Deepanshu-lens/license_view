@@ -430,6 +430,8 @@ console.log($uniqueUrlList);
   onDestroy(async() => {
     await removePlayers()
   });
+
+  // console.log($nvrList)
 </script>
 
 <section
@@ -438,7 +440,7 @@ console.log($uniqueUrlList);
   <div class="h-full w-full">
     {#if $convertedVideos.length === 0}
       <div
-        class="bg-[#333] text-white grid place-items-center w-full h-[calc(100vh-75px)]"
+        class="bg-[#333] text-white grid  place-items-center w-full h-[calc(100vh-75px)]"
       >
         <p>No recordings selected</p>
       </div>
@@ -512,7 +514,7 @@ console.log($uniqueUrlList);
             >
           {/each} -->
           {#each $nvrList as item}
-          <Select.Item value={item} on:click={() => {currentNvr = item; getList(item)}} disabled={item.pingStatus.status === false}
+          <Select.Item value={item} on:click={() => {currentNvr = item; getList(item)}} disabled={item?.pingStatus?.status === false}
             >{item.name}</Select.Item
           >
         {/each}

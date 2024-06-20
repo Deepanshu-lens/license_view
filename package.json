@@ -59,6 +59,7 @@
 		"lucide-svelte": "^0.321.0",
 		"mode-watcher": "^0.2.0",
 		"mpegts.js": "^1.7.3",
+		"network-speed": "^2.1.1",
 		"node-fetch": "^3.3.2",
 		"pocketbase": "^0.15.2",
 		"sortablejs": "^1.15.2",

@@ -87,7 +87,7 @@
         if (response.ok) {
           dialogOpen = false;
         }
-        toast("Camera added");
+        toast("Camera added!");
       });
     } else {
       // onvif://admin:admin123@50.168.139.58:80
@@ -149,7 +149,7 @@
                   if (response.ok) {
                     dialogOpen = false;
                   }
-                  toast("Camera added");
+                  toast("Camera added!");
                 });
               }
             }
@@ -177,13 +177,14 @@
         http_port: nvrPort,
         ip: nvrIp,
         node: $selectedNode.id,
+        nodeName: $selectedNode.name,
       }),
     })
       .then((response) => {
         if (response.ok) {
           dialogOpen = false;
         }
-        toast("Camera added");
+        toast("NVR added!");
       })
       .catch((err) => console.log(err));
   };
@@ -328,7 +329,7 @@
                 Insert a new camera in <span class="font-bold text-primary"
                   >{sNode ? sNode.name : $selectedNode.name}</span
                 >
-                node
+                node and its parent nodes.
               </p>
               <span class="flex items-center gap-4">
                 <p
@@ -546,6 +547,12 @@
             </div>
           {:else}
             <div class="grid w-full gap-4 py-4">
+              <p class="text-base font-semibold text-muted-foreground">
+Insert a new NVR in <span class='text-primary font-bold'>
+
+                {$selectedNode.name}
+              </span> node and its parent nodes.
+            </p>
               <div class="grid grid-cols-4 items-center gap-4">
                 <Label for="nvr-name">NVR Name</Label>
                 <Input
