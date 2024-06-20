@@ -131,7 +131,7 @@
     </div>
   </form>
 
-    <form action="?/oauth" method="POST">
+    <!-- <form action="?/oauth" method="POST">
     <p class="text-[#797c80]/[.7] mx-auto text-center my-4">or</p>
     <button type="submit" class="gsi-material-button">
   <div class="gsi-material-button-state"></div>
@@ -149,7 +149,7 @@
     <span style="display: none;">Continue with Google</span>
   </div>
 </button>
-  </form>
+  </form> -->
   </div>
 
 </div>
