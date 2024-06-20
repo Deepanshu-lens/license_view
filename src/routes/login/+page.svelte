@@ -37,19 +37,20 @@
         class="flex items-center sm:justify-start sm:self-start gap-4 sm:-ml-4 pt-[2rem] sm:pt-0"
       >
         <img
-          src={"/images/white.svg"}
-          alt="logo"
-          height={80}
-          width={140}
-          class="hidden dark:block"
-        />
-        <img
-          src={"/images/green.svg"}
+          src={"/images/sparsh.png"}
           alt="logo"
           height={80}
           width={140}
           class="block dark:hidden"
         />
+        <img
+          src={"/images/sparsh-white.png"}
+          alt="logo"
+          height={80}
+          width={140}
+          class="hidden dark:block"
+        />
+
       </div>
 
       <h2 class="font-semibold text-2xl sm:self-start text-[#212B36] font-mono">

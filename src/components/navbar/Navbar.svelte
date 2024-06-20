@@ -36,18 +36,18 @@
     //   text: "Gallery",
     //   href: `/gallery/${sessionId}`,
     // },
-    {
-      text: "Configuration",
-      href: `/configuration/${sessionId}?section=Remote`,
-    },
-    {
-      text: "Reports",
-      href: `/reports/${sessionId}`,
-    },
-    {
-      text: "Atlas",
-      href: `/atlas/${sessionId}`,
-    },
+    // {
+    //   text: "Configuration",
+    //   href: `/configuration/${sessionId}?section=Remote`,
+    // },
+    // {
+    //   text: "Reports",
+    //   href: `/reports/${sessionId}`,
+    // },
+    // {
+    //   text: "Atlas",
+    //   href: `/atlas/${sessionId}`,
+    // },
   ];
 
   let frs = {
@@ -118,11 +118,19 @@
   <nav class="bg-background w-full flex flex-row items-center justify-center">
     <div class="flex w-full justify-between">
       <div class="cursor-pointer flex items-center gap-2 justify-center px-2">
-        <img
+        <!-- <img
           src={$mode === "light" ? "/images/green.svg" : "/images/white.svg"}
           alt="logo"
           class="w-24"
+        /> -->
+         <img
+          src={$mode === "light"
+            ? "/images/sparsh.png"
+            : "/images/sparsh-white.png"}
+          alt="logo"
+          class="w-24"
         />
+
       </div>
 
       <div
@@ -163,7 +171,7 @@
             {/if}
           {/key}
         {/each}
-        {#if session.frs}
+        <!-- {#if session.frs} -->
           <a
             data-svelte-prefetch
             href={frs.href}
@@ -181,7 +189,7 @@
               {frs.text}
             </span>
           </a>
-        {/if}
+        <!-- {/if} -->
         {#if session.playback}
           <a
             href={playback.href}
