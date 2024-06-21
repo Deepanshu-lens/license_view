@@ -1168,7 +1168,7 @@
                       {/if}
 
                       <img
-                        src="/images/logo-black.png"
+                        src="/images/sparsh-white.png"
                         alt="logo"
                         class="object-contain w-[15%] absolute right-4 bottom-4 z-20"
                       />
