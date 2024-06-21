@@ -17,7 +17,7 @@
     >
       <X />
     </button>
-    <h4 class="text-[#042144] font-semibold mb-2">About LensView</h4>
+    <h4 class="text-[#042144] font-semibold mb-2">About View</h4>
     <span class="text-[#828282] font-medium text-sm leading-[16.8px]">
       Experience the power of AI-driven video analysis solutions in our
       cutting-edge Video Management Software. Explore the features of our
