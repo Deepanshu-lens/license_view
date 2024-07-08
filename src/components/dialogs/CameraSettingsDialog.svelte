@@ -40,13 +40,13 @@
   export let intrusionDetection: boolean;
   export let intrusionPerson: boolean;
   export let intrusionVehicle: boolean;
-  export let intrusionPersonThresh: number  = 0.3;
-  export let intrusionVehicleThresh: number  = 0.3;
+  export let intrusionPersonThresh: number  = 0.7;
+  export let intrusionVehicleThresh: number  = 0.7;
   export let lineCrossing: boolean;
   export let linePerson: boolean;
   export let lineVehicle: boolean;
-  export let linePersonThresh: number  = 0.3;
-  export let lineVehicleThresh: number  = 0.3;
+  export let linePersonThresh: number  = 0.7;
+  export let lineVehicleThresh: number  = 0.7;
   let dialogOpen = false;
 
 
@@ -260,7 +260,7 @@
       </div>
     </div>
 
-    <div class="rounded-md border p-4 my-2">
+    <!-- <div class="rounded-md border p-4 my-2">
       <div class="flex items-center space-x-4">
         <Footprints />
         <div class="flex-1 space-y-1">
@@ -299,7 +299,7 @@
           </div>
         {/if}
       </div>
-    </div>
+    </div> -->
 
      <div class="rounded-md border p-4 my-2">
       <div class="flex items-center space-x-4">
@@ -372,7 +372,7 @@
             <div class="flex items-center gap-2">
               <Slider
                 min={10}
-                value={[lineVehicleThresh * 100]}
+                value={[lineVehicleThresh * 100 ]}
                 max={95}
                 step={5}
                 class="w-32"
@@ -388,7 +388,7 @@
       </div>
     </div>
 
-     <div class="rounded-md border p-4 my-2">
+     <!-- <div class="rounded-md border p-4 my-2">
       <div class="flex items-center space-x-4">
         <Radar />
        <div class="flex-1 space-y-1">
@@ -473,7 +473,7 @@
           {/if}
         {/if}
       </div>
-    </div>
+    </div> -->
 
     <div class="rounded-md flex items-center justify-between border p-4 my-2">
       <div class="flex items-center space-x-4">

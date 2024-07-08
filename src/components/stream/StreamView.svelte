@@ -12,9 +12,7 @@
     markRoi,
     filteredNodeCameras,
     canvasCoordinates,
-    otherEvents,
     view,
-    eventTypes,
   } from "@/lib/stores";
   import {
     Search,
@@ -1108,14 +1106,14 @@
           >
             <button
               on:click={() => view.set(1)}
-              class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${$view === 1 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
+              class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-full h-full ${$view === 1 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
               >Line Crossing</button
             >
-            <button
+            <!-- <button
               on:click={() => view.set(2)}
               class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${$view === 2 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
               >Intrusion Detection</button
-            >
+            > -->
           </div>
           {#if $view === 2}
             <div class="px-4 py-4 flex flex-col gap-1">
