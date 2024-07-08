@@ -14,6 +14,7 @@
     canvasCoordinates,
     otherEvents,
     view,
+    eventTypes,
   } from "@/lib/stores";
   import {
     Search,
@@ -321,77 +322,121 @@
   }
 
   async function updateAi() {
-    if (!$canvasCoordinates || Object.keys($canvasCoordinates).length === 0 ) {
-      if(intrusionDetection === false && $view === 2 ) {
-        await PB.collection("camera").update(roiCamera?.id, {
-          roiData: null,
-          intrusionDetection: false,
-          intrusionPerson: false,
-          intrusionVehicle: false,
-        }).then((res) => {
-          toast.success('Intrusion detection removed for this camera!')
-          return;
-        }).catch((err) => {
-          console.error(`Error removing intrusion detection for this camera: ${err}`)
-        })
+    if (!$canvasCoordinates || Object.keys($canvasCoordinates).length === 0) {
+      if (intrusionDetection === false && $view === 2) {
+        await PB.collection("camera")
+          .update(roiCamera?.id, {
+            roiData: null,
+            intrusionDetection: false,
+            intrusionPerson: false,
+            intrusionVehicle: false,
+          })
+          .then((res) => {
+            toast.success("Intrusion detection removed for this camera!");
+            return;
+          })
+          .catch((err) => {
+            console.error(
+              `Error removing intrusion detection for this camera: ${err}`,
+            );
+          });
       } else if (lineCrossing === false && $view === 1) {
-        await PB.collection("camera").update(roiCamera?.id, {
-          lineData: null,
-          lineCrossing: false,
-          linePerson: false,
-          lineVehicle: false,
-        }).then((res) => {
-          toast.success('Line crossing detection removed for this camera!')
-          return;
-        }).catch((err) => {
-          console.error(`Error removing line crossing detection for this camera: ${err}`)
-        })
+        await PB.collection("camera")
+          .update(roiCamera?.id, {
+            lineData: null,
+            lineCrossing: false,
+            linePerson: false,
+            lineVehicle: false,
+          })
+          .then((res) => {
+            toast.success("Line crossing detection removed for this camera!");
+            return;
+          })
+          .catch((err) => {
+            console.error(
+              `Error removing line crossing detection for this camera: ${err}`,
+            );
+          });
       } else {
         toast.error(`Roi not set`);
         return;
       }
     } else {
-    console.log('roidata updateai',roiCamera);
-    if ($view === 2) {
-      await PB.collection("camera")
-        .update(roiCamera?.id, {
-          roiData: $canvasCoordinates,
-          intrusionDetection: intrusionDetection,
-          intrusionPerson: intrusionPerson,
-          intrusionVehicle: intrusionVehicle,
-          intrusionPersonThresh: intrusionPerson ? 0.7 : null,
-          intrusionVehicleThresh: intrusionVehicle ? 0.7 : null,
-        })
-        .then((res) => {
-          console.log(res);
-          roiCamera = null;
-          filteredNodeCameras.set($selectedNode.camera);
-          $selectedDetections = [];
-          toast.success("Intrusion detection Data Updated!");
-        })
-        .catch((err) => console.log(err));
-    } else {
-      await PB.collection("camera")
-        .update(roiCamera?.id, {
-          lineData: $canvasCoordinates,
-          lineCrossing: lineCrossing,
-          linePerson: linePerson,
-          lineVehicle: lineVehicle,
-          linePersonThresh: linePerson ? 0.7 : null,
-          lineVehicleThresh: lineVehicle ? 0.7 : null,
-        })
-        .then((res) => {
-          console.log(res);
-          roiCamera = null;
-          filteredNodeCameras.set($selectedNode.camera);
-          $selectedDetections = [];
+      console.log("roidata updateai", roiCamera);
+      if ($view === 2) {
+        await PB.collection("camera")
+          .update(roiCamera?.id, {
+            roiData: $canvasCoordinates,
+            intrusionDetection: intrusionDetection,
+            intrusionPerson: intrusionPerson,
+            intrusionVehicle: intrusionVehicle,
+            intrusionPersonThresh: intrusionPerson ? 0.7 : null,
+            intrusionVehicleThresh: intrusionVehicle ? 0.7 : null,
+          })
+          .then((res) => {
+            console.log(res);
+            roiCamera = null;
+            filteredNodeCameras.set($selectedNode.camera);
+            $selectedDetections = [];
+            toast.success("Intrusion detection Data Updated!");
+          })
+          .catch((err) => console.log(err));
+      } else {
+        await PB.collection("camera")
+          .update(roiCamera?.id, {
+            lineData: $canvasCoordinates,
+            lineCrossing: lineCrossing,
+            linePerson: linePerson,
+            lineVehicle: lineVehicle,
+            linePersonThresh: linePerson ? 0.7 : null,
+            lineVehicleThresh: lineVehicle ? 0.7 : null,
+          })
+          .then((res) => {
+            console.log(res);
+            roiCamera = null;
+            filteredNodeCameras.set($selectedNode.camera);
+            $selectedDetections = [];
 
-          toast.success('Line Crossing Data updated!')
-        })
-        .catch((err) => console.log(err));
+            toast.success("Line Crossing Data updated!");
+          })
+          .catch((err) => console.log(err));
+      }
     }
   }
+
+  let showLC = true;
+  let showD = true;
+  let showM = true;
+  let showFilterPopup = false;
+
+  const filteredEvents = writable([]);
+
+  function filterEvents(events) {
+    return events.filter((event) => {
+      if (showLC && showD && showM) {
+        return true;
+      } else if (showLC && showD && !showM) {
+        return event.matchScore === 0;
+      } else if (showLC && !showD && showM) {
+        return (
+          event.title === "Line Crossed" ||
+          (event.title !== "Line Crossed" && event.matchScore > 0)
+        );
+      } else if (!showLC && showM && showD) {
+        return !event.title.includes("Line Crossed");
+      } else if (showLC && !showD && !showM) {
+        return event.title === "Line Crossed";
+      } else if (showD && !showLC && !showM) {
+        return event.matchScore === 0 && event.title.includes("Face");
+      } else if (showM && !showLC && !showD) {
+        return event.matchScore !== 0;
+      } else {
+        return false;
+      }
+    });
   }
+
+  $: filteredEvents.set(filterEvents($events));
 </script>
 
 <!-- desk -->
@@ -870,7 +915,30 @@
                 class=" dark:text-white flex gap-2 items-center cursor-pointer text-sm relative"
               >
                 <Settings size={18} />
-                <Filter size={18} />
+                <button on:click={() => (showFilterPopup = !showFilterPopup)}>
+                  <Filter size={18} />
+                </button>
+                {#if showFilterPopup}
+                  <div
+                    class="z-50 dark:text-white text-black flex flex-col border gap-2 p-2 bg-background divide-y divide-gray-100 shadow-dropdown rounded-lg shadow w-40 absolute right-0 top-6"
+                  >
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" bind:checked={showLC} />
+                      Line Crossing
+                    </label>
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" bind:checked={showD} />
+                      Detected
+                    </label>
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" bind:checked={showM} />
+                      Matched
+                    </label>
+                    <button on:click={() => (showFilterPopup = false)}
+                      >Close</button
+                    >
+                  </div>
+                {/if}
               </div>
             </div>
           </div>
@@ -918,31 +986,12 @@
               </Accordion.Item>
             </Accordion.Root>
           {:else}
-            <div class="flex items-center gap-2 p-2 justify-center">
-              <p
-                class={`text-sm ${!eventType ? "text-primary font-bold" : " font-medium"}`}
-              >
-                Detected
-              </p>
-              <Switch
-                id="eventType"
-                bind:checked={eventType}
-                on:change={() => (eventType = !eventType)}
-              />
-              <p
-                class={`text-sm ${eventType ? "text-primary font-bold" : " font-medium"}`}
-              >
-                Matched
-              </p>
-            </div>
-
             <ul class="overflow-y-scroll h-[calc(100vh-150px)] no-scrollbar">
-              {#if !eventType}
-                <!-- <p class='text-base capitalize font-bold mx-auto text-primary text-center px-2'>Detected events</p> -->
-                {#if $events.length > 0}
-                  <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                  {#each $events as event}
-                    {@const date = event.created}
+              {#if $events.length > 0}
+                <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                {#if $filteredEvents.length > 0}
+                  {#each $filteredEvents as event}
+                    {@const date = new Date(event.created)}
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <li
                       class="w-full fade-in-15 transition-all duration-200"
@@ -953,10 +1002,10 @@
                     >
                       <article
                         class={`relative items-center gap-2 mx-2 my-4 p-2
-                 flex bg-[#f9f9f9] dark:bg-black
-             rounded-xl shadow-md text-base border 
-             ${isAllFullScreen ? "bg-black text-white " : "hover:scale-[1.01] dark:shadow-slate-800 hover:shadow-lg "}
-             `}
+          flex bg-[#f9f9f9] dark:bg-black
+          rounded-xl shadow-md text-base border 
+          ${isAllFullScreen ? "bg-black text-white " : "hover:scale-[1.01] dark:shadow-slate-800 hover:shadow-lg "}
+        `}
                       >
                         <img
                           class="object-cover w-[75px] h-[75px] rounded-md flex-shrink-0"
@@ -969,7 +1018,8 @@
                             plateNumber={event.description}
                             carColor={event.title.replace(" car", "")}
                             fullImage={event.frameImage}
-                            ><img
+                          >
+                            <img
                               class="object-cover w-64 h-16 rounded-md col-span-1"
                               src={"data:image/jpeg;base64," + event.videoUrl}
                               alt="Team Member"
@@ -985,12 +1035,9 @@
                             {/if}
                           </h3>
                           <p class={"text-xs text-black/.7"}>
-                            Camera {$selectedNode.camera.filter(
+                            Camera {$selectedNode.camera.find(
                               (c) => c.id === event.camera,
-                            )[0] &&
-                              $selectedNode.camera.filter(
-                                (c) => c.id === event.camera,
-                              )[0].name}
+                            )?.name}
                           </p>
                           <span
                             class="flex items-center justify-between border-b border-solid border-[#1c1c1c]/.1 gap-2 w-full"
@@ -1026,11 +1073,8 @@
                       </article>
                     </li>
                   {/each}
-                {/if}
-              {:else}
-                <!-- <p class='text-base capitalize text-primary font-bold text-center px-2'>Matched events</p> -->
-                {#if $otherEvents.length > 0}
-                  <p class="text-sm text-primary">No events found</p>
+                {:else}
+                  <li class='p-4'>No events found, select filters to see events</li>
                 {/if}
               {/if}
             </ul>

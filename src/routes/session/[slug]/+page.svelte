@@ -3,7 +3,7 @@
   import type { Node, Camera, Event } from "@/types.d.ts";
   import StreamView from "@/components/stream/StreamView.svelte";
   import PocketBase from "pocketbase";
-  import { selectedNode, events, otherEvents, runningEvents } from "@/lib/stores";
+  import { selectedNode, events, otherEvents, runningEvents,eventTypes } from "@/lib/stores";
   import { onDestroy, onMount } from "svelte";
   import AddNodeMob from "@/components/node/mobile/AddNodeMob.svelte";
   import type { PageServerData } from "./$types";
@@ -16,7 +16,7 @@
   let batchedEvents: Event[] = [];
   let runningEvnts: Event[] = [];
 
-  // $: console.log("data", data)
+  $: console.log("data", data)
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
@@ -80,10 +80,10 @@
         events.set([...batchedEvents, ...$events].slice(0, 100));
       batchedEvents = [];
     }
-    if(otherEvnts.length !== $otherEvents.length) {
-      otherEvents.set([...otherEvnts, ...$otherEvents].slice(0, 100));
-      otherEvnts = [];
-    }
+    // if(otherEvnts.length !== $otherEvents.length) {
+    //   otherEvents.set([...otherEvnts, ...$otherEvents].slice(0, 100));
+    //   otherEvnts = [];
+    // }
     setTimeout(updateEvents, 1000);
   }
 
@@ -93,27 +93,30 @@
       const s = nodes.find(n => n.id === session.activeNode) 
       selectedNode.set(s || nodes[0]);
     const x = data.events
-    const y = data.otherEvents
-
+    // const y = data.otherEvents
     events.set(x);
-    otherEvents.set(y);
+    // otherEvents.set(y);
 
     PB.collection('events').subscribe('*', function (e) {
       console.log('event subscription',e.action,e.record)
-      if (e.action === "create" && e.record.matchScore === 0 ) {
         console.log('detetc event created', e.record)
         batchedEvents.push({
           ...e.record,
           created: new Date(e.record.created),
-        } as unknown as Event);
-        console.log(batchedEvents.length, $events.length)
-      } else {
-        console.log('update event subscription',e.action,e.record)
-        otherEvnts.push({
-          ...e.record,
-          created: new Date(e.record.created),
-        } as unknown as Event);
-      }
+        } as unknown as Event); 
+      // } else if (e.action === "create" && e.record.title === 'Line Crossed') {
+      //   console.log('running event created', e.record)
+      //   runningEvnts.push({
+      //     ...e.record,
+      //     created: new Date(e.record.created),
+      //   } as unknown as Event);
+      // } else if (e.action === 'update') {
+      //   console.log('update event subscription',e.action,e.record)
+      //   otherEvnts.push({
+      //     ...e.record,
+      //     created: new Date(e.record.created),
+      //   } as unknown as Event);
+      // }
 })
 
     PB.collection("camera").subscribe("*", async (e) => {

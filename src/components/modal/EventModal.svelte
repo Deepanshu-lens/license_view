@@ -31,7 +31,7 @@
     </button>
 
     <img
-      class="obejct-contain w-[200px] h-[150px] rounded-sm"
+      class="obejct-contain w-[200px] h-[210px] rounded-md"
       alt="portrait alert"
       src={"data:image/jpeg;base64," + event.frameImage}
     />
@@ -76,51 +76,6 @@
         })}
       </p>
     </div>
-    <!-- <button class="close-button" on:click={closeModal}>✖</button>
-    <img
-      class="object-cover w-24 h-24 rounded-md col-span-1"
-      src={"data:image/jpeg;base64," + event.frameImage}
-      alt="Team Member"
-    />
-    <div class="col-span-1 tex-center flex flex-col items-center gap-1">
-      <h3 class={"text-base"}>
-        {#if event.title.includes("car") && event.description !== ""}
-          {event.description} {event.title}
-        {:else}
-          {event.title}
-        {/if}
-      </h3>
-      <p class={`text-xs`}>
-        Camera {$selectedNode.camera.filter((c) => c.id === event.camera)[0] &&
-          $selectedNode.camera.filter((c) => c.id === event.camera)[0].name}
-      </p>
-      <p class={`text-center text-xs font-bold`}>
-        Detection Score : {event?.score}
-      </p>
-      <p class={`text-center "text-xs`}>
-        {event.matchScore !== 0 &&
-        event.matchScore !== undefined &&
-        event.matchScore !== null
-          ? `Matching Score : ${event?.matchScore}`
-          : "No matches found"}
-      </p>
-    </div>
-    <div class="col-span-2 mx-auto">
-      <p class={`text-sm`}>
-        {event.created.toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        })}
-      </p>
-      <p class={"text-sm"}>
-        {event.created.toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        })}
-      </p>
-    </div> -->
   </article>
 </div>
 
