@@ -7,6 +7,7 @@
     selectedNode,
     filteredNodeCameras,
     canvasCoordinates,
+    view
   } from "@/lib/stores";
   import Stream from "@/components/stream/Stream.svelte";
   import type { Camera } from "@/types.d.ts";
@@ -53,33 +54,18 @@
   const neededUrl = $page.url.hostname;
 
 
-  // $: console.log($selectedNode.maxStreamsPerPage> 4 && $selectedNode.maxStreamsPerPage !== 0)
-
-  // onMount(async () => {
-  //   try {
-  //     const response = await fetch('/api/speedtest');
-  //     if (!response.ok) {
-  //       throw new Error('Failed to fetch speed test data');
-  //     }
-  //     const data = await response.json();
-  //     if(data.downloadSpeed.mbps <= 1.5) {
-  //       toast.error('Switching grid view to one that is good according to your network speed, Can be switched from Layouts option')
-  //       $selectedNode.maxStreamsPerPage = 1;
-  //     } else if (data.downloadSpeed.mbps > 1.5 && data.downloadSpeed.mbps < 3) {
-  //       toast.error('Switching grid view to one that is good according to your network speed, Can be switched from Layouts option')
-  //       $selectedNode.maxStreamsPerPage = $selectedNode.maxStreamsPerPage > 4 && $selectedNode.maxStreamsPerPage !== 0 && $selectedNode.camera.length > 4 ? 4 : $selectedNode.maxStreamsPerPage;
-  //     }
-  //     if (data.downloadSpeed.mbps > 3 && data.downloadSpeed.mbps < 5) {
-  //        toast.error('Switching grid view to one that is good according to your network speed, Can be switched from Layouts option')
-  //       $selectedNode.maxStreamsPerPage = $selectedNode.maxStreamsPerPage > 9 && $selectedNode.maxStreamsPerPage !== 0 && $selectedNode.camera.length > 9 ? 9 : $selectedNode.maxStreamsPerPage;
-
-  //   } else {
-  //       console.log('good network speed, not switching mode')
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching speed test data:', error);
-  //   }
-  // });
+  onMount(async() => {
+    try {
+      const res = await fetch('/api/speedtest')
+      if(!res.ok) throw new Error('Failed to fetch speed test data')
+      const data = await res.json()
+      if(data.downloadSpeed.mbps < 5) {
+        toast.error('Low network speed detected! please switch to a smaller layout 1:1 or 2:2')
+      }
+    } catch (error) {
+      console.error('Error fetching speed test data:', error);
+    }
+  })
 
   const handleRefreshError = (event) => {
     console.log("inside handle refresh error");
@@ -237,78 +223,78 @@
     handleSlideChange();
   }
 
-    $: if ($selectedNode) {
-    (async () => {
-      console.log('calling status data through $')
-      await getCameraStatusData();
-    })();
-  }
+  //   $: if ($selectedNode) {
+  //   (async () => {
+  //     console.log('calling status data through $')
+  //     await getCameraStatusData();
+  //   })();
+  // }
 
-  async function getCameraStatusData() {
-    const cameraStatus = await PB.collection("camera_ping_status").getList(
-      1,
-      100,
-      {
-        filter: `node~"${$selectedNode.id}"`,
-        sort: "-created",
-      },
-    );
-    const uniqueUrls = new Set();
-    const uniqueStatus = cameraStatus.items.filter((item) => {
-      if (!uniqueUrls.has(item.url)) {
-        uniqueUrls.add(item.url);
-        return true;
-      }
-      return false;
-    });
-    cameraStatusData = uniqueStatus;
-  }
+  // async function getCameraStatusData() {
+  //   const cameraStatus = await PB.collection("camera_ping_status").getList(
+  //     1,
+  //     100,
+  //     {
+  //       filter: `node~"${$selectedNode.id}"`,
+  //       sort: "-created",
+  //     },
+  //   );
+  //   const uniqueUrls = new Set();
+  //   const uniqueStatus = cameraStatus.items.filter((item) => {
+  //     if (!uniqueUrls.has(item.url)) {
+  //       uniqueUrls.add(item.url);
+  //       return true;
+  //     }
+  //     return false;
+  //   });
+  //   cameraStatusData = uniqueStatus;
+  // }
 
-  let currentIndex = 0;
-  let refreshInterval;
+  // let currentIndex = 0;
+  // let refreshInterval;
 
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
-  onMount(async () => {
-    PB.collection("camera_ping_status").subscribe("*", async (e) => {
-      console.log("new update in camera_ping_status", e.action, e.record);
-      if (e.action === "create") {
-        const rec = cameraStatusData.find(
-          (item) => item.camera === e.record.camera,
-        );
-        console.log(rec);
-        const index = cameraStatusData.findIndex(
-          (item) => item.camera === e.record.camera,
-        );
-        console.log(index);
-        if (index !== -1) {
-          console.log("oldStatus", cameraStatusData[index].status);
-          console.log("newStatus", e.record.status);
+  // const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  // onMount(async () => {
+  //   PB.collection("camera_ping_status").subscribe("*", async (e) => {
+  //     console.log("new update in camera_ping_status", e.action, e.record);
+  //     if (e.action === "create") {
+  //       const rec = cameraStatusData.find(
+  //         (item) => item.camera === e.record.camera,
+  //       );
+  //       // console.log(rec);
+  //       const index = cameraStatusData.findIndex(
+  //         (item) => item.camera === e.record.camera,
+  //       );
+  //       // console.log(index);
+  //       if (index !== -1) {
+  //         console.log("oldStatus", cameraStatusData[index].status);
+  //         console.log("newStatus", e.record.status);
 
-          if (cameraStatusData[index].status !== e.record.status) {
-            console.log(e.record.status);
-            {
-              if (e.record.status === true) {
-                setTimeout(() => {
-                  refreshVideoStream(e.record.camera);
-                }, 100);
-              } else {
-                toast.error(
-                  `Camera: ${$selectedNode.camera.find((item) => item.id === e.record.camera).name} is offline`,
-                );
-              }
-            }
-          }
-          cameraStatusData[index] = e.record;
-        } else {
-          console.log("updated ping record not from this node");
-        }
-      }
-    });
-  });
+  //         if (cameraStatusData[index].status !== e.record.status) {
+  //           console.log(e.record.status);
+  //           {
+  //             if (e.record.status === true) {
+  //               setTimeout(() => {
+  //                 refreshVideoStream(e.record.camera);
+  //               }, 100);
+  //             } else {
+  //               toast.error(
+  //                 `Camera: ${$selectedNode.camera.find((item) => item.id === e.record.camera).name} is offline`,
+  //               );
+  //             }
+  //           }
+  //         }
+  //         cameraStatusData[index] = e.record;
+  //       } else {
+  //         console.log("updated ping record not from this node");
+  //       }
+  //     }
+  //   });
+  // });
 
-  onDestroy(() => {
-    PB.collection("camera_ping_status").unsubscribe("*");
-  });
+  // onDestroy(() => {
+  //   PB.collection("camera_ping_status").unsubscribe("*");
+  // });
 
   // function refreshCamera() {
   //   const camera = $selectedNode.camera[currentIndex];
@@ -383,15 +369,15 @@
 
     if (maxStreamsPerPage === 0) {
       // Automatic Layout
-      // const squareRoot = Math.ceil(Math.sqrt(streamCount !== $filteredNodeCameras?.length ? $filteredNodeCameras?.length :streamCount));
-      // console.log(streamCount)
+    
+    
       const squareRoot = Math.ceil(Math.sqrt(streamCount));
       if (Number.isInteger(Math.sqrt(streamCount))) {
         layoutColumns = squareRoot;
       } else {
         layoutColumns = squareRoot <= 4 ? squareRoot : 5;
       }
-      // layoutRows = Math.ceil(streamCount !== $filteredNodeCameras?.length ? $filteredNodeCameras?.length :streamCount / layoutColumns);
+    
       layoutRows = Math.ceil(streamCount / layoutColumns);
     } else if (
       streamCount !== 0 &&
@@ -433,18 +419,20 @@
     }, 500);
   };
 
-  $: {
-    if ($filteredNodeCameras.length === $selectedNode.camera.length) {
-      updateLayout($selectedNode.maxStreamsPerPage);
-    } else {
-      updateLayout(0);
-    }
-  }
+
   $: {
     if (isSingleFullscreen) {
       document.addEventListener("fullscreenchange", onFullscreenChange);
     } else {
       document.removeEventListener("fullscreenchange", onFullscreenChange);
+    }
+  }
+
+     $: {
+    if ($filteredNodeCameras.length === $selectedNode.camera.length) {
+      updateLayout($selectedNode.maxStreamsPerPage);
+    } else {
+      updateLayout(0);
     }
   }
 
@@ -487,7 +475,11 @@
     draw = !draw;
     if (draw) {
       setTimeout(() => {
-        setupCanvas();
+        if($view === 2) {
+          setupCanvas();
+        } else {
+          setupCanvasForLine();
+        }
       }, 0);
     }
   }
@@ -647,7 +639,144 @@
     updateCanvasCoordinates();
   }
 
-  function updateListWithNewOrder(newOrder, draggedItem) {
+  function setupCanvasForLine() {
+    canvas = document.getElementById("roicanvas");
+    ctx = canvas.getContext("2d");
+    rect = canvas.getBoundingClientRect();
+
+    const points = [
+      { x: 50, y: 50, isDragging: false, color: "blue" },
+      { x: 150, y: 150, isDragging: false, color: "blue" },
+    ];
+
+    let lineIsDragging = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    function updateCanvasCoordinates() {
+      const videoResolution = { width: 1920, height: 1080 };
+      canvasCoordinates.set(
+        points.map((point) => ({
+          x: Math.round((point.x / rect.width) * videoResolution.width),
+          y: Math.round((point.y / rect.height) * videoResolution.height),
+        })),
+      );
+    }
+
+    function drawLinePoints() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      ctx.lineTo(points[1].x, points[1].y);
+      ctx.strokeStyle = "blue";
+      ctx.stroke();
+      points.forEach((point) => {
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = point.color;
+        ctx.fill();
+      });
+    }
+
+    function isWithinBounds(point) {
+      return (
+        point.x >= 0 &&
+        point.x <= rect.width &&
+        point.y >= 0 &&
+        point.y <= rect.height
+      );
+    }
+
+    canvas.addEventListener("mousedown", (e) => {
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      let onPoint = false;
+
+      points.forEach((point) => {
+        if (
+          Math.abs(mouseX - point.x) < 10 &&
+          Math.abs(mouseY - point.y) < 10
+        ) {
+          point.isDragging = true;
+          onPoint = true;
+        }
+      });
+
+      if (!onPoint) {
+        lineIsDragging = true;
+        dragOffsetX = mouseX;
+        dragOffsetY = mouseY;
+      }
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      if (lineIsDragging) {
+        const dx = mouseX - dragOffsetX;
+        const dy = mouseY - dragOffsetY;
+        let allWithinBounds = true;
+        points.forEach((point) => {
+          const newX = point.x + dx;
+          const newY = point.y + dy;
+          if (!isWithinBounds({ x: newX, y: newY })) {
+            allWithinBounds = false;
+          }
+        });
+
+        if (allWithinBounds) {
+          points.forEach((point) => {
+            point.x += dx;
+            point.y += dy;
+          });
+          dragOffsetX = mouseX;
+          dragOffsetY = mouseY;
+          drawLinePoints();
+          updateCanvasCoordinates();
+        }
+      } else if (points.some((p) => p.isDragging)) {
+        const point = points.find((p) => p.isDragging);
+        const newX = mouseX;
+        const newY = mouseY;
+        if (isWithinBounds({ x: newX, y: newY })) {
+          point.x = newX;
+          point.y = newY;
+          drawLinePoints();
+          updateCanvasCoordinates();
+        }
+      }
+
+      if (points.some((p) => p.isDragging)) {
+        canvas.style.cursor = "move";
+      } else {
+        canvas.style.cursor = "default";
+      }
+    });
+
+    canvas.addEventListener("mouseup", () => {
+      lineIsDragging = false;
+      points.forEach((point) => {
+        point.isDragging = false;
+      });
+    });
+
+    canvas.addEventListener("mouseout", () => {
+      lineIsDragging = false;
+      points.forEach((point) => {
+        point.isDragging = false;
+      });
+      canvas.style.cursor = "default";
+    });
+
+    drawLinePoints();
+    updateCanvasCoordinates();
+  }
+
+   function updateListWithNewOrder(newOrder, draggedItem) {
     const cell = document.getElementById("grid-cell-0");
     const stream = cell?.querySelector("video-stream");
     if (stream) {
@@ -735,7 +864,8 @@
                   on:click={toggleDraw}
                   class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white p-2 absolute bottom-4 left-1/2 -translate-x-1/2 items-center rounded-xl scale-90 z-20"
                   ><PenTool size={22} /></button
-                >{:else}
+                >
+                {:else}
                 <button
                   on:click={toggleDraw}
                   class="flex gap-2 z-[100] bg-[rgba(0,0,0,.5)] text-white p-2 absolute bottom-4 left-1/2 -translate-x-1/2 items-center rounded-xl scale-90"
@@ -852,113 +982,7 @@
                         <div
                           id={`${$activeCamera}-menu`}
                           class="z-20 flex justify-center items-center gap-4 self-end mt-auto absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-3 rounded-xl bg-gradient-to-bl from-[rgba(217,217,217,.2)] to-[rgba(217,217,217,.1)] border border-solid border-[#d3d3d3]"
-                        >
-                            <!-- on:click={() => {
-                              if (isSingleFullscreen === true) {
-                                exitSingleFullscreen();
-                                const streamElement =
-                                  videos[
-                                    $selectedNode.camera[
-                                      pageIndex *
-                                        ($selectedNode.maxStreamsPerPage ===
-                                          5 ||
-                                        $selectedNode.maxStreamsPerPage === 7
-                                          ? $selectedNode.maxStreamsPerPage + 1
-                                          : $selectedNode.maxStreamsPerPage) +
-                                        slotIndex
-                                    ].id
-                                  ];
-                                console.log(streamElement);
-                                if (streamElement) {
-                                  console.log("first");
-                                  streamElement.remove();
-                                  delete videos[
-                                    $selectedNode.camera[
-                                      pageIndex *
-                                        ($selectedNode.maxStreamsPerPage ===
-                                          5 ||
-                                        $selectedNode.maxStreamsPerPage === 7
-                                          ? $selectedNode.maxStreamsPerPage + 1
-                                          : $selectedNode.maxStreamsPerPage) +
-                                        slotIndex
-                                    ].id
-                                  ];
-                                }
-                                initVideo(
-                                  $selectedNode.camera[
-                                    pageIndex *
-                                      ($selectedNode.maxStreamsPerPage === 5 ||
-                                      $selectedNode.maxStreamsPerPage === 7
-                                        ? $selectedNode.maxStreamsPerPage + 1
-                                        : $selectedNode.maxStreamsPerPage) +
-                                      slotIndex
-                                  ],
-                                );
-                              } else {
-                                singleFullscreen(slotIndex);
-                                const streamElement =
-                                  videos[
-                                    $selectedNode.camera[
-                                      pageIndex *
-                                        ($selectedNode.maxStreamsPerPage ===
-                                          5 ||
-                                        $selectedNode.maxStreamsPerPage === 7
-                                          ? $selectedNode.maxStreamsPerPage + 1
-                                          : $selectedNode.maxStreamsPerPage) +
-                                        slotIndex
-                                    ].id
-                                  ];
-                                console.log(streamElement);
-                                if (streamElement) {
-                                  console.log("first");
-                                  streamElement.remove();
-                                  delete videos[
-                                    $selectedNode.camera[
-                                      pageIndex *
-                                        ($selectedNode.maxStreamsPerPage ===
-                                          5 ||
-                                        $selectedNode.maxStreamsPerPage === 7
-                                          ? $selectedNode.maxStreamsPerPage + 1
-                                          : $selectedNode.maxStreamsPerPage) +
-                                        slotIndex
-                                    ].id
-                                  ];
-                                }
-                                initVideo(
-                                  $selectedNode.camera[
-                                    pageIndex *
-                                      ($selectedNode.maxStreamsPerPage === 5 ||
-                                      $selectedNode.maxStreamsPerPage === 7
-                                        ? $selectedNode.maxStreamsPerPage + 1
-                                        : $selectedNode.maxStreamsPerPage) +
-                                      slotIndex
-                                  ],
-                                );
-                              }
-
-                              addUserLog(
-                                `user clicked single camera fulscreen for camera ${
-                                  $selectedNode.camera[
-                                    pageIndex *
-                                      ($selectedNode.maxStreamsPerPage === 5 ||
-                                      $selectedNode.maxStreamsPerPage === 7
-                                        ? $selectedNode.maxStreamsPerPage + 1
-                                        : $selectedNode.maxStreamsPerPage) +
-                                      slotIndex
-                                  ].name
-                                } having url "${
-                                  $selectedNode.camera[
-                                    pageIndex *
-                                      ($selectedNode.maxStreamsPerPage === 5 ||
-                                      $selectedNode.maxStreamsPerPage === 7
-                                        ? $selectedNode.maxStreamsPerPage + 1
-                                        : $selectedNode.maxStreamsPerPage) +
-                                      slotIndex
-                                  ].url
-                                }" `,
-                              );
-                            }} -->
-                          <button
+                        > <button
                             on:click={() => {
                           const sessionId = $selectedNode.session;
                           const cameraId = $selectedNode.camera[
@@ -978,10 +1002,7 @@
                               <Expand size={18} />{:else}
                               <Shrink size={18} />{/if}
                           </button>
-                          <!-- <span
-                          class="rounded bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
-                          ><Disc2 size={18} />
-                        </span> -->
+                
                           <button
                             disabled
                             on:click={(e) => {
@@ -1035,107 +1056,7 @@
                           </button>
                         </div>
                       {:else}
-                          <!-- on:click={() => {
-                            if (isSingleFullscreen === true) {
-                              exitSingleFullscreen();
-                              const streamElement =
-                                videos[
-                                  $selectedNode.camera[
-                                    pageIndex *
-                                      ($selectedNode.maxStreamsPerPage === 5 ||
-                                      $selectedNode.maxStreamsPerPage === 7
-                                        ? $selectedNode.maxStreamsPerPage + 1
-                                        : $selectedNode.maxStreamsPerPage) +
-                                      slotIndex
-                                  ].id
-                                ];
-                              console.log(streamElement);
-                              if (streamElement) {
-                                console.log("first");
-                                streamElement.remove();
-                                delete videos[
-                                  $selectedNode.camera[
-                                    pageIndex *
-                                      ($selectedNode.maxStreamsPerPage === 5 ||
-                                      $selectedNode.maxStreamsPerPage === 7
-                                        ? $selectedNode.maxStreamsPerPage + 1
-                                        : $selectedNode.maxStreamsPerPage) +
-                                      slotIndex
-                                  ].id
-                                ];
-                              }
-                              initVideo(
-                                $selectedNode.camera[
-                                  pageIndex *
-                                    ($selectedNode.maxStreamsPerPage === 5 ||
-                                    $selectedNode.maxStreamsPerPage === 7
-                                      ? $selectedNode.maxStreamsPerPage + 1
-                                      : $selectedNode.maxStreamsPerPage) +
-                                    slotIndex
-                                ],
-                              );
-                            } else {
-                              singleFullscreen(slotIndex);
-                              const streamElement =
-                                videos[
-                                  $selectedNode.camera[
-                                    pageIndex *
-                                      ($selectedNode.maxStreamsPerPage === 5 ||
-                                      $selectedNode.maxStreamsPerPage === 7
-                                        ? $selectedNode.maxStreamsPerPage + 1
-                                        : $selectedNode.maxStreamsPerPage) +
-                                      slotIndex
-                                  ].id
-                                ];
-                              console.log(streamElement);
-                              if (streamElement) {
-                                console.log("first");
-                                streamElement.remove();
-                                delete videos[
-                                  $selectedNode.camera[
-                                    pageIndex *
-                                      ($selectedNode.maxStreamsPerPage === 5 ||
-                                      $selectedNode.maxStreamsPerPage === 7
-                                        ? $selectedNode.maxStreamsPerPage + 1
-                                        : $selectedNode.maxStreamsPerPage) +
-                                      slotIndex
-                                  ].id
-                                ];
-                              }
-                              initVideo(
-                                $selectedNode.camera[
-                                  pageIndex *
-                                    ($selectedNode.maxStreamsPerPage === 5 ||
-                                    $selectedNode.maxStreamsPerPage === 7
-                                      ? $selectedNode.maxStreamsPerPage + 1
-                                      : $selectedNode.maxStreamsPerPage) +
-                                    slotIndex
-                                ],
-                              );
-                            }
-
-                            addUserLog(
-                              `user clicked single camera fulscreen for camera ${
-                                $selectedNode.camera[
-                                  pageIndex *
-                                    ($selectedNode.maxStreamsPerPage === 5 ||
-                                    $selectedNode.maxStreamsPerPage === 7
-                                      ? $selectedNode.maxStreamsPerPage + 1
-                                      : $selectedNode.maxStreamsPerPage) +
-                                    slotIndex
-                                ].name
-                              } having url "${
-                                $selectedNode.camera[
-                                  pageIndex *
-                                    ($selectedNode.maxStreamsPerPage === 5 ||
-                                    $selectedNode.maxStreamsPerPage === 7
-                                      ? $selectedNode.maxStreamsPerPage + 1
-                                      : $selectedNode.maxStreamsPerPage) +
-                                    slotIndex
-                                ].url
-                              }" `,
-                            );
-                          }} -->
+                        
                         <button
                         on:click={() => {
                           const sessionId = $selectedNode.session;

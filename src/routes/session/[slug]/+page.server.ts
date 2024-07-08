@@ -1,3 +1,5 @@
+import type { PageServerLoad } from './$types.js';
+
 export const ssr = false;
 
 export type OutputType = {
@@ -23,75 +25,106 @@ export const actions = {
   },
 };
 
-export async function load({ locals }) {
-  const events = await locals.pb?.collection("events").getList(1, 20, {
-    sort: "-created",
-    fields:
-      "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
-  });
+export const load: PageServerLoad = async ({ locals }) => {
 
-  // const galleryItems = await locals.pb?.collection("faceGallery").getFullList({
-  //   sort: "-lastSeen",
-  //   expand: "events",
-  //   fields: "name,lastSeen,images,expand.events.frameImage",
-  // });
+locals.pb?.autoCancellation(false)
+  const events = async () => {
+    const e = await locals.pb?.collection("events").getList(1, 25, {
+      sort: "-created",
+      fields:
+        "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
+      filter: 'title != "Running Detected" && matchScore = "0"'
+    });
+    return e?.items.map(
+      (ee) =>
+        ({
+          ...ee,
+          created: new Date(ee.created),
+        }) as unknown as Event,
+    );
+  }
 
-  // const imposterItems = await locals.pb
-  //   ?.collection("impostors")
-  //   .getList(1, 10, {
-  //     sort: "-lastSeen",
-  //     expand: "events",
-  //     fields: "name,lastSeen,expand.events.frameImage",
-  //   });
+  const otherEvents = async () => {
+    const e = await locals.pb?.collection("events").getList(1, 25, {
+      sort: "-created",
+      fields:
+        "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
+      filter: 'title != "Running Detected" && matchScore != "0"'
+    });
+    return e?.items.map(
+      (ee) =>
+        ({
+          ...ee,
+          created: new Date(ee.created),
+        }) as unknown as Event,
+    );
+  }
 
-  // console.log(events);
+  const runningEvents = async () => {
+    const e = await locals.pb?.collection("events").getList(1, 25, {
+      sort: "-created",
+      fields:
+        "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
+      filter: 'title = "Running Detected"'
+    });
+    return e?.items.map(
+      (ee) =>
+        ({
+          ...ee,
+          created: new Date(ee.created),
+        }) as unknown as Event,
+    );
+  }
 
-  const serializableEvents = events?.items.map(
-    (event) =>
-      ({
-        ...event,
-        created: new Date(event.created),
-      }) as unknown as Event,
-  );
+  const gelleryItems = async () => {
+    const g = await locals.pb?.collection("faceGallery").getFullList({
+      sort: "-lastSeen",
+      expand: "events",
+      fields: "name,lastSeen,images,expand.events.frameImage",
+    });
+    return g?.map((e) => ({
+      name: e.name,
+      lastSeen: e.lastSeen,
+      savedData: e.images,
+      images: e.expand.events
+        ? e.expand.events
+          .map((f) => f.frameImage)
+          .slice(-8)
+          .reverse()
+        : [],
+      created: new Date(),
+      updated: new Date(),
+    }));
 
-  // const galleryItems = await locals.pb?.collection("faceGallery").getFullList({
-  //   sort: "-lastSeen",
-  //   expand: "events",
-  //   fields: "name,lastSeen,images,expand.events.frameImage",
-  // });
+  }
 
-  // console.log(galleryItems);
+  const imposterItems = async () => {
+    const i = await locals.pb
+      ?.collection("impostors")
+      .getList(1, 10, {
+        sort: "-lastSeen",
+        expand: "events",
+        fields: "name,lastSeen,expand.events.frameImage",
+      });
 
-  // const serializableGalleryItems = galleryItems.map((e) => ({
-  //   name: e.name,
-  //   lastSeen: e.lastSeen,
-  //   savedData: e.images,
-  //   images: e.expand.events
-  //     ? e.expand.events
-  //         .map((f) => f.frameImage)
-  //         .slice(-8)
-  //         .reverse()
-  //     : [],
-  //   created: new Date(),
-  //   updated: new Date(),
-  // }));
+    return i?.items.map((e) => ({
+      name: "Unknown",
+      lastSeen: e.lastSeen,
+      images: e.expand.events
+        .map((f) => f.frameImage)
+        .slice(-8)
+        .reverse(),
+      created: new Date(),
+      updated: new Date(),
+    }));
 
-  // const serializableImposterItems = imposterItems.items.map((e) => ({
-  //   name: "Unknown",
-  //   lastSeen: e.lastSeen,
-  //   images: e.expand.events
-  //     .map((f) => f.frameImage)
-  //     .slice(-8)
-  //     .reverse(),
-  //   created: new Date(),
-  //   updated: new Date(),
-  // }));
+  }
 
   return {
-    props: {
-      events: serializableEvents,
-      galleryItems: [],
-      imposterItems: [],
-    },
+    events: events(),
+    otherEvents: otherEvents(),
+    runningEvents: runningEvents(),
+    galleryItems: gelleryItems(),
+    imposterItems: imposterItems(),
   };
 }

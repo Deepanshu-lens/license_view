@@ -6,6 +6,7 @@ export type User = {
   features;
 };
 
+
 export type Camera = {
   name: string;
   id: string;
@@ -27,11 +28,13 @@ export type Camera = {
   priority: boolean;
   maskDetection: boolean;
   helmetDetection: boolean;
-  weaponDetection:boolean;
+  weaponDetection: boolean;
   roiData: any;
-  cameraTamperDetection:boolean;
-  guardMissingDetection:boolean
-
+  cameraTamperDetection: boolean;
+  guardMissingDetection: boolean
+  lineData: any;
+  lineCrossing: boolean;
+  intrusionDetection: boolean;
 };
 
 export type Playback = {

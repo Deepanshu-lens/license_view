@@ -10,26 +10,35 @@ export const PUT: RequestHandler = async ({
   console.log("Editing Camera");
   const data = await request.json();
 
+  console.log(data)
   const oldUrl = await locals.pb
     ?.collection("camera")
     .getOne<Camera>(data.cameraId)
     .then((c) => c.url);
 
-  const camera = await locals.pb?.collection("camera").update(data.cameraId, {
+   await locals.pb?.collection("camera").update(data.cameraId, {
     name: data.name,
     url: data.url,
     face: data.face,
-    vehicle: data.vehicle,
+    // vehicle: data.vehicle,
+    running: data.running,
     save: data.save,
     faceDetThresh: data.faceDetectionThreshold,
     faceMatchThresh: data.faceSearchThreshold,
-    vehDetThresh: data.vehicleDetectionThreshold,
-    vehPlateThresh: data.vehiclePlateThreshold,
-    vehOCRThresh: data.vehicleOCRThreshold,
+    runningThresh: data.runningThresh,
+    // vehDetThresh: data.vehicleDetectionThreshold,
+    // vehPlateThresh: data.vehiclePlateThreshold,
+    // vehOCRThresh: data.vehicleOCRThreshold,
     saveDuration: data.saveDuration,
     saveFolder: data.saveFolder,
     motionThresh: data.motionThresh,
     priority: data.priority,
+    intrusionDetection: data.intrusionDetection,
+    intrusionPersonThresh: data.intrusionPersonThresh,
+    intrusionVehicleThresh: data.intrusionVehicleThresh,
+    lineCrossing: data.lineCrossing,
+    linePersonThresh: data.linePersonThresh,
+    lineVehicleThresh: data.lineVehicleThresh,
   });
 
   if (oldUrl !== data.url) {

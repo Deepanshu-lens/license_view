@@ -1,7 +1,10 @@
 import type { SelectedNode, Event } from "@/types";
 import { writable } from "svelte/store";
 
+
 export const events = writable<Event[]>([]);
+export const otherEvents = writable<Event[]>([]);
+export const runningEvents = writable<Event[]>([]);
 export const selectedNode = writable<SelectedNode>();
 export const convertedVideos = writable([]);
 export const allVideos = writable([])
@@ -12,6 +15,7 @@ export const uniqueUrlList = writable([])
 export const fullscreen = persistedWritable("fullscreen", false);
 export const alertPanelHide = persistedWritable("alertPanelHide", true);
 export const markRoi = writable(false);
+export const view = writable(1);
 export const canvasCoordinates = writable({})
 
 function persistedWritable(key: string, defaultValue: boolean) {

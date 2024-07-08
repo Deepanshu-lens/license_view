@@ -12,6 +12,8 @@
     markRoi,
     filteredNodeCameras,
     canvasCoordinates,
+    otherEvents,
+    view,
   } from "@/lib/stores";
   import {
     Search,
@@ -34,7 +36,6 @@
 
   import { Cctv, LayoutPanelLeft } from "lucide-svelte";
   import * as DropdownMenu from "@/components/ui/dropdown-menu";
-  // import Button from "@/components/ui/button/Button.svelte";
   import { Button } from "../ui/button";
   import PocketBase from "pocketbase";
   import html2canvas from "html2canvas";
@@ -57,21 +58,20 @@
   import LayoutDialog from "../dialogs/LayoutDialog.svelte";
   import AddCameraDialog from "../dialogs/AddCameraDialog.svelte";
   import { page } from "$app/stores";
-  import { getContext } from "svelte";
+  import { Slider } from "@/components/ui/slider";
+  import Switch from "../ui/switch/switch.svelte";
 
   export let data;
   export let url;
-  // export let features;
   const selectedDetections = writable([]);
-  const session = data.session;
-  const sessionId = session.id;
-  const nodes = data.nodes;
+  const { nodes } = data;
   let animateHeader = false;
   let comfort = true;
 
   const search = new URLSearchParams(window.location.search);
   const screens = parseInt(search.get("s") ?? "1");
   const cameraCount = $selectedNode.camera.length;
+  const isMobile = writable(true);
 
   let recording = false;
   let slideRecording = false;
@@ -88,21 +88,39 @@
   let batchedUnknownGallery = [];
   let selectedScreen = null;
   let showRightPanel = true;
-  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  let eventType = false;
+  let roiCamera = null;
+  let intrusionDetection = false;
+  let lineCrossing = false;
+  let linePerson = false;
+  let lineVehicle = false;
+  let intrusionPerson = false;
+  let intrusionVehicle = false;
+  let intrusionPersonThresh = 0.7;
+  let intrusionVehicleThresh = 0.7;
+  let linePersonThresh = 0.7;
+  let lineVehicleThresh = 0.7;
+
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
-
   const searchParams = new URLSearchParams(window.location.search);
-
   let pages = parseInt(searchParams.get("p") ?? "0");
-
-  // let slideIndex = writable(0);
   let activePage = pages === null ? 0 : Number(pages) + 1;
-
-  // let queryString = `?p=${Number(pages) === 0 ? 1 : activePage}&g=${layout}&s=${activeSlideIndex}`;
   let queryString = `?p=${Number(pages) === 0 ? 1 : activePage}&g=${$selectedNode.maxStreamsPerPage}`;
   let basePath = `/session/${$selectedNode.session}`;
-
   let fullURL = basePath + queryString;
+
+  onMount(() => {
+    const updateScreenSize = () => {
+      isMobile.set(window.innerWidth <= 768);
+    };
+
+    updateScreenSize();
+    window.addEventListener("resize", updateScreenSize);
+
+    return () => {
+      window.removeEventListener("resize", updateScreenSize);
+    };
+  });
 
   const handleSingleSS = async () => {
     if ($activeCamera) {
@@ -257,9 +275,14 @@
   }
 
   onMount(async () => {
-    galleryItems = await getGallery();
-    // galleryItems = data.props.galleryItems;
-    unknownItems = data.props.imposterItems;
+    galleryItems = data.galleryItems;
+    unknownItems = data.imposterItems;
+    // data.props.galleryItems.then((e) => {
+    //   galleryItems = e;
+    // });
+    // data.props.imposterItems.then((e) => {
+    //   unknownItems = e;
+    // });
     PB.collection("faceGallery").subscribe("*", async (e) => {
       console.log("New change in gallery ", e.action, e.record);
       batchedGallery.push(e.record);
@@ -270,10 +293,6 @@
     setTimeout(updateGallery, 1000);
     setTimeout(updateUnknowns, 1000);
   });
-
-  // let canvasCoordinates;
-
-  // let markRoi = false
 
   //////
   // mob
@@ -286,7 +305,6 @@
   let activeStreamIndex = writable(null);
   let currpanel = 2;
   let showItems = true;
-  let roiCamera = null;
 
   function handleCheckboxChange(deviceName, event) {
     console.log("working");
@@ -302,360 +320,400 @@
     event.stopPropagation(); // Prevent the dropdown from closing
   }
 
-  // console.log($canvasCoordinates)
-
   async function updateAi() {
-    if($selectedDetections.length === 0) {
-      toast.error(`Detections not selected`)
-      return;
-    }
-    if(!$canvasCoordinates) {
-      toast.error(`Roi not set`)
-      return;
-    }
+    if (!$canvasCoordinates || Object.keys($canvasCoordinates).length === 0 ) {
+      if(intrusionDetection === false && $view === 2 ) {
+        await PB.collection("camera").update(roiCamera?.id, {
+          roiData: null,
+          intrusionDetection: false,
+          intrusionPerson: false,
+          intrusionVehicle: false,
+        }).then((res) => {
+          toast.success('Intrusion detection removed for this camera!')
+          return;
+        }).catch((err) => {
+          console.error(`Error removing intrusion detection for this camera: ${err}`)
+        })
+      } else if (lineCrossing === false && $view === 1) {
+        await PB.collection("camera").update(roiCamera?.id, {
+          lineData: null,
+          lineCrossing: false,
+          linePerson: false,
+          lineVehicle: false,
+        }).then((res) => {
+          toast.success('Line crossing detection removed for this camera!')
+          return;
+        }).catch((err) => {
+          console.error(`Error removing line crossing detection for this camera: ${err}`)
+        })
+      } else {
+        toast.error(`Roi not set`);
+        return;
+      }
+    } else {
+    console.log('roidata updateai',roiCamera);
+    if ($view === 2) {
+      await PB.collection("camera")
+        .update(roiCamera?.id, {
+          roiData: $canvasCoordinates,
+          intrusionDetection: intrusionDetection,
+          intrusionPerson: intrusionPerson,
+          intrusionVehicle: intrusionVehicle,
+          intrusionPersonThresh: intrusionPerson ? 0.7 : null,
+          intrusionVehicleThresh: intrusionVehicle ? 0.7 : null,
+        })
+        .then((res) => {
+          console.log(res);
+          roiCamera = null;
+          filteredNodeCameras.set($selectedNode.camera);
+          $selectedDetections = [];
+          toast.success("Intrusion detection Data Updated!");
+        })
+        .catch((err) => console.log(err));
+    } else {
+      await PB.collection("camera")
+        .update(roiCamera?.id, {
+          lineData: $canvasCoordinates,
+          lineCrossing: lineCrossing,
+          linePerson: linePerson,
+          lineVehicle: lineVehicle,
+          linePersonThresh: linePerson ? 0.7 : null,
+          lineVehicleThresh: lineVehicle ? 0.7 : null,
+        })
+        .then((res) => {
+          console.log(res);
+          roiCamera = null;
+          filteredNodeCameras.set($selectedNode.camera);
+          $selectedDetections = [];
 
-    console.log(roiCamera)
-    await PB.collection("camera")
-      .update(roiCamera?.id, {
-        roiData: $canvasCoordinates,
-        maskDetection: $selectedDetections.includes("Mask Detection"),
-        helmetDetection: $selectedDetections.includes("Helmet Detection"),
-        weaponDetection: $selectedDetections.includes("Weapon Detection"),
-        guardMissingDetection: $selectedDetections.includes("Guard Missing"),
-        cameraTamplerDetection:
-          $selectedDetections.includes("Camera Tampering"),
-      })
-      .then((res) =>{ console.log(res); roiCamera = null;
-        filteredNodeCameras.set($selectedNode.camera);
-        $selectedDetections = [];
-        roiCamera = null
-        
-        toast('ROI Data Updated!')
-      })
-      .catch((err) => console.log(err));
+          toast.success('Line Crossing Data updated!')
+        })
+        .catch((err) => console.log(err));
+    }
+  }
   }
 </script>
 
 <!-- desk -->
-<section class="sm:flex flex-row-reverse hidden">
-  <div
-    class=" flex flex-col gap-2.5 items-center justify-center px-2 h-full my-auto"
-  >
-    <SearchDialog>
-      <span class="group flex-col flex items-center justify-center gap-0.5">
-        <button
-          disabled
-          on:click={() => {
-            addUserLog(`user clicked on Search button, top panel`);
-          }}
-          class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
-          ><Search class="h-[22px] w-[22px]" />
-        </button>
-        <p
-          class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
-        >
-          Search
-        </p>
-      </span>
-    </SearchDialog>
-    <RegisterDialog>
-      <span class="group flex-col flex items-center justify-center gap-0.5">
-        <button
-          disabled
-          on:click={() =>
-            addUserLog("user clicked on Register button, top panel")}
-          class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
-        >
-          <ScanFace class="h-[22px] w-[22px]" />
-        </button>
-        <p
-          class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
-        >
-          Register
-        </p>
-      </span>
-    </RegisterDialog>
-    <span class="group flex-col flex items-center justify-center gap-0.5">
-      <!-- <button
-      disabled={!features.includes("Grid Fullscreen") || cameraCount === 0} -->
-      <button
-        disabled
-        on:click={() => {
-          toggleFullscreen();
-          addUserLog(`user clicked on fulscreen, top panel`);
-        }}
-        class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
-        ><Expand class="h-[22px] w-[22px]" /></button
-      >
-      <p
-        class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
-      >
-        Fullscreen
-      </p>
-    </span>
-    <AddCameraDialog sNode="" {nodes}>
-      <span class="group flex-col flex items-center justify-center gap-0.5">
-        <button
-          on:click={() => {
-            addUserLog(`user clicked on Add Camera button, top panel`);
-          }}
-          class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
-          ><Plus class="h-[22px] w-[22px]" />
-        </button>
-        <p
-          class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
-        >
-          Add
-        </p>
-      </span>
-    </AddCameraDialog>
-    <span class="group flex-col flex items-center justify-center gap-0.5">
-      <!-- <button
-      disabled={!features.includes("Toggle Alerts")} -->
-      <button
-        on:click={() => {
-          alertPanelHide.set(!$alertPanelHide);
-          currpanel = 1;
-          localStorage.setItem(
-            "alertPanelHide",
-            JSON.stringify($alertPanelHide),
-          );
-          addUserLog(`user set alert panel hide to ${$alertPanelHide} `);
-        }}
-        class={$alertPanelHide
-          ? ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
-          : `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
-        ><Bell class="h-[22px] w-[22px]" /></button
-      >
-      <p
-        class={`text-xs ${$alertPanelHide ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
-      >
-        Alerts
-      </p>
-    </span>
-    <a
-      href={fullURL}
-      target="_blank"
-      rel="noreferrer"
-      class="flex items-center justify-center gap-2 cursor-pointer relative lg:scale-95 2xl:scale-100 hover:text-primary"
-      on:click={() => addUserLog("user clicked on exted display, top panel")}
+{#if !$isMobile}
+  <section class="sm:flex flex-row-reverse hidden">
+    <div
+      class=" flex flex-col gap-2.5 items-center justify-center px-2 h-full my-auto"
     >
+      <SearchDialog>
+        <span class="group flex-col flex items-center justify-center gap-0.5">
+          <button
+            disabled
+            on:click={() => {
+              addUserLog(`user clicked on Search button, top panel`);
+            }}
+            class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
+            ><Search class="h-[22px] w-[22px]" />
+          </button>
+          <p
+            class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
+          >
+            Search
+          </p>
+        </span>
+      </SearchDialog>
+      <RegisterDialog>
+        <span class="group flex-col flex items-center justify-center gap-0.5">
+          <button
+            disabled
+            on:click={() =>
+              addUserLog("user clicked on Register button, top panel")}
+            class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
+          >
+            <ScanFace class="h-[22px] w-[22px]" />
+          </button>
+          <p
+            class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
+          >
+            Register
+          </p>
+        </span>
+      </RegisterDialog>
       <span class="group flex-col flex items-center justify-center gap-0.5">
+        <!-- <button
+      disabled={!features.includes("Grid Fullscreen") || cameraCount === 0} -->
         <button
-          disabled
-          on:click={() => (selectedScreen = 3)}
+          on:click={() => {
+            toggleFullscreen();
+            addUserLog(`user clicked on fulscreen, top panel`);
+          }}
           class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
-          ><Monitor class="h-[22px] w-[22px]" /></button
+          ><Expand class="h-[22px] w-[22px]" /></button
         >
         <p
           class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
         >
-          Extend
+          Fullscreen
         </p>
       </span>
-    </a>
-    <span class="group flex-col flex items-center justify-center gap-0.5">
-      <!-- <button
+      <AddCameraDialog sNode="" {nodes}>
+        <span class="group flex-col flex items-center justify-center gap-0.5">
+          <button
+            on:click={() => {
+              addUserLog(`user clicked on Add Camera button, top panel`);
+            }}
+            class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
+            ><Plus class="h-[22px] w-[22px]" />
+          </button>
+          <p
+            class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
+          >
+            Add
+          </p>
+        </span>
+      </AddCameraDialog>
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <!-- <button
+      disabled={!features.includes("Toggle Alerts")} -->
+        <button
+          on:click={() => {
+            alertPanelHide.set(!$alertPanelHide);
+            currpanel = 1;
+            localStorage.setItem(
+              "alertPanelHide",
+              JSON.stringify($alertPanelHide),
+            );
+            addUserLog(`user set alert panel hide to ${$alertPanelHide} `);
+          }}
+          class={$alertPanelHide
+            ? ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+            : `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
+          ><Bell class="h-[22px] w-[22px]" /></button
+        >
+        <p
+          class={`text-xs ${$alertPanelHide ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
+        >
+          Alerts
+        </p>
+      </span>
+      <a
+        href={fullURL}
+        target="_blank"
+        rel="noreferrer"
+        class="flex items-center justify-center gap-2 cursor-pointer relative lg:scale-95 2xl:scale-100 hover:text-primary"
+        on:click={() => addUserLog("user clicked on exted display, top panel")}
+      >
+        <span class="group flex-col flex items-center justify-center gap-0.5">
+          <button
+            disabled
+            on:click={() => (selectedScreen = 3)}
+            class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
+            ><Monitor class="h-[22px] w-[22px]" /></button
+          >
+          <p
+            class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
+          >
+            Extend
+          </p>
+        </span>
+      </a>
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <!-- <button
       disabled={!features.includes("Change Layouts")} -->
-      <button
-        on:click={() => {
-          markRoi.set(!$markRoi);
-          currpanel = 3;
-          filteredNodeCameras.set($selectedNode.camera);
-        }}
-        class={!$markRoi
-          ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
-          : `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
-        ><ScanSearch class="h-[22px] w-[22px]" />
-      </button>
-      <p
-        class={`text-xs ${!$markRoi ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
-      >
-        Mark ROI
-      </p>
-    </span>
-    <span class="group flex-col flex items-center justify-center gap-0.5">
-      <button
-        disabled
-        on:click={() => {
-          recordDropdownOpen = !recordDropdownOpen;
-          snipDropDownOpen = false;
-          addUserLog("user clicked on start recording, top panel ");
-        }}
-        class={!recordDropdownOpen
-          ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
-          : ` disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
-        ><Disc2 class="h-[22px] w-[22px]" />
-        {#if recordDropdownOpen}
-          <div
-            id="dropdown"
-            class="z-50 dark:text-white text-black flex items-center border justify-center bg-background divide-y divide-gray-100 shadow-dropdown rounded-lg shadow w-40 absolute right-12"
-          >
-            <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
-              <li class="w-full">
-                <button
-                  on:click={() => {
-                    slideRecording = true;
-                  }}
-                  class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
-                >
-                  Current View
-                </button>
-              </li>
-              <li class="w-full">
-                <button
-                  class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
-                >
-                  Selected Screen
-                </button>
-              </li>
-              <li class="w-full">
-                <button
-                  on:click={() => {
-                    slideRecording = true;
-                  }}
-                  class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
-                >
-                  All Screens
-                </button>
-              </li>
-            </ul>
-          </div>
-        {/if}
-      </button>
-      <p
-        class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
-      >
-        Record
-      </p>
-    </span>
-    <span class="group flex-col flex items-center justify-center gap-0.5">
-      <button
-        disabled
-        on:click={() => {
-          snipDropDownOpen = !snipDropDownOpen;
-          recordDropdownOpen = false;
-          addUserLog("user clicked on screen snip, top panel ");
-        }}
-        class={!snipDropDownOpen
-          ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
-          : `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
-        ><ImageDown class="h-[22px] w-[22px]" />
-        {#if snipDropDownOpen}
-          <div
-            id="dropdown"
-            class="z-50 dark:text-white text-black flex items-center border justify-center bg-background divide-y divide-gray-100 shadow-dropdown rounded-lg shadow w-40 absolute right-12"
-          >
-            <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
-              <li class="w-full">
-                <button
-                  disabled
-                  class=" px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
-                  on:click={() => {
-                    captureSlideScreenshot(screens);
-                    addUserLog(
-                      "user selected option currentView for screen snip",
-                    );
-                  }}
-                >
-                  Current View
-                </button>
-              </li>
-              <li class="w-full">
-                <button
-                  disabled
-                  class=" px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
-                  on:click={() => {
-                    if ($activeCamera === "") {
-                      toast.warning("Please select a stream to screen snip.");
-                    } else {
-                      handleSingleSS();
-                      addUserLog(
-                        "user selected option Selected Screen for screen snip",
-                      );
-                    }
-                  }}
-                >
-                  Selected Screen
-                </button>
-              </li>
-              <li class="w-full">
-                <button
-                  disabled
-                  on:click={() => {
-                    captureAllScreenshot();
-                    addUserLog(
-                      "user selected option all Screen for screen snip",
-                    );
-                  }}
-                  class=" px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
-                >
-                  All Screens
-                </button>
-              </li>
-            </ul>
-          </div>
-        {/if}
-      </button>
-      <p
-        class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
-      >
-        Snip
-      </p>
-    </span>
-    <span class="group flex-col flex items-center justify-center gap-0.5">
-      <!-- <button
-      disabled={!features.includes("Change Layouts")} -->
-      <button
-        on:click={() => {
-          displayLayouts = !displayLayouts;
-          nodeCameras = false;
-          addUserLog("user clicked display and layouts, left pane");
-        }}
-        class={!displayLayouts
-          ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
-          : `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
-        ><LayoutPanelLeft class="h-[22px] w-[22px]" />
-        {#if displayLayouts}
-          <span
-            class="z-40 w-[200px] border flex items-center justify-center bg-background dark:text-white text-black divide-y divide-gray-100 shadow-dropdown rounded-lg shadow absolute right-12"
-          >
-            <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
-              <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-              <!-- svelte-ignore a11y-click-events-have-key-events -->
-              <li
-                class="w-full"
-                on:click={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}
-              >
-                <LayoutDialog {toggleDisplayLayouts}>
+        <button
+          on:click={() => {
+            markRoi.set(!$markRoi);
+            currpanel = 3;
+            filteredNodeCameras.set($selectedNode.camera);
+          }}
+          class={!$markRoi
+            ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+            : `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
+          ><ScanSearch class="h-[22px] w-[22px]" />
+        </button>
+        <p
+          class={`text-xs ${!$markRoi ? "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]" : "dark:text-[#258d9d]  text-[#015a62]"}`}
+        >
+          Mark ROI
+        </p>
+      </span>
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <button
+          disabled
+          on:click={() => {
+            recordDropdownOpen = !recordDropdownOpen;
+            snipDropDownOpen = false;
+            addUserLog("user clicked on start recording, top panel ");
+          }}
+          class={!recordDropdownOpen
+            ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+            : ` disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
+          ><Disc2 class="h-[22px] w-[22px]" />
+          {#if recordDropdownOpen}
+            <div
+              id="dropdown"
+              class="z-50 dark:text-white text-black flex items-center border justify-center bg-background divide-y divide-gray-100 shadow-dropdown rounded-lg shadow w-40 absolute right-12"
+            >
+              <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
+                <li class="w-full">
                   <button
-                    class="block rounded-md px-4 py-2 text-center hover:bg-[rgba(92,75,221,.1)] dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
+                    on:click={() => {
+                      slideRecording = true;
+                    }}
+                    class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
                   >
-                    Manage Screen layouts
+                    Current View
                   </button>
-                </LayoutDialog>
-              </li>
-              <li class="w-full">
-                <button
-                  class="rounded-md cursor-not-allowed text-center block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
+                </li>
+                <li class="w-full">
+                  <button
+                    class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
+                  >
+                    Selected Screen
+                  </button>
+                </li>
+                <li class="w-full">
+                  <button
+                    on:click={() => {
+                      slideRecording = true;
+                    }}
+                    class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
+                  >
+                    All Screens
+                  </button>
+                </li>
+              </ul>
+            </div>
+          {/if}
+        </button>
+        <p
+          class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
+        >
+          Record
+        </p>
+      </span>
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <button
+          disabled
+          on:click={() => {
+            snipDropDownOpen = !snipDropDownOpen;
+            recordDropdownOpen = false;
+            addUserLog("user clicked on screen snip, top panel ");
+          }}
+          class={!snipDropDownOpen
+            ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+            : `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
+          ><ImageDown class="h-[22px] w-[22px]" />
+          {#if snipDropDownOpen}
+            <div
+              id="dropdown"
+              class="z-50 dark:text-white text-black flex items-center border justify-center bg-background divide-y divide-gray-100 shadow-dropdown rounded-lg shadow w-40 absolute right-12"
+            >
+              <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
+                <li class="w-full">
+                  <button
+                    disabled
+                    class=" px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
+                    on:click={() => {
+                      captureSlideScreenshot(screens);
+                      addUserLog(
+                        "user selected option currentView for screen snip",
+                      );
+                    }}
+                  >
+                    Current View
+                  </button>
+                </li>
+                <li class="w-full">
+                  <button
+                    disabled
+                    class=" px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
+                    on:click={() => {
+                      if ($activeCamera === "") {
+                        toast.warning("Please select a stream to screen snip.");
+                      } else {
+                        handleSingleSS();
+                        addUserLog(
+                          "user selected option Selected Screen for screen snip",
+                        );
+                      }
+                    }}
+                  >
+                    Selected Screen
+                  </button>
+                </li>
+                <li class="w-full">
+                  <button
+                    disabled
+                    on:click={() => {
+                      captureAllScreenshot();
+                      addUserLog(
+                        "user selected option all Screen for screen snip",
+                      );
+                    }}
+                    class=" px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
+                  >
+                    All Screens
+                  </button>
+                </li>
+              </ul>
+            </div>
+          {/if}
+        </button>
+        <p
+          class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
+        >
+          Snip
+        </p>
+      </span>
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <!-- <button
+      disabled={!features.includes("Change Layouts")} -->
+        <button
+          on:click={() => {
+            displayLayouts = !displayLayouts;
+            nodeCameras = false;
+            addUserLog("user clicked display and layouts, left pane");
+          }}
+          class={!displayLayouts
+            ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
+            : `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
+          ><LayoutPanelLeft class="h-[22px] w-[22px]" />
+          {#if displayLayouts}
+            <span
+              class="z-40 w-[200px] border flex items-center justify-center bg-background dark:text-white text-black divide-y divide-gray-100 shadow-dropdown rounded-lg shadow absolute right-12"
+            >
+              <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
+                <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <li
+                  class="w-full"
+                  on:click={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
                 >
-                  Manage Displays
-                </button>
-              </li>
-            </ul>
-          </span>
-        {/if}
-      </button>
-      <p
-        class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
-      >
-        Layouts
-      </p>
-    </span>
-    <!-- <span class="group flex-col flex items-center justify-center gap-0.5">
+                  <LayoutDialog {toggleDisplayLayouts}>
+                    <button
+                      class="block rounded-md px-4 py-2 text-center hover:bg-[rgba(92,75,221,.1)] dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
+                    >
+                      Manage Screen layouts
+                    </button>
+                  </LayoutDialog>
+                </li>
+                <li class="w-full">
+                  <button
+                    class="rounded-md cursor-not-allowed text-center block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
+                  >
+                    Manage Displays
+                  </button>
+                </li>
+              </ul>
+            </span>
+          {/if}
+        </button>
+        <p
+          class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
+        >
+          Layouts
+        </p>
+      </span>
+      <!-- <span class="group flex-col flex items-center justify-center gap-0.5">
       <button disabled
         on:click={() => {
           nodeCameras = !nodeCameras;
@@ -699,96 +757,95 @@
         Manage
       </p>
     </span> -->
-  </div>
-
-  <div
-    class={"w-full h-[calc(100vh-76px)] hidden sm:flex items-start justify-end relative z-10"}
-    bind:this={captureRef}
-  >
-    <div
-      class={isAllFullScreen
-        ? "w-full h-screen flex items-center justify-center"
-        : "w-full h-full flex items-center justify-center"}
-    >
-      <StreamLayout {handleSingleSS} {isAllFullScreen} {data} {currpanel} />
-      <!-- <Player {videos} /> -->
     </div>
 
-    {#if isAllFullScreen}
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <button
-        disabled
-        class="absolute disabled:cursor-not-allowed top-2 left-2 flex items-center gap-2 cursor-pointer bg-[rgba(0,0,0,.5)] text-white z-20"
-        on:click={() => {
-          if (document.fullscreenElement) {
-            document.exitFullscreen();
-            isAllFullScreen = false;
-            addUserLog(`user clicked on minimize fullscreen `);
-          }
-        }}
-      >
-        <Minimize />
-        Exit Fullscreen
-      </button>
-    {/if}
-
-    {#if !$alertPanelHide || $markRoi}
-      <span
-        class={`-rotate-90 absolute top-44 z-[999] transition-position ease-in-out duration-500 flex ${isAllFullScreen && showRightPanel ? "right-[12.7rem]" : showRightPanel && !isAllFullScreen ? "2xl:right-[12.7rem] right-[8.7rem]" : !showRightPanel ? "-right-20 opacity-0" : "-right-20"}`}
-      >
-        <button
-          on:click={() => (currpanel = 1)}
-          class={`cursor-pointer w-[100px] h-[32px] rounded-t-xl ${isAllFullScreen ? "text-white bg-slate-800" : "text-black dark:text-white bg-white dark:bg-slate-800"} z-[800] flex items-center justify-center gap-2 shad text-sm ${currpanel === 1 && "font-extrabold"}`}
-          >Alerts
-          <!-- <button
-            on:click={() => {
-              currpanel = 2;
-              alertPanelHide.set(true);
-            }}><X class="h-4 w-4" /></button
-          > -->
-        </button>
-        <button
-          on:click={() => (currpanel = 2)}
-          class={` cursor-pointer w-[100px] h-[32px] rounded-t-xl ${isAllFullScreen ? "text-white bg-slate-800" : "text-black dark:text-white bg-white dark:bg-slate-800"} shad z-[800] flex items-center justify-center gap-2 text-sm ${currpanel === 2 && "font-extrabold"}`}
-          >Cameras
-        </button>
-        <button
-          on:click={() => {
-            currpanel = 3;
-            filteredNodeCameras.set($selectedNode.camera);
-          }}
-          class={` cursor-pointer w-[100px] h-[32px] rounded-t-xl ${isAllFullScreen ? "text-white bg-slate-800" : "text-black dark:text-white bg-white dark:bg-slate-800"} shad z-[800] flex items-center justify-center gap-2 text-sm ${currpanel === 3 && "font-extrabold"}`}
-          >Mark ROI
-        </button>
-      </span>
-    {/if}
-
-    <button
-      on:click={() => (showRightPanel = !showRightPanel)}
-      class={`absolute ${showRightPanel ? ` ${isAllFullScreen ? "right-[18rem]" : "right-[20%] xl:right-[17rem] 2xl:right-[18rem]"} ` : "right-0"} py-1 rounded-l-md bg-[#f9f9f9] dark:bg-slate-800 top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
-    >
-      <ChevronRight
-        class={`${showRightPanel ? "rotate-0" : "rotate-180"} transition-transform ease-in-out duration-700`}
-      />
-    </button>
-
     <div
-      id="infopanel"
-      class={`h-full border-solid 
+      class={"w-full h-[calc(100vh-76px)] hidden sm:flex items-start justify-end relative z-10"}
+      bind:this={captureRef}
+    >
+      <div
+        class={isAllFullScreen
+          ? "w-full h-screen flex items-center justify-center"
+          : "w-full h-full flex items-center justify-center"}
+      >
+        <StreamLayout {handleSingleSS} {isAllFullScreen} {data} {currpanel} />
+        <!-- <Player {videos} /> -->
+      </div>
+
+      {#if isAllFullScreen}
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <button
+          disabled
+          class="absolute disabled:cursor-not-allowed top-2 left-2 flex items-center gap-2 cursor-pointer bg-[rgba(0,0,0,.5)] text-white z-20"
+          on:click={() => {
+            if (document.fullscreenElement) {
+              document.exitFullscreen();
+              isAllFullScreen = false;
+              addUserLog(`user clicked on minimize fullscreen `);
+            }
+          }}
+        >
+          <Minimize />
+          Exit Fullscreen
+        </button>
+      {/if}
+
+      {#if !$alertPanelHide || $markRoi}
+        <!-- class={`-rotate-90 absolute top-44 z-[999] transition-position ease-in-out duration-500 flex ${isAllFullScreen && showRightPanel ? "right-[12.7rem]" : showRightPanel && !isAllFullScreen ? "2xl:right-[12.7rem] xl:right-[8.7em]  right-[8%]" : !showRightPanel ? "-right-20 opacity-0" : "-right-20"}`} -->
+        <span
+          class={`-rotate-90 absolute top-44 z-[999] transition-position ease-in-out duration-500 flex ${isAllFullScreen && showRightPanel && !$markRoi && !$alertPanelHide ? "right-[12.7rem]" : isAllFullScreen && showRightPanel && $markRoi && $alertPanelHide ? "right-[12.7rem]" : isAllFullScreen && showRightPanel && $markRoi && !$alertPanelHide ? "right-[9.8rem]" : !isAllFullScreen && showRightPanel && $markRoi && !$alertPanelHide ? "right-[8.7rem]" : !isAllFullScreen && showRightPanel && $markRoi && $alertPanelHide ? "right-[11.8rem]" : !isAllFullScreen && showRightPanel && !$markRoi && !$alertPanelHide ? "right-[11.8rem]" : "right-0"}`}
+        >
+          {#if !$alertPanelHide}
+            <button
+              on:click={() => (currpanel = 1)}
+              class={`cursor-pointer w-[100px] h-[32px] rounded-t-xl ${isAllFullScreen ? "text-white bg-slate-800" : "text-black dark:text-white bg-white dark:bg-slate-800"} z-[800] flex items-center justify-center gap-2 shad text-sm ${currpanel === 1 && "font-extrabold"}`}
+              >Alerts
+            </button>
+          {/if}
+          <button
+            on:click={() => (currpanel = 2)}
+            class={` cursor-pointer w-[100px] h-[32px] rounded-t-xl ${isAllFullScreen ? "text-white bg-slate-800" : "text-black dark:text-white bg-white dark:bg-slate-800"} shad z-[800] flex items-center justify-center gap-2 text-sm ${currpanel === 2 && "font-extrabold"}`}
+            >Cameras
+          </button>
+          {#if $markRoi}
+            <button
+              on:click={() => {
+                currpanel = 3;
+                filteredNodeCameras.set($selectedNode.camera);
+              }}
+              class={` cursor-pointer w-[100px] h-[32px] rounded-t-xl ${isAllFullScreen ? "text-white bg-slate-800" : "text-black dark:text-white bg-white dark:bg-slate-800"} shad z-[800] flex items-center justify-center gap-2 text-sm ${currpanel === 3 && "font-extrabold"}`}
+              >Mark ROI
+            </button>
+          {/if}
+        </span>
+      {/if}
+
+      <button
+        on:click={() => (showRightPanel = !showRightPanel)}
+        class={`absolute ${showRightPanel ? ` ${isAllFullScreen ? "right-[18rem]" : "right-[20%]  2xl:right-[18rem] "} ` : "right-0"} py-1 rounded-l-md bg-[#f9f9f9] dark:bg-slate-800 top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
+      >
+        <ChevronRight
+          class={`${showRightPanel ? "rotate-0" : "rotate-180"} transition-transform ease-in-out duration-700`}
+        />
+      </button>
+
+      <div
+        id="infopanel"
+        class={`h-full border-solid 
          border-x-[1px] 
          transition-width ease-in-out duration-500 overflow-y-scroll z-[998] hide-scrollbar
         ${showRightPanel ? "w-1/4" : "w-0"} relative max-w-72`}
-    >
-      <!-- <button
+      >
+        <!-- <button
         on:click={() => (showRightPanel = false)}
         class="absolute top-1/2 -translate-y-1/2 bg-[#f9f9f9] grid place-items-center py-1 z-[99999] shadow-md"
       >
         <ChevronRight />
       </button> -->
-      {#if !$alertPanelHide && currpanel === 1}
-        <div
-          class={`backdrop-filter  
+        {#if !$alertPanelHide && currpanel === 1}
+          <div
+            class={`backdrop-filter  
           z-10 trasition ease-in-out w-full max-w-md 
          duration-200 ${
            animateHeader
@@ -796,156 +853,191 @@
              : "rounded-none border-b"
          }
          ${isAllFullScreen && "border-none"}`}
-        >
-          <div
-            class={`flex items-center w-full
+          >
+            <div
+              class={`flex items-center w-full
    justify-between  px-4  ${
      animateHeader ? "my-3  text-sm " : "my-3 font-medium"
    } trasition ease-in-out duration-200`}
-          >
-            <div
-              class={`flex justify-center items-center gap-2 ${isAllFullScreen && "text-white text-xl"}`}
             >
-              <Bell size={18} />
-              <h3>Alerts</h3>
-            </div>
-            <div
-              class=" dark:text-white flex gap-2 items-center cursor-pointer text-sm relative"
-            >
-              <Settings size={18} />
-              <Filter size={18} />
+              <div
+                class={`flex justify-center items-center gap-2 ${isAllFullScreen && "text-white text-xl"}`}
+              >
+                <Bell size={18} />
+                <h3>Alerts</h3>
+              </div>
+              <div
+                class=" dark:text-white flex gap-2 items-center cursor-pointer text-sm relative"
+              >
+                <Settings size={18} />
+                <Filter size={18} />
+              </div>
             </div>
           </div>
-        </div>
-        <div
-          class={`flex flex-row items-center justify-center gap-4 ${isAllFullScreen ? "bg-[#333]" : "bg-[#f9f9f9] dark:bg-[#333]"} p-2`}
-        >
-          <button
-            on:click={() => (comfort = true)}
-            class={!comfort
-              ? `bg-transparent font-medium ${isAllFullScreen ? "text-slate-50" : "text-[#afafaf]"} text-sm`
-              : `font-medium text-sm px-4 py-2 rounded-md ${isAllFullScreen ? "bg-black text-slate-200" : "bg-white text-[#727272] dark:bg-black dark:text-slate-200"}`}
-            >Comfortable</button
+          <div
+            class={`flex flex-row items-center justify-center gap-4 ${isAllFullScreen ? "bg-[#333]" : "bg-[#f9f9f9] dark:bg-[#333]"} p-2`}
           >
-          <button
-            on:click={() => (comfort = false)}
-            class={comfort
-              ? `bg-transparent font-medium ${isAllFullScreen ? "text-slate-50" : "text-[#afafaf]"} text-sm`
-              : `font-medium text-sm px-4 py-2 rounded-md ${isAllFullScreen ? "bg-black text-slate-200" : "bg-white text-[#727272] dark:bg-black dark:text-slate-200"}`}
-            >Informative</button
-          >
-        </div>
-        {#if comfort}
-          <div class="m-4 flex flex-col gap-2">
-            {#each galleryItems as galleryItem}
-              <ComfortableProfileCard {galleryItem} {isAllFullScreen} />
-            {/each}
+            <button
+              on:click={() => (comfort = true)}
+              class={!comfort
+                ? `bg-transparent font-medium ${isAllFullScreen ? "text-slate-50" : "text-[#afafaf]"} text-sm`
+                : `font-medium text-sm px-4 py-2 rounded-md ${isAllFullScreen ? "bg-black text-slate-200" : "bg-white text-[#727272] dark:bg-black dark:text-slate-200"}`}
+              >Comfortable</button
+            >
+            <button
+              on:click={() => (comfort = false)}
+              class={comfort
+                ? `bg-transparent font-medium ${isAllFullScreen ? "text-slate-50" : "text-[#afafaf]"} text-sm`
+                : `font-medium text-sm px-4 py-2 rounded-md ${isAllFullScreen ? "bg-black text-slate-200" : "bg-white text-[#727272] dark:bg-black dark:text-slate-200"}`}
+              >Informative</button
+            >
           </div>
-          <Accordion.Root class="m-4">
-            <Accordion.Item value="item-1">
-              <Accordion.Trigger>Unknowns</Accordion.Trigger>
-              <Accordion.Content>
-                {#each unknownItems as galleryItem}
-                  <ComfortableProfileCard {galleryItem} {isAllFullScreen} />
-                {/each}
-              </Accordion.Content>
-            </Accordion.Item>
-          </Accordion.Root>
-        {:else}
-          <ul class="overflow-y-scroll h-[calc(100vh-75px]">
-            {#if $events.length > 0}
-              <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-              {#each $events as event}
-                {@const date = event.created}
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <li
-                  class="w-full fade-in-15 transition-all duration-200"
-                  on:click={() => {
-                    openEventDialog(event);
-                    addUserLog(`user clicked on alert panel event`);
-                  }}
-                >
-                  <article
-                    class={`relative items-center gap-2 mx-2 my-4 p-2
+          {#if comfort}
+            <Accordion.Root multiple value={["open"]} class="m-4">
+              <Accordion.Item value="open">
+                <Accordion.Trigger>Knowns</Accordion.Trigger>
+                <Accordion.Content>
+                  <!-- {#if galleryItems.length > 0} -->
+                  {#each galleryItems as galleryItem}
+                    <ComfortableProfileCard {galleryItem} {isAllFullScreen} />
+                  {/each}
+                  <!-- {:else}
+            <Spinner/>
+            {/if} -->
+                </Accordion.Content>
+              </Accordion.Item>
+            </Accordion.Root>
+            <Accordion.Root class="m-4">
+              <Accordion.Item value="item-2">
+                <Accordion.Trigger>Unknowns</Accordion.Trigger>
+                <Accordion.Content>
+                  {#each unknownItems as galleryItem}
+                    <ComfortableProfileCard {galleryItem} {isAllFullScreen} />
+                  {/each}
+                </Accordion.Content>
+              </Accordion.Item>
+            </Accordion.Root>
+          {:else}
+            <div class="flex items-center gap-2 p-2 justify-center">
+              <p
+                class={`text-sm ${!eventType ? "text-primary font-bold" : " font-medium"}`}
+              >
+                Detected
+              </p>
+              <Switch
+                id="eventType"
+                bind:checked={eventType}
+                on:change={() => (eventType = !eventType)}
+              />
+              <p
+                class={`text-sm ${eventType ? "text-primary font-bold" : " font-medium"}`}
+              >
+                Matched
+              </p>
+            </div>
+
+            <ul class="overflow-y-scroll h-[calc(100vh-150px)] no-scrollbar">
+              {#if !eventType}
+                <!-- <p class='text-base capitalize font-bold mx-auto text-primary text-center px-2'>Detected events</p> -->
+                {#if $events.length > 0}
+                  <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                  {#each $events as event}
+                    {@const date = event.created}
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <li
+                      class="w-full fade-in-15 transition-all duration-200"
+                      on:click={() => {
+                        openEventDialog(event);
+                        addUserLog(`user clicked on alert panel event`);
+                      }}
+                    >
+                      <article
+                        class={`relative items-center gap-2 mx-2 my-4 p-2
                  flex bg-[#f9f9f9] dark:bg-black
              rounded-xl shadow-md text-base border 
              ${isAllFullScreen ? "bg-black text-white " : "hover:scale-[1.01] dark:shadow-slate-800 hover:shadow-lg "}
              `}
-                  >
-                    <img
-                      class="object-cover w-[75px] h-[75px] rounded-md flex-shrink-0"
-                      src={"data:image/jpeg;base64," + event.frameImage}
-                      alt="Team Member"
-                    />
-                    {#if event.title.includes("car") && event.description !== ""}
-                      <CarDetailsDialog
-                        plateImage={event.videoUrl}
-                        plateNumber={event.description}
-                        carColor={event.title.replace(" car", "")}
-                        fullImage={event.frameImage}
-                        ><img
-                          class="object-cover w-64 h-16 rounded-md col-span-1"
-                          src={"data:image/jpeg;base64," + event.videoUrl}
+                      >
+                        <img
+                          class="object-cover w-[75px] h-[75px] rounded-md flex-shrink-0"
+                          src={"data:image/jpeg;base64," + event.frameImage}
                           alt="Team Member"
                         />
-                      </CarDetailsDialog>
-                    {/if}
-                    <div class="w-full">
-                      <h3 class={"font-semibold text-sm"}>
                         {#if event.title.includes("car") && event.description !== ""}
-                          {event.description} {event.title}
-                        {:else}
-                          {event.title}
+                          <CarDetailsDialog
+                            plateImage={event.videoUrl}
+                            plateNumber={event.description}
+                            carColor={event.title.replace(" car", "")}
+                            fullImage={event.frameImage}
+                            ><img
+                              class="object-cover w-64 h-16 rounded-md col-span-1"
+                              src={"data:image/jpeg;base64," + event.videoUrl}
+                              alt="Team Member"
+                            />
+                          </CarDetailsDialog>
                         {/if}
-                      </h3>
-                      <p class={"text-xs text-black/.7"}>
-                        Camera {$selectedNode.camera.filter(
-                          (c) => c.id === event.camera,
-                        )[0] &&
-                          $selectedNode.camera.filter(
-                            (c) => c.id === event.camera,
-                          )[0].name}
-                      </p>
-                      <span
-                        class="flex items-center justify-between border-b border-solid border-[#1c1c1c]/.1 gap-2 w-full"
-                      >
-                        <p class="text-[10px] text-[#D28E3D] font-medium">
-                          {event.matchScore !== 0 &&
-                          event.matchScore !== undefined &&
-                          event.matchScore !== null
-                            ? `Match Score : ${event?.matchScore.toFixed(3)}`
-                            : "No matches found"}
-                        </p>
-                        <p class="text-[10px] font-semibold">
-                          {event?.score.toFixed(3)}
-                        </p>
-                      </span>
-                      <span class="flex items-center justify-between gap-2">
-                        <p class={"text-[10px]"}>
-                          {date.toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </p>
-                        <p class={"text-[10px]"}>
-                          {date.toLocaleTimeString("en-US", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
-                          })}
-                        </p>
-                      </span>
-                    </div>
-                  </article>
-                </li>
-              {/each}
-            {/if}
-          </ul>
-        {/if}
-      {:else if $alertPanelHide && $markRoi && currpanel === 3}
-        <div
-          class={`backdrop-filter  
+                        <div class="w-full">
+                          <h3 class={"font-semibold text-sm"}>
+                            {#if event.title.includes("car") && event.description !== ""}
+                              {event.description} {event.title}
+                            {:else}
+                              {event.title}
+                            {/if}
+                          </h3>
+                          <p class={"text-xs text-black/.7"}>
+                            Camera {$selectedNode.camera.filter(
+                              (c) => c.id === event.camera,
+                            )[0] &&
+                              $selectedNode.camera.filter(
+                                (c) => c.id === event.camera,
+                              )[0].name}
+                          </p>
+                          <span
+                            class="flex items-center justify-between border-b border-solid border-[#1c1c1c]/.1 gap-2 w-full"
+                          >
+                            <p class="text-[10px] text-[#D28E3D] font-medium">
+                              {event.matchScore !== 0 &&
+                              event.matchScore !== undefined &&
+                              event.matchScore !== null
+                                ? `Match Score : ${event?.matchScore.toFixed(3)}`
+                                : "No matches found"}
+                            </p>
+                            <p class="text-[10px] font-semibold">
+                              {event?.score.toFixed(3)}
+                            </p>
+                          </span>
+                          <span class="flex items-center justify-between gap-2">
+                            <p class={"text-[10px]"}>
+                              {date.toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </p>
+                            <p class={"text-[10px]"}>
+                              {date.toLocaleTimeString("en-US", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                second: "2-digit",
+                              })}
+                            </p>
+                          </span>
+                        </div>
+                      </article>
+                    </li>
+                  {/each}
+                {/if}
+              {:else}
+                <!-- <p class='text-base capitalize text-primary font-bold text-center px-2'>Matched events</p> -->
+                {#if $otherEvents.length > 0}
+                  <p class="text-sm text-primary">No events found</p>
+                {/if}
+              {/if}
+            </ul>
+          {/if}
+        {:else if $markRoi && currpanel === 3}
+          <div
+            class={`backdrop-filter  
           z-10 trasition ease-in-out w-full max-w-md 
          duration-200 ${
            animateHeader
@@ -953,190 +1045,234 @@
              : "rounded-none border-b"
          }
          ${isAllFullScreen && "border-none"}`}
-        >
-          <div
-            class={`flex items-center w-full
+          >
+            <div
+              class={`flex items-center w-full
    justify-between  px-4  ${
      animateHeader ? "my-3  text-sm " : "my-3 font-medium"
    } trasition ease-in-out duration-200`}
-          >
-            <div
-              class={`flex justify-center items-center gap-2 ${isAllFullScreen && "text-white text-xl"}`}
             >
-              <ChevronLeft size={18} />
-              <h3>Mark ROI</h3>
+              <div
+                class={`flex justify-center items-center gap-2 ${isAllFullScreen && "text-white text-xl"}`}
+              >
+                <h3>Mark ROI</h3>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="px-4 py-4 flex flex-col gap-1">
-          <label for="camera" class="text-black/[.7] text-sm"
-            >Select Camera</label
+          <div
+            class="flex items-center justify-center rounded-lg border-black/[.13] dark:border-white/[.13] border-solid border-[1px] p-1 w-[90%] h-[60px] mx-auto my-4"
           >
-          <div class="relative w-full">
-            <select
-              class={`block text-primary capitalize font-semibold rounded-md appearance-none w-full bg-[#F6F6F6] border-2 py-2 text-sm px-2 leading-tight `}
-              on:change={(event) => {
-                const selectedCam = $selectedNode?.camera.find(
-                  (cam) => cam.id === event.target.value,
-                );
-                // console.log(selectedCam);
-                // activeCamera.set(selectedCam)
-                roiCamera = selectedCam;
-                filteredNodeCameras.set([selectedCam]);
-                // console.log($filteredNodeCameras);
-              }}
+            <button
+              on:click={() => view.set(1)}
+              class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${$view === 1 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
+              >Line Crossing</button
             >
-              <option value="" disabled selected>Select from list</option>
-              {#each $selectedNode?.camera as cam}
-                <option value={cam.id}>{cam.name}</option>
-              {/each}
-            </select>
-            <ChevronDown
-              size={22}
-              class="text-[#727272] absolute top-1/2 -translate-y-1/2 right-2 pointer-events-none cursor-pointer outline-none"
-            />
+            <button
+              on:click={() => view.set(2)}
+              class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${$view === 2 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
+              >Intrusion Detection</button
+            >
           </div>
-        </div>
-        <div class="px-4 py-4 flex flex-col gap-1">
-          <label for="camera" class="text-black/[.7] text-sm"
-            >Select type of ROI</label
-          >
-          <div class="relative w-full">
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger
-                class={`block text-primary capitalize font-semibold rounded-md appearance-none w-full bg-[#F6F6F6] border-2 py-2 text-sm px-2 leading-tight text-start`}
+          {#if $view === 2}
+            <div class="px-4 py-4 flex flex-col gap-1">
+              <label for="camera" class="text-black/[.7] text-sm"
+                >Select Camera</label
               >
-                {#if $selectedDetections.length > 0}
-                  {#each $selectedDetections as device}
-                    <span>{device}</span
-                    >{#if device !== $selectedDetections[$selectedDetections.length - 1]},
-                    {/if}
+              <div class="relative w-full">
+                <select
+                  class={`block text-primary capitalize font-semibold rounded-md appearance-none w-full bg-[#F6F6F6] border-2 py-2 text-sm px-2 leading-tight `}
+                  on:change={(event) => {
+                    const selectedCam = $selectedNode?.camera.find(
+                      (cam) => cam.id === event.target.value,
+                    );
+                    // console.log(selectedCam);
+                    // activeCamera.set(selectedCam)
+                    roiCamera = selectedCam;
+                    filteredNodeCameras.set([selectedCam]);
+                    // console.log($filteredNodeCameras);
+                    intrusionDetection = selectedCam.intrusionDetection;
+                    lineCrossing = selectedCam.lineCrossing;
+                    intrusionPerson = selectedCam.intrusionPerson;
+                    intrusionVehicle = selectedCam.intrusionVehicle;
+                    intrusionPersonThresh = selectedCam.intrusionPersonThresh;
+                    intrusionVehicleThresh = selectedCam.intrusionVehicleThresh;
+                    linePerson = selectedCam.linePerson;
+                    lineVehicle = selectedCam.lineVehicle;
+                    linePersonThresh = selectedCam.linePersonThresh;
+                    lineVehicleThresh = selectedCam.lineVehicleThresh;
+                  }}
+                >
+                  <option value="" disabled selected>Select from list</option>
+                  {#each $selectedNode?.camera as cam}
+                    <option value={cam.id}>{cam.name}</option>
                   {/each}
-                {:else}
-                  Select Devices
-                {/if}
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content>
-                <DropdownMenu.Group>
-                  <DropdownMenu.Label>
-                    <div class="flex flex-row gap-2 items-center w-[220px]">
-                      <input
-                        type="checkbox"
-                        class="h-4 w-4"
-                        checked={$selectedDetections.includes("Mask Detection")}
-                        on:change={(e) =>
-                          handleCheckboxChange("Mask Detection", e)}
-                      />
-                      <span class="text-[15px]">Mask Detection</span>
-                    </div>
-                  </DropdownMenu.Label>
-                  <DropdownMenu.Label>
-                    <div class="flex flex-row gap-2 items-center w-[220px]">
-                      <input
-                        type="checkbox"
-                        class="h-4 w-4"
-                        checked={$selectedDetections.includes(
-                          "Weapon Detection",
-                        )}
-                        on:change={(e) =>
-                          handleCheckboxChange("Weapon Detection", e)}
-                      />
-                      <span class="text-[15px]">Weapon Detection</span>
-                    </div>
-                  </DropdownMenu.Label>
-                  <DropdownMenu.Label>
-                    <div class="flex flex-row gap-2 items-center w-[220px]">
-                      <input
-                        type="checkbox"
-                        class="h-4 w-4"
-                        checked={$selectedDetections.includes(
-                          "Helmet Detection",
-                        )}
-                        on:change={(e) =>
-                          handleCheckboxChange("Helmet Detection", e)}
-                      />
-                      <span class="text-[15px]">Helmet Detection</span>
-                    </div>
-                  </DropdownMenu.Label>
-                  <DropdownMenu.Label>
-                    <div class="flex flex-row gap-2 items-center w-[220px]">
-                      <input
-                        type="checkbox"
-                        class="h-4 w-4"
-                        checked={$selectedDetections.includes("Guard Missing")}
-                        on:change={(e) =>
-                          handleCheckboxChange("Guard Mission", e)}
-                      />
-                      <span class="text-[15px]">Guard Mission</span>
-                    </div>
-                  </DropdownMenu.Label>
-                  <DropdownMenu.Label>
-                    <div class="flex flex-row gap-2 items-center w-[220px]">
-                      <input
-                        type="checkbox"
-                        class="h-4 w-4"
-                        checked={$selectedDetections.includes(
-                          "Camera Tampering",
-                        )}
-                        on:change={(e) =>
-                          handleCheckboxChange("Camera Tampering", e)}
-                      />
-                      <span class="text-[15px]">Camera Tampering</span>
-                    </div>
-                  </DropdownMenu.Label>
-                </DropdownMenu.Group>
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
-            <ChevronDown
-              size={22}
-              class="text-[#727272] absolute top-1/2 -translate-y-1/2 right-2 pointer-events-none cursor-pointer outline-none"
-            />
-          </div>
-        </div>
-        <div class="w-full p-4">
-          <Button
-            on:click={() => {
-              updateAi();
-            }}>Save</Button
-          >
-        </div>
-      {:else}
-        <NodeSelection {isAllFullScreen} {nodes} {url} {data} />
-        <CameraList {isAllFullScreen} {showItems} user={data.user} {data} />
-      {/if}
+                </select>
+                <ChevronDown
+                  size={22}
+                  class="text-[#727272] absolute top-1/2 -translate-y-1/2 right-2 pointer-events-none cursor-pointer outline-none"
+                />
+              </div>
+            </div>
+            {#if roiCamera}
+              <div class="flex items-center gap-2 px-4">
+                <label
+                  for="line-crossing-toggle"
+                  class="text-black/[.7] text-sm">Intrusion Detection</label
+                >
+                <Switch
+                  id="line-crossing-toggle"
+                  bind:checked={intrusionDetection}
+                />
+              </div>
+              {#if intrusionDetection}
+                <div class="flex items-center py-2 gap-2 px-4">
+                  <label
+                    for="person-detection-toggle"
+                    class="text-black/[.7] text-sm">Person Detection</label
+                  >
+                  <Switch
+                    id="person-detection-toggle"
+                    bind:checked={intrusionPerson}
+                  />
+                </div>
+
+                <div class="flex items-center gap-2 py-2 px-4">
+                  <label
+                    for="vehicle-detection-toggle"
+                    class="text-black/[.7] text-sm">Vehicle Detection</label
+                  >
+                  <Switch
+                    id="vehicle-detection-toggle"
+                    bind:checked={intrusionVehicle}
+                  />
+                </div>
+              {/if}
+              <div class="w-full p-4">
+                <Button
+                  on:click={() => {
+                    updateAi();
+                  }}>Save</Button
+                >
+              </div>
+            {/if}
+          {:else}
+            <div class="px-4 py-4 flex flex-col gap-1">
+              <label for="camera" class="text-black/[.7] text-sm"
+                >Select Camera</label
+              >
+              <div class="relative w-full">
+                <select
+                  class={`block text-primary capitalize font-semibold rounded-md appearance-none w-full bg-[#F6F6F6] border-2 py-2 text-sm px-2 leading-tight `}
+                  on:change={(event) => {
+                    const selectedCam = $selectedNode?.camera.find(
+                      (cam) => cam.id === event.target.value,
+                    );
+                    // console.log(selectedCam);
+                    // activeCamera.set(selectedCam)
+                    roiCamera = selectedCam;
+                    filteredNodeCameras.set([selectedCam]);
+                    // console.log($filteredNodeCameras);
+                    intrusionDetection = selectedCam.intrusionDetection;
+                    lineCrossing = selectedCam.lineCrossing;
+                    intrusionPerson = selectedCam.intrusionPerson;
+                    intrusionVehicle = selectedCam.intrusionVehicle;
+                    intrusionPersonThresh = selectedCam.intrusionPersonThresh;
+                    intrusionVehicleThresh = selectedCam.intrusionVehicleThresh;
+                    linePerson = selectedCam.linePerson;
+                    lineVehicle = selectedCam.lineVehicle;
+                    linePersonThresh = selectedCam.linePersonThresh;
+                    lineVehicleThresh = selectedCam.lineVehicleThresh;
+                  }}
+                >
+                  <option value="" disabled selected>Select from list</option>
+                  {#each $selectedNode?.camera as cam}
+                    <option value={cam.id}>{cam.name}</option>
+                  {/each}
+                </select>
+                <ChevronDown
+                  size={22}
+                  class="text-[#727272] absolute top-1/2 -translate-y-1/2 right-2 pointer-events-none cursor-pointer outline-none"
+                />
+              </div>
+            </div>
+            {#if roiCamera}
+              <div class="flex items-center gap-2 px-4">
+                <label
+                  for="line-crossing-toggle"
+                  class="text-black/[.7] text-sm">Line Crossing Detection</label
+                >
+                <Switch bind:checked={lineCrossing} />
+              </div>
+              {#if lineCrossing}
+                <div class="flex items-center py-2 gap-2 px-4">
+                  <label
+                    for="person-detection-toggle"
+                    class="text-black/[.7] text-sm">Person Detection</label
+                  >
+                  <Switch
+                    id="person-detection-toggle"
+                    bind:checked={linePerson}
+                  />
+                </div>
+                <div class="flex items-center gap-2 py-2 px-4">
+                  <label
+                    for="vehicle-detection-toggle"
+                    class="text-black/[.7] text-sm">Vehicle Detection</label
+                  >
+                  <Switch
+                    id="vehicle-detection-toggle"
+                    bind:checked={lineVehicle}
+                  />
+                </div>
+              {/if}
+              <div class="w-full p-4">
+                <Button
+                  on:click={() => {
+                    updateAi();
+                  }}>Save</Button
+                >
+              </div>
+            {/if}
+          {/if}
+        {:else}
+          <NodeSelection {isAllFullScreen} {nodes} {url} {data} />
+          <CameraList {isAllFullScreen} {showItems} user={data.user} {data} />
+        {/if}
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+{/if}
 
 <!-- mob -->
-<section
-  class="mob min-h-screen w-full text-black relative sm:hidden bg-[#f5f6f7]"
->
-  {#if !$landscape}
-    <TopBar
-      {data}
-      displayIcons={true}
-      bind:liveFullscreen={$liveFullscreen}
-      bind:editMode={$editMode}
+{#if $isMobile}
+  <section
+    class="mob min-h-screen w-full text-black relative sm:hidden bg-[#f5f6f7]"
+  >
+    {#if !$landscape}
+      <TopBar
+        {data}
+        displayIcons={true}
+        bind:liveFullscreen={$liveFullscreen}
+        bind:editMode={$editMode}
+        bind:landscape={$landscape}
+      />
+    {/if}
+    <StreamView
+      {galleryItems}
       bind:landscape={$landscape}
+      bind:activeStreamIndex={$activeStreamIndex}
+      bind:liveFullscreen={$liveFullscreen}
+      bind:showAlerts={$showAlerts}
+      bind:editMode={$editMode}
+      {data}
     />
-  {/if}
-  <StreamView
-    {galleryItems}
-    bind:landscape={$landscape}
-    bind:activeStreamIndex={$activeStreamIndex}
-    bind:liveFullscreen={$liveFullscreen}
-    bind:showAlerts={$showAlerts}
-    bind:editMode={$editMode}
-    {data}
-  />
-  <MenuMob
-    bind:landscape={$landscape}
-    bind:showAlerts={$showAlerts}
-    bind:activeStreamIndex={$activeStreamIndex}
-  />
-</section>
-
+    <MenuMob
+      bind:landscape={$landscape}
+      bind:showAlerts={$showAlerts}
+      bind:activeStreamIndex={$activeStreamIndex}
+    />
+  </section>
+{/if}
 {#if selectedEvent}
   <EventModal {selectedEvent} on:close={() => (selectedEvent = null)} />
 {/if}

@@ -18,6 +18,10 @@
     ScanFace,
     Activity,
     Siren,
+    Footprints,
+    ToggleLeftIcon,
+    Construction,
+    Radar,
   } from "lucide-svelte";
 
   export let cameraName = "";
@@ -25,16 +29,24 @@
   export let cameraId = "";
   export let save: boolean;
   export let face: boolean;
-  export let vehicle: boolean;
+  export let running: boolean;
   export let faceDetectionThreshold: number = 0.6;
   export let faceSearchThreshold: number = 0.3;
-  export let vehicleDetectionThreshold: number = 0.6;
-  export let vehiclePlateThreshold: number = 0.3;
-  export let vehicleOCRThreshold: number = 0.6;
+  export let runningDetectionThreshold: number = 0.75;
   export let saveDuration: number;
   export let saveFolder: string;
   export let motion: number = 1000;
   export let priority: boolean;
+  export let intrusionDetection: boolean;
+  export let intrusionPerson: boolean;
+  export let intrusionVehicle: boolean;
+  export let intrusionPersonThresh: number  = 0.3;
+  export let intrusionVehicleThresh: number  = 0.3;
+  export let lineCrossing: boolean;
+  export let linePerson: boolean;
+  export let lineVehicle: boolean;
+  export let linePersonThresh: number  = 0.3;
+  export let lineVehicleThresh: number  = 0.3;
   let dialogOpen = false;
 
 
@@ -62,7 +74,13 @@
   ];
 
   const editCamera = () => {
-    console.log("edit camrea motion", motion);
+    // console.log("edit camrea motion", motion);
+    // console.log("intrusionPersonThresh", intrusionPersonThresh);
+    // console.log("intrusionVehicleThresh", intrusionVehicleThresh);
+    // console.log("linePersonThresh", linePersonThresh);
+    // console.log("lineVehicleThresh", lineVehicleThresh);
+    // console.log(lineCrossing)
+    // console.log(intrusionDetection)
     fetch("/api/camera/editCamera", {
       method: "put",
       headers: {
@@ -75,16 +93,26 @@
         url: cameraURL,
         face,
         save,
-        vehicle,
+        running,
         faceDetectionThreshold,
         faceSearchThreshold,
-        vehicleDetectionThreshold,
-        vehiclePlateThreshold,
-        vehicleOCRThreshold,
+       runningThresh: runningDetectionThreshold,
+        // vehiclePlateThreshold,
+        // vehicleOCRThreshold,
         saveDuration,
         saveFolder,
         motionThresh: motion === 0 ? 1000 : motion,
         priority: priority === true ? 1 : 0,
+        intrusionDetection,
+        intrusionPerson,
+        intrusionVehicle,
+        intrusionPersonThresh,
+        intrusionVehicleThresh,
+        lineCrossing,
+        linePerson,
+        lineVehicle,
+        linePersonThresh,
+        lineVehicleThresh,
       }),
     }).then(() => {
       toast("Camera settings updated.");
@@ -234,90 +262,215 @@
 
     <div class="rounded-md border p-4 my-2">
       <div class="flex items-center space-x-4">
-        <Car />
+        <Footprints />
         <div class="flex-1 space-y-1">
-          <p class="text-sm font-medium leading-none">Vehicle Scanning</p>
+          <p class="text-sm font-medium leading-none">Running Detection</p>
           <p class="text-sm text-muted-foreground">
-            Parameters for adjusting vehicle recognition
+            Parameters for adjusting running detection
           </p>
         </div>
-        <Switch bind:checked={vehicle} />
+        <Switch bind:checked={running} />
       </div>
       <div>
-        {#if vehicle}
+        {#if running}
           <div class="flex items-center space-x-4 pt-3">
             <Pipette />
             <div class="flex-1 space-y-1">
               <p class="text-sm font-medium leading-none">
-                Vehicle Detection Threshold
+                Running Detection Threshold
               </p>
               <p class="text-sm text-muted-foreground">
-                Adjust the threshold to accomodate smaller or larger vehicles
+                Adjust the threshold
               </p>
             </div>
             <div class="flex items-center gap-2">
               <Slider
                 min={10}
-                value={[vehicleDetectionThreshold * 100]}
+                value={[runningDetectionThreshold * 100]}
                 max={95}
-                step={10}
+                step={5}
                 class="w-32"
                 onValueChange={(e) => {
-                  vehicleDetectionThreshold = e[0] / 100;
+                  runningDetectionThreshold = e[0] / 100;
                 }}
               />
-              {vehicleDetectionThreshold}
+              {runningDetectionThreshold}
             </div>
           </div>
+        {/if}
+      </div>
+    </div>
+
+     <div class="rounded-md border p-4 my-2">
+      <div class="flex items-center space-x-4">
+        <Construction />
+        <div class="flex-1 space-y-1">
+          <p class="text-sm font-medium leading-none">Line Crossing</p>
+          <p class="text-sm text-muted-foreground">
+            Parameters for adjusting line crossing detection
+          </p>
+        </div>
+        <Switch bind:checked={lineCrossing} />
+      </div>
+      <div>
+        {#if lineCrossing}
           <div class="flex items-center space-x-4 pt-3">
+            <ToggleLeftIcon />
+            <div class="flex-1 space-y-1">
+              <p class="text-sm font-medium leading-none">
+                Person Line Detection
+              </p>
+            </div>
+            <Switch bind:checked={linePerson} />
+          </div>
+             {#if linePerson}
+            <div class="flex items-center space-x-4 pt-3">
             <Pipette />
             <div class="flex-1 space-y-1">
               <p class="text-sm font-medium leading-none">
-                Vehicle Plate Threshold
+                 Threshold
               </p>
               <p class="text-sm text-muted-foreground">
-                Adjust the threshold to accomodate smaller or larger number
-                plates
+                Adjust the threshold
               </p>
             </div>
             <div class="flex items-center gap-2">
               <Slider
                 min={10}
-                value={[vehiclePlateThreshold * 100]}
+                value={[linePersonThresh * 100]}
                 max={95}
-                step={10}
+                step={5}
                 class="w-32"
                 onValueChange={(e) => {
-                  vehiclePlateThreshold = e[0] / 100;
+                  linePersonThresh = e[0] / 100;
                 }}
               />
-              {vehiclePlateThreshold}
+              {linePersonThresh}
             </div>
-          </div>
+            </div>
+          {/if}
           <div class="flex items-center space-x-4 pt-3">
+            <ToggleLeftIcon />
+            <div class="flex-1 space-y-1">
+              <p class="text-sm font-medium leading-none">
+                Vehicle Line Detection
+              </p>
+            </div>
+            <Switch bind:checked={lineVehicle} />
+          </div>
+          {#if lineVehicle}
+           <div class="flex items-center space-x-4 pt-3">
             <Pipette />
             <div class="flex-1 space-y-1">
               <p class="text-sm font-medium leading-none">
-                Plate Lettering Threshold
+                Running Detection Threshold
               </p>
               <p class="text-sm text-muted-foreground">
-                Adjust the threshold to accomodate letterings
+                Adjust the threshold
               </p>
             </div>
             <div class="flex items-center gap-2">
               <Slider
                 min={10}
-                value={[vehicleOCRThreshold * 100]}
+                value={[lineVehicleThresh * 100]}
                 max={95}
-                step={10}
+                step={5}
                 class="w-32"
                 onValueChange={(e) => {
-                  vehicleOCRThreshold = e[0] / 100;
+                  lineVehicleThresh = e[0] / 100;
                 }}
               />
-              {vehicleOCRThreshold}
+              {lineVehicleThresh}
             </div>
           </div>
+          {/if}
+        {/if}
+      </div>
+    </div>
+
+     <div class="rounded-md border p-4 my-2">
+      <div class="flex items-center space-x-4">
+        <Radar />
+       <div class="flex-1 space-y-1">
+          <p class="text-sm font-medium leading-none">Intrusion Detection</p>
+          <p class="text-sm text-muted-foreground">
+            Parameters for adjusting intrusion detection
+          </p>
+        </div>
+        <Switch bind:checked={intrusionDetection} />
+      </div>
+      <div>
+        {#if intrusionDetection}
+          <div class="flex items-center space-x-4 pt-3">
+            <ToggleLeftIcon />
+            <div class="flex-1 space-y-1">
+              <p class="text-sm font-medium leading-none">
+                Person intrusion Detection
+              </p>
+            </div>
+            <Switch bind:checked={intrusionPerson} />
+          </div>
+             {#if intrusionPerson}
+            <div class="flex items-center space-x-4 pt-3">
+            <Pipette />
+            <div class="flex-1 space-y-1">
+              <p class="text-sm font-medium leading-none">
+                 Threshold
+              </p>
+              <p class="text-sm text-muted-foreground">
+                Adjust the threshold
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <Slider
+                min={10}
+                value={[intrusionPersonThresh * 100]}
+                max={95}
+                step={5}
+                class="w-32"
+                onValueChange={(e) => {
+                  intrusionPersonThresh = e[0] / 100;
+                }}
+              />
+              {intrusionPersonThresh}
+            </div>
+            </div>
+          {/if}
+          <div class="flex items-center space-x-4 pt-3">
+            <ToggleLeftIcon />
+            <div class="flex-1 space-y-1">
+              <p class="text-sm font-medium leading-none">
+                Vehicle intrusion Detection
+              </p>
+            </div>
+            <Switch bind:checked={intrusionVehicle} />
+          </div>
+          {#if intrusionVehicle}
+           <div class="flex items-center space-x-4 pt-3">
+            <Pipette />
+            <div class="flex-1 space-y-1">
+              <p class="text-sm font-medium leading-none">
+                Running Detection Threshold
+              </p>
+              <p class="text-sm text-muted-foreground">
+                Adjust the threshold
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <Slider
+                min={10}
+                value={[intrusionVehicleThresh * 100]}
+                max={95}
+                step={5}
+                class="w-32"
+                onValueChange={(e) => {
+                    intrusionVehicleThresh = e[0] / 100;
+                }}
+              />
+              {intrusionVehicleThresh}
+            </div>
+          </div>
+          {/if}
         {/if}
       </div>
     </div>

@@ -25,6 +25,18 @@
   export let saveFolder: string;
   export let motion: number;
   export let priority: boolean;
+  export let running:boolean;
+  export let runningThresh: number;
+  export let intrusionDetection: boolean;
+  export let intrusionPerson: boolean;
+  export let intrusionVehicle: boolean;
+  export let intrusionPersonThresh: number;
+  export let intrusionVehicleThresh: number;
+  export let lineCrossing: boolean;
+  export let linePerson: boolean;
+  export let lineVehicle: boolean;
+  export let linePersonThresh: number;
+  export let lineVehicleThresh: number;
   // CODE
 
   // console.log(features);
@@ -92,27 +104,26 @@
   <ul class="flex flex-row gap-2 ml-auto p-0 list-none cursor-pointer">
     <li class="cursor-pointer hover:scale-125">
       <!-- {#if features && features.includes("camera settings")} -->
-      <button disabled class="disabled:cursor-not-allowed">
-      <!-- <CameraEditDialog {name} {url} {cameraId}> -->
-          <Edit class="h-4 w-4" />
-        <!-- </CameraEditDialog> -->
-      </button>
+      <CameraEditDialog {name} {url} {cameraId}>
+        <Edit class="h-4 w-4" />
+      </CameraEditDialog>
       <!-- {/if} -->
     </li>
     <li
       class="cursor-pointer hover:scale-125"
-     
+      on:click={() => {
+        addUserLog(
+          `user clicked on camera settings for camera with name  ${name}`,
+        );
+      }}
     >
-    <button disabled class="disabled:cursor-not-allowed"  on:click={() => {
-      addUserLog(
-        `user clicked on camera settings for camera with name  ${name}`,
-      );
-    }}>
       <CameraSettingsDialog
         cameraName={name}
         {save}
         {face}
         {vehicle}
+        {running}
+        runningDetectionThreshold={runningThresh}
         {cameraId}
         {faceDetectionThreshold}
         {faceSearchThreshold}
@@ -123,18 +134,23 @@
         {saveDuration}
         {motion}
         {priority}
+        {intrusionDetection}
+        {intrusionPerson}
+        {intrusionVehicle}
+        {intrusionPersonThresh}
+        {intrusionVehicleThresh}
+        {lineCrossing}
+        {linePerson}
+        {lineVehicle}
+        {linePersonThresh}
+        {lineVehicleThresh}
         cameraURL={url}><Settings class="h-4 w-4" /></CameraSettingsDialog
       >
-      <!-- <Settings size={16}/> -->
-    </button>
-
     </li>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-    <li class="cursor-pointer hover:scale-125" >
-      <button class=" disabled:cursor-not-allowed" on:click={deleteCamera}>
-        <Trash class="h-4 w-4" />
-      </button>
+    <li class="cursor-pointer hover:scale-125" on:click={deleteCamera}>
+      <Trash class="h-4 w-4" />
     </li>
   </ul>
 </article>

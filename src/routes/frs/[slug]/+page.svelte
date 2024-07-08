@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Switch from '@/components/ui/switch/switch.svelte';
   import * as Table from "@/components/ui/table";
   import {
     ChevronsUpDown,
@@ -15,7 +16,7 @@
   import type { Event } from "@/types";
   import PocketBase from "pocketbase";
   import { page } from "$app/stores";
-  import { events, selectedNode } from "@/lib/stores.js";
+  import { events, selectedNode, otherEvents } from "@/lib/stores.js";
   import { onDestroy, onMount } from "svelte";
   import TimeAgo from "javascript-time-ago";
   import en from "javascript-time-ago/locale/en";
@@ -28,6 +29,7 @@
   const timeAgo = new TimeAgo("en-US");
   let selectedEvent = null;
   let selectedMatchEvent = null;
+  let eventType = false;
 
   function openEventDialog(eventData) {
     if (eventData.title.includes("Face")) {
@@ -39,7 +41,8 @@
 
   export let data: PageServerData;
   let batchedEvents: Event[] = [];
-  const session = data.session;
+  let otherEvnts: Event[] = [];
+  const {session} = data;
   let nodes: Node[] = [];
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
@@ -73,21 +76,35 @@
     if (batchedEvents.length !== $events.length) {
       events.set([...batchedEvents, ...$events].slice(0, 200));
       batchedEvents = [];
-      setTimeout(updateEvents, 1000);
     }
+    if(otherEvnts.length !== $otherEvents.length) {
+      otherEvents.set([...otherEvnts, ...$otherEvents].slice(0, 200));
+      otherEvnts = [];
+    }
+    setTimeout(updateEvents, 1000);
   }
 
   onMount(async () => {
     nodes = await getNodes();
     selectedNode.set(nodes[0]);
     let x = data.props.events;
+    let y = data.props.oEvents;
     events.set(x);
+    otherEvents.set(y)
 
     PB.collection("events").subscribe("*", async (e) => {
-      batchedEvents.push({
-        ...e.record,
-        created: new Date(e.record.created),
-      } as unknown as Event);
+      if (e.action === "create") {
+        batchedEvents.push({
+          ...e.record,
+          created: new Date(e.record.created),
+        } as unknown as Event);
+      } else {
+        // Handle other actions, e.g., push into a different variable
+        otherEvnts.push({
+          ...e.record,
+          created: new Date(e.record.created),
+        } as unknown as Event);
+      }
     });
 
     setTimeout(updateEvents, 1000);
@@ -96,19 +113,30 @@
   onDestroy(() => {
     PB.collection("events").unsubscribe("*");
   });
+
+  // $: console.log(eventType)
 </script>
 
 <section class="h-full w-full flex items-center justify-center">
   <div class="w-full h-full p-6">
     <div class="px-4 w-full flex items-center justify-between pb-4 ">
-      <h1 class="text-xl font-semibold">FRS</h1>
-      <AddCameraDialog nodes={data.nodes} sNode=''>
-        <button class="px-2 py-1 rounded-xl bg-[#FBF4EC] text-[#D28E3D] text-sm font-medium flex items-center gap-1"
+      <h1 class="text-xl font-semibold">FRS {!eventType ? 'Detected': 'Matched'}</h1>
+      <span class='flex items-center gap-2'>
+        <span class='text-sm font-bold'>
+          Event Type:
+        </span>
+        <p class='font-medium text-sm'>Detected</p>
+        <!-- <Switch id='eventType' on:click on:change={(e) => console.log(e)}/> -->
+          <Switch id='eventType' bind:checked={eventType} on:change={() => eventType = !eventType }/>
+          <p class='font-medium text-sm'>Matched</p>
+        <AddCameraDialog nodes={data.nodes} sNode=''>
+          <button class="px-2 py-1 rounded-xl ml-4 bg-[#FBF4EC] text-[#D28E3D] text-sm font-medium flex items-center gap-1"
           ><CameraIcon size={16} />Add camera</button
-        >
-      </AddCameraDialog>
+          >
+        </AddCameraDialog>
+      </span>
     </div>
-
+{#if !eventType }
     <Table.Root class="mx-auto w-[98%] flex flex-col pb-10">
       <Table.Header
         class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9] dark:bg-black"
@@ -248,6 +276,147 @@
         {/each}
       </Table.Body>
     </Table.Root>
+    {:else}
+    <Table.Root class="mx-auto w-[98%] flex flex-col pb-10">
+      <Table.Header
+        class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9] dark:bg-black"
+      >
+        <Table.Row class="bg-transparent flex items-center justify-between p-3">
+          <Table.Head class="text-[#727272] dark:text-slate-100 w-full h-full">
+            <span class="flex items-center gap-1">
+              Alert
+              <!-- <ChevronsUpDown class="scale-75" /> -->
+            </span>
+          </Table.Head>
+          <Table.Head class="text-[#727272] w-full h-full dark:text-slate-100">
+            <span class="flex items-center gap-1"> Image </span>
+          </Table.Head>
+          <Table.Head class="text-[#727272] w-full h-full dark:text-slate-100">
+            <span class="flex items-center gap-1">
+              Camera <ChevronsUpDown class="scale-75" />
+            </span>
+          </Table.Head>
+          <Table.Head class="text-[#727272] w-full h-full dark:text-slate-100">
+            <span class="flex items-center gap-1">
+              Date <ChevronsUpDown class="scale-75" />
+            </span></Table.Head
+          >
+          <Table.Head class="text-[#727272] w-full h-full dark:text-slate-100">
+            <span class="flex items-center gap-1">
+              Time <ChevronsUpDown class="scale-75" />
+            </span></Table.Head
+          >
+          <Table.Head class="text-[#727272] w-full h-full dark:text-slate-100">
+            <span class="flex items-center gap-1">
+              Last Seen <ChevronsUpDown class="scale-75" />
+            </span></Table.Head
+          >
+          <Table.Head class="text-[#727272] w-full h-full whitespace-nowrap dark:text-slate-100">
+            <span class="flex items-center gap-1 flex-shrink-0">
+              Detection Score <ChevronsUpDown class="scale-75" />
+            </span></Table.Head
+          >
+          <Table.Head class="text-[#727272] w-full h-full whitespace-nowrap dark:text-slate-100">
+            <span class="flex items-center gap-1">
+              Similarity Score <ChevronsUpDown class="scale-75" />
+            </span></Table.Head
+          >
+          <Table.Head class="text-[#727272] dark:text-slate-100 w-full h-full">Actions</Table.Head >
+        </Table.Row>
+      </Table.Header>
+      <Table.Body class="overflow-y-scroll max-h-[calc(100vh-205px)]">
+        {#each $otherEvents as event}
+          {@const date = new Date(event.created)}
+          <Table.Row
+            on:click={() => {
+              openEventDialog(event);
+            }}
+            class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-2 rounded-lg  border-2 border-solid border-[#e4e4e4] dark:border-[#727272]"
+          >
+            <Table.Cell class="text-black dark:text-slate-100 w-full h-full"
+              ><span class="flex items-center gap-2 capitalize">
+                {event.title}
+              </span>
+            </Table.Cell>
+            <Table.Cell class="text-[#727272] w-full h-full text-sm ml-2">
+              <img
+                src={"data:image/jpeg;base64," + event.frameImage}
+                alt="alert-img"
+                class="aspect-square"
+                width="40"
+                height="40"
+              /></Table.Cell
+            >
+            <Table.Cell
+              class="text-[#727272] w-full h-full text-sm whitespace-nowrap"
+              ><span>
+                Camera {$selectedNode?.camera?.filter(
+                  (c) => c.id === event.camera,
+                )[0] &&
+                  $selectedNode.camera.filter((c) => c.id === event?.camera)?.[0]
+                    ?.name}</span
+              ></Table.Cell
+            >
+            <Table.Cell class="text-[#727272] w-full h-full text-sm"
+              ><span>
+                {date.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}</span
+              ></Table.Cell
+            >
+            <Table.Cell class="text-[#727272] w-full h-full text-sm"
+              ><span
+                >{date.toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })}</span
+              ></Table.Cell
+            >
+            <Table.Cell
+              class="text-[#727272] w-full h-full text-sm whitespace-nowrap"
+              ><span>
+                {timeAgo?.format(new Date(event?.updated))}</span
+              ></Table.Cell
+            >
+            <Table.Cell class="text-[#727272] w-full h-full text-sm"
+              ><span class="ml-8">{event?.score?.toFixed(3)}</span></Table.Cell
+            >
+            <Table.Cell class="text-[#727272] w-full h-full text-sm"
+              ><span class="ml-8">{event?.matchScore?.toFixed(3)}</span
+              ></Table.Cell
+            >
+
+            <Table.Cell
+              on:click={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              class="text-[#727272] w-full h-full text-sm flex gap-2 items-center whitespace-nowrap"
+            >
+              <button
+                disabled
+                class="px-2 py-1 rounded-xl bg-[#E9EFFE] text-[#4976F4] text-sm font-medium flex items-center gap-1 disabled:cursor-not-allowed"
+                ><EditIcon size={16} />
+                Edit</button
+              >
+              <RegisterEventDialog
+                data={event}
+                registrationImages={event.frameImage}
+              >
+                <button
+                  class="px-2 py-1 rounded-xl bg-[#FBF4EC] text-[#D28E3D] text-sm font-medium flex items-center gap-1"
+                  ><ScanFace size={16} />Add face</button
+                >
+              </RegisterEventDialog>
+            </Table.Cell>
+          </Table.Row>
+        {/each}
+      </Table.Body>
+    </Table.Root>
+    {/if}
   </div>
   <div
     class="flex flex-col gap-4 items-center justify-center px-2 h-[calc(100vh-76px)]"

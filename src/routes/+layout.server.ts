@@ -22,7 +22,7 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
 
   if (
     !locals.pb?.authStore.isValid &&
-    protectedRoutes.includes(url.pathname.split("/home").filter(Boolean)[0])
+    protectedRoutes.includes(url.pathname.split("/").filter(Boolean)[0])
   ) {
     console.log("REDIRECTED FROM PROTECTED ROUTE");
     throw redirect(302, "/login");

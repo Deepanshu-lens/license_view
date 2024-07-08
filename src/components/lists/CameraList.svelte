@@ -191,6 +191,18 @@
             motion={camera.motionThresh}
             priority={camera.priority}
             features={user.features}
+            running={camera.running}
+            runningThresh={camera.runningThresh}
+            intrusionDetection={camera.intrusionDetection}
+            intrusionPerson={camera.intrusionPerson}
+            intrusionVehicle={camera.intrusionVehicle}
+            lineCrossing={camera.lineCrossing}
+            linePerson={camera.linePerson}
+            lineVehicle={camera.lineVehicle}
+            linePersonThresh={camera.linePersonThresh}
+            lineVehicleThresh={camera.lineVehicleThresh}
+            intrusionPersonThresh={camera.intrusionPersonThresh}
+            intrusionVehicleThresh={camera.intrusionVehicleThresh}
             {isAllFullScreen}
           />
         {/key}

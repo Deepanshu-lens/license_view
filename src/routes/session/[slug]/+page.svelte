@@ -3,16 +3,20 @@
   import type { Node, Camera, Event } from "@/types.d.ts";
   import StreamView from "@/components/stream/StreamView.svelte";
   import PocketBase from "pocketbase";
-  import { selectedNode, events } from "@/lib/stores";
+  import { selectedNode, events, otherEvents, runningEvents } from "@/lib/stores";
   import { onDestroy, onMount } from "svelte";
   import AddNodeMob from "@/components/node/mobile/AddNodeMob.svelte";
   import type { PageServerData } from "./$types";
   import { page } from "$app/stores";
 
   export let data: PageServerData;
-  const session = data.session;
+  const {session} = data;
   let nodes: Node[] = [];
+  let otherEvnts: Event[] = [];
   let batchedEvents: Event[] = [];
+  let runningEvnts: Event[] = [];
+
+  // $: console.log("data", data)
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
@@ -51,6 +55,18 @@
                     saveDuration: cam.saveDuration,
                     motionThresh: cam.motionThresh,
                     priority: cam.priority,
+                    lineData: cam.lineData,
+                    roiData: cam.roiData,
+                    intrusionDetection: cam.intrusionDetection,
+                    lineCrossing: cam.lineCrossing,
+                    linePerson: cam.linePerson,
+                    lineVehicle: cam.lineVehicle,
+                    linePersonThresh: cam.linePersonThresh,
+                    lineVehicleThresh: cam.lineVehicleThresh,
+                    intrusionPerson: cam.intrusionPerson,
+                    intrusionVehicle: cam.intrusionVehicle,
+                    intrusionPersonThresh: cam.intrusionPersonThresh,
+                    intrusionVehicleThresh: cam.intrusionVehicleThresh
                   })) as Camera[])
                 : [],
           }) as unknown as Node,
@@ -60,42 +76,66 @@
   }
 
   function updateEvents() {
-    if (batchedEvents.length !== $events.length) {
-      events.set([...batchedEvents, ...$events].slice(0, 200));
+      if (batchedEvents.length !== $events.length) {
+        events.set([...batchedEvents, ...$events].slice(0, 100));
       batchedEvents = [];
-
-      setTimeout(updateEvents, 1000);
     }
+    if(otherEvnts.length !== $otherEvents.length) {
+      otherEvents.set([...otherEvnts, ...$otherEvents].slice(0, 100));
+      otherEvnts = [];
+    }
+    setTimeout(updateEvents, 1000);
   }
 
   onMount(async () => {
+    PB.autoCancellation(false)
     nodes = await getNodes();
-    selectedNode.set(nodes[0]);
-    let x = data.props.events;
-    events.set(x);
+      const s = nodes.find(n => n.id === session.activeNode) 
+      selectedNode.set(s || nodes[0]);
+    const x = data.events
+    const y = data.otherEvents
 
-    PB.collection("events").subscribe("*", async (e) => {
-      batchedEvents.push({
-        ...e.record,
-        created: new Date(e.record.created),
-      } as unknown as Event);
-    });
+    events.set(x);
+    otherEvents.set(y);
+
+    PB.collection('events').subscribe('*', function (e) {
+      console.log('event subscription',e.action,e.record)
+      if (e.action === "create" && e.record.matchScore === 0 ) {
+        console.log('detetc event created', e.record)
+        batchedEvents.push({
+          ...e.record,
+          created: new Date(e.record.created),
+        } as unknown as Event);
+        console.log(batchedEvents.length, $events.length)
+      } else {
+        console.log('update event subscription',e.action,e.record)
+        otherEvnts.push({
+          ...e.record,
+          created: new Date(e.record.created),
+        } as unknown as Event);
+      }
+})
 
     PB.collection("camera").subscribe("*", async (e) => {
       nodes = await getNodes();
-      // selectedNode.set(nodes[0]);
+      const selected = nodes.find(n => n.id === session.activeNode) 
+
+          selectedNode.set(selected || nodes[0])
+
     });
 
     PB.collection("node").subscribe("*", async (e) => {
       nodes = await getNodes();
       console.log("change e nodes", e.record)
-      nodes.forEach((node) => {
-        if (e.record.id === node.id) {
-          selectedNode.set(node);
-        } else {
-          selectedNode.set(nodes[0])
-        }
-      });
+      const selected = nodes.find(n => n.id === session.activeNode) 
+
+      // nodes.forEach((node) => {
+      //   if (e.record.id === node.id) {
+      //     selectedNode.set(node);
+      //   } else {
+          selectedNode.set(selected || nodes[0])
+      //   }
+      // });
     });
 
     setTimeout(updateEvents, 1000);
