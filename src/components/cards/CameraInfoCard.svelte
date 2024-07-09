@@ -37,6 +37,7 @@
   export let lineVehicle: boolean;
   export let linePersonThresh: number;
   export let lineVehicleThresh: number;
+  export let sparshId:string
   // CODE
 
   // console.log(features);
@@ -104,7 +105,7 @@
   <ul class="flex flex-row gap-2 ml-auto p-0 list-none cursor-pointer">
     <li class="cursor-pointer hover:scale-125">
       <!-- {#if features && features.includes("camera settings")} -->
-      <CameraEditDialog {name} {url} {cameraId}>
+      <CameraEditDialog {name} {url} {cameraId} {sparshId}>
         <Edit class="h-4 w-4" />
       </CameraEditDialog>
       <!-- {/if} -->

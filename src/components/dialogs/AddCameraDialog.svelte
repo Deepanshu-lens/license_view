@@ -26,6 +26,7 @@
   let priority: boolean = true;
   let motionThresh: number = 0;
   let nvrName = "";
+  let sparshID = "";
 
   let mode = 2;
   let uploadMode = 1;
@@ -82,6 +83,7 @@
           priority: priority === true ? 1 : 0,
           motionThresh:
             motionThresh === 0 ? 1000 : motionThresh === 50 ? 2500 : 5000,
+          sparshId: sparshID,
         }),
       }).then((response) => {
         if (response.ok) {
@@ -144,6 +146,7 @@
                         : motionThresh === 50
                           ? 2500
                           : 5000,
+                    sparshId: sparshID,
                   }),
                 }).then((response) => {
                   if (response.ok) {
@@ -304,26 +307,6 @@
             >
           </div>
           {#if addDevice === 1}
-            <div class="flex items-center gap-5">
-              <p class="text-[#212123] dark:text-slate-200 text-sm">
-                Select method of adding camera
-              </p>
-              <Select.Root>
-                <Select.Trigger class="w-[180px]">
-                  <Select.Value placeholder="Select Mode: Manual" />
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.Item
-                    class="text-start px-2"
-                    value="2"
-                    disabled={mode !== 2}>Manual</Select.Item
-                  >
-                  <Select.Item class="text-start px-2" value="1" disabled
-                    >Automatic</Select.Item
-                  >
-                </Select.Content>
-              </Select.Root>
-            </div>
             <span class="w-full flex items-center justify-between pb-4">
               <p class="text-base font-semibold text-muted-foreground">
                 Insert a new camera in <span class="font-bold text-primary"
@@ -331,19 +314,6 @@
                 >
                 node and its parent nodes.
               </p>
-              <span class="flex items-center gap-4">
-                <p
-                  class={`text-sm ${uploadMode === 1 ? "text-primary font-medium" : "text-muted-foreground"}`}
-                >
-                  Single Upload
-                </p>
-                <Switch disabled />
-                <p
-                  class={`text-sm ${uploadMode !== 1 ? "text-primary font-medium" : "text-muted-foreground"}`}
-                >
-                  Multiple Upload
-                </p>
-              </span>
             </span>
             <div class="grid gap-4 py-4">
               <div class="grid grid-cols-4 items-center gap-4">
@@ -354,6 +324,16 @@
                   class="col-span-3"
                   bind:cameraName
                   on:change={(e) => (cameraName = e.target.value)}
+                />
+              </div>
+              <div class="grid grid-cols-4 items-center gap-4">
+                <Label for="camera-name">Sparsh ID</Label>
+                <Input
+                  id="camera-name"
+                  placeholder={"ID-sparshCamera"}
+                  class="col-span-3"
+                  bind:sparshID
+                  on:change={(e) => (sparshID = e.target.value)}
                 />
               </div>
 

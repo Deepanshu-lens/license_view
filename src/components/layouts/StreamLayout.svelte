@@ -114,15 +114,15 @@
             $selectedNode.maxStreamsPerPage === 7) &&
           index === 0
         ? (video.src = new URL(
-            `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&nodeID=${1}&cn=${camera.name}`,
+            `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}&cn=${camera.name}`,
           ))
         : $selectedNode.maxStreamsPerPage === 10 && (index === 0 || index === 1)
           ? (video.src = new URL(
-              `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&nodeID=${1}&cn=${camera.name}`,
+              `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}&cn=${camera.name}`,
             ))
           : (video.src = new URL(
               isSingleFullscreen
-                ? `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&nodeID=${1}&cn=${camera.name}`
+                ? `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}&cn=${camera.name}`
                 : `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}&cn=${camera.name}`,
             ));
     video.style.position = "relative";
@@ -788,6 +788,57 @@
       console.log("here");
     }
   }
+
+  function drawLineData(canvas, lineData) {
+    const ctx = canvas.getContext("2d");
+    const rect = canvas.getBoundingClientRect();
+
+    // Scale points to fit the canvas dimensions
+    // console.log(rect)
+    const scaledPoints = lineData.map(point => ({
+      x: (point.x / 1920) * canvas.width,
+      y: (point.y / 1080) * canvas.height
+    }));
+    console.log(scaledPoints)
+
+ ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    ctx.moveTo(scaledPoints[0].x, scaledPoints[0].y);
+    for (let i = 1; i < scaledPoints.length; i++) {
+      ctx.lineTo(scaledPoints[i].x, scaledPoints[i].y);
+    }
+
+    ctx.strokeStyle = "red";
+
+    ctx.stroke();
+    scaledPoints.forEach((point) => {
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = "red";
+      ctx.fill();
+    });
+  }
+ 
+   $: {
+    setTimeout(() => {
+     if ($selectedNode.camera.some(camera => camera.lineCrossing && camera.lineData.length > 0)) {
+       $selectedNode.camera.forEach((camera, index) => {
+        console.log(camera.lineData)
+        console.log(index)
+         if (camera.lineCrossing && camera.lineData.length > 0) {
+           const canvas = document.getElementById(`lineCanvas-${index}`);
+           if (canvas) {
+            canvas.style.borderRadius = "14px";
+            console.log(canvas)
+            //  canvas.style.backgroundColor = "red";
+             drawLineData(canvas, camera.lineData);
+           }
+         }
+       });
+     } 
+    }, 10000);
+   }
+
 </script>
 
 {#if streamCount > 0 && Object.keys(videos).length > 0}
@@ -927,6 +978,26 @@
                           <AArrowUp size={18} />
                         </button>
                       {/if}
+                      {#if $selectedNode.camera[
+                          pageIndex *
+                            ($selectedNode.maxStreamsPerPage === 5 ||
+                            $selectedNode.maxStreamsPerPage === 7
+                              ? $selectedNode.maxStreamsPerPage + 1
+                              : $selectedNode.maxStreamsPerPage) +
+                            slotIndex
+                        ].lineCrossing === true && $selectedNode.camera[
+                          pageIndex *
+                            ($selectedNode.maxStreamsPerPage === 5 ||
+                            $selectedNode.maxStreamsPerPage === 7
+                              ? $selectedNode.maxStreamsPerPage + 1
+                              : $selectedNode.maxStreamsPerPage) +
+                            slotIndex
+                        ].lineData.length > 0}
+                       <canvas
+                          id={`lineCanvas-${slotIndex}`}
+                          class="absolute top-0 left-0 w-full h-full z-10"
+                        ></canvas>
+                        {/if}
                       <Stream
                         videoElement={videos[
                           $selectedNode.camera[

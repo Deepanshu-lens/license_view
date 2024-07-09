@@ -64,7 +64,8 @@
                     intrusionPerson: cam.intrusionPerson,
                     intrusionVehicle: cam.intrusionVehicle,
                     intrusionPersonThresh: cam.intrusionPersonThresh,
-                    intrusionVehicleThresh: cam.intrusionVehicleThresh
+                    intrusionVehicleThresh: cam.intrusionVehicleThresh,
+                    sparshId: cam.sparshId
                   })) as Camera[])
                 : [],
           }) as unknown as Node,

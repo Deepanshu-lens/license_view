@@ -51,8 +51,8 @@
   ];
 
   let frs = {
-    text: "FRS",
-    href: `/frs/${sessionId}`,
+    text: "Alerts",
+    href: `/alerts/${sessionId}`,
   };
 
   let anpr = {

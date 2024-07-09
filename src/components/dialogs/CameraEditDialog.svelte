@@ -2,6 +2,7 @@
   export let cameraId: string;
   export let name: string;
   export let url: string;
+  export let sparshId:string
   let dialogOpen: boolean = false;
 
   import * as Dialog from "@/components/ui/dialog";
@@ -20,6 +21,7 @@
       body: JSON.stringify({
         cameraId,
         nodeId: $selectedNode.id,
+        sparshId,
         name,
         url,
       }),
@@ -40,10 +42,10 @@
         <Label class="w-24" for="node-name">Name</Label>
         <Input type="text" bind:value={name} class="text-base" />
       </div>
-      <!-- <div class=" col-span-2 flex items-center gap-4">
-        <Label class="w-24" for="node-name">Url</Label>
-        <Input type="text" bind:value={url} class="text-xs" />
-      </div> -->
+      <div class=" col-span-2 flex items-center gap-4">
+        <Label class="w-24" for="node-name">SparshId</Label>
+        <Input type="text" bind:value={sparshId} class="text-xs" />
+      </div>
     </div>
 
     <Dialog.Footer>
