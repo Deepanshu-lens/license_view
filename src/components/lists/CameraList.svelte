@@ -203,7 +203,7 @@
             lineVehicleThresh={camera.lineVehicleThresh}
             intrusionPersonThresh={camera.intrusionPersonThresh}
             intrusionVehicleThresh={camera.intrusionVehicleThresh}
-            sparshId={camera.sparshId}
+            sparshID={camera.sparshID}
             {isAllFullScreen}
           />
         {/key}

@@ -73,7 +73,7 @@ export const POST: RequestHandler = async ({
     saveFolder: data.saveFolder,
     priority: data.priority,
     motionThresh: data.motionThresh,
-    sparshId: data.sparshId,
+    sparshID: data.sparshID,
   });
 
   console.log("CAMERA ADDED ", camera);

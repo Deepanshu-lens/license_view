@@ -18,7 +18,7 @@ export const PUT: RequestHandler = async ({
 
    await locals.pb?.collection("camera").update(data.cameraId, {
     name: data.name,
-    sparshId: data.sparshId,
+    sparshID: data.sparshID,
   });
 
   if (oldUrl !== data.url) {

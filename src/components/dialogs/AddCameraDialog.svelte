@@ -83,7 +83,7 @@
           priority: priority === true ? 1 : 0,
           motionThresh:
             motionThresh === 0 ? 1000 : motionThresh === 50 ? 2500 : 5000,
-          sparshId: sparshID,
+          sparshID: sparshID,
         }),
       }).then((response) => {
         if (response.ok) {
@@ -146,7 +146,7 @@
                         : motionThresh === 50
                           ? 2500
                           : 5000,
-                    sparshId: sparshID,
+                    sparshID: sparshID,
                   }),
                 }).then((response) => {
                   if (response.ok) {
