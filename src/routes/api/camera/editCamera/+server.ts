@@ -17,8 +17,33 @@ export const PUT: RequestHandler = async ({
     .then((c) => c.url);
 
    await locals.pb?.collection("camera").update(data.cameraId, {
+     face: data.face,
+     faceDetThresh: data.faceDetectionThreshold,
+     faceMatchThresh: data.faceSearchThreshold,
+     intrusionDetection: data.intrusionDetection,
+     intrusionPerson:data.intrusionPerson,
+     intrusionPersonThresh: data.intrusionPersonThresh,
+     intrusionVehicle:data.intrusionVehicle,
+     intrusionVehicleThresh:data.intrusionVehicleThresh,
+     lineCrossing:data.lineCrossing,
+     linePerson: data.linePerson,
+     linePersonThresh:data.linePersonThresh,
+     lineVehicle: data.lineVehicle,
+     lineVehicleThresh: data.lineVehicleThresh,
+     motionThresh: data.motionThresh,
     name: data.name,
     sparshID: data.sparshID,
+     url: data.url,
+     vehicle: data.vehicle,
+     save: data.save,
+     vehDetThresh: data.vehicleDetectionThreshold,
+     vehPlateThresh: data.vehiclePlateThreshold,
+     vehOCRThresh: data.vehicleOCRThreshold,
+     saveDuration: data.saveDuration,
+     saveFolder: data.saveFolder,
+     priority: data.priority,
+     running:data.running,
+     runningThresh:data.runningThresh
   });
 
   if (oldUrl !== data.url) {

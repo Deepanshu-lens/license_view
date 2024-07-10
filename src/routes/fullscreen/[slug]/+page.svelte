@@ -55,7 +55,7 @@ const slug = $page.params.slug;
     video.mode = "mse";
     video.url = camera.url;
     video.src = new URL(
-      `ws://${neededUrl}:8082/api/ws?src=${camera.id}_FULL&nodeID=${1}&cn=${camera.name}`,
+      `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}&cn=${camera.name}`,
     );
     video.style.position = "relative";
     video.style.width = "100%";

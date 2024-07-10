@@ -146,7 +146,7 @@
   id={camera.id}
   bind:this={parentDiv}
   on:click={() => {
-    console.log("CLICKED");
+    // console.log("CLICKED");
     activeCamera.update((previous) =>
       previous === camera.id ? "" : camera.id,
     );
@@ -166,7 +166,7 @@ error: {er}
 <style>
   .video-element {
     position: relative; /* Ensure position is not 'static' */
-    z-index: 200; /* Increase z-index to ensure it's above the span */
+    z-index: 10; /* Increase z-index to ensure it's above the span */
   }
 
   .span-animation {

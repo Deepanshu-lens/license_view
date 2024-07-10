@@ -26,8 +26,9 @@
   import FrsMatchModal from "@/components/modal/FrsMatchModal.svelte";
   import AddCameraDialog from "@/components/dialogs/AddCameraDialog.svelte";
   import { writable } from "svelte/store";
-    import { space } from "postcss/lib/list";
+
   TimeAgo.addLocale(en);
+
   const timeAgo = new TimeAgo("en-US");
   let selectedEvent = null;
   let selectedMatchEvent = null;
@@ -43,7 +44,6 @@
 
   export let data: PageServerData;
   let batchedEvents: Event[] = [];
-  let otherEvnts: Event[] = [];
   const { session } = data;
   let nodes: Node[] = [];
 
@@ -74,26 +74,43 @@
     return [];
   }
 
-  function updateEvents() {
-    if (batchedEvents.length !== $events.length) {
-      events.set([...batchedEvents, ...$events].slice(0, 200));
-      batchedEvents = [];
-    }
+  // function updateEvents() {
+  //   if (batchedEvents.length !== $events.length) {
+  //     events.set([...batchedEvents, ...$events].slice(0, 200));
+  //     batchedEvents = [];
+  //   }
+  //   setTimeout(updateEvents, 1000);
+  // }
+
+    function updateEvents() {
+    events.update(currentEvents => {
+      if (batchedEvents.length !== currentEvents.length) {
+        const updatedEvents = [...batchedEvents, ...currentEvents].slice(0, 200);
+        batchedEvents = [];
+        return updatedEvents;
+      }
+      return currentEvents;
+    });
     setTimeout(updateEvents, 1000);
   }
 
   onMount(async () => {
+       events.set([])
+    batchedEvents=[]
     nodes = await getNodes();
-    selectedNode.set(nodes[0]);
-    let x = data.events;
-    events.set(x);
+    const s = nodes.find((n) => n.id === session.activeNode);
+    selectedNode.set(s || nodes[0]);
+    events.set(data.events);
 
-    PB.collection("events").subscribe("*", async (e) => {
-      batchedEvents.push({
-        ...e.record,
-        created: new Date(e.record.created),
-      } as unknown as Event);
-    });
+
+      PB.collection("events").subscribe("*", async (e) => {
+        console.log(e.record)
+        batchedEvents.push({
+          ...e.record,
+          created: new Date(e.record.created),
+        } as unknown as Event);
+      });
+
 
     setTimeout(updateEvents, 1000);
   });
@@ -133,6 +150,7 @@
   }
 
   $: filteredEvents.set(filterEvents($events));
+  $: console.log($events.length)
 </script>
 
 <section class="h-full w-full flex items-center justify-center">

@@ -54,18 +54,18 @@
   const neededUrl = $page.url.hostname;
 
 
-  onMount(async() => {
-    try {
-      const res = await fetch('/api/speedtest')
-      if(!res.ok) throw new Error('Failed to fetch speed test data')
-      const data = await res.json()
-      if(data.downloadSpeed.mbps < 5) {
-        toast.error('Low network speed detected! please switch to a smaller layout 1:1 or 2:2')
-      }
-    } catch (error) {
-      console.error('Error fetching speed test data:', error);
-    }
-  })
+  // onMount(async() => {
+  //   try {
+  //     const res = await fetch('/api/speedtest')
+  //     if(!res.ok) throw new Error('Failed to fetch speed test data')
+  //     const data = await res.json()
+  //     if(data.downloadSpeed.mbps < 5) {
+  //       toast.error('Low network speed detected! please switch to a smaller layout 1:1 or 2:2')
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching speed test data:', error);
+  //   }
+  // })
 
   const handleRefreshError = (event) => {
     console.log("inside handle refresh error");
@@ -417,6 +417,9 @@
     setTimeout(() => {
       initSortable();
     }, 500);
+    setTimeout(() => {
+createRoiLines()
+    }, 2000);
   };
 
 
@@ -671,7 +674,7 @@
       ctx.beginPath();
       ctx.moveTo(points[0].x, points[0].y);
       ctx.lineTo(points[1].x, points[1].y);
-      ctx.strokeStyle = "blue";
+      ctx.strokeStyle = "red";
       ctx.stroke();
       points.forEach((point) => {
         ctx.beginPath();
@@ -789,7 +792,33 @@
     }
   }
 
-  function drawLineData(canvas, lineData) {
+  
+  //  $: {
+  //   setTimeout(() => {
+  //     createRoiLines() 
+  //   }, 5000);
+  //  }
+
+
+   function createRoiLines () {
+    if ($selectedNode.camera.some(camera => camera.lineCrossing && camera.lineData.length > 0)) {
+       $selectedNode.camera.forEach((camera, index) => {
+        // console.log(camera.lineData)
+        console.log(index)
+         if (camera.lineCrossing && camera.lineData.length > 0) {
+           const canvas = document.getElementById(`lineCanvas-${index}`);
+           if (canvas) {
+            canvas.style.borderRadius = "14px";
+            // console.log(canvas)
+            //  canvas.style.backgroundColor = "red";
+             drawLineData(canvas, camera.lineData);
+           }
+         }
+       });
+     }
+   }
+
+   function drawLineData(canvas, lineData) {
     const ctx = canvas.getContext("2d");
     const rect = canvas.getBoundingClientRect();
 
@@ -799,7 +828,7 @@
       x: (point.x / 1920) * canvas.width,
       y: (point.y / 1080) * canvas.height
     }));
-    console.log(scaledPoints)
+    // console.log(scaledPoints)
 
  ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
@@ -818,26 +847,6 @@
       ctx.fill();
     });
   }
- 
-   $: {
-    setTimeout(() => {
-     if ($selectedNode.camera.some(camera => camera.lineCrossing && camera.lineData.length > 0)) {
-       $selectedNode.camera.forEach((camera, index) => {
-        console.log(camera.lineData)
-        console.log(index)
-         if (camera.lineCrossing && camera.lineData.length > 0) {
-           const canvas = document.getElementById(`lineCanvas-${index}`);
-           if (canvas) {
-            canvas.style.borderRadius = "14px";
-            console.log(canvas)
-            //  canvas.style.backgroundColor = "red";
-             drawLineData(canvas, camera.lineData);
-           }
-         }
-       });
-     } 
-    }, 10000);
-   }
 
 </script>
 
@@ -968,6 +977,7 @@
                           : bigCellIndex === slotIndex
                             ? "grid-area: bigCell1"
                             : ""}
+                           
                     >
                       {#if [5, 7, 13].includes($selectedNode.maxStreamsPerPage) && bigCellIndex !== slotIndex}
                         <button
@@ -994,8 +1004,11 @@
                             slotIndex
                         ].lineData.length > 0}
                        <canvas
-                          id={`lineCanvas-${slotIndex}`}
-                          class="absolute top-0 left-0 w-full h-full z-10"
+                          id={`lineCanvas-${$selectedNode.maxStreamsPerPage === 1 ? pageIndex: slotIndex}`}
+                          class="absolute top-0 left-0 w-full h-full z-30 pointer-events-none"
+                          on:click={(e) => {
+                            e.preventDefault();
+                          }}
                         ></canvas>
                         {/if}
                       <Stream

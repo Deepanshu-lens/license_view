@@ -10,11 +10,11 @@
   import { page } from "$app/stores";
 
   export let data: PageServerData;
-  const {session} = data;
+  const { session } = data;
   let nodes: Node[] = [];
   let batchedEvents: Event[] = [];
 
-  $: console.log("data", data)
+  $: console.log("data", data);
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
@@ -22,7 +22,7 @@
 
   async function getNodes(): Promise<Node[]> {
     if (session?.node.length > 0) {
-      PB.autoCancellation(false)
+      PB.autoCancellation(false);
       const nodes = await PB.collection("node").getFullList(200, {
         sort: "-created",
         expand: "camera",
@@ -65,7 +65,7 @@
                     intrusionVehicle: cam.intrusionVehicle,
                     intrusionPersonThresh: cam.intrusionPersonThresh,
                     intrusionVehicleThresh: cam.intrusionVehicleThresh,
-                    sparshID: cam.sparshID
+                    sparshID: cam.sparshID,
                   })) as Camera[])
                 : [],
           }) as unknown as Node,
@@ -74,43 +74,56 @@
     return [];
   }
 
-  function updateEvents() {
-      if (batchedEvents.length !== $events.length) {
-        events.set([...batchedEvents, ...$events].slice(0, 100));
-      batchedEvents = [];
-    }
+  // function updateEvents() {
+  //   if (batchedEvents.length !== $events.length) {
+  //     events.set([...batchedEvents, ...$events].slice(0, 200));
+  //     batchedEvents = [];
+  //   }
+  //   setTimeout(updateEvents, 1000);
+  // }
+
+    function updateEvents() {
+    events.update(currentEvents => {
+      if (batchedEvents.length !== currentEvents.length) {
+        const updatedEvents = [...batchedEvents, ...currentEvents].slice(0, 200);
+        batchedEvents = [];
+        return updatedEvents;
+      }
+      return currentEvents;
+    });
     setTimeout(updateEvents, 1000);
   }
 
   onMount(async () => {
-    PB.autoCancellation(false)
+    events.set([])
+    batchedEvents=[]
+    PB.autoCancellation(false);
     nodes = await getNodes();
-      const s = nodes.find(n => n.id === session.activeNode) 
-      selectedNode.set(s || nodes[0]);
+    const s = nodes.find((n) => n.id === session.activeNode);
+    selectedNode.set(s || nodes[0]);
     events.set(data.events);
 
-    PB.collection('events').subscribe('*', function (e) {
-      console.log('event subscription',e.action,e.record)
-        console.log('detetc event created', e.record)
-        batchedEvents.push({
-          ...e.record,
-          created: new Date(e.record.created),
-        } as unknown as Event);
-})
+    PB.collection("events").subscribe("*", function (e) {
+      console.log("event subscription", e.action, e.record);
+      // console.log('detetc event created', e.record)
+      batchedEvents.push({
+        ...e.record,
+        created: new Date(e.record.created),
+      } as unknown as Event);
+    });
 
     PB.collection("camera").subscribe("*", async (e) => {
       nodes = await getNodes();
-      const selected = nodes.find(n => n.id === session.activeNode) 
+      const selected = nodes.find((n) => n.id === session.activeNode);
 
-          selectedNode.set(selected || nodes[0])
-
+      selectedNode.set(selected || nodes[0]);
     });
 
     PB.collection("node").subscribe("*", async (e) => {
       nodes = await getNodes();
-      console.log("change e nodes", e.record)
-      const selected = nodes.find(n => n.id === session.activeNode) 
-          selectedNode.set(selected || nodes[0])
+      // console.log("change e nodes", e.record)
+      const selected = nodes.find((n) => n.id === session.activeNode);
+      selectedNode.set(selected || nodes[0]);
     });
 
     setTimeout(updateEvents, 1000);
@@ -121,6 +134,10 @@
     PB.collection("events").unsubscribe("*");
     PB.collection("camera").unsubscribe("*");
   });
+
+
+
+  $: console.log($events.length)
 </script>
 
 {#if $selectedNode}

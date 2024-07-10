@@ -20,6 +20,7 @@
   import { mode } from "mode-watcher";
   import { addUserLog } from "@/lib/addUserLog";
   import { onDestroy, onMount } from "svelte";
+    import { events } from "@/lib/stores";
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
@@ -144,6 +145,10 @@
                 href={item.href}
                 on:click={() => {
                   addUserLog(`user clicked on navbar link "${item.text}"`);
+                  // events.set([])
+                  // setTimeout(() => {
+                  //   window.location.reload()
+                  // }, 1000);
                 }}
               >
                 <span
