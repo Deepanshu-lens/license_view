@@ -1157,7 +1157,7 @@
                           </button>
 
                           <button
-                            disabled
+                            
                             on:click={(e) => {
                               e.preventDefault();
                               handleSingleSS();
@@ -1188,7 +1188,7 @@
                             ><ImageDown size={18} />
                           </button>
                           <button
-                            disabled
+                            
                             on:click={() => {
                               const cameraId =
                                 $selectedNode.camera[
