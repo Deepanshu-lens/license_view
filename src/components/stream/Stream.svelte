@@ -51,9 +51,10 @@ let realVideo: HTMLVideoElement | null = null;
 
   $: document && parentDiv && videoElement && attachVideo(videoElement);
 
-  //  $: if (mute !== undefined && realVideo) {
-  //   realVideo.muted = mute; // Update this line to reactively set mute state
-  // }
+   $: if (mute !== undefined && realVideo) {
+    // console.log('first',realVideo)
+    realVideo.muted = mute; // Update this line to reactively set mute state
+  }
 
    $: if (startErrorWatching && videoElement?.divError) {
     console.log('first')

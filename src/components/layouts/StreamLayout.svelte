@@ -1078,7 +1078,15 @@
                         ></canvas>
                       {/if}
                       <Stream
-                      mute={true} 
+ mute={$muteStates[$selectedNode.camera[
+                            pageIndex *
+                              ($selectedNode.maxStreamsPerPage === 5 ||
+                              $selectedNode.maxStreamsPerPage === 7
+                                ? $selectedNode.maxStreamsPerPage + 1
+                                : $selectedNode.maxStreamsPerPage) +
+                              slotIndex
+                          ].id] ?? true} 
+
                         videoElement={videos[
                           $selectedNode.camera[
                             pageIndex *
