@@ -6,13 +6,14 @@
   import { toast } from "svelte-sonner";
   export let camera: Camera;
   export let videoElement: HTMLElement;
+  export let mute: boolean = true;
   import { createEventDispatcher } from "svelte";
     import { AlertCircle } from "lucide-svelte";
     import { page } from "$app/stores";
   const dispatch = createEventDispatcher();
   // console.log($page)
   let parentDiv: HTMLDivElement;
-
+let realVideo: HTMLVideoElement | null = null;
   let videoStarted = false;
   let startErrorWatching= false
   let er = null
@@ -24,7 +25,7 @@
       return;
     }
     parentDiv.appendChild(videoElement);
-    const realVideo = videoElement.querySelector("video");
+    realVideo = videoElement.querySelector("video");
     if (!realVideo) {
       console.error("could not find real video");
     } else {
@@ -47,7 +48,12 @@
     }
   };
 
+
   $: document && parentDiv && videoElement && attachVideo(videoElement);
+
+  //  $: if (mute !== undefined && realVideo) {
+  //   realVideo.muted = mute; // Update this line to reactively set mute state
+  // }
 
    $: if (startErrorWatching && videoElement?.divError) {
     console.log('first')
@@ -79,57 +85,7 @@
   // }
 </script>
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<!-- 
-<script lang="ts">
-  import type { Camera } from "@/types";
-  import { activeCamera, hoveredCamera, fullscreen } from "@/lib/stores";
-  import { cn } from "@/lib";
-  import { toast } from "svelte-sonner";
-  import { createEventDispatcher } from "svelte";
-
-  export let camera: Camera;
-  export let videoElement: HTMLElement;
-  const dispatch = createEventDispatcher();
-  let parentDiv: HTMLDivElement;
-  let videoStarted = false;
-
-  const attachVideo = (videoElement) => {
-    parentDiv.appendChild(videoElement);
-    const realVideo = videoElement.querySelector("video");
-    if (!realVideo) {
-      console.error("could not find real video");
-    } else {
-      realVideo.controls = false;
-      realVideo.style.maxWidth = "100%";
-      realVideo.style.objectFit = "fill";
-      realVideo.className = "rounded-lg video-element";
-      realVideo.background = true;
-      realVideo.visibilityCheck = false;
-      realVideo.addEventListener("play", () => videoStarted = true);
-      realVideo.addEventListener("pause", () => videoStarted = false);
-    }
-  };
-
-  function checkForErrors(videoElement) {
-    console.log('runnin')
-    if (videoElement?.divError) {
-      console.log("Error message:", videoElement.divError);
-      if (videoElement.divError.includes("codecs not matched: H265")) {
-        toast.error(`H265 codec error detected for: ${camera.name}`);
-        dispatch("h265Error", { cameraId: camera.id });
-      }
-    }
-  }
-
-  $: if (document && parentDiv && videoElement) {
-    attachVideo(videoElement);
-    checkForErrors(videoElement);
-  }
-</script> -->
-
-
 <!-- svelte-ignore a11y-click-events-have-key-events -->
- <!-- startErrorWatching && er ? 'from-pink-200 via-red-400 to-rose-600' : -->
 <div
   class={cn(
     `mx-auto w-full h-full relative 
@@ -153,26 +109,17 @@
     );
   }}
 >
-<!-- {#if startErrorWatching && er}
-<span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white font-bold text-sm flex-col text-center justify-center items-center w-[80%] "><span class="gap-2 flex flex-col items-center justify-center ">
-<img src='/images/456.png' class='w-12 h-12' alt="error"/>
-    Camera:
-   {camera.name} <br/>
-</span>
-error: {er}
-</span>
-{/if} -->
 </div>
 
 <style>
   .video-element {
-    position: relative; /* Ensure position is not 'static' */
-    z-index: 10; /* Increase z-index to ensure it's above the span */
+    position: relative; 
+    z-index: 10; 
   }
 
   .span-animation {
-    position: relative; /* Ensure position is not 'static' */
-    z-index: 1; /* Ensure this is lower than the video's z-index */
+    position: relative; 
+    z-index: 1; 
   }
 
   .new-animate {

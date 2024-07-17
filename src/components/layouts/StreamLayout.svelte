@@ -24,6 +24,7 @@
     Plus,
     RefreshCcw,
     Volume2,
+    VolumeX,
     X,
   } from "lucide-svelte";
   import { Shrink } from "lucide-svelte";
@@ -32,6 +33,7 @@
   import Sortable from "sortablejs";
   import { onDestroy, onMount } from "svelte";
   import { toast } from "svelte-sonner";
+    import { writable } from "svelte/store";
 
   export let handleSingleSS: () => void;
   export let isAllFullScreen: boolean;
@@ -651,143 +653,6 @@
     updateCanvasCoordinates();
   }
 
-  // function setupCanvasForLine() {
-  //   canvas = document.getElementById("roicanvas");
-  //   ctx = canvas.getContext("2d");
-  //   rect = canvas.getBoundingClientRect();
-
-  //   const points = [
-  //     { x: 50, y: 50, isDragging: false, color: "blue" },
-  //     { x: 150, y: 150, isDragging: false, color: "blue" },
-  //   ];
-
-  //   let lineIsDragging = false;
-  //   let dragOffsetX = 0;
-  //   let dragOffsetY = 0;
-
-  //   canvas.width = rect.width;
-  //   canvas.height = rect.height;
-
-  //   function updateCanvasCoordinates() {
-  //     const videoResolution = { width: 1920, height: 1080 };
-  //     canvasCoordinates.set(
-  //       points.map((point) => ({
-  //         x: Math.round((point.x / rect.width) * videoResolution.width),
-  //         y: Math.round((point.y / rect.height) * videoResolution.height),
-  //       })),
-  //     );
-  //   }
-
-  //   function drawLinePoints() {
-  //     ctx.clearRect(0, 0, canvas.width, canvas.height);
-  //     ctx.beginPath();
-  //     ctx.moveTo(points[0].x, points[0].y);
-  //     ctx.lineTo(points[1].x, points[1].y);
-  //     ctx.strokeStyle = "red";
-  //     ctx.stroke();
-  //     points.forEach((point) => {
-  //       ctx.beginPath();
-  //       ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
-  //       ctx.fillStyle = point.color;
-  //       ctx.fill();
-  //     });
-  //   }
-
-  //   function isWithinBounds(point) {
-  //     return (
-  //       point.x >= 0 &&
-  //       point.x <= rect.width &&
-  //       point.y >= 0 &&
-  //       point.y <= rect.height
-  //     );
-  //   }
-
-  //   canvas.addEventListener("mousedown", (e) => {
-  //     const mouseX = e.clientX - rect.left;
-  //     const mouseY = e.clientY - rect.top;
-  //     let onPoint = false;
-
-  //     points.forEach((point) => {
-  //       if (
-  //         Math.abs(mouseX - point.x) < 10 &&
-  //         Math.abs(mouseY - point.y) < 10
-  //       ) {
-  //         point.isDragging = true;
-  //         onPoint = true;
-  //       }
-  //     });
-
-  //     if (!onPoint) {
-  //       lineIsDragging = true;
-  //       dragOffsetX = mouseX;
-  //       dragOffsetY = mouseY;
-  //     }
-  //   });
-
-  //   canvas.addEventListener("mousemove", (e) => {
-  //     const mouseX = e.clientX - rect.left;
-  //     const mouseY = e.clientY - rect.top;
-
-  //     if (lineIsDragging) {
-  //       const dx = mouseX - dragOffsetX;
-  //       const dy = mouseY - dragOffsetY;
-  //       let allWithinBounds = true;
-  //       points.forEach((point) => {
-  //         const newX = point.x + dx;
-  //         const newY = point.y + dy;
-  //         if (!isWithinBounds({ x: newX, y: newY })) {
-  //           allWithinBounds = false;
-  //         }
-  //       });
-
-  //       if (allWithinBounds) {
-  //         points.forEach((point) => {
-  //           point.x += dx;
-  //           point.y += dy;
-  //         });
-  //         dragOffsetX = mouseX;
-  //         dragOffsetY = mouseY;
-  //         drawLinePoints();
-  //         updateCanvasCoordinates();
-  //       }
-  //     } else if (points.some((p) => p.isDragging)) {
-  //       const point = points.find((p) => p.isDragging);
-  //       const newX = mouseX;
-  //       const newY = mouseY;
-  //       if (isWithinBounds({ x: newX, y: newY })) {
-  //         point.x = newX;
-  //         point.y = newY;
-  //         drawLinePoints();
-  //         updateCanvasCoordinates();
-  //       }
-  //     }
-
-  //     if (points.some((p) => p.isDragging)) {
-  //       canvas.style.cursor = "move";
-  //     } else {
-  //       canvas.style.cursor = "default";
-  //     }
-  //   });
-
-  //   canvas.addEventListener("mouseup", () => {
-  //     lineIsDragging = false;
-  //     points.forEach((point) => {
-  //       point.isDragging = false;
-  //     });
-  //   });
-
-  //   canvas.addEventListener("mouseout", () => {
-  //     lineIsDragging = false;
-  //     points.forEach((point) => {
-  //       point.isDragging = false;
-  //     });
-  //     canvas.style.cursor = "default";
-  //   });
-
-  //   drawLinePoints();
-  //   updateCanvasCoordinates();
-  // }
-
   function setupCanvasForLine() {
     canvas = document.getElementById("roicanvas");
     ctx = canvas.getContext("2d");
@@ -976,12 +841,6 @@
     }
   }
 
-  //  $: {
-  //   setTimeout(() => {
-  //     createRoiLines()
-  //   }, 5000);
-  //  }
-
   function createRoiLines() {
     if (
       $selectedNode.camera.some(
@@ -1030,6 +889,18 @@
       ctx.fill();
     });
   }
+
+    const muteStates = writable<{ [key: string]: boolean }>({});
+
+    $: console.log($muteStates)
+
+  // Function to toggle mute state for a specific camera
+  const toggleMute = (cameraId: string) => {
+    muteStates.update(states => {
+      const newState = { ...states, [cameraId]: !states[cameraId] };
+      return newState;
+    });
+  };
 </script>
 
 {#if streamCount > 0 && Object.keys(videos).length > 0}
@@ -1194,7 +1065,12 @@
                       {/if}
                       {#if $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex].lineCrossing === true && $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex].lineData.length > 0}
                         <canvas
-                          id={`lineCanvas-${$selectedNode.maxStreamsPerPage === 1 ? pageIndex : slotIndex}`}
+                          id={`lineCanvas-${ pageIndex *
+                            ($selectedNode.maxStreamsPerPage === 5 ||
+                            $selectedNode.maxStreamsPerPage === 7
+                              ? $selectedNode.maxStreamsPerPage + 1
+                              : $selectedNode.maxStreamsPerPage) +
+                            slotIndex}`}
                           class="absolute top-0 left-0 w-full h-full z-30 pointer-events-none"
                           on:click={(e) => {
                             e.preventDefault();
@@ -1202,6 +1078,7 @@
                         ></canvas>
                       {/if}
                       <Stream
+                      mute={true} 
                         videoElement={videos[
                           $selectedNode.camera[
                             pageIndex *
@@ -1331,9 +1208,26 @@
                             <RefreshCcw size={18} />
                           </button>
                           <button
+                          on:click={() => toggleMute($selectedNode.camera[
+                                  pageIndex *
+                                    ($selectedNode.maxStreamsPerPage === 5 ||
+                                    $selectedNode.maxStreamsPerPage === 7
+                                      ? $selectedNode.maxStreamsPerPage + 1
+                                      : $selectedNode.maxStreamsPerPage) +
+                                    slotIndex].id)}
                             class="rounded disabled:cursor-not-allowed bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
                           >
-                            <Volume2 size={18} />
+                            <!-- <Volume2 size={18} /> -->
+                              {#if $muteStates[$selectedNode.camera[pageIndex *
+                                    ($selectedNode.maxStreamsPerPage === 5 ||
+                                    $selectedNode.maxStreamsPerPage === 7
+                                      ? $selectedNode.maxStreamsPerPage + 1
+                                      : $selectedNode.maxStreamsPerPage) +
+                                    slotIndex].id] ?? true}
+                                <VolumeX size={18} /> <!-- Show VolumeX icon if muted -->
+                              {:else}
+                                <Volume2 size={18} /> <!-- Show Volume2 icon if not muted -->
+          {/if}
                           </button>
                         </div>
                       {:else}
