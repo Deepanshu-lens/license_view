@@ -32,6 +32,7 @@
         startErrorWatching = true
       }, 100);
       realVideo.controls = false;
+      realVideo.muted = true
       realVideo.style.maxWidth = "100%";
       realVideo.style.objectFit = "fill";
       $page.url.pathname.includes('fullscreen') ? realVideo.className = "video-element" : realVideo.className = "rounded-lg video-element";

@@ -348,6 +348,10 @@
           })
           .then((res) => {
             toast.success("Line crossing detection removed for this camera!");
+             console.log(res);
+            roiCamera = null;
+            filteredNodeCameras.set($selectedNode.camera);
+            $selectedDetections = [];
             return;
           })
           .catch((err) => {
@@ -1185,12 +1189,13 @@
                   />
                 </div>
               {/if}
-              <div class="w-full p-4">
+              <div class="w-full p-4 flex items-center">
                 <Button
                   on:click={() => {
                     updateAi();
                   }}>Save</Button
                 >
+             
               </div>
             {/if}
           {:else}
@@ -1199,7 +1204,7 @@
                 >Select Camera</label
               >
               <div class="relative w-full">
-                <select
+                <select id='selectedCamSelect'
                   class={`block text-primary capitalize font-semibold rounded-md appearance-none w-full bg-[#F6F6F6] border-2 py-2 text-sm px-2 leading-tight `}
                   on:change={(event) => {
                     const selectedCam = $selectedNode?.camera.find(
@@ -1263,12 +1268,21 @@
                   />
                 </div>
               {/if}
-              <div class="w-full p-4">
+              <div class="w-full p-4 flex items-center gap-4">
                 <Button
                   on:click={() => {
                     updateAi();
+                     document.getElementById('selectedCamSelect').value = '';
                   }}>Save</Button
                 >
+                     <Button variant='secondary'
+                    on:click={() => {
+            roiCamera = null;
+            filteredNodeCameras.set($selectedNode.camera);
+            $selectedDetections = [];
+             document.getElementById('selectedCamSelect').value = '';
+                    }}>Cancel</Button
+                  >
               </div>
             {/if}
           {/if}

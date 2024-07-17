@@ -7,7 +7,7 @@
     selectedNode,
     filteredNodeCameras,
     canvasCoordinates,
-    view
+    view,
   } from "@/lib/stores";
   import Stream from "@/components/stream/Stream.svelte";
   import type { Camera } from "@/types.d.ts";
@@ -19,8 +19,11 @@
     Expand,
     ImageDown,
     Menu,
+    Minus,
     PenTool,
+    Plus,
     RefreshCcw,
+    Volume2,
     X,
   } from "lucide-svelte";
   import { Shrink } from "lucide-svelte";
@@ -50,9 +53,18 @@
   let ele;
   let slideIndex: number = 0;
   let cameraStatusData = [];
-
+  let lines = [
+    [
+      { x: 50, y: 50, isDragging: false, color: "blue" },
+      { x: 150, y: 150, isDragging: false, color: "blue" },
+    ],
+  ];
+  let numberOfLines = 1;
+  let lineIsDragging = false;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+  let draggingLineIndex = null;
   const neededUrl = $page.url.hostname;
-
 
   // onMount(async() => {
   //   try {
@@ -369,15 +381,14 @@
 
     if (maxStreamsPerPage === 0) {
       // Automatic Layout
-    
-    
+
       const squareRoot = Math.ceil(Math.sqrt(streamCount));
       if (Number.isInteger(Math.sqrt(streamCount))) {
         layoutColumns = squareRoot;
       } else {
         layoutColumns = squareRoot <= 4 ? squareRoot : 5;
       }
-    
+
       layoutRows = Math.ceil(streamCount / layoutColumns);
     } else if (
       streamCount !== 0 &&
@@ -418,10 +429,9 @@
       initSortable();
     }, 500);
     setTimeout(() => {
-createRoiLines()
+      createRoiLines();
     }, 2000);
   };
-
 
   $: {
     if (isSingleFullscreen) {
@@ -431,7 +441,7 @@ createRoiLines()
     }
   }
 
-     $: {
+  $: {
     if ($filteredNodeCameras.length === $selectedNode.camera.length) {
       updateLayout($selectedNode.maxStreamsPerPage);
     } else {
@@ -478,7 +488,7 @@ createRoiLines()
     draw = !draw;
     if (draw) {
       setTimeout(() => {
-        if($view === 2) {
+        if ($view === 2) {
           setupCanvas();
         } else {
           setupCanvasForLine();
@@ -515,7 +525,6 @@ createRoiLines()
         })),
       );
     }
-
 
     function drawPoints() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -642,19 +651,147 @@ createRoiLines()
     updateCanvasCoordinates();
   }
 
+  // function setupCanvasForLine() {
+  //   canvas = document.getElementById("roicanvas");
+  //   ctx = canvas.getContext("2d");
+  //   rect = canvas.getBoundingClientRect();
+
+  //   const points = [
+  //     { x: 50, y: 50, isDragging: false, color: "blue" },
+  //     { x: 150, y: 150, isDragging: false, color: "blue" },
+  //   ];
+
+  //   let lineIsDragging = false;
+  //   let dragOffsetX = 0;
+  //   let dragOffsetY = 0;
+
+  //   canvas.width = rect.width;
+  //   canvas.height = rect.height;
+
+  //   function updateCanvasCoordinates() {
+  //     const videoResolution = { width: 1920, height: 1080 };
+  //     canvasCoordinates.set(
+  //       points.map((point) => ({
+  //         x: Math.round((point.x / rect.width) * videoResolution.width),
+  //         y: Math.round((point.y / rect.height) * videoResolution.height),
+  //       })),
+  //     );
+  //   }
+
+  //   function drawLinePoints() {
+  //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+  //     ctx.beginPath();
+  //     ctx.moveTo(points[0].x, points[0].y);
+  //     ctx.lineTo(points[1].x, points[1].y);
+  //     ctx.strokeStyle = "red";
+  //     ctx.stroke();
+  //     points.forEach((point) => {
+  //       ctx.beginPath();
+  //       ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+  //       ctx.fillStyle = point.color;
+  //       ctx.fill();
+  //     });
+  //   }
+
+  //   function isWithinBounds(point) {
+  //     return (
+  //       point.x >= 0 &&
+  //       point.x <= rect.width &&
+  //       point.y >= 0 &&
+  //       point.y <= rect.height
+  //     );
+  //   }
+
+  //   canvas.addEventListener("mousedown", (e) => {
+  //     const mouseX = e.clientX - rect.left;
+  //     const mouseY = e.clientY - rect.top;
+  //     let onPoint = false;
+
+  //     points.forEach((point) => {
+  //       if (
+  //         Math.abs(mouseX - point.x) < 10 &&
+  //         Math.abs(mouseY - point.y) < 10
+  //       ) {
+  //         point.isDragging = true;
+  //         onPoint = true;
+  //       }
+  //     });
+
+  //     if (!onPoint) {
+  //       lineIsDragging = true;
+  //       dragOffsetX = mouseX;
+  //       dragOffsetY = mouseY;
+  //     }
+  //   });
+
+  //   canvas.addEventListener("mousemove", (e) => {
+  //     const mouseX = e.clientX - rect.left;
+  //     const mouseY = e.clientY - rect.top;
+
+  //     if (lineIsDragging) {
+  //       const dx = mouseX - dragOffsetX;
+  //       const dy = mouseY - dragOffsetY;
+  //       let allWithinBounds = true;
+  //       points.forEach((point) => {
+  //         const newX = point.x + dx;
+  //         const newY = point.y + dy;
+  //         if (!isWithinBounds({ x: newX, y: newY })) {
+  //           allWithinBounds = false;
+  //         }
+  //       });
+
+  //       if (allWithinBounds) {
+  //         points.forEach((point) => {
+  //           point.x += dx;
+  //           point.y += dy;
+  //         });
+  //         dragOffsetX = mouseX;
+  //         dragOffsetY = mouseY;
+  //         drawLinePoints();
+  //         updateCanvasCoordinates();
+  //       }
+  //     } else if (points.some((p) => p.isDragging)) {
+  //       const point = points.find((p) => p.isDragging);
+  //       const newX = mouseX;
+  //       const newY = mouseY;
+  //       if (isWithinBounds({ x: newX, y: newY })) {
+  //         point.x = newX;
+  //         point.y = newY;
+  //         drawLinePoints();
+  //         updateCanvasCoordinates();
+  //       }
+  //     }
+
+  //     if (points.some((p) => p.isDragging)) {
+  //       canvas.style.cursor = "move";
+  //     } else {
+  //       canvas.style.cursor = "default";
+  //     }
+  //   });
+
+  //   canvas.addEventListener("mouseup", () => {
+  //     lineIsDragging = false;
+  //     points.forEach((point) => {
+  //       point.isDragging = false;
+  //     });
+  //   });
+
+  //   canvas.addEventListener("mouseout", () => {
+  //     lineIsDragging = false;
+  //     points.forEach((point) => {
+  //       point.isDragging = false;
+  //     });
+  //     canvas.style.cursor = "default";
+  //   });
+
+  //   drawLinePoints();
+  //   updateCanvasCoordinates();
+  // }
+
   function setupCanvasForLine() {
     canvas = document.getElementById("roicanvas");
     ctx = canvas.getContext("2d");
     rect = canvas.getBoundingClientRect();
-
-    const points = [
-      { x: 50, y: 50, isDragging: false, color: "blue" },
-      { x: 150, y: 150, isDragging: false, color: "blue" },
-    ];
-
-    let lineIsDragging = false;
-    let dragOffsetX = 0;
-    let dragOffsetY = 0;
 
     canvas.width = rect.width;
     canvas.height = rect.height;
@@ -662,7 +799,7 @@ createRoiLines()
     function updateCanvasCoordinates() {
       const videoResolution = { width: 1920, height: 1080 };
       canvasCoordinates.set(
-        points.map((point) => ({
+        lines.flat().map((point) => ({
           x: Math.round((point.x / rect.width) * videoResolution.width),
           y: Math.round((point.y / rect.height) * videoResolution.height),
         })),
@@ -671,16 +808,19 @@ createRoiLines()
 
     function drawLinePoints() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, points[0].y);
-      ctx.lineTo(points[1].x, points[1].y);
-      ctx.strokeStyle = "red";
-      ctx.stroke();
-      points.forEach((point) => {
+      lines.forEach((line, index) => {
         ctx.beginPath();
-        ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
-        ctx.fillStyle = point.color;
-        ctx.fill();
+        ctx.moveTo(line[0].x, line[0].y);
+        ctx.lineTo(line[1].x, line[1].y);
+        ctx.strokeStyle =
+          lineIsDragging && draggingLineIndex === index ? "blue" : "red";
+        ctx.stroke();
+        line.forEach((point) => {
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+          ctx.fillStyle = point.color;
+          ctx.fill();
+        });
       });
     }
 
@@ -698,20 +838,31 @@ createRoiLines()
       const mouseY = e.clientY - rect.top;
       let onPoint = false;
 
-      points.forEach((point) => {
-        if (
-          Math.abs(mouseX - point.x) < 10 &&
-          Math.abs(mouseY - point.y) < 10
-        ) {
-          point.isDragging = true;
-          onPoint = true;
-        }
+      lines.forEach((line, index) => {
+        line.forEach((point) => {
+          if (
+            Math.abs(mouseX - point.x) < 10 &&
+            Math.abs(mouseY - point.y) < 10
+          ) {
+            point.isDragging = true;
+            onPoint = true;
+            draggingLineIndex = index;
+          }
+        });
       });
 
       if (!onPoint) {
-        lineIsDragging = true;
-        dragOffsetX = mouseX;
-        dragOffsetY = mouseY;
+        lines.forEach((line, index) => {
+          ctx.beginPath();
+          ctx.moveTo(line[0].x, line[0].y);
+          ctx.lineTo(line[1].x, line[1].y);
+          if (ctx.isPointInStroke(mouseX, mouseY)) {
+            lineIsDragging = true;
+            dragOffsetX = mouseX;
+            dragOffsetY = mouseY;
+            draggingLineIndex = index;
+          }
+        });
       }
     });
 
@@ -719,11 +870,11 @@ createRoiLines()
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
 
-      if (lineIsDragging) {
+      if (lineIsDragging && draggingLineIndex !== null) {
         const dx = mouseX - dragOffsetX;
         const dy = mouseY - dragOffsetY;
         let allWithinBounds = true;
-        points.forEach((point) => {
+        lines[draggingLineIndex].forEach((point) => {
           const newX = point.x + dx;
           const newY = point.y + dy;
           if (!isWithinBounds({ x: newX, y: newY })) {
@@ -732,7 +883,7 @@ createRoiLines()
         });
 
         if (allWithinBounds) {
-          points.forEach((point) => {
+          lines[draggingLineIndex].forEach((point) => {
             point.x += dx;
             point.y += dy;
           });
@@ -741,8 +892,8 @@ createRoiLines()
           drawLinePoints();
           updateCanvasCoordinates();
         }
-      } else if (points.some((p) => p.isDragging)) {
-        const point = points.find((p) => p.isDragging);
+      } else if (lines.flat().some((p) => p.isDragging)) {
+        const point = lines.flat().find((p) => p.isDragging);
         const newX = mouseX;
         const newY = mouseY;
         if (isWithinBounds({ x: newX, y: newY })) {
@@ -753,7 +904,7 @@ createRoiLines()
         }
       }
 
-      if (points.some((p) => p.isDragging)) {
+      if (lines.flat().some((p) => p.isDragging) || lineIsDragging) {
         canvas.style.cursor = "move";
       } else {
         canvas.style.cursor = "default";
@@ -762,24 +913,57 @@ createRoiLines()
 
     canvas.addEventListener("mouseup", () => {
       lineIsDragging = false;
-      points.forEach((point) => {
+      draggingLineIndex = null;
+      lines.flat().forEach((point) => {
         point.isDragging = false;
       });
+      drawLinePoints(); // Redraw to reset line color
     });
 
     canvas.addEventListener("mouseout", () => {
       lineIsDragging = false;
-      points.forEach((point) => {
+      draggingLineIndex = null;
+      lines.flat().forEach((point) => {
         point.isDragging = false;
       });
       canvas.style.cursor = "default";
+      drawLinePoints(); // Redraw to reset line color
     });
 
     drawLinePoints();
     updateCanvasCoordinates();
   }
 
-   function updateListWithNewOrder(newOrder, draggedItem) {
+  function addLinesToCanvas() {
+    if (numberOfLines < 5) {
+      lines.push([
+        {
+          x: 50 + numberOfLines * 20,
+          y: 50 + numberOfLines * 20,
+          isDragging: false,
+          color: "blue",
+        },
+        {
+          x: 150 + numberOfLines * 20,
+          y: 150 + numberOfLines * 20,
+          isDragging: false,
+          color: "blue",
+        },
+      ]);
+      numberOfLines += 1;
+      setupCanvasForLine();
+    }
+  }
+
+  function removeLastLineFromCanvas() {
+    if (numberOfLines > 1) {
+      lines.pop();
+      numberOfLines -= 1;
+      setupCanvasForLine();
+    }
+  }
+
+  function updateListWithNewOrder(newOrder, draggedItem) {
     const cell = document.getElementById("grid-cell-0");
     const stream = cell?.querySelector("video-stream");
     if (stream) {
@@ -792,54 +976,53 @@ createRoiLines()
     }
   }
 
-  
   //  $: {
   //   setTimeout(() => {
-  //     createRoiLines() 
+  //     createRoiLines()
   //   }, 5000);
   //  }
 
-
-   function createRoiLines () {
-    if ($selectedNode.camera.some(camera => camera.lineCrossing && camera.lineData.length > 0)) {
-       $selectedNode.camera.forEach((camera, index) => {
+  function createRoiLines() {
+    if (
+      $selectedNode.camera.some(
+        (camera) => camera.lineCrossing && camera.lineData.length > 0,
+      )
+    ) {
+      $selectedNode.camera.forEach((camera, index) => {
         // console.log(camera.lineData)
-        console.log(index)
-         if (camera.lineCrossing && camera.lineData.length > 0) {
-           const canvas = document.getElementById(`lineCanvas-${index}`);
-           if (canvas) {
+        if (camera.lineCrossing && camera.lineData.length > 0) {
+          const canvas = document.getElementById(`lineCanvas-${index}`);
+          if (canvas) {
             canvas.style.borderRadius = "14px";
-            // console.log(canvas)
-            //  canvas.style.backgroundColor = "red";
-             drawLineData(canvas, camera.lineData);
-           }
-         }
-       });
-     }
-   }
+            drawLineData(canvas, camera.lineData);
+          }
+        }
+      });
+    }
+  }
 
-   function drawLineData(canvas, lineData) {
+  function drawLineData(canvas, lineData) {
     const ctx = canvas.getContext("2d");
     const rect = canvas.getBoundingClientRect();
 
     // Scale points to fit the canvas dimensions
-    // console.log(rect)
-    const scaledPoints = lineData.map(point => ({
+    const scaledPoints = lineData.map((point) => ({
       x: (point.x / 1920) * canvas.width,
-      y: (point.y / 1080) * canvas.height
+      y: (point.y / 1080) * canvas.height,
     }));
-    // console.log(scaledPoints)
 
- ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.beginPath();
-    ctx.moveTo(scaledPoints[0].x, scaledPoints[0].y);
-    for (let i = 1; i < scaledPoints.length; i++) {
-      ctx.lineTo(scaledPoints[i].x, scaledPoints[i].y);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < scaledPoints.length; i += 2) {
+      if (i + 1 < scaledPoints.length) {
+        ctx.beginPath();
+        ctx.moveTo(scaledPoints[i].x, scaledPoints[i].y);
+        ctx.lineTo(scaledPoints[i + 1].x, scaledPoints[i + 1].y);
+        ctx.strokeStyle = "red";
+        ctx.stroke();
+      }
     }
 
-    ctx.strokeStyle = "red";
-
-    ctx.stroke();
     scaledPoints.forEach((point) => {
       ctx.beginPath();
       ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
@@ -847,7 +1030,6 @@ createRoiLines()
       ctx.fill();
     });
   }
-
 </script>
 
 {#if streamCount > 0 && Object.keys(videos).length > 0}
@@ -925,12 +1107,35 @@ createRoiLines()
                   class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white p-2 absolute bottom-4 left-1/2 -translate-x-1/2 items-center rounded-xl scale-90 z-20"
                   ><PenTool size={22} /></button
                 >
-                {:else}
-                <button
-                  on:click={toggleDraw}
-                  class="flex gap-2 z-[100] bg-[rgba(0,0,0,.5)] text-white p-2 absolute bottom-4 left-1/2 -translate-x-1/2 items-center rounded-xl scale-90"
-                  ><X size={22} /></button
-                >{/if}
+              {:else}
+                <span
+                  class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 z-[100]"
+                >
+                  <button
+                    on:click={toggleDraw}
+                    class="flex gap-2 z-[100] bg-[rgba(0,0,0,.5)] text-white p-2 items-center rounded-xl scale-90"
+                    ><X size={22} /></button
+                  >
+                  <button
+                    class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white p-2 items-center rounded-xl scale-90 z-[100]"
+                    on:click={() => {
+                      addLinesToCanvas();
+                    }}
+                  >
+                    <Plus size={22} />
+                  </button>
+                  {#if numberOfLines > 1}
+                    <button
+                      class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white p-2 items-center rounded-xl scale-90 z-[100]"
+                      on:click={() => {
+                        removeLastLineFromCanvas(); // Remove the last line from the canvas
+                      }}
+                    >
+                      <Minus size={22} />
+                    </button>
+                  {/if}
+                </span>
+              {/if}
               {#if draw}
                 <canvas
                   id="roicanvas"
@@ -977,7 +1182,6 @@ createRoiLines()
                           : bigCellIndex === slotIndex
                             ? "grid-area: bigCell1"
                             : ""}
-                           
                     >
                       {#if [5, 7, 13].includes($selectedNode.maxStreamsPerPage) && bigCellIndex !== slotIndex}
                         <button
@@ -988,29 +1192,15 @@ createRoiLines()
                           <AArrowUp size={18} />
                         </button>
                       {/if}
-                      {#if $selectedNode.camera[
-                          pageIndex *
-                            ($selectedNode.maxStreamsPerPage === 5 ||
-                            $selectedNode.maxStreamsPerPage === 7
-                              ? $selectedNode.maxStreamsPerPage + 1
-                              : $selectedNode.maxStreamsPerPage) +
-                            slotIndex
-                        ].lineCrossing === true && $selectedNode.camera[
-                          pageIndex *
-                            ($selectedNode.maxStreamsPerPage === 5 ||
-                            $selectedNode.maxStreamsPerPage === 7
-                              ? $selectedNode.maxStreamsPerPage + 1
-                              : $selectedNode.maxStreamsPerPage) +
-                            slotIndex
-                        ].lineData.length > 0}
-                       <canvas
-                          id={`lineCanvas-${$selectedNode.maxStreamsPerPage === 1 ? pageIndex: slotIndex}`}
+                      {#if $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex].lineCrossing === true && $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex].lineData.length > 0}
+                        <canvas
+                          id={`lineCanvas-${$selectedNode.maxStreamsPerPage === 1 ? pageIndex : slotIndex}`}
                           class="absolute top-0 left-0 w-full h-full z-30 pointer-events-none"
                           on:click={(e) => {
                             e.preventDefault();
                           }}
                         ></canvas>
-                        {/if}
+                      {/if}
                       <Stream
                         videoElement={videos[
                           $selectedNode.camera[
@@ -1066,27 +1256,29 @@ createRoiLines()
                         <div
                           id={`${$activeCamera}-menu`}
                           class="z-20 flex justify-center items-center gap-4 self-end mt-auto absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-3 rounded-xl bg-gradient-to-bl from-[rgba(217,217,217,.2)] to-[rgba(217,217,217,.1)] border border-solid border-[#d3d3d3]"
-                        > <button
+                        >
+                          <button
                             on:click={() => {
-                          const sessionId = $selectedNode.session;
-                          const cameraId = $selectedNode.camera[
-                            pageIndex *
-                            ($selectedNode.maxStreamsPerPage === 5 ||
-                            $selectedNode.maxStreamsPerPage === 7
-                            ? $selectedNode.maxStreamsPerPage + 1
-                            : $selectedNode.maxStreamsPerPage) +
-                            slotIndex
-                          ].id;
-                          const url = `/fullscreen/${sessionId}?query=${cameraId}`;
-                          window.location.href = url;
-                        }}
+                              const sessionId = $selectedNode.session;
+                              const cameraId =
+                                $selectedNode.camera[
+                                  pageIndex *
+                                    ($selectedNode.maxStreamsPerPage === 5 ||
+                                    $selectedNode.maxStreamsPerPage === 7
+                                      ? $selectedNode.maxStreamsPerPage + 1
+                                      : $selectedNode.maxStreamsPerPage) +
+                                    slotIndex
+                                ].id;
+                              const url = `/fullscreen/${sessionId}?query=${cameraId}`;
+                              window.location.href = url;
+                            }}
                             class=" disabled:cursor-not-allowed rounded bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
                           >
                             {#if !isSingleFullscreen}
                               <Expand size={18} />{:else}
                               <Shrink size={18} />{/if}
                           </button>
-                
+
                           <button
                             disabled
                             on:click={(e) => {
@@ -1138,26 +1330,29 @@ createRoiLines()
                           >
                             <RefreshCcw size={18} />
                           </button>
+                          <button
+                            class="rounded disabled:cursor-not-allowed bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
+                          >
+                            <Volume2 size={18} />
+                          </button>
                         </div>
                       {:else}
-                        
                         <button
-                        on:click={() => {
-                          const sessionId = $selectedNode.session;
-                          const cameraId = $selectedNode.camera[
-                            pageIndex *
-                            ($selectedNode.maxStreamsPerPage === 5 ||
-                            $selectedNode.maxStreamsPerPage === 7
-                            ? $selectedNode.maxStreamsPerPage + 1
-                            : $selectedNode.maxStreamsPerPage) +
-                            slotIndex
-                          ].id;
-                          const url = `/fullscreen/${sessionId}?query=${cameraId}`;
-                          window.location.href = url;
-                        }
-                      } 
+                          on:click={() => {
+                            const sessionId = $selectedNode.session;
+                            const cameraId =
+                              $selectedNode.camera[
+                                pageIndex *
+                                  ($selectedNode.maxStreamsPerPage === 5 ||
+                                  $selectedNode.maxStreamsPerPage === 7
+                                    ? $selectedNode.maxStreamsPerPage + 1
+                                    : $selectedNode.maxStreamsPerPage) +
+                                  slotIndex
+                              ].id;
+                            const url = `/fullscreen/${sessionId}?query=${cameraId}`;
+                            window.location.href = url;
+                          }}
                           class="absolute p-1 top-4 right-4 cursor-pointer bg-[rgba(0,0,0,.5)] text-white rounded z-20 disabled:cursor-not-allowed"
-                          
                           >{#if !isSingleFullscreen}
                             <Expand size={18} />{:else}
                             <Shrink size={18} />{/if}
