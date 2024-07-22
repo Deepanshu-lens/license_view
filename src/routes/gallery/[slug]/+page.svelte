@@ -34,11 +34,13 @@
   onMount(async () => {
     gallery = await getData();
   });
+
+  $: console.log(gallery)
 </script>
 
 <!-- desk -->
 <div class="h-[calc(100vh-76px)] hidden sm:block w-full">
-  {#if gallery && gallery.length > 0}
+  {#if gallery}
     <GalleryPanel {gallery} />
   {/if}
 </div>

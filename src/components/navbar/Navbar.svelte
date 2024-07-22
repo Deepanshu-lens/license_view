@@ -33,10 +33,10 @@
     //   text: "Events",
     //   href: `/events/${sessionId}`,
     // },
-    // {
-    //   text: "Gallery",
-    //   href: `/gallery/${sessionId}`,
-    // },
+    {
+      text: "Gallery",
+      href: `/gallery/${sessionId}`,
+    },
     // {
     //   text: "Configuration",
     //   href: `/configuration/${sessionId}?section=Remote`,
@@ -139,16 +139,11 @@
       >
         {#each menuList as item}
           {#key item}
-            {#if item.text === "Live" || item.text === "Atlas" || item.text === "Configuration" || item.text === "Reports"}
               <a
                 data-svelte-prefetch
                 href={item.href}
                 on:click={() => {
                   addUserLog(`user clicked on navbar link "${item.text}"`);
-                  // events.set([])
-                  // setTimeout(() => {
-                  //   window.location.reload()
-                  // }, 1000);
                 }}
               >
                 <span
@@ -161,19 +156,6 @@
                   {item.text}
                 </span>
               </a>
-            {:else}
-              <button disabled class="disabled:cursor-not-allowed">
-                <span
-                  class={`${
-                    $page.url.pathname === item.href.split("?")[0]
-                      ? `text-primary font-bold text-lg`
-                      : ""
-                  }`}
-                >
-                  {item.text}
-                </span>
-              </button>
-            {/if}
           {/key}
         {/each}
         <!-- {#if session.frs} -->

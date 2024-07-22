@@ -71,7 +71,7 @@
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <article
-  class={`flex  items-center gap-4 p-4 dark:border
+  class={`flex  items-center gap-4 p-4 dark:border 
               hover:border hover:border-primary ${isAllFullScreen && "text-slate-100"}
               rounded-xl shadow-md text-base z-10 w-full px-4
           ${cameraId === $activeCamera ? ` border animate-gradient-border  ${isAllFullScreen ? "bg-black" : "bg-[#f9f9f9] dark:bg-black"}` : `${isAllFullScreen ? "bg-black" : "bg-[#f9f9f9] dark:bg-black"}`}
@@ -100,9 +100,9 @@
     <p class="text-xs">
       {url?.split("@")?.[1]?.split("/")?.[0]?.split(":")?.[0]}
     </p>
-  </div>
+</div>
 
-  <ul class="flex flex-row gap-2 ml-auto p-0 list-none cursor-pointer">
+  <ul class="flex flex-row gap-2 xl:ml-auto p-0 list-none cursor-pointer">
     <li class="cursor-pointer hover:scale-125">
       <!-- {#if features && features.includes("camera settings")} -->
       <CameraEditDialog {name} {url} {cameraId} {sparshID}>
@@ -150,7 +150,7 @@
     </li>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-    <li class="cursor-pointer hover:scale-125" on:click={deleteCamera}>
+    <li class="cursor-pointer hover:scale-125 pt-[1.5px]" on:click={deleteCamera}>
       <Trash class="h-4 w-4" />
     </li>
   </ul>

@@ -130,7 +130,7 @@
   class={`flex justify-between items-center py-0.5 px-4 border-b-[1px] w-full`}
 >
   <div
-    class={`relative inline-block min-w-[140px] ${$page.route.id.includes("/session") ? "w-max" : "w-full"} ${isAllFullScreen && "bg-black"}`}
+    class={`relative inline-block min-w-[145px] ${$page.route.id.includes("/session") ? "w-max" : "w-full"} ${isAllFullScreen && "bg-black"}`}
   >
     <button
       class={`text-start disabled:cursor-not-allowed block text-primary text-xs outline-none capitalize border-none font-semibold appearance-none w-full ${isAllFullScreen ? "bg-black" : "bg-background"} border py-4 leading-tight  `}
@@ -180,7 +180,6 @@
     <span class="flex items-center gap-2 justify-between">
       <AddCameraDialog sNode={""} {nodes}>
         <button
-          disabled
           class={`w-[26px] h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center disabled:cursor-not-allowed`}
         >
           <PlusCircle size={18} class="text-[#727272] dark:text-[#f9f9f9]" />
@@ -188,7 +187,6 @@
       </AddCameraDialog>
       <EditNodeDialog>
         <button
-          disabled
           class={`w-[26px] disabled:cursor-not-allowed h-[26px] bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"} grid place-items-center`}
         >
           <Edit size={18} class="text-[#727272] dark:text-[#f9f9f9]" />
@@ -196,7 +194,8 @@
       </EditNodeDialog>
       <AlertDeleteNode onDelete={onDeleteNode}
         ><button
-          class={`w-[26px] h-[26px] disabled:cursor-not-allowed bg-[#F9F9F9] dark:bg-black rounded-full ${isAllFullScreen && "text-primary"}`}
+        disabled
+          class={`w-[26px] h-[26px] disabled:cursor-not-allowed bg-[#F9F9F9] dark:bg-black rounded-full grid place-items-center ${isAllFullScreen && "text-primary"}`}
           ><Trash
             size={18}
             class="text-[#727272] dark:text-[#f9f9f9]"

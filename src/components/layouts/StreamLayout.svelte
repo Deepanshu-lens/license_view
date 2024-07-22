@@ -23,6 +23,7 @@
     PenTool,
     Plus,
     RefreshCcw,
+    Users,
     Volume2,
     VolumeX,
     X,
@@ -67,6 +68,7 @@
   let dragOffsetY = 0;
   let draggingLineIndex = null;
   const neededUrl = $page.url.hostname;
+    const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
   // onMount(async() => {
   //   try {
@@ -237,115 +239,6 @@
     handleSlideChange();
   }
 
-  //   $: if ($selectedNode) {
-  //   (async () => {
-  //     console.log('calling status data through $')
-  //     await getCameraStatusData();
-  //   })();
-  // }
-
-  // async function getCameraStatusData() {
-  //   const cameraStatus = await PB.collection("camera_ping_status").getList(
-  //     1,
-  //     100,
-  //     {
-  //       filter: `node~"${$selectedNode.id}"`,
-  //       sort: "-created",
-  //     },
-  //   );
-  //   const uniqueUrls = new Set();
-  //   const uniqueStatus = cameraStatus.items.filter((item) => {
-  //     if (!uniqueUrls.has(item.url)) {
-  //       uniqueUrls.add(item.url);
-  //       return true;
-  //     }
-  //     return false;
-  //   });
-  //   cameraStatusData = uniqueStatus;
-  // }
-
-  // let currentIndex = 0;
-  // let refreshInterval;
-
-  // const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
-  // onMount(async () => {
-  //   PB.collection("camera_ping_status").subscribe("*", async (e) => {
-  //     console.log("new update in camera_ping_status", e.action, e.record);
-  //     if (e.action === "create") {
-  //       const rec = cameraStatusData.find(
-  //         (item) => item.camera === e.record.camera,
-  //       );
-  //       // console.log(rec);
-  //       const index = cameraStatusData.findIndex(
-  //         (item) => item.camera === e.record.camera,
-  //       );
-  //       // console.log(index);
-  //       if (index !== -1) {
-  //         console.log("oldStatus", cameraStatusData[index].status);
-  //         console.log("newStatus", e.record.status);
-
-  //         if (cameraStatusData[index].status !== e.record.status) {
-  //           console.log(e.record.status);
-  //           {
-  //             if (e.record.status === true) {
-  //               setTimeout(() => {
-  //                 refreshVideoStream(e.record.camera);
-  //               }, 100);
-  //             } else {
-  //               toast.error(
-  //                 `Camera: ${$selectedNode.camera.find((item) => item.id === e.record.camera).name} is offline`,
-  //               );
-  //             }
-  //           }
-  //         }
-  //         cameraStatusData[index] = e.record;
-  //       } else {
-  //         console.log("updated ping record not from this node");
-  //       }
-  //     }
-  //   });
-  // });
-
-  // onDestroy(() => {
-  //   PB.collection("camera_ping_status").unsubscribe("*");
-  // });
-
-  // function refreshCamera() {
-  //   const camera = $selectedNode.camera[currentIndex];
-  //   if (camera) {
-  //     refreshVideoStream(camera.id);
-  //     console.log(
-  //       "Refreshing camera with index & name:",
-  //       currentIndex,
-  //       camera.name,
-  //     );
-  //   }
-  //   currentIndex = (currentIndex + 1) % $selectedNode.camera.length;
-  // }
-
-  // function startRefreshing() {
-  //   refreshCamera(); // Immediately refresh the first camera
-  //   refreshInterval = setInterval(refreshCamera, 60000); // Continue refreshing every minute
-  // }
-
-  // onMount(() => {
-  //   if ($selectedNode) {
-  //     startRefreshing();
-  //   }
-  // });
-
-  // onDestroy(() => {
-  //   clearInterval(refreshInterval); // Clear the interval when the component is destroyed
-  // });
-
-  // // Reactive statement to handle changes in the camera array
-  // $: if ($selectedNode.camera.length > 0 && !refreshInterval) {
-  //   startRefreshing();
-  // } else if ($selectedNode.camera.length === 0 && refreshInterval) {
-  //   clearInterval(refreshInterval);
-  //   refreshInterval = null;
-  // }
-
   let prevName = $selectedNode.name;
 
   const updateLayout = (maxStreamsPerPage: number) => {
@@ -381,6 +274,9 @@
           ? $selectedNode.camera.length
           : $filteredNodeCameras.length;
 
+          // console.log(streamCount)
+          // console.log(maxStreamsPerPage)
+
     if (maxStreamsPerPage === 0) {
       // Automatic Layout
 
@@ -392,6 +288,8 @@
       }
 
       layoutRows = Math.ceil(streamCount / layoutColumns);
+      // console.log(layoutColumns)
+      // console.log(layoutRows)
     } else if (
       streamCount !== 0 &&
       maxStreamsPerPage !== 10 &&
@@ -443,9 +341,15 @@
     }
   }
 
+  
+
   $: {
     if ($filteredNodeCameras.length === $selectedNode.camera.length) {
-      updateLayout($selectedNode.maxStreamsPerPage);
+      if(!$markRoi){
+        updateLayout($selectedNode.maxStreamsPerPage);
+      } else {
+        updateLayout(0);
+      }
     } else {
       updateLayout(0);
     }
@@ -892,7 +796,7 @@
 
     const muteStates = writable<{ [key: string]: boolean }>({});
 
-    $: console.log($muteStates)
+    // $: console.log($muteStates)
 
   // Function to toggle mute state for a specific camera
   const toggleMute = (cameraId: string) => {
@@ -901,6 +805,23 @@
       return newState;
     });
   };
+
+
+    let personCounts = writable<{ [key: string]: number }>({});
+
+  onMount(() => {
+     PB.collection("camera").subscribe("*", (e) => {
+      if (e.action === "update" && e.record.personCount !== undefined) {
+        personCounts.update((counts) => {
+          counts[e.record.id] = e.record.personCount;
+          return counts;
+        });
+      }
+    });
+  });
+    onDestroy(() => {
+      PB.collection("camera").unsubscribe("*");
+    });
 </script>
 
 {#if streamCount > 0 && Object.keys(videos).length > 0}
@@ -1109,7 +1030,7 @@
                         on:refErr={handleRefreshError}
                       />
                       <span
-                        class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-90 z-20"
+                        class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-12 left-4 items-center rounded-xl scale-90 z-20"
                       >
                         <span
                           class={`h-2 w-2 ${
@@ -1135,6 +1056,38 @@
                               slotIndex
                           ].name}
                         </span>
+                      </span>
+
+                      <span
+                        class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-90 z-20"
+                      >
+                        <Users size={18} />
+                        {#if $selectedNode.camera[
+                          pageIndex *
+                            ($selectedNode.maxStreamsPerPage === 5 ||
+                            $selectedNode.maxStreamsPerPage === 7
+                              ? $selectedNode.maxStreamsPerPage + 1
+                              : $selectedNode.maxStreamsPerPage) +
+                            slotIndex
+                        ].id in $personCounts}
+                          {$personCounts[$selectedNode.camera[
+                            pageIndex *
+                              ($selectedNode.maxStreamsPerPage === 5 ||
+                              $selectedNode.maxStreamsPerPage === 7
+                                ? $selectedNode.maxStreamsPerPage + 1
+                                : $selectedNode.maxStreamsPerPage) +
+                              slotIndex
+                          ].id]}
+                        {:else}
+                          {$selectedNode.camera[
+                            pageIndex *
+                              ($selectedNode.maxStreamsPerPage === 5 ||
+                              $selectedNode.maxStreamsPerPage === 7
+                                ? $selectedNode.maxStreamsPerPage + 1
+                                : $selectedNode.maxStreamsPerPage) +
+                              slotIndex
+                          ].personCount}
+                        {/if}
                       </span>
 
                       {#if $activeCamera === $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex].id}

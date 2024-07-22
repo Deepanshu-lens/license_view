@@ -83,6 +83,7 @@
     </h1>
     {#if view === 1}
       <div class="flex flex-wrap gap-6 h-full w-full overflow-y-scroll pb-10">
+        {#if gallery && gallery.length > 0}
         {#each gallery as person}
           <div
             class={`w-[290px] h-[190px] bg-white dark:bg-[#333] ${$mode !== "dark" && "shad"} rounded-lg p-3`}
@@ -115,6 +116,11 @@
             </span>
           </div>
         {/each}
+        {:else}
+        <div class="flex flex-col h-full p-4 my-auto z-10 relative">
+          <p class="text-center text-xl font-medium">No registered people found, Register to add people to your gallery</p>
+        </div>
+        {/if}
       </div>
     {:else}
       <div class="h-full w-full">

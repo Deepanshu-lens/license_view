@@ -90,6 +90,7 @@
       </Table.Row>
     </Table.Header>
     <Table.Body>
+      {#if data && data.length > 0}
       {#each data as person, index}
         <Table.Row
           class="bg-transparent flex items-center justify-between mt-4 rounded-lg  border-2 border-solid border-[#e4e4e4]"
@@ -136,6 +137,11 @@
           </Table.Cell>
         </Table.Row>
       {/each}
+      {:else}
+      <div class="flex flex-col h-full p-4 my-auto z-10 relative">
+        <p class="text-center text-xl font-medium">No registered people found, Register to add people to your gallery</p>
+      </div>
+      {/if}
     </Table.Body>
   </Table.Root>
 </div>

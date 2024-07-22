@@ -66,6 +66,7 @@
                     intrusionPersonThresh: cam.intrusionPersonThresh,
                     intrusionVehicleThresh: cam.intrusionVehicleThresh,
                     sparshID: cam.sparshID,
+                    personCount: cam.personCount,
                   })) as Camera[])
                 : [],
           }) as unknown as Node,
@@ -137,7 +138,6 @@
 
 
 
-  $: console.log($events.length)
 </script>
 
 {#if $selectedNode}

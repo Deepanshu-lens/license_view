@@ -70,7 +70,7 @@
   const search = new URLSearchParams(window.location.search);
   const screens = parseInt(search.get("s") ?? "1");
   const cameraCount = $selectedNode.camera.length;
-  const isMobile = writable(true);
+  const isMobile = writable(false);
 
   let recording = false;
   let slideRecording = false;
@@ -564,9 +564,9 @@
       disabled={!features.includes("Change Layouts")} -->
         <button
           on:click={() => {
+            filteredNodeCameras.set($selectedNode.camera);
             markRoi.set(!$markRoi);
             currpanel = 3;
-            filteredNodeCameras.set($selectedNode.camera);
           }}
           class={!$markRoi
             ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
@@ -705,101 +705,23 @@
         </p>
       </span>
       <span class="group flex-col flex items-center justify-center gap-0.5">
-        <!-- <button
-      disabled={!features.includes("Change Layouts")} -->
+      <LayoutDialog {toggleDisplayLayouts}>
         <button
           on:click={() => {
             displayLayouts = !displayLayouts;
             nodeCameras = false;
             addUserLog("user clicked display and layouts, left pane");
           }}
-          class={!displayLayouts
-            ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
-            : `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
-          ><LayoutPanelLeft class="h-[22px] w-[22px]" />
-          {#if displayLayouts}
-            <span
-              class="z-40 w-[200px] border flex items-center justify-center bg-background dark:text-white text-black divide-y divide-gray-100 shadow-dropdown rounded-lg shadow absolute right-12"
-            >
-              <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
-                <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <li
-                  class="w-full"
-                  on:click={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                  }}
-                >
-                  <LayoutDialog {toggleDisplayLayouts}>
-                    <button
-                      class="block rounded-md px-4 py-2 text-center hover:bg-[rgba(92,75,221,.1)] dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
-                    >
-                      Manage Screen layouts
-                    </button>
-                  </LayoutDialog>
-                </li>
-                <li class="w-full">
-                  <button
-                    class="rounded-md cursor-not-allowed text-center block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
-                  >
-                    Manage Displays
-                  </button>
-                </li>
-              </ul>
-            </span>
-          {/if}
+            class={`disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
+         ><LayoutPanelLeft class="h-[22px] w-[22px]" />
         </button>
+      </LayoutDialog>
         <p
           class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
         >
           Layouts
         </p>
       </span>
-      <!-- <span class="group flex-col flex items-center justify-center gap-0.5">
-      <button disabled
-        on:click={() => {
-          nodeCameras = !nodeCameras;
-          displayLayouts = false;
-          addUserLog("user clicked nodes and cameras, left pane");
-        }}
-        class={!nodeCameras
-          ? `disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `
-          : `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`}
-        ><Cctv class="h-[22px] w-[22px]" />
-        {#if nodeCameras}
-          <span
-            class="z-40 border w-[200px] flex items-center justify-center bg-background dark:text-white text-black divide-y divide-gray-100 shadow-dropdown rounded-lg shadow absolute right-12"
-          >
-            <ul class="py-2 text-sm" aria-labelledby="dropdownDefaultButton">
-              <li class="w-full">
-                <button
-                  on:click={() =>
-                    (window.location.href = `/configuration/${sessionId}?section=Camera`)}
-                  class="rounded-md block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
-                >
-                  Manage existing Nodes
-                </button>
-              </li>
-              <li class="w-full">
-                <button
-                  on:click={() =>
-                    (window.location.href = `/configuration/${sessionId}?section=Camera`)}
-                  class="rounded-md block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] dark:hover:bg-gray-600 dark:hover:text-white w-full disabled:cursor-not-allowed"
-                >
-                  Manage existing Cameras
-                </button>
-              </li>
-            </ul>
-          </span>
-        {/if}
-      </button>
-      <p
-        class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
-      >
-        Manage
-      </p>
-    </span> -->
     </div>
 
     <div
@@ -834,10 +756,12 @@
         </button>
       {/if}
 
+      {#if showRightPanel}
       {#if !$alertPanelHide || $markRoi}
         <!-- class={`-rotate-90 absolute top-44 z-[999] transition-position ease-in-out duration-500 flex ${isAllFullScreen && showRightPanel ? "right-[12.7rem]" : showRightPanel && !isAllFullScreen ? "2xl:right-[12.7rem] xl:right-[8.7em]  right-[8%]" : !showRightPanel ? "-right-20 opacity-0" : "-right-20"}`} -->
+
         <span
-          class={`-rotate-90 absolute top-44 z-[999] transition-position ease-in-out duration-500 flex ${isAllFullScreen && showRightPanel && !$markRoi && !$alertPanelHide ? "right-[12.7rem]" : isAllFullScreen && showRightPanel && $markRoi && $alertPanelHide ? "right-[12.7rem]" : isAllFullScreen && showRightPanel && $markRoi && !$alertPanelHide ? "right-[9.8rem]" : !isAllFullScreen && showRightPanel && $markRoi && !$alertPanelHide ? "right-[8.7rem]" : !isAllFullScreen && showRightPanel && $markRoi && $alertPanelHide ? "right-[11.8rem]" : !isAllFullScreen && showRightPanel && !$markRoi && !$alertPanelHide ? "right-[11.8rem]" : "right-0"}`}
+                  class={`-rotate-90 absolute  z-[999] transition-position ease-in-out duration-500 flex ${isAllFullScreen && showRightPanel && !$markRoi && !$alertPanelHide ? " min-[1250px]:right-[15.4%] min-[1400px]:right-[14.2%] 2xl:right-[12.7rem] lg:right-[12.7rem] right-[9.8rem] top-44" : isAllFullScreen && showRightPanel && $markRoi && $alertPanelHide ? "min-[1250px]:right-[15.4%] min-[1400px]:right-[14.2%] 2xl:right-[12.7rem] lg:right-[12.7rem] right-[9.8rem] top-44" : isAllFullScreen && showRightPanel && $markRoi && !$alertPanelHide ? "lg:right-[9.8rem] right-[6.7rem]  top-44" : !isAllFullScreen && showRightPanel && $markRoi && !$alertPanelHide ? " min-[1350px]:right-[11.4%] 2xl:right-[9.7rem] lg:top-32 xl:top-36 2xl:top-44 lg:right-[12.6%]" : !isAllFullScreen && showRightPanel && $markRoi && $alertPanelHide ? "2xl:right-[12.8rem] min-[1350px]:right-[15%] min-[1250px]:right-[16.6%] lg:right-[17.5%] md:right-[15.7%] 2l:top-44 xl:top-40 lg:top-32 top-[5.2rem]" : !isAllFullScreen && showRightPanel && !$markRoi && !$alertPanelHide ? "2xl:right-[12.8rem] min-[1350px]:right-[15%] min-[1250px]:right-[16.6%] lg:right-[17.5%] md:right-[15.7%] 2l:top-44 xl:top-40 lg:top-32 top-[5.2rem]" : "right-0"}`}
         >
           {#if !$alertPanelHide}
             <button
@@ -863,10 +787,11 @@
           {/if}
         </span>
       {/if}
+      {/if}
 
       <button
         on:click={() => (showRightPanel = !showRightPanel)}
-        class={`absolute ${showRightPanel ? ` ${isAllFullScreen ? "right-[18rem]" : "right-[20%]  2xl:right-[18rem] "} ` : "right-0"} py-1 rounded-l-md bg-[#f9f9f9] dark:bg-slate-800 top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
+        class={`absolute ${showRightPanel ? ` ${isAllFullScreen ? 'right-[15rem] lg:right-[18rem]' : 'right-[14rem] lg:right-[17rem] xl:right-[18rem]'} ` : "right-0"} py-1 rounded-l-md bg-[#f9f9f9] dark:bg-slate-800 top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
       >
         <ChevronRight
           class={`${showRightPanel ? "rotate-0" : "rotate-180"} transition-transform ease-in-out duration-700`}
@@ -876,7 +801,7 @@
       <div
         id="infopanel"
         class={`h-full border-solid 
-         border-x-[1px] 
+         border-x-[1px] flex-shrink-0
          transition-width ease-in-out duration-500 overflow-y-scroll z-[998] hide-scrollbar
         ${showRightPanel ? "w-1/4" : "w-0"} relative max-w-72`}
       >
