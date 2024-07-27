@@ -287,3 +287,8 @@ input[type=time]::-webkit-datetime-edit-ampm-field:focus {
   background-color: #303030;
   opacity: 8%;
 }
+
+
+.attendance-cardshad {
+        box-shadow: 0px 3.28px 5.33px 0px #00000017;
+}

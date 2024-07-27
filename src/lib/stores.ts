@@ -16,6 +16,7 @@ export const alertPanelHide = persistedWritable("alertPanelHide", true);
 export const markRoi = writable(false);
 export const view = writable(1);
 export const canvasCoordinates = writable({})
+export const cameraCounts = writable<{ [cameraId: string]: number }>({});
 
 function persistedWritable(key: string, defaultValue: boolean) {
   let value = defaultValue;

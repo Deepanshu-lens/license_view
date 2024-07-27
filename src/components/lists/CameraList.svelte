@@ -5,12 +5,17 @@
   import CameraInfoCard from "../cards/CameraInfoCard.svelte";
   import Sortable from "sortablejs";
   import { Input } from "../ui/input";
-  import { onMount } from "svelte";
-  import { selectedNode,filteredNodeCameras } from "@/lib/stores";
+  import { onDestroy, onMount } from "svelte";
+  import {
+    selectedNode,
+    filteredNodeCameras,
+    cameraCounts,
+  } from "@/lib/stores";
   import Button from "../ui/button/button.svelte";
   export let showItems: boolean;
   import { addUserLog } from "@/lib/addUserLog";
-
+  import { page } from "$app/stores";
+  import PocketBase from "pocketbase";
 
   /**
    * Sortable Camera Info Cards
@@ -21,6 +26,7 @@
   let cameraItems: HTMLDivElement;
   let filterText: string = "";
 
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
   function handleEscape(event: KeyboardEvent) {
     if (event.key === "Escape") {
@@ -38,19 +44,6 @@
         handle: ".my-handle",
       });
     }
-
-    // if (cameraItems) {
-    //   const sortable = Sortable.create(cameraItems, {
-    //     animation: 250,
-    //     chosenClass: "chosen",
-    //     dragClass: "dragged",
-    //     handle: ".my-handle",
-    //     onEnd: (event) => {
-    //       console.log(event);
-    //       cameraOrder.set(sortable.toArray().map(Number)); // Update the order in the writable store
-    //     },
-    //   });
-    // }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       // Check if Command + / or Ctrl + / is pressed
@@ -70,27 +63,42 @@
     };
   });
 
+  onMount(() => {
+    PB.autoCancellation(false);
+    PB.collection("personCounter").subscribe("*", async (e: any) => {
+      const cameraId = e.record.camera;
+      const updatedCount = e.record.count;
+
+      console.log("cameraId", cameraId);
+      console.log("updatedCount", updatedCount);
+      cameraCounts.update((counts) => {
+        counts[cameraId] = updatedCount;
+        return counts;
+      });
+    });
+  });
+
+  onDestroy(() => {
+    PB.collection("personCounter").unsubscribe("*");
+  });
+
   $: if ($selectedNode?.camera) {
-      if (filterText) {
-        const exactMatches = $selectedNode.camera.filter((camera: Camera) =>
-          camera.name.toLowerCase() === filterText.toLowerCase()
-        );
-        filteredNodeCameras.set(exactMatches.length > 0 ? exactMatches : 
-          $selectedNode.camera.filter((camera: Camera) =>
-            camera.name.toLowerCase().includes(filterText.toLowerCase())
-          )
-        );
-      } else {
-        filteredNodeCameras.set($selectedNode.camera);
-      }
-    // }
-    // if (filterText) {
-    //   filteredCameras = $selectedNode?.camera.filter((camera: Camera) =>
-    //     camera.name.toLowerCase().includes(filterText.toLowerCase()),
-    //   );
-    // } else {
-    //   filteredCameras = $selectedNode?.camera;
-    // }
+    if (filterText) {
+      const exactMatches = $selectedNode.camera.filter(
+        (camera: Camera) =>
+          camera.name.toLowerCase() === filterText.toLowerCase(),
+      );
+      filteredNodeCameras.set(
+        exactMatches.length > 0
+          ? exactMatches
+          : $selectedNode.camera.filter((camera: Camera) =>
+              camera.name.toLowerCase().includes(filterText.toLowerCase()),
+            ),
+      );
+    } else {
+      filteredNodeCameras.set($selectedNode.camera);
+    }
+
   }
 
   function filterItems(e: Event) {
@@ -103,7 +111,9 @@
     <div class="flex flex-col space-y-6 mx-auto items-center">
       <Cctv size={64} />
       <AddCameraDialog nodes={data.nodes} sNode={""}>
-        <Button class="mx-auto text-center disabled:cursor-not-allowed" disabled>Add Camera</Button>
+        <Button class="mx-auto text-center disabled:cursor-not-allowed" disabled
+          >Add Camera</Button
+        >
       </AddCameraDialog>
     </div>
   </div>
@@ -204,6 +214,7 @@
             intrusionPersonThresh={camera.intrusionPersonThresh}
             intrusionVehicleThresh={camera.intrusionVehicleThresh}
             sparshID={camera.sparshID}
+            personCount={camera.personCount}
             {isAllFullScreen}
           />
         {/key}

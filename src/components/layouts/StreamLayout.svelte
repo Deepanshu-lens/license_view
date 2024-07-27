@@ -1030,7 +1030,7 @@
                         on:refErr={handleRefreshError}
                       />
                       <span
-                        class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-12 left-4 items-center rounded-xl scale-90 z-20"
+                        class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-90 z-20"
                       >
                         <span
                           class={`h-2 w-2 ${
@@ -1056,38 +1056,6 @@
                               slotIndex
                           ].name}
                         </span>
-                      </span>
-
-                      <span
-                        class="flex gap-2 bg-[rgba(0,0,0,.5)] text-white py-1 px-3 absolute bottom-4 left-4 items-center rounded-xl scale-90 z-20"
-                      >
-                        <Users size={18} />
-                        {#if $selectedNode.camera[
-                          pageIndex *
-                            ($selectedNode.maxStreamsPerPage === 5 ||
-                            $selectedNode.maxStreamsPerPage === 7
-                              ? $selectedNode.maxStreamsPerPage + 1
-                              : $selectedNode.maxStreamsPerPage) +
-                            slotIndex
-                        ].id in $personCounts}
-                          {$personCounts[$selectedNode.camera[
-                            pageIndex *
-                              ($selectedNode.maxStreamsPerPage === 5 ||
-                              $selectedNode.maxStreamsPerPage === 7
-                                ? $selectedNode.maxStreamsPerPage + 1
-                                : $selectedNode.maxStreamsPerPage) +
-                              slotIndex
-                          ].id]}
-                        {:else}
-                          {$selectedNode.camera[
-                            pageIndex *
-                              ($selectedNode.maxStreamsPerPage === 5 ||
-                              $selectedNode.maxStreamsPerPage === 7
-                                ? $selectedNode.maxStreamsPerPage + 1
-                                : $selectedNode.maxStreamsPerPage) +
-                              slotIndex
-                          ].personCount}
-                        {/if}
                       </span>
 
                       {#if $activeCamera === $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex].id}

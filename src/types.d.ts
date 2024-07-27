@@ -35,7 +35,8 @@ export type Camera = {
   lineData: any;
   lineCrossing: boolean;
   intrusionDetection: boolean;
-  personCount: number;
+  personCount: boolean;
+  personCounter:number;
 };
 
 export type Playback = {

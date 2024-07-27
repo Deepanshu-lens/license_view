@@ -29,14 +29,18 @@
       text: "Live",
       href: `/session/${sessionId}`,
     },
-    // {
-    //   text: "Events",
-    //   href: `/events/${sessionId}`,
-    // },
+   {
+    text: "Alerts",
+    href: `/alerts/${sessionId}`,
+  },
     {
       text: "Gallery",
       href: `/gallery/${sessionId}`,
     },
+    // {
+    //   text: "Attendance",
+    //   href: `/attendance/${sessionId}`,
+    // },
     // {
     //   text: "Configuration",
     //   href: `/configuration/${sessionId}?section=Remote`,
@@ -159,7 +163,7 @@
           {/key}
         {/each}
         <!-- {#if session.frs} -->
-          <a
+          <!-- <a
             data-svelte-prefetch
             href={frs.href}
             on:click={() => {
@@ -175,7 +179,7 @@
             >
               {frs.text}
             </span>
-          </a>
+          </a> -->
         <!-- {/if} -->
         {#if session.playback}
           <a

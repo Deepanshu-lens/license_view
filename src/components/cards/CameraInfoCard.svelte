@@ -1,7 +1,7 @@
 <script lang="ts">
   import { toast } from "svelte-sonner";
-  import { Edit, Settings, Trash, Menu } from "lucide-svelte";
-  import { hoveredCamera, selectedNode } from "@/lib/stores";
+  import { Edit, Settings, Trash, Menu,Users } from "lucide-svelte";
+  import { hoveredCamera, selectedNode,cameraCounts } from "@/lib/stores";
   import { activeCamera } from "@/lib/stores";
   import CameraSettingsDialog from "../dialogs/CameraSettingsDialog.svelte";
   import { addUserLog } from "@/lib/addUserLog";
@@ -38,6 +38,10 @@
   export let linePersonThresh: number;
   export let lineVehicleThresh: number;
   export let sparshID:string
+  export let personCount
+
+
+  $: count = $cameraCounts[cameraId];
   // CODE
 
   // console.log(features);
@@ -73,7 +77,7 @@
 <article
   class={`flex  items-center gap-4 p-4 dark:border 
               hover:border hover:border-primary ${isAllFullScreen && "text-slate-100"}
-              rounded-xl shadow-md text-base z-10 w-full px-4
+              rounded-xl shadow-md text-sm z-10 w-full px-4
           ${cameraId === $activeCamera ? ` border animate-gradient-border  ${isAllFullScreen ? "bg-black" : "bg-[#f9f9f9] dark:bg-black"}` : `${isAllFullScreen ? "bg-black" : "bg-[#f9f9f9] dark:bg-black"}`}
         `}
   on:mouseover={() => {
@@ -91,12 +95,22 @@
 >
   <Menu class=" h-4 w-4 my-handle cursor-grab flex-shrink-0" />
   <div class="grid gap-1">
-    <h3 class="text-base">
-      {!isNaN(parseInt(name)) && String(parseInt(name)) === name
+    <span class='flex items-center gap-2'>
+
+      <h3 class="text-sm  font-medium whitespace-nowrap">
+        {!isNaN(parseInt(name)) && String(parseInt(name)) === name
         ? "Camera"
         : ``}{" "}
       {name?.length > 11 ? name?.substring(0, 10) + "..." : name}
     </h3>
+     {#if personCount}
+        <span
+          class="flex items-center gap-1 text-black dark:text-white/[.8] font-medium text-xs"
+        >
+          <Users class="h-4 w-4 flex-shrink-0" />
+          {count === undefined ? "N/A" : count}
+        </span>{/if}
+  </span>
     <p class="text-xs">
       {url?.split("@")?.[1]?.split("/")?.[0]?.split(":")?.[0]}
     </p>

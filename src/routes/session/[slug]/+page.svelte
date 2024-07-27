@@ -23,55 +23,28 @@
   async function getNodes(): Promise<Node[]> {
     if (session?.node.length > 0) {
       PB.autoCancellation(false);
-      const nodes = await PB.collection("node").getFullList(200, {
+     const nodes = await PB.collection("node").getFullList(200, {
+      sort: "-created",
+      filter: `session~"${session.id}"`,
+    });
+
+    for (const node of nodes) {
+      const cameras = await PB.collection("camera").getFullList({
+        filter: `node~"${node.id}"`,
         sort: "-created",
-        expand: "camera",
-        filter: `session~"${session.id}"`,
+        expand: 'personCounter'
       });
-      // console.log("getnodes", nodes);
-      return nodes.map(
-        (node) =>
-          ({
-            ...node,
-            session: session.id,
-            camera:
-              node.camera.length > 0
-                ? (node.expand.camera.reverse().map((cam: Camera) => ({
-                    name: cam.name,
-                    id: cam.id,
-                    url: cam.url,
-                    subUrl: cam.subUrl,
-                    save: cam.save,
-                    face: cam.face,
-                    vehicle: cam.vehicle,
-                    faceDetThresh: cam.faceDetThresh,
-                    faceMatchThresh: cam.faceMatchThresh,
-                    vehicleDetThresh: cam.vehicleDetThresh,
-                    vehiclePlateThresh: cam.vehiclePlateThresh,
-                    vehicleOCRThresho: cam.vehicleOCRThresh,
-                    saveFolder: cam.saveFolder,
-                    saveDuration: cam.saveDuration,
-                    motionThresh: cam.motionThresh,
-                    priority: cam.priority,
-                    lineData: cam.lineData,
-                    roiData: cam.roiData,
-                    intrusionDetection: cam.intrusionDetection,
-                    lineCrossing: cam.lineCrossing,
-                    linePerson: cam.linePerson,
-                    lineVehicle: cam.lineVehicle,
-                    linePersonThresh: cam.linePersonThresh,
-                    lineVehicleThresh: cam.lineVehicleThresh,
-                    intrusionPerson: cam.intrusionPerson,
-                    intrusionVehicle: cam.intrusionVehicle,
-                    intrusionPersonThresh: cam.intrusionPersonThresh,
-                    intrusionVehicleThresh: cam.intrusionVehicleThresh,
-                    sparshID: cam.sparshID,
-                    personCount: cam.personCount,
-                  })) as Camera[])
-                : [],
-          }) as unknown as Node,
-      );
+      node.camera = cameras.map((cam: Camera) => ({
+        ...cam,
+        personCounter: cam?.expand?.personCounter?.count,
+      }));
     }
+
+    return nodes.map((node) => ({
+      ...node,
+      session: session.id,
+    }) as Node);
+  }
     return [];
   }
 
