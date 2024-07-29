@@ -1271,8 +1271,8 @@
                         </span>
                       {/if}
 
-                      <img
-                        src="/images/sparsh-white.png"
+                        <img
+                        src="/images/logo-black.png"
                         alt="logo"
                         class="object-contain w-[15%] absolute right-4 bottom-4 z-20"
                       />

@@ -46,22 +46,22 @@
       text: "Attendance",
       href: `/attendance/${sessionId}`,
     },
-    // {
-    //   text: "Configuration",
-    //   href: `/configuration/${sessionId}?section=Remote`,
-    // },
-    // {
-    //   text: "Reports",
-    //   href: `/reports/${sessionId}`,
-    // },
-    // {
-    //   text: "Atlas",
-    //   href: `/atlas/${sessionId}`,
-    // },
-    // {
-    //   text: "Events",
-    //   href: `/events/${sessionId}`,
-    // },
+    {
+      text: "Configuration",
+      href: `/configuration/${sessionId}?section=Remote`,
+    },
+    {
+      text: "Reports",
+      href: `/reports/${sessionId}`,
+    },
+    {
+      text: "Atlas",
+      href: `/atlas/${sessionId}`,
+    },
+    {
+      text: "Events",
+      href: `/events/${sessionId}`,
+    },
   ];
 
   let live = {
@@ -137,15 +137,8 @@
   <nav class="bg-background w-full flex flex-row items-center justify-center">
     <div class="flex w-full justify-between">
       <div class="cursor-pointer flex items-center gap-2 justify-center px-2">
-        <!-- <img
-          src={$mode === "light" ? "/images/green.svg" : "/images/white.svg"}
-          alt="logo"
-          class="w-24"
-        /> -->
          <img
-          src={$mode === "light"
-            ? "/images/sparsh.png"
-            : "/images/sparsh-white.png"}
+          src={$mode === "light" ? "/images/green.svg" : "/images/white.svg"}
           alt="logo"
           class="w-24"
         />
