@@ -13,6 +13,9 @@
   import { readable, writable } from "svelte/store";
 
   export let selectedStudent;
+  export let galleryItems;
+
+  // console.log(galleryItems)
 
   const dispatch = createEventDispatcher();
 
@@ -21,7 +24,7 @@
     aadharId: string;
     department: string;
     date: string;
-    status: 'Late' | 'On-time' | 'Absent';
+    status: "Late" | "On-time" | "Absent";
     checkIn: string;
     checkOut: string;
     totalHours: string;
@@ -29,56 +32,73 @@
     checkOutImage: string;
   };
 
-  const initialData: AttendanceLog[] = [
-    {
-      studentId: "Shreya Juneja",
-      aadharId: "4400-2344-1001",
-      department: "IT Department",
-      date: "01 June 2024",
-      status: "On-time",
-      checkIn: "09:00",
-      checkOut: "02:10",
-      totalHours: "5h 10m",
-      checkInImage: '/images/Attendance.png',
-      checkOutImage: '/images/Attendance.png'
-    },
-    {
-      studentId: "Ritwik Mohan",
-      aadharId: "4400-2344-1001",
-      department: "Accounts",
-      date: "01 June 2024",
-      status: "On-time",
-      checkIn: "09:00",
-      checkOut: "02:00",
-      totalHours: "3h 30m",
-       checkInImage: '/images/Attendance.png',
-      checkOutImage: '/images/Attendance.png'
-    },
-    {
-      studentId: "Kashish Kapur",
-      aadharId: "4400-2344-1001",
-      department: "Legal",
-      date: "01 June 2024",
-      status: "Late",
-      checkIn: "10:30",
-      checkOut: "02:00",
-      totalHours: "3h 30m",
-       checkInImage: '/images/Attendance.png',
-      checkOutImage: '/images/Attendance.png'
-    },
-    {
-      studentId: "Komal Jain",
-      aadharId: "4400-2344-1001",
-      department: "Finance",
-      date: "01 June 2024",
-      status: "Absent",
-      checkIn: "-",
-      checkOut: "-",
-      totalHours: "3h 30m",
-       checkInImage: '',
-      checkOutImage: ''
-    },
-  ];
+  const initialData: AttendanceLog[] = galleryItems.map((item) => ({
+    studentId: item.name,
+    aadharId: item.aadhar || "-",
+    department: item.department || "-",
+    date: new Date(item.created).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }),
+    status: "On-time",
+    checkIn: "-",
+    checkOut: "-",
+    totalHours: "-",
+    checkInImage: item.savedData[0] || "",
+    checkOutImage: item.images[1] || "",
+  }));
+
+  // const initialData: AttendanceLog[] = [
+  //   {
+  //     studentId: "Shreya Juneja",
+  //     aadharId: "4400-2344-1001",
+  //     department: "IT Department",
+  //     date: "01 June 2024",
+  //     status: "On-time",
+  //     checkIn: "09:00",
+  //     checkOut: "02:10",
+  //     totalHours: "5h 10m",
+  //     checkInImage: '/images/Attendance.png',
+  //     checkOutImage: '/images/Attendance.png'
+  //   },
+  //   {
+  //     studentId: "Ritwik Mohan",
+  //     aadharId: "4400-2344-1001",
+  //     department: "Accounts",
+  //     date: "01 June 2024",
+  //     status: "On-time",
+  //     checkIn: "09:00",
+  //     checkOut: "02:00",
+  //     totalHours: "3h 30m",
+  //      checkInImage: '/images/Attendance.png',
+  //     checkOutImage: '/images/Attendance.png'
+  //   },
+  //   {
+  //     studentId: "Kashish Kapur",
+  //     aadharId: "4400-2344-1001",
+  //     department: "Legal",
+  //     date: "01 June 2024",
+  //     status: "Late",
+  //     checkIn: "10:30",
+  //     checkOut: "02:00",
+  //     totalHours: "3h 30m",
+  //      checkInImage: '/images/Attendance.png',
+  //     checkOutImage: '/images/Attendance.png'
+  //   },
+  //   {
+  //     studentId: "Komal Jain",
+  //     aadharId: "4400-2344-1001",
+  //     department: "Finance",
+  //     date: "01 June 2024",
+  //     status: "Absent",
+  //     checkIn: "-",
+  //     checkOut: "-",
+  //     totalHours: "3h 30m",
+  //      checkInImage: '',
+  //     checkOutImage: ''
+  //   },
+  // ];
 
   const data = writable(initialData);
 
@@ -149,14 +169,14 @@
   function handleRowClick(rowData) {
     dispatch("rowClick", rowData);
   }
-
 </script>
 
 <div class="rounded-md mt-4">
-  <Table.Root {...$tableAttrs} class="border mx-auto w-[100%] flex flex-col pb-10 rounded-md">
-    <Table.Header
-      class=" rounded-lg bg-[#f9f9f9]"
-    >
+  <Table.Root
+    {...$tableAttrs}
+    class="border mx-auto w-[100%] flex flex-col pb-10 rounded-md"
+  >
+    <Table.Header class=" rounded-lg bg-[#f9f9f9]">
       {#each $headerRows as headerRow}
         <Subscribe rowAttrs={headerRow.attrs()}>
           <Table.Row
@@ -195,12 +215,31 @@
             {...rowAttrs}
             data-state={$selectedDataIds[row.id] && "selected"}
             class="bg-transparent flex items-center justify-between border-b border-solid border-[#e4e4e4]"
-            on:click={() => {handleRowClick(row); selectedStudent.set(row)}}
+            on:click={() => console.log(row)}
           >
+            <!-- on:click={() => {handleRowClick(row); selectedStudent.set(row)}} -->
             {#each row.cells as cell (cell.id)}
               <Subscribe attrs={cell.attrs()} let:attrs>
-                <Table.Cell {...attrs} class="whitespace-nowrap w-[12.8%] flex items-center justify-center">
-                  <Render of={cell.render()} />
+                <Table.Cell
+                  {...attrs}
+                  class="whitespace-nowrap w-[12.8%] flex items-center justify-center"
+                >
+                  {#if cell.id === "checkIn" || cell.id === "checkOut"}
+                    <div class="flex items-center space-x-2">
+                    {#if cell.value !== "-"}
+                    <img
+                        src={"data:image/jpeg;base64," + (cell.id === "checkIn"
+                          ? row.original.checkInImage
+                          : row.original.checkOutImage)}
+                          alt="{cell.id} image"
+                          class="size-6  object-contain"
+                        />
+                      {/if}
+                      <span>{cell.value}</span>
+                    </div>
+                  {:else}
+                    <Render of={cell.render()} />
+                  {/if}
                 </Table.Cell>
               </Subscribe>
             {/each}

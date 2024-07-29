@@ -56,29 +56,53 @@ export const POST: RequestHandler = async ({
   console.log("Adding Camera");
   const data = await request.json();
   console.log(data);
+    locals.pb?.autoCancellation(false)
+ 
+
+const inference = await locals.pb.collection('ai_inference').create({
+// camera: camera.id,
+node: data.nodeId,
+session: data.sessionId,
+face: data.face,
+vehicle: data.vehicle,
+faceDetThresh: data.faceDetThresh,
+faceMatchThresh: data.faceMatchThresh,
+vehicleDetThresh: data.vehDetThresh,
+vehiclePlateThresh: data.vehPlateThresh,
+vehicleOCRThresho: data.vehOCRThresh,
+motionThresh: data.motionThresh,
+running: data.running,
+runningThresh: data.runningThresh
+})
+
   const camera = await locals.pb?.collection("camera").create({
     name: data.name,
     url: data.url,
     subUrl: data.subUrl,
     node: data.nodeId,
     save: data.save,
-    face: data.face,
-    vehicle: data.vehicle,
-    faceDetThresh: data.faceDetThresh,
-    faceMatchThresh: data.faceMatchThresh,
-    vehicleDetThresh: data.vehDetThresh,
-    vehiclePlateThresh: data.vehPlateThresh,
-    vehicleOCRThresho: data.vehOCRThresh,
+    // face: data.face,
+    // vehicle: data.vehicle,
+    // faceDetThresh: data.faceDetThresh,
+    // faceMatchThresh: data.faceMatchThresh,
+    // vehicleDetThresh: data.vehDetThresh,
+    // vehiclePlateThresh: data.vehPlateThresh,
+    // vehicleOCRThresho: data.vehOCRThresh,
     saveDuration: data.saveDuration,
     saveFolder: data.saveFolder,
-    priority: data.priority,
-    motionThresh: data.motionThresh,
+    // priority: data.priority,
+    // motionThresh: data.motionThresh,
     sparshID: data.sparshID,
+    personCount: data.personCount,
+    inference: inference.id
   });
 
-  console.log("CAMERA ADDED ", camera);
+// console.log('inference',inference)
 
-  console.log(data.nodeId);
+await locals.pb?.collection('ai_inference').update(inference.id,{
+  "camera+": [camera.id]
+ })
+
 
   const nodes = await locals.pb?.collection("node").getFullList();
   // console.log("NODES", nodes);

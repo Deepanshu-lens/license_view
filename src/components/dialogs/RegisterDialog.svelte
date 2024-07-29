@@ -5,12 +5,18 @@
   import { Button } from "@/components/ui/button";
   import { cn } from "@/lib";
   import { writable } from "svelte/store";
-  import { ChevronDown, X } from "lucide-svelte";
+  import { ChevronDown, X, Axe } from "lucide-svelte";
+  import { Switch } from "@/components/ui/switch";
   import { page } from "$app/stores";
 
   let dialogOpen = false;
   let captureMode = 1;
   let username: string = "";
+  let employee:boolean = false
+  let aadhar: string = ''
+  let department:string = ''
+  let email:string = ''
+  let mobile:number;
 
   const registrationImages = writable<string[]>([]);
   const imposterImages = writable<string[]>([]);
@@ -139,24 +145,24 @@
           const croppedImage = await result.json();
           loading = false;
 
-          if ($registrationImages.length === 0) {
+          // if ($registrationImages.length === 0) {
             registrationImages.update((images) => [...images, croppedImage]);
-            updateFeature(croppedImage);
-          } else {
             // updateFeature(croppedImage);
-            const res = compareToGallery(
-              croppedImage.bboxes[0].Feature,
-              $avgFeatures,
-            );
-            console.log(res);
-            if (res > 0.3) {
-              console.log("image added to registration");
-              registrationImages.update((images) => [...images, croppedImage]);
-            } else {
-              console.log("image added to imposter set");
-              imposterImages.update((image) => [...image, croppedImage]);
-            }
-          }
+          // } else {
+          //   // updateFeature(croppedImage);
+          //   const res = compareToGallery(
+          //     croppedImage.bboxes[0].Feature,
+          //     $avgFeatures,
+          //   );
+          //   console.log(res);
+          //   if (res > 0.3) {
+          //     console.log("image added to registration");
+          //     registrationImages.update((images) => [...images, croppedImage]);
+          //   } else {
+          //     console.log("image added to imposter set");
+          //     imposterImages.update((image) => [...image, croppedImage]);
+          //   }
+          // }
         } catch (e) {
           console.error(e);
           toast.error("Something went wrong. Please try another file.");
@@ -165,23 +171,23 @@
     }
   };
 
-  export function averagefeatures1D(basefeatures, AverageFeatures) {
-    console.log("averageFeatures getting called");
+  // export function averagefeatures1D(basefeatures, AverageFeatures) {
+  //   console.log("averageFeatures getting called");
 
-    const averageValue = [];
-    for (let i = 0; i < AverageFeatures.length; i++) {
-      averageValue.push((AverageFeatures[i] + basefeatures[i]) / 2);
-    }
-    return averageValue;
-  }
+  //   const averageValue = [];
+  //   for (let i = 0; i < AverageFeatures.length; i++) {
+  //     averageValue.push((AverageFeatures[i] + basefeatures[i]) / 2);
+  //   }
+  //   return averageValue;
+  // }
 
-  function updateFeature(image) {
-    if ($avgFeatures) {
-      avgFeatures.set(averagefeatures1D(image.bboxes[0].Featue, $avgFeatures));
-    } else {
-      avgFeatures.set(image.bboxes[0].Feature);
-    }
-  }
+  // function updateFeature(image) {
+  //   if ($avgFeatures) {
+  //     avgFeatures.set(averagefeatures1D(image.bboxes[0].Featue, $avgFeatures));
+  //   } else {
+  //     avgFeatures.set(image.bboxes[0].Feature);
+  //   }
+  // }
 
   function removeImageReg(index: number) {
     registrationImages.update((images) => {
@@ -194,28 +200,29 @@
     });
   }
 
-  function magnitude(vector) {
-    return Math.sqrt(vector.reduce((acc, val) => acc + val ** 2, 0));
-  }
-  function normalize(vector) {
-    const mag = magnitude(vector);
-    return vector.map((val) => val / mag);
-  }
-  function dotProduct(v1, v2) {
-    return v1.reduce((acc, val, i) => acc + val * v2[i], 0);
-  }
+  // function magnitude(vector) {
+  //   return Math.sqrt(vector.reduce((acc, val) => acc + val ** 2, 0));
+  // }
 
-  export function compareToGallery(queryVector1, queryVector2) {
-    // console.log("querygallery",queryVector,galleryVectors)
-    const queryVectorNormalized = normalize(queryVector1);
-    const galleryVectorNormalized = normalize(queryVector2);
-    const similarities = dotProduct(
-      queryVectorNormalized,
-      galleryVectorNormalized,
-    );
-    console.log("similarities", similarities);
-    return similarities;
-  }
+  // function normalize(vector) {
+  //   const mag = magnitude(vector);
+  //   return vector.map((val) => val / mag);
+  // }
+  // function dotProduct(v1, v2) {
+  //   return v1.reduce((acc, val, i) => acc + val * v2[i], 0);
+  // }
+
+  // export function compareToGallery(queryVector1, queryVector2) {
+  //   // console.log("querygallery",queryVector,galleryVectors)
+  //   const queryVectorNormalized = normalize(queryVector1);
+  //   const galleryVectorNormalized = normalize(queryVector2);
+  //   const similarities = dotProduct(
+  //     queryVectorNormalized,
+  //     galleryVectorNormalized,
+  //   );
+  //   console.log("similarities", similarities);
+  //   return similarities;
+  // }
 
   $: {
     if (dialogOpen && captureMode == 1) {
@@ -237,7 +244,7 @@
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, data: [...$registrationImages] }),
+      body: JSON.stringify({ employee, username, data: [...$registrationImages] }),
     }).then(() => {
       toast.success(`${username} successfully added to gallery`);
       registrationImages.set([]);
@@ -251,7 +258,7 @@
 
 <Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger><slot /></Dialog.Trigger>
-  <Dialog.Content class="sm:max-w-[720px] xl:scale-95 2xl:scale-100">
+  <Dialog.Content class="sm:max-w-[720px] xl:scale-95 2xl:scale-100 max-h-[95%] sm:max-h-auto overflow-y-scroll overflow-x-clip hide-scrollbar">
     <Dialog.Header>
       <Dialog.Title>Register Face</Dialog.Title>
       <Dialog.Description
@@ -325,12 +332,76 @@
       </div>
 
       <canvas bind:this={webcamCanvas} style="display: none;"></canvas>
-      <Button
+       <Button
         class="w-[650px] lg:w-[500px] mx-auto"
         on:click={capturePhoto}
         disabled={loading || $registrationImages.length >= 8}
         >Capture photo</Button
       >
+      <div class="rounded-md border p-4 my-2">
+      <div class="flex items-center space-x-4">
+        <Axe />
+        <div class="flex-1 space-y-1">
+          <p class="text-sm font-medium leading-none">Employee ?</p>
+        </div>
+        <Switch bind:checked={employee} />
+      </div>
+      
+      {#if employee}
+        <div class="mt-4 space-y-4">
+          <div class="flex flex-col space-y-2">
+            <label for="department" class="text-sm font-medium text-[#00132B] dark:text-slate-100">
+              Department
+            </label>
+            <input
+              id="department"
+              type="text"
+              class="w-full h-[48px] rounded-lg pl-4 border-[2px] border-solid border-[rgb(145,158,171)]/[.24] focus:border-[#136ad5] placeholder-[#939393] bg-background"
+              placeholder="Enter department"
+               bind:value={department}
+            />
+          </div>
+          <div class="flex flex-col space-y-2">
+            <label for="aadhar" class="text-sm font-medium text-[#00132B] dark:text-slate-100">
+              Aadhar ID
+            </label>
+            <input
+              id="aadhar"
+              type="text"
+              class="w-full h-[48px] rounded-lg pl-4 border-[2px] border-solid border-[rgb(145,158,171)]/[.24] focus:border-[#136ad5] placeholder-[#939393] bg-background"
+              placeholder="Enter Aadhar ID"
+               bind:value={aadhar}
+            />
+          </div>
+           <div class="flex flex-col space-y-2">
+            <label for="email" class="text-sm font-medium text-[#00132B] dark:text-slate-100">
+              Email
+            </label>
+            <input
+              id="email"
+              type='email'
+              class="w-full h-[48px] rounded-lg pl-4 border-[2px] border-solid border-[rgb(145,158,171)]/[.24] focus:border-[#136ad5] placeholder-[#939393] bg-background"
+              placeholder="Enter Email"
+               bind:value={email}
+            />
+          </div>
+          <div class="flex flex-col space-y-2">
+            <label for="mobile" class="text-sm font-medium text-[#00132B] dark:text-slate-100">
+              Mobile Number
+            </label>
+            <input
+              id="mobile"
+              type='number'
+              class="w-full h-[48px] rounded-lg pl-4 border-[2px] border-solid border-[rgb(145,158,171)]/[.24] focus:border-[#136ad5] placeholder-[#939393] bg-background"
+              placeholder="Enter Mobile Number"
+               bind:value={mobile}
+            />
+          </div>
+        </div>
+      {/if}
+ 
+      </div>
+     
     {:else}
       <p class="text-[#00132B] dark:text-slate-100">Upload a folder</p>
       <input
@@ -374,29 +445,69 @@
             <div class="w-full"></div>
           {/if}
         {/each}
-        {#each $imposterImages as image, index}
-          <div
-            class={cn("border-4 relative flex flex-row")}
-            style="margin: 5px;"
-          >
-            <img
-              src={"data:image/jpeg;base64," + image.bboxes[0].Image}
-              alt="captured"
-              width="100px"
-              height="100px"
-              class="aspect-square blur-md"
+      </div>
+       <div class="rounded-md border p-4 my-2">
+      <div class="flex items-center space-x-4">
+        <Axe />
+        <div class="flex-1 space-y-1">
+          <p class="text-sm font-medium leading-none">Employee ?</p>
+        </div>
+        <Switch bind:checked={employee} />
+      </div>
+      
+      {#if employee}
+        <div class="mt-4 space-y-4">
+          <div class="flex flex-col space-y-2">
+            <label for="department" class="text-sm font-medium text-[#00132B] dark:text-slate-100">
+              Department
+            </label>
+            <input
+              id="department"
+              type="text"
+              class="w-full h-[48px] rounded-lg pl-4 border-[2px] border-solid border-[rgb(145,158,171)]/[.24] focus:border-[#136ad5] placeholder-[#939393] bg-background"
+              placeholder="Enter department"
+               bind:value={department}
             />
-            <button
-              class="absolute top-0 right-0 bg-white text-[red] p-1 rounded-full scale-75 grid place-items-center"
-              on:click={() => removeImageImp(index)}
-            >
-              <X />
-            </button>
           </div>
-          {#if (index + 1) % 4 === 0}
-            <div class="w-full"></div>
-          {/if}
-        {/each}
+          <div class="flex flex-col space-y-2">
+            <label for="aadhar" class="text-sm font-medium text-[#00132B] dark:text-slate-100">
+              Aadhar ID
+            </label>
+            <input
+              id="aadhar"
+              type="text"
+              class="w-full h-[48px] rounded-lg pl-4 border-[2px] border-solid border-[rgb(145,158,171)]/[.24] focus:border-[#136ad5] placeholder-[#939393] bg-background"
+              placeholder="Enter Aadhar ID"
+               bind:value={aadhar}
+            />
+          </div>
+          <div class="flex flex-col space-y-2">
+            <label for="email" class="text-sm font-medium text-[#00132B] dark:text-slate-100">
+              Email
+            </label>
+            <input
+              id="email"
+              type='email'
+              class="w-full h-[48px] rounded-lg pl-4 border-[2px] border-solid border-[rgb(145,158,171)]/[.24] focus:border-[#136ad5] placeholder-[#939393] bg-background"
+              placeholder="Enter Email"
+               bind:value={email}
+            />
+          </div>
+          <div class="flex flex-col space-y-2">
+            <label for="mobile" class="text-sm font-medium text-[#00132B] dark:text-slate-100">
+              Mobile Number
+            </label>
+            <input
+              id="mobile"
+              type='number'
+              class="w-full h-[48px] rounded-lg pl-4 border-[2px] border-solid border-[rgb(145,158,171)]/[.24] focus:border-[#136ad5] placeholder-[#939393] bg-background"
+              placeholder="Enter Mobile Number"
+               bind:value={mobile}
+            />
+          </div>
+        </div>
+      {/if}
+ 
       </div>
     {/if}
 
@@ -404,7 +515,7 @@
       <Button
         type="submit"
         on:click={onSubmit}
-        disabled={$registrationImages.length === 0 || username === ""}
+        disabled={$registrationImages.length === 0 || username === "" || (employee === true && aadhar.length === 0 && department.length === 0) }
         >Add Person</Button
       >
     </Dialog.Footer></Dialog.Content

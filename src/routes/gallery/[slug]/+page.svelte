@@ -1,15 +1,11 @@
 <script lang="ts">
-  import DataTable from "@/components/tables/GalleryTable.svelte";
   import { onMount } from "svelte";
   import type { Gallery } from "@/types";
   import PocketBase from "pocketbase";
-  import RegisterDialog from "@/components/dialogs/RegisterDialog.svelte";
-  import { addUserLog } from "@/lib/addUserLog";
   import { ChevronLeft, ScanFace } from "lucide-svelte";
   import GalleryView from "@/components/gallery/mobile/GalleryView.svelte";
   import { selectedNode } from "@/lib/stores";
   import GalleryPanel from "@/components/gallery/GalleryPanel.svelte";
-  import { PUBLIC_POCKETBASE_URL } from "$env/static/public";
   import { page } from "$app/stores";
 
   let gallery: Gallery[] = [];
@@ -18,6 +14,7 @@
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
   async function getData(): Promise<Gallery[]> {
+    PB.autoCancellation(false)
     const data = await PB.collection("faceGallery").getFullList();
 
     return data.map(
@@ -35,7 +32,6 @@
     gallery = await getData();
   });
 
-  $: console.log(gallery)
 </script>
 
 <!-- desk -->

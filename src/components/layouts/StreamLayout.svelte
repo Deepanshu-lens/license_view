@@ -34,7 +34,7 @@
   import Sortable from "sortablejs";
   import { onDestroy, onMount } from "svelte";
   import { toast } from "svelte-sonner";
-    import { writable } from "svelte/store";
+  import { writable } from "svelte/store";
 
   export let handleSingleSS: () => void;
   export let isAllFullScreen: boolean;
@@ -68,7 +68,7 @@
   let dragOffsetY = 0;
   let draggingLineIndex = null;
   const neededUrl = $page.url.hostname;
-    const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
   // onMount(async() => {
   //   try {
@@ -274,8 +274,8 @@
           ? $selectedNode.camera.length
           : $filteredNodeCameras.length;
 
-          // console.log(streamCount)
-          // console.log(maxStreamsPerPage)
+    // console.log(streamCount)
+    // console.log(maxStreamsPerPage)
 
     if (maxStreamsPerPage === 0) {
       // Automatic Layout
@@ -330,6 +330,7 @@
     }, 500);
     setTimeout(() => {
       createRoiLines();
+      createIntrusionLines();
     }, 2000);
   };
 
@@ -341,11 +342,9 @@
     }
   }
 
-  
-
   $: {
     if ($filteredNodeCameras.length === $selectedNode.camera.length) {
-      if(!$markRoi){
+      if (!$markRoi) {
         updateLayout($selectedNode.maxStreamsPerPage);
       } else {
         updateLayout(0);
@@ -748,20 +747,83 @@
   function createRoiLines() {
     if (
       $selectedNode.camera.some(
-        (camera) => camera.lineCrossing && camera.lineData.length > 0,
+        (camera) =>
+          camera.expand?.inference?.lineCrossing &&
+          camera.expand?.inference?.lineData.length > 0,
       )
     ) {
       $selectedNode.camera.forEach((camera, index) => {
         // console.log(camera.lineData)
-        if (camera.lineCrossing && camera.lineData.length > 0) {
+        if (
+          camera.expand?.inference?.lineCrossing &&
+          camera.expand?.inference?.lineData.length > 0
+        ) {
           const canvas = document.getElementById(`lineCanvas-${index}`);
           if (canvas) {
             canvas.style.borderRadius = "14px";
-            drawLineData(canvas, camera.lineData);
+            drawLineData(canvas, camera.expand?.inference?.lineData);
           }
         }
       });
     }
+  }
+
+  $: console.log($selectedNode.camera);
+
+  function createIntrusionLines() {
+    if (
+      $selectedNode.camera.some(
+        (camera) =>
+          camera.expand?.inference?.intrusionDetection &&
+          camera.expand?.inference?.roiData.length > 0,
+      )
+    ) {
+      $selectedNode.camera.forEach((camera, index) => {
+        // console.log(camera.lineData)
+        if (
+          camera.expand?.inference?.intrusionDetection &&
+          camera.expand?.inference?.roiData.length > 0
+        ) {
+          const canvas = document.getElementById(`intrusionCanvas-${index}`);
+          if (canvas) {
+            canvas.style.borderRadius = "14px";
+            drawIntrusionData(canvas, camera.expand?.inference?.roiData);
+          }
+        }
+      });
+    }
+  }
+
+  function drawIntrusionData(canvas, lineData) {
+    const ctx = canvas.getContext("2d");
+    const rect = canvas.getBoundingClientRect();
+
+    // Scale points to fit the canvas dimensions
+    const scaledPoints = lineData.map((point) => ({
+      x: (point.x / 1920) * canvas.width,
+      y: (point.y / 1080) * canvas.height,
+    }));
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (scaledPoints.length > 0) {
+      ctx.beginPath();
+      ctx.moveTo(scaledPoints[0].x, scaledPoints[0].y);
+      for (let i = 1; i < scaledPoints.length; i++) {
+        ctx.lineTo(scaledPoints[i].x, scaledPoints[i].y);
+      }
+      ctx.lineTo(scaledPoints[0].x, scaledPoints[0].y); // Close the shape by connecting back to the first point
+      ctx.strokeStyle = "green";
+      ctx.stroke();
+    }
+
+    // Draw points
+    scaledPoints.forEach((point) => {
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = "green";
+      ctx.fill();
+    });
   }
 
   function drawLineData(canvas, lineData) {
@@ -794,34 +856,34 @@
     });
   }
 
-    const muteStates = writable<{ [key: string]: boolean }>({});
+  const muteStates = writable<{ [key: string]: boolean }>({});
 
-    // $: console.log($muteStates)
+  // $: console.log($muteStates)
 
   // Function to toggle mute state for a specific camera
   const toggleMute = (cameraId: string) => {
-    muteStates.update(states => {
+    muteStates.update((states) => {
       const newState = { ...states, [cameraId]: !states[cameraId] };
       return newState;
     });
   };
 
+  let personCounts = writable<{ [key: string]: number }>({});
 
-    let personCounts = writable<{ [key: string]: number }>({});
-
-  onMount(() => {
-     PB.collection("camera").subscribe("*", (e) => {
-      if (e.action === "update" && e.record.personCount !== undefined) {
-        personCounts.update((counts) => {
-          counts[e.record.id] = e.record.personCount;
-          return counts;
-        });
-      }
-    });
-  });
-    onDestroy(() => {
-      PB.collection("camera").unsubscribe("*");
-    });
+  // onMount(() => {
+  //   PB.autoCancellation(false)
+  //    PB.collection("camera").subscribe("*", (e) => {
+  //     if (e.action === "update" && e.record.personCount !== undefined) {
+  //       personCounts.update((counts) => {
+  //         counts[e.record.id] = e.record.personCount;
+  //         return counts;
+  //       });
+  //     }
+  //   });
+  // });
+  //   onDestroy(() => {
+  //     PB.collection("camera").unsubscribe("*");
+  //   });
 </script>
 
 {#if streamCount > 0 && Object.keys(videos).length > 0}
@@ -984,14 +1046,33 @@
                           <AArrowUp size={18} />
                         </button>
                       {/if}
-                      {#if $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex].lineCrossing === true && $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex].lineData.length > 0}
+
+                      {#if $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex]?.expand?.inference?.intrusionDetection === true && $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex]?.expand?.inference?.roiData.length > 0}
                         <canvas
-                          id={`lineCanvas-${ pageIndex *
-                            ($selectedNode.maxStreamsPerPage === 5 ||
-                            $selectedNode.maxStreamsPerPage === 7
-                              ? $selectedNode.maxStreamsPerPage + 1
-                              : $selectedNode.maxStreamsPerPage) +
-                            slotIndex}`}
+                          id={`intrusionCanvas-${
+                            pageIndex *
+                              ($selectedNode.maxStreamsPerPage === 5 ||
+                              $selectedNode.maxStreamsPerPage === 7
+                                ? $selectedNode.maxStreamsPerPage + 1
+                                : $selectedNode.maxStreamsPerPage) +
+                            slotIndex
+                          }`}
+                          class="absolute top-0 left-0 w-full h-full z-30 pointer-events-none"
+                          on:click={(e) => {
+                            e.preventDefault();
+                          }}
+                        ></canvas>
+                      {/if}
+                      {#if $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex]?.expand?.inference?.lineCrossing === true && $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex]?.expand?.inference?.lineData.length > 0}
+                        <canvas
+                          id={`lineCanvas-${
+                            pageIndex *
+                              ($selectedNode.maxStreamsPerPage === 5 ||
+                              $selectedNode.maxStreamsPerPage === 7
+                                ? $selectedNode.maxStreamsPerPage + 1
+                                : $selectedNode.maxStreamsPerPage) +
+                            slotIndex
+                          }`}
                           class="absolute top-0 left-0 w-full h-full z-30 pointer-events-none"
                           on:click={(e) => {
                             e.preventDefault();
@@ -999,15 +1080,16 @@
                         ></canvas>
                       {/if}
                       <Stream
- mute={$muteStates[$selectedNode.camera[
+                        mute={$muteStates[
+                          $selectedNode.camera[
                             pageIndex *
                               ($selectedNode.maxStreamsPerPage === 5 ||
                               $selectedNode.maxStreamsPerPage === 7
                                 ? $selectedNode.maxStreamsPerPage + 1
                                 : $selectedNode.maxStreamsPerPage) +
                               slotIndex
-                          ].id] ?? true} 
-
+                          ].id
+                        ] ?? true}
                         videoElement={videos[
                           $selectedNode.camera[
                             pageIndex *
@@ -1086,7 +1168,6 @@
                           </button>
 
                           <button
-                            
                             on:click={(e) => {
                               e.preventDefault();
                               handleSingleSS();
@@ -1117,7 +1198,6 @@
                             ><ImageDown size={18} />
                           </button>
                           <button
-                            
                             on:click={() => {
                               const cameraId =
                                 $selectedNode.camera[
@@ -1137,26 +1217,27 @@
                             <RefreshCcw size={18} />
                           </button>
                           <button
-                          on:click={() => toggleMute($selectedNode.camera[
+                            on:click={() =>
+                              toggleMute(
+                                $selectedNode.camera[
                                   pageIndex *
                                     ($selectedNode.maxStreamsPerPage === 5 ||
                                     $selectedNode.maxStreamsPerPage === 7
                                       ? $selectedNode.maxStreamsPerPage + 1
                                       : $selectedNode.maxStreamsPerPage) +
-                                    slotIndex].id)}
+                                    slotIndex
+                                ].id,
+                              )}
                             class="rounded disabled:cursor-not-allowed bg-[rgba(255,255,255,0.1)] backdrop-blur-sm p-1.5 min-h-[36px] min-w-[36px] grid place-items-center text-white cursor-pointer"
                           >
                             <!-- <Volume2 size={18} /> -->
-                              {#if $muteStates[$selectedNode.camera[pageIndex *
-                                    ($selectedNode.maxStreamsPerPage === 5 ||
-                                    $selectedNode.maxStreamsPerPage === 7
-                                      ? $selectedNode.maxStreamsPerPage + 1
-                                      : $selectedNode.maxStreamsPerPage) +
-                                    slotIndex].id] ?? true}
-                                <VolumeX size={18} /> <!-- Show VolumeX icon if muted -->
-                              {:else}
-                                <Volume2 size={18} /> <!-- Show Volume2 icon if not muted -->
-          {/if}
+                            {#if $muteStates[$selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex].id] ?? true}
+                              <VolumeX size={18} />
+                              <!-- Show VolumeX icon if muted -->
+                            {:else}
+                              <Volume2 size={18} />
+                              <!-- Show Volume2 icon if not muted -->
+                            {/if}
                           </button>
                         </div>
                       {:else}
@@ -1220,7 +1301,7 @@
                     <AddCameraDialog nodes={data.nodes} sNode={""}>
                       <!-- svelte-ignore a11y-click-events-have-key-events -->
                       <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                      <button class=" disabled:cursor-not-allowed" disabled>
+                      <button class=" disabled:cursor-not-allowed">
                         <img
                           on:click={() => {
                             addUserLog(
@@ -1260,7 +1341,7 @@
     <AddCameraDialog nodes={data.nodes} sNode={""}>
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-      <button class="disabled:cursor-not-allowed" disabled>
+      <button class="disabled:cursor-not-allowed">
         <img
           on:click={() => {
             addUserLog(`user added first camera through streampanel`);

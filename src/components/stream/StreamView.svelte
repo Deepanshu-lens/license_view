@@ -274,6 +274,8 @@
   }
 
   onMount(async () => {
+PB?.autoCancellation(false)
+
     galleryItems = data.galleryItems;
     unknownItems = data.imposterItems;
     // data.props.galleryItems.then((e) => {
@@ -322,8 +324,8 @@
   async function updateAi() {
     if (!$canvasCoordinates || Object.keys($canvasCoordinates).length === 0) {
       if (intrusionDetection === false && $view === 2) {
-        await PB.collection("camera")
-          .update(roiCamera?.id, {
+        await PB.collection("ai_inference")
+          .update(roiCamera?.inference, {
             roiData: null,
             intrusionDetection: false,
             intrusionPerson: false,
@@ -339,8 +341,8 @@
             );
           });
       } else if (lineCrossing === false && $view === 1) {
-        await PB.collection("camera")
-          .update(roiCamera?.id, {
+        await PB.collection("ai_inference")
+          .update(roiCamera?.inference, {
             lineData: null,
             lineCrossing: false,
             linePerson: false,
@@ -366,8 +368,8 @@
     } else {
       console.log("roidata updateai", roiCamera);
       if ($view === 2) {
-        await PB.collection("camera")
-          .update(roiCamera?.id, {
+        await PB.collection("ai_inference")
+          .update(roiCamera?.inference, {
             roiData: $canvasCoordinates,
             intrusionDetection: intrusionDetection,
             intrusionPerson: intrusionPerson,
@@ -384,8 +386,8 @@
           })
           .catch((err) => console.log(err));
       } else {
-        await PB.collection("camera")
-          .update(roiCamera?.id, {
+        await PB.collection("ai_inference")
+          .update(roiCamera?.inference, {
             lineData: $canvasCoordinates,
             lineCrossing: lineCrossing,
             linePerson: linePerson,
@@ -1052,21 +1054,21 @@
                     const selectedCam = $selectedNode?.camera.find(
                       (cam) => cam.id === event.target.value,
                     );
-                    // console.log(selectedCam);
+                    console.log(selectedCam);
                     // activeCamera.set(selectedCam)
                     roiCamera = selectedCam;
                     filteredNodeCameras.set([selectedCam]);
                     // console.log($filteredNodeCameras);
-                    intrusionDetection = selectedCam.intrusionDetection;
-                    lineCrossing = selectedCam.lineCrossing;
-                    intrusionPerson = selectedCam.intrusionPerson;
-                    intrusionVehicle = selectedCam.intrusionVehicle;
-                    intrusionPersonThresh = selectedCam.intrusionPersonThresh;
-                    intrusionVehicleThresh = selectedCam.intrusionVehicleThresh;
-                    linePerson = selectedCam.linePerson;
-                    lineVehicle = selectedCam.lineVehicle;
-                    linePersonThresh = selectedCam.linePersonThresh;
-                    lineVehicleThresh = selectedCam.lineVehicleThresh;
+                    intrusionDetection = selectedCam?.expand?.inference?.intrusionDetection;
+                    lineCrossing = selectedCam?.expand?.inference?.lineCrossing;
+                    intrusionPerson = selectedCam?.expand?.inference?.intrusionPerson;
+                    intrusionVehicle = selectedCam?.expand?.inference?.intrusionVehicle;
+                    intrusionPersonThresh = selectedCam?.expand?.inference?.intrusionPersonThresh;
+                    intrusionVehicleThresh = selectedCam?.expand?.inference?.intrusionVehicleThresh;
+                    linePerson = selectedCam?.expand?.inference?.linePerson;
+                    lineVehicle = selectedCam?.expand?.inference?.lineVehicle;
+                    linePersonThresh = selectedCam?.expand?.inference?.linePersonThresh;
+                    lineVehicleThresh = selectedCam?.expand?.inference?.lineVehicleThresh;
                   }}
                 >
                   <option value="" disabled selected>Select from list</option>
@@ -1140,16 +1142,16 @@
                     roiCamera = selectedCam;
                     filteredNodeCameras.set([selectedCam]);
                     // console.log($filteredNodeCameras);
-                    intrusionDetection = selectedCam.intrusionDetection;
-                    lineCrossing = selectedCam.lineCrossing;
-                    intrusionPerson = selectedCam.intrusionPerson;
-                    intrusionVehicle = selectedCam.intrusionVehicle;
-                    intrusionPersonThresh = selectedCam.intrusionPersonThresh;
-                    intrusionVehicleThresh = selectedCam.intrusionVehicleThresh;
-                    linePerson = selectedCam.linePerson;
-                    lineVehicle = selectedCam.lineVehicle;
-                    linePersonThresh = selectedCam.linePersonThresh;
-                    lineVehicleThresh = selectedCam.lineVehicleThresh;
+                    intrusionDetection = selectedCam?.expand?.inference?.intrusionDetection;
+                    lineCrossing = selectedCam?.expand?.inference?.lineCrossing;
+                    intrusionPerson = selectedCam?.expand?.inference?.intrusionPerson;
+                    intrusionVehicle = selectedCam?.expand?.inference?.intrusionVehicle;
+                    intrusionPersonThresh = selectedCam?.expand?.inference?.intrusionPersonThresh;
+                    intrusionVehicleThresh = selectedCam?.expand?.inference?.intrusionVehicleThresh;
+                    linePerson = selectedCam?.expand?.inference?.linePerson;
+                    lineVehicle = selectedCam?.expand?.inference?.lineVehicle;
+                    linePersonThresh = selectedCam?.expand?.inference?.linePersonThresh;
+                    lineVehicleThresh = selectedCam?.expand?.inference?.lineVehicleThresh;
                   }}
                 >
                   <option value="" disabled selected>Select from list</option>
@@ -1206,6 +1208,7 @@
             filteredNodeCameras.set($selectedNode.camera);
             $selectedDetections = [];
              document.getElementById('selectedCamSelect').value = '';
+             currpanel = 2
                     }}>Cancel</Button
                   >
               </div>

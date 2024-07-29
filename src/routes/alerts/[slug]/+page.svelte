@@ -11,6 +11,7 @@
     Search,
     CalendarDays,
     CameraIcon,
+    Upload,
   } from "lucide-svelte";
   import type { PageServerData } from "./$types";
   import type { Event } from "@/types";
@@ -33,6 +34,7 @@
   let selectedEvent = null;
   let selectedMatchEvent = null;
   let eventType = false;
+  let exportDropdown = false
 
   function openEventDialog(eventData) {
     if (eventData.title.includes("Face")) {
@@ -150,7 +152,6 @@
   }
 
   $: filteredEvents.set(filterEvents($events));
-  $: console.log($events.length)
 </script>
 
 <section class="h-full w-full flex items-center justify-center">
@@ -167,8 +168,6 @@
           <input type="checkbox" bind:checked={showLC} />
         </span>
         <span class="flex items-center gap-2">
-
-
           <p class="font-medium text-sm">Detected</p>
           <input type="checkbox" bind:checked={showD} />
         </span>
@@ -378,6 +377,89 @@
         class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
       >
         Duration
+      </p>
+    </span>
+    <span class="group flex flex-col gap-0.5 items-center justify-center">
+      <button on:click={() => exportDropdown = !exportDropdown}
+        class={`text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md group border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center`}
+        ><Upload class="h-[22px] w-[22px]" />
+           {#if exportDropdown}
+<!-- svelte-ignore missing-declaration -->
+<form
+  id="dropdown"
+  action="?/getFilteredEvents"
+  method="POST"
+  use:enhance={() => {
+    return async ({ result }) => {
+      if (result.type === 'success') {
+        // Update the events store with the new filtered events
+        // events.set(result.data.events);
+        console.log(result)
+      }
+    };
+  }}
+  class="z-50 dark:text-white text-black flex items-center border justify-center bg-background divide-y divide-gray-100 shadow-dropdown rounded-lg shadow w-40 absolute right-12"
+>
+  <input type="hidden" name="sessionId" value={$page.data.session.id} />
+  <ul class="py-2 text-sm w-full" aria-labelledby="dropdownDefaultButton">
+    <li class="w-full">
+      <button
+        type="submit"
+        name="timeFrame"
+        value="hour"
+        class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
+      >
+        1 Hour
+      </button>
+    </li>
+    <li class="w-full">
+      <button
+        type="submit"
+        name="timeFrame"
+        value="day"
+        class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
+      >
+        1 Day
+      </button>
+    </li>
+    <li class="w-full">
+      <button
+        type="submit"
+        name="timeFrame"
+        value="week"
+        class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
+      >
+        1 Week
+      </button>
+    </li>
+    <li class="w-full">
+      <button
+        type="submit"
+        name="timeFrame"
+        value="month"
+        class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
+      >
+        1 Month
+      </button>
+    </li>
+    <li class="w-full">
+      <button
+        type="submit"
+        name="timeFrame"
+        value="year"
+        class="block px-4 py-2 hover:bg-[rgba(92,75,221,.1)] rounded-md dark:hover:bg-gray-600 dark:hover:text-white w-full"
+      >
+        1 Year
+      </button>
+    </li>
+  </ul>
+</form>
+          {/if}
+      </button>
+      <p
+        class="text-xs group-hover:text-[#015a62] dark:group-hover:text-[#258d9d] text-black/[.23] dark:text-white"
+      >
+        Export
       </p>
     </span>
   </div>

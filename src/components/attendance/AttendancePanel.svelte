@@ -13,14 +13,17 @@
   import AttendanceDataTable from "./AttendanceDataTable.svelte";
 
   const fruits = [
-    { value: "1", label: "Last Day" },
     { value: "7", label: "Last 7 Days" },
     { value: "30", label: "Last 30 Days" },
     { value: "90", label: "Last 90 Days" },
     { value: "180", label: "Last 180 Days" },
   ];
 
+   let attendanceOption = "option1";
+
   export let selectedStudent;
+  export let galleryItems;
+  // console.log(galleryItems)
 </script>
 
 <section
@@ -45,8 +48,8 @@
           placeholder="search by name, Id, department"
         />
       </span>
-      <Button><Plus /> Add User</Button>
-      <Button><Upload /> Export</Button>
+      <Button class="flex items-center gap-1"><Plus /> Add User</Button>
+      <Button class="flex items-center gap-1"><Upload /> Export</Button>
     </span>
   </div>
 
@@ -55,7 +58,7 @@
       class="col-span-2 row-span-2 rounded-lg card-shadow p-4 relative flex flex-col justify-around h-full"
     >
       <p class="text-[#202224] font-medium text-xl">Total Students</p>
-      <p class="text-black text-4xl">450</p>
+      <p class="text-black text-4xl">{galleryItems.length}</p>
       <p class="text-[202224] text-base font-medium flex items-center gap-1">
         <TrendingUp class="size-4 text-[#00B69B]" />
         <span class="font-semibold text-[#00B69B]">2 new</span>
@@ -93,6 +96,7 @@
               name="attendanceOption"
               value="option1"
               class="mr-2"
+               bind:group={attendanceOption}
             />
             Daily
           </label>
@@ -102,6 +106,7 @@
               name="attendanceOption"
               value="option2"
               class="mr-2"
+               bind:group={attendanceOption}
             />
             Monthly
           </label>
@@ -110,7 +115,7 @@
               type="radio"
               name="attendanceOption"
               value="option3"
-              class="mr-2"
+              class="mr-2" bind:group={attendanceOption}
             />
             Yearly
           </label>
@@ -156,9 +161,9 @@
     <span class="flex items-center gap-4 justify-between">
       <p class="text-[#475569] font-semibold">Attendance Overview</p>
       <div class="flex items-center gap-3">
-        <Select.Root portal={null}>
+        <Select.Root portal={null} >
           <Select.Trigger class="w-[180px]">
-            <Select.Value placeholder="Select Duration" />
+            <Select.Value placeholder={new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} />
           </Select.Trigger>
           <Select.Content>
             <Select.Group>
@@ -176,7 +181,7 @@
         >
       </div>
     </span>
-    <AttendanceDataTable {selectedStudent}/>
+    <AttendanceDataTable {selectedStudent} {galleryItems}/>
   </div>
 </section>
 

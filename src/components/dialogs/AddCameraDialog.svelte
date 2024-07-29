@@ -43,20 +43,28 @@
   let nvrPass;
   let nvrIp;
   let nvrPort;
+  let personCount:boolean = false;
 
   export let sNode;
   export let nodes;
+
+  $: console.log(sparshID)
 
   const onSubmit = () => {
     console.log(mode);
     if (addMode === 1) {
       let modifiedCameraURL = cameraURL;
+      let modSubURL = subURL;
       const urlParts = cameraURL.split("@");
       console.log(urlParts);
       const atIndex = cameraURL.indexOf("@");
       if (urlParts.length > 2) {
         console.log(atIndex);
         modifiedCameraURL = urlParts[0] + "%40" + urlParts.slice(1).join("@");
+      }
+      const subParts = subURL.split("@");
+      if (subParts.length > 2) {
+        modSubURL = subParts[0] + "%40" + subParts.slice(1).join("@");
       }
       console.log(modifiedCameraURL);
 
@@ -70,6 +78,7 @@
           url: modifiedCameraURL,
           subUrl: subURL,
           nodeId: sNode ? sNode.id : $selectedNode.id,
+          sessionId: $selectedNode.session,
           face: face,
           save: saving,
           saveFolder: "./PlayBack/",
@@ -84,6 +93,7 @@
           motionThresh:
             motionThresh === 0 ? 1000 : motionThresh === 50 ? 2500 : 5000,
           sparshID: sparshID,
+          personCount: personCount
         }),
       }).then((response) => {
         if (response.ok) {
@@ -129,6 +139,7 @@
                     url: main,
                     subUrl: sub,
                     nodeId: sNode ? sNode.id : $selectedNode.id,
+          sessionId: $selectedNode.session,
                     face: face,
                     save: saving,
                     saveFolder: "./PlayBack/",
@@ -147,6 +158,7 @@
                           ? 2500
                           : 5000,
                     sparshID: sparshID,
+          personCount: personCount
                   }),
                 }).then((response) => {
                   if (response.ok) {
@@ -333,7 +345,7 @@
                   placeholder={"ID-sparshCamera"}
                   class="col-span-3"
                   bind:sparshID
-                  on:change={(e) => (sparshID = e.target.value)}
+                  on:input={(e) => (sparshID = e.target.value)}
                 />
               </div>
 
@@ -451,8 +463,8 @@
                     <label
                       class=" text-xs 2xl:text-sm font-medium leading-6 dark:text-white text-[#2c2c2c] flex items-center gap-1"
                     >
-                      <Switch bind:checked={vehicle} class="scale-90" />
-                      Vehicle Scan
+                      <Switch bind:checked={personCount} class="scale-90" />
+                      Person Count
                     </label>
                     <!-- svelte-ignore a11y-label-has-associated-control -->
                     <label

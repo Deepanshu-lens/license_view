@@ -23,6 +23,7 @@ export const POST: RequestHandler = async ({
     template,
     images: data.map((item: any) => item.bboxes[0].Image),
     features: data.map((item: any) => item.bboxes[0].Feature),
+    employee: data.employee
   });
 
   //   const camera = await locals.pb?.collection("camera").create({

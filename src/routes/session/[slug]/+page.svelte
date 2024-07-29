@@ -20,10 +20,9 @@
 
   // console.log("page on session page", $page);
 
-  async function getNodes(): Promise<Node[]> {
-    if (session?.node.length > 0) {
-      PB.autoCancellation(false);
-     const nodes = await PB.collection("node").getFullList(200, {
+async function getNodes(): Promise<Node[]> {
+  if (session?.node.length > 0) {
+    const nodes = await PB.collection("node").getFullList(200, {
       sort: "-created",
       filter: `session~"${session.id}"`,
     });
@@ -32,21 +31,37 @@
       const cameras = await PB.collection("camera").getFullList({
         filter: `node~"${node.id}"`,
         sort: "-created",
-        expand: 'personCounter'
+        expand: 'personCounter,inference'
       });
       node.camera = cameras.map((cam: Camera) => ({
         ...cam,
         personCounter: cam?.expand?.personCounter?.count,
+        // face: cam?.expand?.inference?.face,
+        // vehicle: cam?.expand?.inference?.vehicle,
+        // faceDetThresh: cam?.expand?.inference?.faceDetThresh,
+        // faceMatchThresh: cam?.expand?.inference?.faceMatchThresh,
+        // vehicleDetThresh: cam?.expand?.inference?.vehDetThresh,
+        // vehiclePlateThresh: cam?.expand?.inference?.vehPlateThresh,
+        // vehicleOCRThresh: cam?.expand?.inference?.vehOCRThresh,
+        // running: cam?.expand?.inference?.running,
+        // runningThresh: cam?.expand?.inference?.runningThresh,
+        // motionThresh: cam?.expand?.inference?.motionThresh,
+        // lineCrossing: cam?.expand?.inference?.lineCrossing,
+        // linePerson: cam?.expand?.inference?.linePerson,
+        // linePersonThresh: cam?.expand?.inference?.linePersonThresh,
+        // lineVehicle: cam?.expand?.inference?.lineVehicle,
+        // lineVehicleThresh: cam?.expand?.inference?.lineVehicleThresh,
+        // lineData: cam?.expand?.inference?.lineData,
+        // priority: cam?.expand?.inference?.priority,
       }));
     }
-
     return nodes.map((node) => ({
       ...node,
       session: session.id,
     }) as Node);
   }
-    return [];
-  }
+  return [];
+}
 
   // function updateEvents() {
   //   if (batchedEvents.length !== $events.length) {
@@ -73,6 +88,7 @@
     batchedEvents=[]
     PB.autoCancellation(false);
     nodes = await getNodes();
+    // console.log(nodes)
     const s = nodes.find((n) => n.id === session.activeNode);
     selectedNode.set(s || nodes[0]);
     events.set(data.events);
@@ -100,6 +116,13 @@
       selectedNode.set(selected || nodes[0]);
     });
 
+    PB.collection("ai_inference").subscribe("*", async (e) => {
+      nodes = await getNodes();
+      // console.log("change e nodes", e.record)
+      const selected = nodes.find((n) => n.id === session.activeNode);
+      selectedNode.set(selected || nodes[0]);
+    });
+
     setTimeout(updateEvents, 1000);
   });
 
@@ -107,6 +130,7 @@
     PB.collection("node").unsubscribe("*");
     PB.collection("events").unsubscribe("*");
     PB.collection("camera").unsubscribe("*");
+    PB.collection("ai_inference").unsubscribe("*");
   });
 
 

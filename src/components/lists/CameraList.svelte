@@ -104,6 +104,8 @@
   function filterItems(e: Event) {
     filterText = (e.target as HTMLInputElement).value;
   }
+
+// $: console.log($filteredNodeCameras)
 </script>
 
 {#if $selectedNode?.camera?.length === 0}
@@ -111,7 +113,7 @@
     <div class="flex flex-col space-y-6 mx-auto items-center">
       <Cctv size={64} />
       <AddCameraDialog nodes={data.nodes} sNode={""}>
-        <Button class="mx-auto text-center disabled:cursor-not-allowed" disabled
+        <Button class="mx-auto text-center disabled:cursor-not-allowed" 
           >Add Camera</Button
         >
       </AddCameraDialog>
@@ -186,36 +188,36 @@
         {#key $selectedNode}
           <CameraInfoCard
             cameraId={camera.id}
-            name={camera.name}
-            url={camera.url}
-            save={camera.save}
-            face={camera.face}
-            vehicle={camera.vehicle}
-            faceDetectionThreshold={camera.faceDetThresh}
-            faceSearchThreshold={camera.faceMatchThresh}
-            vehicleDetectionThreshold={camera.vehicleDetThresh}
-            vehiclePlateThreshold={camera.vehiclePlateThresh}
-            vehicleOCRThreshold={camera.vehicleOCRThresh}
-            saveFolder={camera.saveFolder}
-            saveDuration={camera.saveDuration}
-            motion={camera.motionThresh}
-            priority={camera.priority}
-            features={user.features}
-            running={camera.running}
-            runningThresh={camera.runningThresh}
-            intrusionDetection={camera.intrusionDetection}
-            intrusionPerson={camera.intrusionPerson}
-            intrusionVehicle={camera.intrusionVehicle}
-            lineCrossing={camera.lineCrossing}
-            linePerson={camera.linePerson}
-            lineVehicle={camera.lineVehicle}
+            name={camera?.name}
+            url={camera?.url}
+            save={camera?.save}
+            face={camera?.expand?.inference?.face}
+            vehicle={camera?.expand?.inference?.vehicle}
+            faceDetectionThreshold={camera?.expand?.inference?.faceDetThresh}
+            faceSearchThreshold={camera?.expand?.inference?.faceMatchThresh}
+            vehicleDetectionThreshold={camera?.expand?.inference?.vehDetThresh}
+            vehiclePlateThreshold={camera?.expand?.inference?.vehPlateThresh}
+            vehicleOCRThreshold={camera?.expand?.inference?.vehOCRThresh}
+            saveFolder={camera?.saveFolder}
+            saveDuration={camera?.saveDuration}
+            motion={camera?.expand?.inference?.motionThresh}
+            priority={camera?.expand?.inference?.priority}
+            running={camera?.expand?.inference?.running}
+            runningThresh={camera?.expand?.inference?.runningThresh}
+            intrusionDetection={camera?.expand?.inference?.intrusionDetection}
+            intrusionPerson={camera?.expand?.inference?.intrusionPerson}
+            intrusionVehicle={camera?.expand?.inference?.intrusionVehicle}
+            lineCrossing={camera?.expand?.inference?.lineCrossing}
+            linePerson={camera?.expand?.inference?.linePerson}
+            lineVehicle={camera?.expand?.inference?.lineVehicle}
             linePersonThresh={camera.linePersonThresh}
-            lineVehicleThresh={camera.lineVehicleThresh}
-            intrusionPersonThresh={camera.intrusionPersonThresh}
-            intrusionVehicleThresh={camera.intrusionVehicleThresh}
-            sparshID={camera.sparshID}
+            lineVehicleThresh={camera?.expand?.inference?.lineVehicleThresh}
+            intrusionPersonThresh={camera?.expand?.inference?.intrusionPersonThresh}
+            intrusionVehicleThresh={camera?.expand?.inference?.intrusionVehicleThresh}
+            sparshID={camera?.sparshID}
             personCount={camera.personCount}
             {isAllFullScreen}
+            features={user.features}
           />
         {/key}
       {/each}

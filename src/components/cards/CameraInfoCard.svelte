@@ -7,6 +7,7 @@
   import { addUserLog } from "@/lib/addUserLog";
   import CameraEditDialog from "../dialogs/CameraEditDialog.svelte";
   import { writable } from "svelte/store";
+  import { onMount } from "svelte";
 
   export let isAllFullScreen: boolean;
 
@@ -40,17 +41,33 @@
   export let sparshID:string
   export let personCount
 
+console.log(sparshID)
+let hasShownToast = false;
 
   $: count = $cameraCounts[cameraId];
+  
+  $: {
+    if (count > 4 && !hasShownToast) {
+      toast(`Number of people in Camera:${name} exceeded the fixed threshold`);
+      hasShownToast = true;
+    } else if (count <= 4) {
+      hasShownToast = false;
+    }
+  }
+
+  onMount(() => {
+    return () => {
+      hasShownToast = false;
+    };
+  });
+
+  
   // CODE
 
   // console.log(features);
 
   const deleteCamera = () => {
-    // const cell = document.getElementById(`stream-${cameraId}`);
-    // if (cell) {
-    //   document.getElementById(`stream-${cameraId}`)?.remove();
-    // }
+
     fetch("/api/camera/deleteCamera", {
       method: "delete",
       headers: {
@@ -70,8 +87,6 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- markup (zero or more items) goes here -->
-
 <!-- svelte-ignore a11y-mouse-events-have-key-events -->
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <article
@@ -158,7 +173,7 @@
         {linePerson}
         {lineVehicle}
         {linePersonThresh}
-        {lineVehicleThresh}
+        {lineVehicleThresh}{personCount}
         cameraURL={url}><Settings class="h-4 w-4" /></CameraSettingsDialog
       >
     </li>

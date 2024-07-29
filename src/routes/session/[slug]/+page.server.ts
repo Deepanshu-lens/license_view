@@ -43,38 +43,6 @@ locals.pb?.autoCancellation(false)
     );
   }
 
-  // const otherEvents = async () => {
-  //   const e = await locals.pb?.collection("events").getList(1, 100, {
-  //     sort: "-created",
-  //     fields:
-  //       "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
-  //     filter: 'title != "Line Crossed" && matchScore != "0"'
-  //   });
-  //   return e?.items.map(
-  //     (ee) =>
-  //       ({
-  //         ...ee,
-  //         created: new Date(ee.created),
-  //       }) as unknown as Event,
-  //   );
-  // }
-
-  // const runningEvents = async () => {
-  //   const e = await locals.pb?.collection("events").getList(1, 25, {
-  //     sort: "-created",
-  //     fields:
-  //       "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
-  //     filter: 'title = "Line Crossed"'
-  //   });
-  //   return e?.items.map(
-  //     (ee) =>
-  //       ({
-  //         ...ee,
-  //         created: new Date(ee.created),
-  //       }) as unknown as Event,
-  //   );
-  // }
-
   const gelleryItems = async () => {
     const g = await locals.pb?.collection("faceGallery").getFullList({
       sort: "-lastSeen",

@@ -37,10 +37,10 @@
       text: "Gallery",
       href: `/gallery/${sessionId}`,
     },
-    // {
-    //   text: "Attendance",
-    //   href: `/attendance/${sessionId}`,
-    // },
+    {
+      text: "Attendance",
+      href: `/attendance/${sessionId}`,
+    },
     // {
     //   text: "Configuration",
     //   href: `/configuration/${sessionId}?section=Remote`,

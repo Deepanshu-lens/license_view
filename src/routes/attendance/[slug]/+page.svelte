@@ -2,12 +2,7 @@
 	import { writable } from 'svelte/store';
 
   import {
-    Search,
-    Filter,
     Expand,
-    ChevronRight,
-    Trash,
-    X,
     UsersRound,
     BellDot,
     School,
@@ -18,12 +13,15 @@
     import SelectedStudent from "@/components/attendance/SelectedStudent.svelte";
   let showFilters = false;
   let selectedStudent:any = writable(null);
+  export let data;
+
+  $:console.log(data.galleryItems)
 </script>
 
 
 <main class="flex w-full h-screen">
   {#if $selectedStudent === null}
-<AttendancePanel {selectedStudent}/>{:else}
+<AttendancePanel {selectedStudent} galleryItems={data.galleryItems}/>{:else}
 <SelectedStudent {selectedStudent}/>
 {/if}
       <div

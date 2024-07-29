@@ -22,6 +22,7 @@
     ToggleLeftIcon,
     Construction,
     Radar,
+    PersonStanding,
   } from "lucide-svelte";
 
   export let cameraName = "";
@@ -47,9 +48,10 @@
   export let lineVehicle: boolean;
   export let linePersonThresh: number  = 0.7;
   export let lineVehicleThresh: number  = 0.7;
+  export let personCount: boolean;
   let dialogOpen = false;
 
-
+console.log(lineCrossing)
   const items = [
     {
       value: 30 * 24 * 60,
@@ -113,6 +115,7 @@
         lineVehicle,
         linePersonThresh,
         lineVehicleThresh,
+        personCount
       }),
     }).then(() => {
       toast("Camera settings updated.");
@@ -125,7 +128,7 @@
 <Dialog.Root bind:open={dialogOpen}>
   <Dialog.Trigger><slot /></Dialog.Trigger>
   <Dialog.Content
-    class="sm:max-w-[720px] scale-90 2xl:scale-100 max-h-[90%] overflow-y-scroll"
+    class="sm:max-w-[720px] scale-90 2xl:scale-100 max-h-[90%] overflow-y-scroll hide-scrollbar"
   >
     <Dialog.Header>
       <Dialog.Title>Camera Settings</Dialog.Title>
@@ -301,7 +304,7 @@
       </div>
     </div> -->
 
-     <div class="rounded-md border p-4 my-2">
+  {#if lineCrossing}   <div class="rounded-md border p-4 my-2">
       <div class="flex items-center space-x-4">
         <Construction />
         <div class="flex-1 space-y-1">
@@ -385,6 +388,16 @@
           </div>
           {/if}
         {/if}
+      </div>
+    </div>{/if}
+
+      <div class="rounded-md flex items-center justify-between border p-4 my-2">
+      <div class="flex items-center space-x-4">
+        <PersonStanding />
+        <p class="text-sm font-medium leading-none">Person Count</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <Switch bind:checked={personCount}/>
       </div>
     </div>
 
