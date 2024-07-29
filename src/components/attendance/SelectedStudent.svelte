@@ -1,4 +1,5 @@
 <script lang="ts">
+	import SelectedStudentDialog from './../dialogs/SelectedStudentDialog.svelte';
   import {
     ArrowLeft,
     CalendarDays,
@@ -12,8 +13,26 @@
   import { Button } from "../ui/button";
   import AttendanceCard from "../cards/AttendanceCard.svelte";
     import { Input } from "../ui/input";
+  import { page } from "$app/stores";
+    import { onMount } from "svelte";
+  import PocketBase from "pocketbase";
 
   export let selectedStudent: any;
+  let selectedDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  // console.log(selectedDate)
+
+  $: console.log($selectedStudent)
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+
+  // onMount(async() => {
+  //   const student = await PB.collection("faceGallery").getFullList({
+  //     expand:'events',
+  //     filter: `name = '${$selectedStudent.studentId}' && aadhar = '${$selectedStudent.aadharId}'`
+  //   })
+  //   console.log(student)
+
+  // })
 </script>
 
 <section class="flex-col flex p-4 relative w-full">
@@ -26,27 +45,26 @@
     </Button>
     <div class="w-full flex justify-between relative">
         <div class="flex items-center gap-8 border-[#00000052] border-b pb-5 pr-4 flex-shrink-0">
+          <SelectedStudentDialog images={$selectedStudent.images} name={$selectedStudent.studentId} email={$selectedStudent.email} department={$selectedStudent.department} >
             <div class="flex flex-col -space-y-[116.5px]">
-        <img
-          class="size-[130px] scale-[.80] rounded-md"
-          src="/images/att2.png"
-          alt="Student 1"
-        />
-        <img
-          class="size-[130px] z-10 scale-[.90] rounded-md"
-          src="/images/att1.png"
-          alt="Student 2"
-        />
-        <img
-          class=" size-[130px] z-20 rounded-md"
-          src="/images/Attendance.png"
-          alt="Student 3"
-        />
+     {#each $selectedStudent.images.slice(0, 3) as image, index}
+    <img
+      class="size-[130px] rounded-md"
+      class:scale-[.80]={index === 0}
+      class:scale-[.90]={index === 1}
+      class:z-10={index === 1}
+      class:z-20={index === 2}
+      src={"data:image/jpeg;base64," +image}
+      alt={`Student ${index + 1}`}
+    />
+  {/each}
+  <!-- </div> -->
+</div>
+      </SelectedStudentDialog>
         <!-- <a class="flex items-center justify-center w-10 h-10 text-xs font-medium text-white bg-gray-700 rounded-full border-2 border-white hover:bg-gray-600" href="#">+3</a> -->
-      </div>
       <div class="flex flex-col mt-4 gap-2">
         <span class="flex items-center gap-3">
-          <p class="font-semibold text-xl">Shreya Juneja</p>
+          <p class="font-semibold text-xl">{$selectedStudent.studentId}</p>
           <Button class="text-[#015a62] bg-[#ECFDF3] scale-90">
             <PhoneCall size={20} />
           </Button>
@@ -57,11 +75,11 @@
         <span class="flex items-center gap-5 mt-1">
           <span class="flex items-center gap-3">
             <p class="text-[#000000DE] font-medium text-sm">Adhaar Id</p>
-            <p class="text-[#00000099]">234141</p>
+            <p class="text-[#00000099]">{$selectedStudent.aadharId}</p>
           </span>
           <span class="flex items-center gap-3">
             <p class="text-[#000000DE] font-medium text-sm">Mobile Number</p>
-            <p class="text-[#00000099]">9999999999</p>
+            <p class="text-[#00000099]">{$selectedStudent.phone}</p>
           </span>
         </span>
         <span class="flex items-center gap-5">
@@ -76,7 +94,7 @@
         </span>
         <span class="flex items-center gap-5">
           <p class="text-[#000000DE] font-medium text-sm">Email Address</p>
-          <p class="text-[#00000099]">email@email.com</p>
+          <p class="text-[#00000099]">{$selectedStudent.email}</p>
         </span>
       </div>
     </div>
@@ -133,15 +151,15 @@
 
   <div class="mb-4 w-full pt-6 mx-16">
     <span class="flex items-center w-full gap-3">
-      <p class="flex flex-shrink-0font-medium text-black">June 01-26, 2024</p>
+      <p class="flex flex-shrink-0font-medium text-black">{selectedDate}</p>
       <span class="bg-[#00000052] w-[83%] h-[1px]" />
     </span>
   </div>
 <div class="max-h-[calc(100vh-400px)] overflow-y-auto hide-scrollbar w-[95%] overflow-x-hidden">
     <div class="flex flex-wrap w-full mx-16 gap-x-20 gap-y-6 pb-2">
-        {#each Array(15) as _, i}
-        <AttendanceCard />
-        {/each}
+        <!-- {#each Array(15) as _, i} -->
+        <AttendanceCard checkIn={$selectedStudent.checkOut} checkOut={$selectedStudent.checkOut} checkOutImage={$selectedStudent.checkOutImage} color={$selectedStudent.color} status={$selectedStudent.status} checkInImage={$selectedStudent.checkOutImage}/>
+        <!-- {/each} -->
     </div>
 </div>
 </section>

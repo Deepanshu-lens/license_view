@@ -19,12 +19,12 @@
 </script>
 
 
-<main class="flex w-full h-screen">
+<main class="flex w-full px-6 h-screen">
   {#if $selectedStudent === null}
 <AttendancePanel {selectedStudent} galleryItems={data.galleryItems}/>{:else}
 <SelectedStudent {selectedStudent}/>
 {/if}
-      <div
+      <!-- <div
     class="flex flex-col gap-6 items-center justify-center px-2 h-[calc(100vh-76px)] ml-auto"
   >
    <span class="group flex flex-col gap-0.5 items-center justify-center">
@@ -88,5 +88,5 @@
       </p>
     </span>
    
-  </div>
+  </div> -->
 </main>

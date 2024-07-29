@@ -22,7 +22,6 @@
   type AttendanceLog = {
     studentId: string;
     aadharId: string;
-    department: string;
     date: string;
     status: "Late" | "On-time" | "Absent";
     checkIn: string;
@@ -30,9 +29,17 @@
     totalHours: string;
     checkInImage: string;
     checkOutImage: string;
+    department:string;
+    aadhar:string;
+    email:string;
+    phone:number;
+    images:any[];
+    color:string;
   };
 
-  const initialData: AttendanceLog[] = galleryItems.map((item) => ({
+const initialData: AttendanceLog[] = galleryItems.map((item: any) => {
+  // console.log(item)
+  return {
     studentId: item.name,
     aadharId: item.aadhar || "-",
     department: item.department || "-",
@@ -41,64 +48,42 @@
       day: "numeric",
       year: "numeric",
     }),
-    status: "On-time",
-    checkIn: "-",
-    checkOut: "-",
-    totalHours: "-",
-    checkInImage: item.savedData[0] || "",
-    checkOutImage: item.images[1] || "",
-  }));
+    status: calculateStatus(item.todayEvents),
+    checkIn: item.todayEvents && item.todayEvents[0] 
+      ? new Date(item.todayEvents[0].created).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) 
+      : "-",
+    checkOut: item.todayEvents && item.todayEvents[1] 
+      ? new Date(item.todayEvents[1].created).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) 
+      : "-",
+    checkInImage: item.todayEvents && item.todayEvents[0] ? item.todayEvents[0].frameImage : item.savedData[0] || "",
+    checkOutImage: item.todayEvents && item.todayEvents[1] ? item.todayEvents[1].frameImage : item.images[1] || "",
+    totalHours: calculateTotalHours(item.todayEvents),
+    aadhar: item.aadhar || "-",
+    email: item.email || "-",
+    phone: item.mobile || "-",
+    images: item.images || [],
+    color: calculateStatus(item.todayEvents) === "Late" ? "#D28E3D" : calculateStatus(item.todayEvents) === "On-time" ?  "#4976F4" : "#C20D02"
+  };
+});
 
-  // const initialData: AttendanceLog[] = [
-  //   {
-  //     studentId: "Shreya Juneja",
-  //     aadharId: "4400-2344-1001",
-  //     department: "IT Department",
-  //     date: "01 June 2024",
-  //     status: "On-time",
-  //     checkIn: "09:00",
-  //     checkOut: "02:10",
-  //     totalHours: "5h 10m",
-  //     checkInImage: '/images/Attendance.png',
-  //     checkOutImage: '/images/Attendance.png'
-  //   },
-  //   {
-  //     studentId: "Ritwik Mohan",
-  //     aadharId: "4400-2344-1001",
-  //     department: "Accounts",
-  //     date: "01 June 2024",
-  //     status: "On-time",
-  //     checkIn: "09:00",
-  //     checkOut: "02:00",
-  //     totalHours: "3h 30m",
-  //      checkInImage: '/images/Attendance.png',
-  //     checkOutImage: '/images/Attendance.png'
-  //   },
-  //   {
-  //     studentId: "Kashish Kapur",
-  //     aadharId: "4400-2344-1001",
-  //     department: "Legal",
-  //     date: "01 June 2024",
-  //     status: "Late",
-  //     checkIn: "10:30",
-  //     checkOut: "02:00",
-  //     totalHours: "3h 30m",
-  //      checkInImage: '/images/Attendance.png',
-  //     checkOutImage: '/images/Attendance.png'
-  //   },
-  //   {
-  //     studentId: "Komal Jain",
-  //     aadharId: "4400-2344-1001",
-  //     department: "Finance",
-  //     date: "01 June 2024",
-  //     status: "Absent",
-  //     checkIn: "-",
-  //     checkOut: "-",
-  //     totalHours: "3h 30m",
-  //      checkInImage: '',
-  //     checkOutImage: ''
-  //   },
-  // ];
+function calculateStatus(events: any[]): "Late" | "On-time" | "Absent" {
+  if (!events || events.length === 0) return "Absent";
+  const checkInTime = new Date(events[0].created);
+  const cutoffTime = new Date(checkInTime);
+  cutoffTime.setHours(9, 0, 0, 0); // Assuming 9:00 AM is the cutoff for being on time
+  return checkInTime <= cutoffTime ? "On-time" : "Late";
+}
+
+function calculateTotalHours(events: any[]): string {
+  if (!events || events.length < 2) return "-";
+  const checkIn = new Date(events[0].created);
+  const checkOut = new Date(events[1].created);
+  const diff = checkOut.getTime() - checkIn.getTime();
+  const hours = Math.floor(diff / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
+   const seconds = Math.floor((diff % 60000) / 1000);
+  return `${hours}h ${minutes}m ${seconds}s`;
+}
 
   const data = writable(initialData);
 
@@ -215,9 +200,9 @@
             {...rowAttrs}
             data-state={$selectedDataIds[row.id] && "selected"}
             class="bg-transparent flex items-center justify-between border-b border-solid border-[#e4e4e4]"
-            on:click={() => console.log(row)}
-          >
-            <!-- on:click={() => {handleRowClick(row); selectedStudent.set(row)}} -->
+            on:click={() => {handleRowClick(row); selectedStudent.set(row.original)}}
+            >
+            <!-- on:click={() => console.log(row.original)} -->
             {#each row.cells as cell (cell.id)}
               <Subscribe attrs={cell.attrs()} let:attrs>
                 <Table.Cell
@@ -235,8 +220,10 @@
                           class="size-6  object-contain"
                         />
                       {/if}
-                      <span>{cell.value}</span>
+                      <span class="text-[{row.original.color}]">{cell.value}</span>
                     </div>
+                  {:else if cell.id === "status"}
+                    <span class=" bg-[{row.original.color}] bg-opacity-15 px-2 py-1 rounded-sm text-[{row.original.color}]">{cell.value}</span>
                   {:else}
                     <Render of={cell.render()} />
                   {/if}
@@ -260,7 +247,7 @@
     Previous
   </Button>
   <div class="flex flex-row gap-2 items-center text-sm text-muted-foreground">
-    <span class="p-2 rounded-md aspect-square bg-[#015a62] bg-opacity-20"
+    <span class="p-2 rounded-md aspect-square bg-[#015a62] bg-opacity-10"
       >{$pageIndex + 1 < 10 ? "0" + ($pageIndex + 1) : $pageIndex + 1}</span
     >
     of

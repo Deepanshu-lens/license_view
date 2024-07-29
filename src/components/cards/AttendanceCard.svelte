@@ -1,5 +1,11 @@
 <script lang="ts">
   import * as Card from "@/components/ui/card";
+  export let color;
+  export let status;
+  export let checkIn;
+  export let checkOut;
+  export let checkInImage;
+  export let checkOutImage;
 </script>
 
 <Card.Root
@@ -11,25 +17,25 @@
         <p class='text-[#4F4F4F] font-medium'>
             Wed, Jun 01, 2024
         </p>
-        <span class='text-[#4976F4] bg-[#4976F4]/[.15] px-2 rounded-sm text-sm font-medium py-.5'>
-On-time
+        <span class={`text-[${color}] bg-[${color}] bg-opacity-10 px-2 rounded-sm text-sm font-medium py-.5`}>
+{status}
         </span>
     </span>
 
-    <span class="flex items-center gap-2.5 mt-8">
-<img src="/images/Attendance.png" alt="photu" class='size-[50px] rounded-md'>
+    <span class="flex items-center gap-2.5 mt-6">
+<img src={'data:image/jpeg;base64,' + checkInImage} alt="photu" class='size-[50px] rounded-md'>
 <span>
-    <p class='text-[#00000099] font-medium text-sm'>
+    <p class='text-[#00000099] font-medium text-xs'>
         Check In
     </p>
-    <p class='text-black font-medium '>9:00 AM</p>
+    <p class='text-black font-medium text-sm'>{checkIn}</p>
 </span>
-<img src="/images/Attendance.png" alt="photu" class='size-[50px] rounded-md'>
+<img src={'data:image/jpeg;base64,' + checkOutImage} alt="photu" class='size-[50px] rounded-md'>
 <span>
-    <p class='text-[#00000099] font-medium text-sm'>
+    <p class='text-[#00000099] font-medium text-xs'>
         Check Out
     </p>
-    <p class='text-black font-medium '>9:00 AM</p></span>
+    <p class='text-black font-medium text-sm'>{checkOut}</p></span>
 <span>
     <p class='text-[#00000099] font-medium text-sm'>
         Total

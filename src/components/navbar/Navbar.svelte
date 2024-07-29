@@ -23,6 +23,11 @@
     import { events } from "@/lib/stores";
 
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  let Licenses;
+
+  onMount(async()=>{
+     Licenses = await PB.collection('licenses').getFullList()
+  })
 
   const menuList = [
     {
@@ -53,7 +58,16 @@
     //   text: "Atlas",
     //   href: `/atlas/${sessionId}`,
     // },
+    // {
+    //   text: "Events",
+    //   href: `/events/${sessionId}`,
+    // },
   ];
+
+  let live = {
+    text: "Live",
+    href: `/session/${sessionId}`,
+  };
 
   let frs = {
     text: "Alerts",
@@ -116,7 +130,7 @@
     PB.collection("session").unsubscribe("*");
   });
 
-  // console.log(user)
+  $: console.log(Licenses)
 </script>
 
 <header class="sm:flex border sticky top-0 left-0 w-full z-20 h-[75px] hidden">
@@ -141,6 +155,25 @@
       <div
         class={`flex flex-row items-center justify-center py-6 px-4 gap-14 `}
       >
+      {#if Licenses?.vms === true}
+        <a
+            data-svelte-prefetch
+            href={live.href}
+            on:click={() => {
+              addUserLog(`user clicked on navbar link "${live.text}"`);
+            }}
+          >
+            <span
+              class={`${
+                $page.url.pathname === frs.href.split("?")[0]
+                  ? `text-primary font-bold text-lg`
+                  : ""
+              }`}
+            >
+{live.text}
+            </span>
+          </a>
+      {:else}
         {#each menuList as item}
           {#key item}
               <a
@@ -161,7 +194,8 @@
                 </span>
               </a>
           {/key}
-        {/each}
+          {/each}
+          {/if}
         <!-- {#if session.frs} -->
           <!-- <a
             data-svelte-prefetch
