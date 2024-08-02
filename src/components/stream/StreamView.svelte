@@ -275,9 +275,10 @@
 
   onMount(async () => {
 PB?.autoCancellation(false)
-
-    galleryItems = data.galleryItems;
-    unknownItems = data.imposterItems;
+galleryItems = await getGallery()
+unknownItems = await getUnknowns()
+    // galleryItems = data.galleryItems;
+    // unknownItems = data.imposterItems;
     // data.props.galleryItems.then((e) => {
     //   galleryItems = e;
     // });

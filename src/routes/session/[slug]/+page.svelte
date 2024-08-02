@@ -36,23 +36,6 @@ async function getNodes(): Promise<Node[]> {
       node.camera = cameras.map((cam: Camera) => ({
         ...cam,
         personCounter: cam?.expand?.personCounter?.count,
-        // face: cam?.expand?.inference?.face,
-        // vehicle: cam?.expand?.inference?.vehicle,
-        // faceDetThresh: cam?.expand?.inference?.faceDetThresh,
-        // faceMatchThresh: cam?.expand?.inference?.faceMatchThresh,
-        // vehicleDetThresh: cam?.expand?.inference?.vehDetThresh,
-        // vehiclePlateThresh: cam?.expand?.inference?.vehPlateThresh,
-        // vehicleOCRThresh: cam?.expand?.inference?.vehOCRThresh,
-        // running: cam?.expand?.inference?.running,
-        // runningThresh: cam?.expand?.inference?.runningThresh,
-        // motionThresh: cam?.expand?.inference?.motionThresh,
-        // lineCrossing: cam?.expand?.inference?.lineCrossing,
-        // linePerson: cam?.expand?.inference?.linePerson,
-        // linePersonThresh: cam?.expand?.inference?.linePersonThresh,
-        // lineVehicle: cam?.expand?.inference?.lineVehicle,
-        // lineVehicleThresh: cam?.expand?.inference?.lineVehicleThresh,
-        // lineData: cam?.expand?.inference?.lineData,
-        // priority: cam?.expand?.inference?.priority,
       }));
     }
     return nodes.map((node) => ({
