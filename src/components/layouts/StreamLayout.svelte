@@ -768,7 +768,6 @@
     }
   }
 
-  $: console.log($selectedNode.camera);
 
   function createIntrusionLines() {
     if (
@@ -858,9 +857,6 @@
 
   const muteStates = writable<{ [key: string]: boolean }>({});
 
-  // $: console.log($muteStates)
-
-  // Function to toggle mute state for a specific camera
   const toggleMute = (cameraId: string) => {
     muteStates.update((states) => {
       const newState = { ...states, [cameraId]: !states[cameraId] };
@@ -868,22 +864,36 @@
     });
   };
 
-  let personCounts = writable<{ [key: string]: number }>({});
+   let currentIndex = $selectedNode.maxStreamsPerPage;
+  // console.log(currentIndex)
+  let refreshInterval;
 
-  // onMount(() => {
-  //   PB.autoCancellation(false)
-  //    PB.collection("camera").subscribe("*", (e) => {
-  //     if (e.action === "update" && e.record.personCount !== undefined) {
-  //       personCounts.update((counts) => {
-  //         counts[e.record.id] = e.record.personCount;
-  //         return counts;
-  //       });
-  //     }
-  //   });
-  // });
-  //   onDestroy(() => {
-  //     PB.collection("camera").unsubscribe("*");
-  //   });
+  function refreshCamera() {
+    const camera = $selectedNode.camera[currentIndex];
+    if (camera) {
+      refreshVideoStream(camera.id);
+      console.log(
+        "Refreshing camera with index & name:",
+        currentIndex,
+        camera.name,
+      );
+    }
+    currentIndex = (currentIndex + 1) % $selectedNode.camera.length;
+  }
+
+  function startRefreshing() {
+    refreshCamera(); // Immediately refresh the first camera
+    refreshInterval = setInterval(refreshCamera, 60000); // Continue refreshing every minute
+  }
+
+    onMount(() => {
+    if ($selectedNode) {
+      startRefreshing();
+      setTimeout(() => {
+        // refreshCamera();
+      }, 30000);
+    }
+  });
 </script>
 
 {#if streamCount > 0 && Object.keys(videos).length > 0}
