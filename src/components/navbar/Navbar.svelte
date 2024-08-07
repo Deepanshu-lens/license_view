@@ -62,6 +62,10 @@
       text: "Events",
       href: `/events/${sessionId}`,
     },
+    {
+      text: "VIP Pass",
+      href: `/vipPass/${sessionId}`,
+    },
   ];
 
   let live = {
@@ -130,7 +134,7 @@
     PB.collection("session").unsubscribe("*");
   });
 
-  $: console.log(Licenses)
+  // $: console.log(Licenses)
 </script>
 
 <header class="sm:flex border sticky top-0 left-0 w-full z-20 h-[75px] hidden">

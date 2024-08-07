@@ -800,7 +800,6 @@ unknownItems = await getUnknowns()
           class={`${showRightPanel ? "rotate-0" : "rotate-180"} transition-transform ease-in-out duration-700`}
         />
       </button>
-
       <div
         id="infopanel"
         class={`h-full border-solid 

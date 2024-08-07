@@ -338,16 +338,6 @@
                   on:change={(e) => (cameraName = e.target.value)}
                 />
               </div>
-              <div class="grid grid-cols-4 items-center gap-4">
-                <Label for="camera-name">Sparsh ID</Label>
-                <Input
-                  id="camera-name"
-                  placeholder={"ID-sparshCamera"}
-                  class="col-span-3"
-                  bind:sparshID
-                  on:input={(e) => (sparshID = e.target.value)}
-                />
-              </div>
 
               {#if mode === 2}
                 <div

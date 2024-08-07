@@ -77,8 +77,11 @@
     });
   };
 
-  const handleNodeSelect = async (event: Event) => {
+    const handleNodeSelect = async (event: Event) => {
     const selectedOption = (event.target as HTMLSelectElement).value;
+
+    console.log("selectedOPtion for nodeSelect", selectedOption);
+
     if (selectedOption === "Add Node +") {
       console.log("adding node");
       showAddNode = true;
@@ -86,43 +89,41 @@
     }
 
     try {
-      PB.autoCancellation(false)
-      console.log($selectedNode.session,selectedOption)
-      const test = await PB.collection("node").getFullList({
-        expand: "camera",
-        filter: `name="${selectedOption}"&&session~"${$selectedNode.session}"`,
+      const nodes = await PB.collection("node").getFullList({
+      expand: "camera",
+      filter: `name="${selectedOption}"&&session~"${$selectedNode.session}"`,
+    });
+
+    if (nodes.length > 0) {
+      const node = nodes[0];
+      const cameras = await PB.collection("camera").getFullList({
+        filter: `node~"${node.id}"`,
+        sort: "-created",
+        expand: 'personCounter,inference'
       });
-      const formattedNodes = test.map((node) => ({
+
+      const formattedNode = {
         ...node,
-        session: $selectedNode.session,
-        camera:
-          node.camera.length > 0
-            ? node.expand.camera.reverse().map((cam: Camera) => ({
-                name: cam.name,
-                id: cam.id,
-                url: cam.url,
-                subUrl: cam.subUrl,
-                save: cam.save,
-                face: cam.face,
-                vehicle: cam.vehicle,
-                faceDetThresh: cam.faceDetThresh,
-                faceMatchThresh: cam.faceMatchThresh,
-                vehicleDetThresh: cam.vehicleDetThresh,
-                vehiclePlateThresh: cam.vehiclePlateThresh,
-                vehicleOCRThresh: cam.vehicleOCRThresh,
-                saveFolder: cam.saveFolder,
-                saveDuration: cam.saveDuration,
-                motionThresh: cam.motionThresh,
-                priority: cam.priority,
-              }))
-            : [],
-      }));
-      selectedNode.set(formattedNodes[0]);
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong. Please try again");
+        camera: cameras.map((cam: Camera) => ({
+          ...cam,
+          personCounter: cam?.expand?.personCounter?.count,
+        })),
+      };
+
+      // console.log(formattedNode);
+      selectedNode.set(formattedNode);
+      await PB.collection("session").update($selectedNode.session, {
+        activeNode: formattedNode.id
+      });
+      console.log("updated selectedNode", formattedNode.name);
+    } else {
+      throw new Error("No node found");
     }
-  };
+  } catch (error) {
+    console.error(error);
+    toast.error("Something went wrong. Please try again");
+  }
+};
 
 </script>
 
