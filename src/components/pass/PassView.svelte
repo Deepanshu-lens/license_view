@@ -23,12 +23,47 @@
     Ticket,
     MoreVertical,
     Building,
+    QrCodeIcon,
   } from "lucide-svelte";
   import * as Select from "@/components/ui/select";
   import Button from "../ui/button/button.svelte";
   import VipTicketCard from "../cards/VipTicketCard.svelte";
 
   import { BarController, BarElement } from "chart.js";
+
+  /**
+   * VIEW NAMES
+   * 1.Dashboard
+   * 2.Gate Management
+   * 3.Visitor Tracking
+   * 4.Alerts
+   * 5.Payment Details
+   * 6.Users Pass
+   * 7.Logs
+   * 8.Manange Passes
+   */
+
+  let permissions = {
+    admin: [1, 2, 3, 4, 5, 6, 7],
+    superAdmin: [1, 6, 8, 2, 3, 4, 5, 7],
+    operator: [8, 2, 3, 4, 5, 7],
+  };
+  let userRole: "admin" | "operator" | "superAdmin";
+  const fruits = [
+    { value: "apple", label: "Apple" },
+    { value: "banana", label: "Banana" },
+    { value: "blueberry", label: "Blueberry" },
+    { value: "grapes", label: "Grapes" },
+    { value: "pineapple", label: "Pineapple" },
+  ];
+
+  export let data;
+
+  let showRightPanel = true;
+  let isAllFullScreen = false;
+  let view = 1;
+
+  $: console.log(userRole);
 
   import {
     Chart,
@@ -46,6 +81,7 @@
   import GateManagement from "./sections/GateManagement.svelte";
   import Logs from "./sections/Logs.svelte";
   import UsersPass from "./sections/UsersPass.svelte";
+  import ManagePasses from "./sections/manage-passes.svelte";
 
   let barChartCanvas: HTMLCanvasElement;
   let barChart: Chart | null = null;
@@ -127,47 +163,34 @@
   }
 
   onMount(() => {
-      chartLoading = false;
-      setTimeout(() => {
+    chartLoading = false;
+    setTimeout(() => {
       createBarChart();
     }, 100);
+    userRole = data.user.role; // Restrict userRole to specific keys
   });
 
   onDestroy(() => {
-      if (barChart) {
-        barChart.destroy();
-      }
-    });
-
-  const fruits = [
-    { value: "apple", label: "Apple" },
-    { value: "banana", label: "Banana" },
-    { value: "blueberry", label: "Blueberry" },
-    { value: "grapes", label: "Grapes" },
-    { value: "pineapple", label: "Pineapple" },
-  ];
-
-  export let data;
-
-  let showRightPanel = true;
-  let isAllFullScreen = false;
-  let view = 1;
+    if (barChart) {
+      barChart.destroy();
+    }
+  });
 </script>
 
 <main class="flex h-[calc(100vh-75px)] text-black">
   <section
     class={"w-full h-[calc(100vh-76px)] hidden sm:flex items-start relative z-10"}
   >
-  {#if view === 1 || view ===2 || view === 4 }
-    <button
-      id="chevron"
-      on:click={() => (showRightPanel = !showRightPanel)}
-      class={`absolute right-0 py-1 rounded-l-md bg-[#f9f9f9] dark:bg-slate-800 top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
-    >
-      <ChevronRight
-        class={`${showRightPanel ? "rotate-0" : "rotate-180"} transition-transform ease-in-out duration-700`}
-      />
-    </button>
+    {#if view === 1 || view === 2 || view === 4}
+      <button
+        id="chevron"
+        on:click={() => (showRightPanel = !showRightPanel)}
+        class={`absolute right-0 py-1 rounded-l-md bg-[#f9f9f9] dark:bg-slate-800 top-1/2 -translate-y-1/2 shadow-md transition-position ease-in-out duration-500 z-[99999]`}
+      >
+        <ChevronRight
+          class={`${showRightPanel ? "rotate-0" : "rotate-180"} transition-transform ease-in-out duration-700`}
+        />
+      </button>
     {/if}
     {#if view === 1}
       <div class="p-4 h-full w-full flex-col">
@@ -321,9 +344,9 @@
               >
             </span>
             <span class="h-full w-full">
-                {#if !chartLoading}
-              <canvas bind:this={barChartCanvas} />
-                {/if}
+              {#if !chartLoading}
+                <canvas bind:this={barChartCanvas} />
+              {/if}
             </span>
           </div>
           <div
@@ -429,108 +452,113 @@
     {:else if view === 3}
       <VisitorTracking />
     {:else if view === 4}
-      <Alerts data={data}/>
+      <Alerts {data} />
     {:else if view === 5}
       <PaymentDetails />
     {:else if view === 6}
       <UsersPass />
+    {:else if view === 8}
+      <ManagePasses />
     {:else}
       <Logs />
     {/if}
   </section>
 
- {#if view === 1 || view ===2 || view === 4 } <section
-    id="infopanel"
-    class={`h-full border-solid 
+  {#if view === 1 || view === 2 || view === 4}
+    <section
+      id="infopanel"
+      class={`h-full border-solid 
          border-x-[1px] flex-shrink-0
          transition-width ease-in-out duration-500 overflow-y-scroll z-[998] hide-scrollbar
         ${showRightPanel ? "w-1/4" : "w-0"} relative max-w-72`}
-  >
-    <span
-      class="flex items-center justify-between p-4 border-b border-black/[.1]"
     >
-      <p class="text-black font-semibold text-base dark:text-white">
-        Live Alerts
-      </p>
-      <span class="flex items-center gap-2">
-        <span
-          class="rounded-full size-6 bg-[#f9f9f9] text-[#727272] grid place-items-center"
-        >
-          <Filter size={16} />
-        </span>
-        <span
-          class="rounded-full size-6 bg-[#f9f9f9] text-[#727272] grid place-items-center"
-        >
-          <Settings size={16} />
+      <span
+        class="flex items-center justify-between p-4 border-b border-black/[.1]"
+      >
+        <p class="text-black font-semibold text-base dark:text-white">
+          Live Alerts
+        </p>
+        <span class="flex items-center gap-2">
+          <span
+            class="rounded-full size-6 bg-[#f9f9f9] text-[#727272] grid place-items-center"
+          >
+            <Filter size={16} />
+          </span>
+          <span
+            class="rounded-full size-6 bg-[#f9f9f9] text-[#727272] grid place-items-center"
+          >
+            <Settings size={16} />
+          </span>
         </span>
       </span>
-    </span>
-    <ul class="overflow-y-scroll h-[calc(100vh-135px)] no-scrollbar">
-      {#if $events.length > 0}
-        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-        {#each $events as event}
-          {@const date = new Date(event.created)}
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <li class="w-full fade-in-15 transition-all duration-200">
-            <article
-              class={`relative items-center gap-2 mx-2 my-4 p-2
+      <ul class="overflow-y-scroll h-[calc(100vh-135px)] no-scrollbar">
+        {#if $events.length > 0}
+          <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+          {#each $events as event}
+            {@const date = new Date(event.created)}
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <li class="w-full fade-in-15 transition-all duration-200">
+              <article
+                class={`relative items-center gap-2 mx-2 my-4 p-2
           flex bg-[#f9f9f9] dark:bg-black
           rounded-xl shadow-md text-base border 
           ${isAllFullScreen ? "bg-black text-white " : "hover:scale-[1.01] dark:shadow-slate-800 hover:shadow-lg "}
         `}
-            >
-              <img
-                class="object-cover w-[75px] h-[75px] rounded-md flex-shrink-0"
-                src={"data:image/jpeg;base64," + event.frameImage}
-                alt="Team Member"
-              />
-              <div class="w-full">
-                <h3 class={"font-semibold text-sm"}>
-                  {event.title}
-                </h3>
-                <p class={"text-xs text-black/.7"}>
-                  Camera {$selectedNode.camera.find(
-                    (c) => c.id === event.camera,
-                  )?.name}
-                </p>
-                <span
-                  class="flex items-center justify-between border-b border-solid border-[#1c1c1c]/.1 gap-2 w-full"
-                >
-                  <p class="text-[10px] text-[#D28E3D] font-medium">
-                    {event.matchScore !== 0 &&
-                    event.matchScore !== undefined &&
-                    event.matchScore !== null
-                      ? `Match Score : ${event?.matchScore.toFixed(3)}`
-                      : "No matches found"}
+              >
+                <img
+                  class="object-cover w-[75px] h-[75px] rounded-md flex-shrink-0"
+                  src={"data:image/jpeg;base64," + event.frameImage}
+                  alt="Team Member"
+                />
+                <div class="w-full">
+                  <h3 class={"font-semibold text-sm"}>
+                    {event.title}
+                  </h3>
+                  <p class={"text-xs text-black/.7"}>
+                    Camera {$selectedNode?.camera.find(
+                      (c) => c.id === event.camera,
+                    )?.name}
                   </p>
-                  <p class="text-[10px] font-semibold">
-                    {event?.score.toFixed(3)}
-                  </p>
-                </span>
-                <span class="flex items-center justify-between gap-2">
-                  <p class={"text-[10px]"}>
-                    {date.toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </p>
-                  <p class={"text-[10px]"}>
-                    {date.toLocaleTimeString("en-US", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                    })}
-                  </p>
-                </span>
-              </div>
-            </article>
-          </li>
-        {/each}
-      {/if}
-    </ul>
-  </section>
-{/if}
+                  <span
+                    class="flex items-center justify-between border-b border-solid border-[#1c1c1c]/.1 gap-2 w-full"
+                  >
+                    <p class="text-[10px] text-[#D28E3D] font-medium">
+                      {event.matchScore !== 0 &&
+                      event.matchScore !== undefined &&
+                      event.matchScore !== null
+                        ? `Match Score : ${event?.matchScore.toFixed(3)}`
+                        : "No matches found"}
+                    </p>
+                    <p class="text-[10px] font-semibold">
+                      {event?.score.toFixed(3)}
+                    </p>
+                  </span>
+                  <span class="flex items-center justify-between gap-2">
+                    <p class={"text-[10px]"}>
+                      {date.toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </p>
+                    <p class={"text-[10px]"}>
+                      {date.toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      })}
+                    </p>
+                  </span>
+                </div>
+              </article>
+            </li>
+          {/each}
+        {/if}
+      </ul>
+    </section>
+  {/if}
+
+  <!-- sidePanel -->
   <section
     class="flex flex-col gap-5 items-center justify-center px-2 h-full my-auto"
   >
@@ -545,105 +573,136 @@
         Fullscreen
       </p>
     </span>
-    <span class="group flex-col flex items-center justify-center gap-0.5">
-      <button
-        on:click={() => (view = 1)}
-        class={view === 1
-          ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
-          : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
-      >
-        <LayoutDashboard class="h-[22px] w-[22px]" />
-      </button>
-      <p
-        class={`text-xs ${view === 1 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
-      >
-        Dashboard
-      </p>
-    </span>
-    <span class="group flex-col flex items-center justify-center gap-0.5">
-      <button
-        on:click={() => (view = 2)}
-        class={view === 2
-          ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
-          : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
-        ><DoorClosed class="h-[22px] w-[22px]" /></button
-      >
-      <p
-        class={`text-xs text-center ${view === 2 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
-      >
-        Gate <br /> Management
-      </p>
-    </span>
-    <span class="group flex-col flex items-center justify-center gap-0.5">
-      <button
-        on:click={() => (view = 3)}
-        class={view === 3
-          ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
-          : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
-        ><ScanEye class="h-[22px] w-[22px]" />
-      </button>
-      <p
-        class={`text-xs text-center ${view === 3 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
-      >
-        Visitor <br /> Tracking
-      </p>
-    </span>
-    <span class="group flex-col flex items-center justify-center gap-0.5">
-      <button
-        on:click={() => (view = 4)}
-        class={view === 4
-          ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
-          : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
-        ><Bell class="h-[22px] w-[22px]" /></button
-      >
-      <p
-        class={`text-xs text-center ${view === 4 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
-      >
-        Alerts
-      </p>
-    </span>
-    <span class="group flex-col flex items-center justify-center gap-0.5">
-      <button
-        on:click={() => (view = 5)}
-        class={view === 5
-          ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
-          : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
-        ><Wallet class="h-[22px] w-[22px]" /></button
-      >
-      <p
-        class={`text-xs text-center ${view === 5 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
-      >
-        Payment <br /> Details
-      </p>
-    </span>
-    <span class="group flex-col flex items-center justify-center gap-0.5">
-      <button
-        on:click={() => (view = 6)}
-        class={view === 6
-          ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
-          : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
-        ><Users class="h-[22px] w-[22px]" /></button
-      >
-      <p
-        class={`text-xs text-center ${view === 6 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
-      >
-        Users
-      </p>
-    </span>
-    <span class="group flex-col flex items-center justify-center gap-0.5">
-      <button
-        on:click={() => (view = 7)}
-        class={view === 7
-          ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
-          : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
-        ><ScrollText class="h-[22px] w-[22px]" /></button
-      >
-      <p
-        class={`text-xs text-center ${view === 7 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
-      >
-        logs
-      </p>
-    </span>
+    {#if permissions[userRole]?.includes(1)}
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <button
+          on:click={() => (view = 1)}
+          class={view === 1
+            ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
+            : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
+        >
+          <LayoutDashboard class="h-[22px] w-[22px]" />
+        </button>
+        <p
+          class={`text-xs ${view === 1 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
+        >
+          Dashboard
+        </p>
+      </span>
+    {/if}
+    {#if permissions[userRole]?.includes(8)}
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <button
+          on:click={() => (view = 8)}
+          class={view === 8
+            ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
+            : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
+        >
+          <QrCodeIcon class="h-[22px] w-[22px]" />
+        </button>
+        <p
+          class={`text-xs text-center ${view === 8 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
+        >
+          Manage Passes
+        </p>
+      </span>
+    {/if}
+    {#if permissions[userRole]?.includes(2)}
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <button
+          on:click={() => (view = 2)}
+          class={view === 2
+            ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
+            : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
+          ><DoorClosed class="h-[22px] w-[22px]" /></button
+        >
+        <p
+          class={`text-xs text-center ${view === 2 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
+        >
+          Gate <br /> Management
+        </p>
+      </span>
+    {/if}
+    {#if permissions[userRole]?.includes(3)}
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <button
+          on:click={() => (view = 3)}
+          class={view === 3
+            ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
+            : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
+          ><ScanEye class="h-[22px] w-[22px]" />
+        </button>
+        <p
+          class={`text-xs text-center ${view === 3 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
+        >
+          Visitor <br /> Tracking
+        </p>
+      </span>
+    {/if}
+    {#if permissions[userRole]?.includes(4)}
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <button
+          on:click={() => (view = 4)}
+          class={view === 4
+            ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
+            : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
+          ><Bell class="h-[22px] w-[22px]" /></button
+        >
+        <p
+          class={`text-xs text-center ${view === 4 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
+        >
+          Alerts
+        </p>
+      </span>
+    {/if}
+    {#if permissions[userRole]?.includes(5)}
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <button
+          on:click={() => (view = 5)}
+          class={view === 5
+            ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
+            : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
+          ><Wallet class="h-[22px] w-[22px]" /></button
+        >
+        <p
+          class={`text-xs text-center ${view === 5 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
+        >
+          Payment <br /> Details
+        </p>
+      </span>
+    {/if}
+    {#if permissions[userRole]?.includes(6)}
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <button
+          on:click={() => (view = 6)}
+          class={view === 6
+            ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
+            : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
+          ><Users class="h-[22px] w-[22px]" /></button
+        >
+        <p
+          class={`text-xs text-center ${view === 6 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
+        >
+          Users
+        </p>
+      </span>
+    {/if}
+    {#if permissions[userRole]?.includes(7)}
+      <span class="group flex-col flex items-center justify-center gap-0.5">
+        <button
+          on:click={() => (view = 7)}
+          class={view === 7
+            ? `disabled:cursor-not-allowed relative border-none rounded-full shadow-md h-[40px] w-[40px] text-white bg-[#015a62] grid place-items-center dark:bg-[#258d9d]`
+            : ` disabled:cursor-not-allowed text-black/[.23] h-[40px] w-[40px] rounded-full shadow-md  border-2 border-solid border-black/[.23] dark:border-white/[.23] bg-white dark:bg-black dark:text-white group-hover:text-white group-hover:bg-[#015a62] dark:group-hover:bg-[#258d9d] group-hover:border-none grid place-items-center `}
+          ><ScrollText class="h-[22px] w-[22px]" /></button
+        >
+        <p
+          class={`text-xs text-center ${view === 7 ? "dark:text-[#258d9d]  text-[#015a62]" : "group-hover:text-[#015a62] text-black/[.23] dark:text-white dark:group-hover:text-[#258d9d]"}`}
+        >
+          logs
+        </p>
+      </span>
+    {/if}
   </section>
 </main>
 
