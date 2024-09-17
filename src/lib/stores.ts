@@ -17,6 +17,8 @@ export const markRoi = writable(false);
 export const view = writable(1);
 export const canvasCoordinates = writable({})
 export const cameraCounts = writable<{ [cameraId: string]: number }>({});
+export const activePanel = writable("")
+export const atlasEvents = writable([])
 
 function persistedWritable(key: string, defaultValue: boolean) {
   let value = defaultValue;

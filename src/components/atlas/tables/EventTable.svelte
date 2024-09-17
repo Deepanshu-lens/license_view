@@ -1,8 +1,27 @@
-<script>
-  import * as Popover from "@/components/ui/popover/index";
+<script lang="ts">
   import * as Table from "@/components/ui/table/index";
-  export let data;
-  // console.log(data);
+  import { atlasEvents } from "@/lib/stores";
+  import { page } from "$app/stores";
+  import { onDestroy, onMount } from "svelte";
+  import PocketBase from "pocketbase";
+  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+
+  export let search: string;
+  export let activePanel: string;
+
+  onMount(() => {
+    PB.collection("atlas_events").subscribe("*", (event) => {
+      if (event.record.pannels === activePanel) {
+        //don't update till we get cameras
+        atlasEvents.update((events) => [event.record, ...events]);
+      }
+    });
+  });
+
+  onDestroy(() => {
+    PB.collection("atlas_events").unsubscribe("*");
+  });
+
 </script>
 
 <Table.Root class="mx-auto w-full flex flex-col pb-10">
@@ -10,104 +29,57 @@
     class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
   >
     <Table.Row class="bg-transparent flex items-center justify-between p-3">
-      <Table.Head class="text-[#727272] h-full"
+      <Table.Head class="text-[#727272] h-full text-sm text-medium w-full dark:text-black"
         ><input type="checkbox" /></Table.Head
       >
-      <Table.Head class="text-[#727272] h-full">Unid</Table.Head>
-      <Table.Head class="text-[#727272] h-full">Occured</Table.Head>
-      <Table.Head class="text-[#727272] h-full">Description</Table.Head>
-      <Table.Head class="text-[#727272] h-full">User</Table.Head>
-      <Table.Head class="text-[#727272] h-full">Source</Table.Head>
-      <Table.Head class="text-[#727272] h-full">Location</Table.Head>
+      <Table.Head class="text-[#727272] h-full text-sm text-medium w-full dark:text-black"
+        >Event Category</Table.Head
+      >
+      <Table.Head class="text-[#727272] h-full text-sm text-medium w-full dark:text-black"
+        >Description</Table.Head
+      >
+      <Table.Head class="text-[#727272] h-full text-sm text-medium w-full dark:text-black"
+        >Device Name</Table.Head
+      >
+      <Table.Head class="text-[#727272] h-full text-sm text-medium w-full dark:text-black"
+        >User</Table.Head
+      >
+      <Table.Head class="text-[#727272] h-full text-sm text-medium w-full dark:text-black"
+        >Priority</Table.Head
+      >
     </Table.Row>
   </Table.Header>
-  {#if data}
+  {#if $atlasEvents.length !== 0}
     <Table.Body
       class="overflow-y-scroll max-h-[calc(100vh-285px)] hide-scrollbar pb-10"
     >
-      {#each data as event}
+      {#each $atlasEvents as event}
         {@const color = event.bgColor}
         <Table.Row
           class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
           style="background-color: rgb({color?.red}, {color?.green}, {color?.blue});"
         >
-          <Table.Cell class="text-[#727272] h-full">
+          <Table.Cell class="text-[#727272] h-full w-full">
             <input type="checkbox" />
           </Table.Cell>
-          <Table.Cell class="text-black h-full"
-            ><span class="flex items-center capitalize font-semibold">
-              {event.unid}
+          <Table.Cell class="text-black h-full w-full"
+            ><span class="flex items-center capitalize font-semibold dark:text-primary">
+              {event?.event_category}
             </span>
           </Table.Cell>
-          <Table.Cell class="text-[#727272] h-full text-sm ">
-            {event?.dbTime}
+          <Table.Cell class="text-[#727272] h-full w-full text-sm ">
+            {event?.description ? event?.description : "N/A"}
           </Table.Cell>
-          <Table.Cell class="text-[#727272] h-full text-sm">
-            <!-- {event?.evtDevRef?.name} -->
-            null
+          <Table.Cell class="text-[#727272] h-full w-full text-sm">
+            {event.deviceName}
           </Table.Cell>
-          <Table.Cell class="text-[#727272] h-full text-sm ">
-            <!-- <Popover.Root>
-              <Popover.Trigger
-              class="bg-primary text-white px-2 py-1 rounded-md"
-              >Event ControllerRef</Popover.Trigger>
-              <Popover.Content class='w-max'>
-                  <p>Address : <span class="text-primary font-medium">
-
-                      {event.evtControllerRef?.[0]?.address}
-                  </span>
-                </p>
-                <p>devMod : <span class="text-primary font-medium"> {event.evtControllerRef?.devMod}</span></p>
-                <p>devPlatform : <span class="text-primary font-medium"> {event.evtControllerRef?.devPlatform}</span></p>
-                <p>devType : <span class="text-primary font-medium"> {event.evtControllerRef?.devType}</span></p>
-                <p>devUse : <span class="text-primary font-medium"> {event.evtControllerRef?.devuse}</span></p>
-                <p>Name : <span class="text-primary font-medium"> {event.evtControllerRef?.name}</span></p>
-                <p>unid : <span class="text-primary font-medium"> {event.evtControllerRef?.unid}</span></p>
-                <p>uuid : <span class="text-primary font-medium"> {event.evtControllerRef?.uuid}</span></p>
-                </Popover.Content
-                >
-            </Popover.Root> -->
-            {event?.evtCredHolderRef?.name}
+          <Table.Cell class="text-[#727272] h-full w-full text-sm ">
+            {event?.expand?.user?.username
+              ? event?.expand.user.username
+              : "N/A"}
           </Table.Cell>
-          <Table.Cell class="text-[#727272] h-full text-sm">
-            <!-- <Popover.Root>
-              <Popover.Trigger
-              class="bg-primary text-white px-2 py-1 rounded-md"
-
-              >Event CredHolderRef</Popover.Trigger>
-              <Popover.Content class='w-max'>
-                  <p>First : <span class="text-primary font-medium">
-                      {event.evtCredHolderRef?.first}
-                  </span>
-                </p>
-                <p>Last : <span class="text-primary font-medium"> {event.evtCredHolderRef?.last}</span></p>
-                <p>Name : <span class="text-primary font-medium"> {event.evtCredHolderRef?.name}</span></p>
-                <p>unid : <span class="text-primary font-medium"> {event.evtCredHolderRef?.unid}</span></p>
-                </Popover.Content
-                >
-            </Popover.Root> -->
-            {event?.evtDevRef?.name}
-          </Table.Cell>
-          <Table.Cell class="text-[#727272] h-full text-sm">
-            <!-- <Popover.Root>
-              <Popover.Trigger
-              class="bg-primary text-white px-2 py-1 rounded-md"
-              >Event DevRef</Popover.Trigger>
-              <Popover.Content class='w-max'>
-
-                <p>Address : <span class="text-primary font-medium">
-                  {event.evtDevRef?.address}
-              </span>
-            </p>
-            <p>devPlatform : <span class="text-primary font-medium"> {event.evtDevRef?.devPlatform}</span></p>
-            <p>devType : <span class="text-primary font-medium"> {event.evtDevRef?.devType}</span></p>
-            <p>logicalAddress : <span class="text-primary font-medium"> {event.evtDevRef?.logicalAddress}</span></p>
-            <p>Name : <span class="text-primary font-medium"> {event.evtDevRef?.name}</span></p>
-            <p>unid : <span class="text-primary font-medium"> {event.evtDevRef?.unid}</span></p>
-            </Popover.Content
-            >
-                </Popover.Root> -->
-            null
+          <Table.Cell class="text-[#727272] h-full w-full text-sm">
+            {event?.priority}
           </Table.Cell>
         </Table.Row>
       {/each}

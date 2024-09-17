@@ -216,6 +216,7 @@
       sort: "-lastSeen",
       expand: "events",
       fields: "name,lastSeen,expand.events.frameImage,images",
+      filter: `blackList != true`
     });
 
     return galleryItem.map((e) => ({
@@ -234,19 +235,23 @@
   }
 
   async function getUnknowns(): Promise<Gallery[]> {
-    const galleryItem = await PB.collection("impostors").getList(1, 10, {
+   const galleryItem = await PB.collection("faceGallery").getFullList({
       sort: "-lastSeen",
       expand: "events",
-      fields: "name,lastSeen,expand.events.frameImage",
+      fields: "name,lastSeen,expand.events.frameImage,images",
+      filter: `blackList = true`
     });
 
-    return galleryItem.items.map((e) => ({
-      name: "Unknown",
+    return galleryItem.map((e) => ({
+      name: e.name,
       lastSeen: e.lastSeen,
+      savedData: e.images,
       images: e.expand.events
-        .map((f) => f.frameImage)
-        .slice(-8)
-        .reverse(),
+        ? e.expand.events
+            .map((f) => f.frameImage)
+            .slice(-8)
+            .reverse()
+        : [],
       created: new Date(),
       updated: new Date(),
     }));
@@ -273,27 +278,26 @@
     displayLayouts = !displayLayouts;
   }
 
-  onMount(async () => {
-PB?.autoCancellation(false)
-galleryItems = await getGallery()
-unknownItems = await getUnknowns()
-    // galleryItems = data.galleryItems;
-    // unknownItems = data.imposterItems;
-    // data.props.galleryItems.then((e) => {
-    //   galleryItems = e;
-    // });
-    // data.props.imposterItems.then((e) => {
-    //   unknownItems = e;
-    // });
+   onMount(async () => {
+    PB?.autoCancellation(false)
+    galleryItems = data.galleryItems;
+    unknownItems = data.imposterItems;
+   
     PB.collection("faceGallery").subscribe("*", async (e) => {
       console.log("New change in gallery ", e.action, e.record);
-      batchedGallery.push(e.record);
+      if(e.record.blackList === true){
+        batchedUnknownGallery.push(e.record);
+      }else{
+        batchedGallery.push(e.record);
+      }
     });
-    PB.collection("impostors").subscribe("*", async (e) => {
-      batchedUnknownGallery.push(e.record.id);
-    });
+
     setTimeout(updateGallery, 1000);
     setTimeout(updateUnknowns, 1000);
+  });
+
+  onDestroy(() => {
+    PB.collection("faceGallery").unsubscribe();
   });
 
   //////
@@ -886,24 +890,20 @@ unknownItems = await getUnknowns()
             >
           </div>
           {#if comfort}
-            <Accordion.Root multiple value={["open"]} class="m-4">
-              <Accordion.Item value="open">
-                <Accordion.Trigger>Knowns</Accordion.Trigger>
-                <Accordion.Content>
-                  <!-- {#if galleryItems.length > 0} -->
+            <Accordion.Root  multiple value={["whitelist", "blacklist"]} class="m-4">
+              <Accordion.Item value="whitelist">
+                <Accordion.Trigger>White list</Accordion.Trigger>
+                <Accordion.Content class='max-h-[300px] overflow-y-scroll flex flex-col gap-2'>
                   {#each galleryItems as galleryItem}
                     <ComfortableProfileCard {galleryItem} {isAllFullScreen} />
                   {/each}
-                  <!-- {:else}
-            <Spinner/>
-            {/if} -->
                 </Accordion.Content>
               </Accordion.Item>
             </Accordion.Root>
-            <Accordion.Root class="m-4">
-              <Accordion.Item value="item-2">
-                <Accordion.Trigger>Unknowns</Accordion.Trigger>
-                <Accordion.Content>
+            <Accordion.Root  multiple value={["whitelist", "blacklist"]} class="m-4">
+              <Accordion.Item value="blacklist">
+                <Accordion.Trigger>Black list</Accordion.Trigger>
+                <Accordion.Content class='max-h-[350px] overflow-y-scroll flex flex-col gap-2'>
                   {#each unknownItems as galleryItem}
                     <ComfortableProfileCard {galleryItem} {isAllFullScreen} />
                   {/each}

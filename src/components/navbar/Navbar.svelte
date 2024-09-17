@@ -230,7 +230,7 @@
             </span>
           </a>
         {/if}
-        {#if session.anpr}
+        <!-- {#if session.anpr}
           <a
             href={anpr.href}
             on:click={() => {
@@ -247,7 +247,7 @@
               {anpr.text}
             </span>
           </a>
-        {/if}
+        {/if} -->
       </div>
 
       <div
