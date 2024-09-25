@@ -20,6 +20,8 @@
   let showAddNode = false;
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
+  $: console.log($page)
+
   function groupNodesRecursively(nodes) {
     const groupNodes = (nodes, level = 0) => {
       const grouped = nodes.reduce((acc, node) => {
@@ -91,7 +93,7 @@
     try {
       const nodes = await PB.collection("node").getFullList({
       expand: "camera",
-      filter: `name="${selectedOption}"&&session~"${$selectedNode.session}"`,
+      filter: `name="${selectedOption}"&&session~"${$page.params.slug}"`,
     });
 
     if (nodes.length > 0) {
@@ -110,9 +112,9 @@
         })),
       };
 
-      // console.log(formattedNode);
+      console.log("formattedNode", formattedNode);
       selectedNode.set(formattedNode);
-      await PB.collection("session").update($selectedNode.session, {
+      await PB.collection("session").update($page.params.slug, {
         activeNode: formattedNode.id
       });
       console.log("updated selectedNode", formattedNode.name);

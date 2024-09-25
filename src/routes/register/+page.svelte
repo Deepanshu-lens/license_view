@@ -2,6 +2,7 @@
   import { toast } from "svelte-sonner";
   import { onMount } from "svelte";
   import { browser } from "$app/environment";
+  import { Eye, EyeOff } from "lucide-svelte";
 
   onMount(() => {
     if (browser) {
@@ -17,18 +18,36 @@
     }
   });
 
-  // function handleSubmit(event) {
-  //   const form = event.target;
-  //   const name = form.name.value.trim();
-  //   const email = form.email.value.trim();
-  //   const password = form.password.value.trim();
-  //   const confirmPassword = form['confirm-password'].value.trim();
+    function encryptPassword(password) {
+    const key = 'lensview';
+    let result = '';
+    for (let i = 0; i < password.length; i++) {
+      result += String.fromCharCode(password.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return btoa(result); // Convert to base64 for safe transmission
+  }
 
-  //   if (!name || !email || !password || !confirmPassword) {
-  //     event.preventDefault();
-  //     toast.error("All fields are required. Please fill out the missing fields.");
-  //   }
-  // }
+    function handleSubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+    const password = form.password.value;
+    const encryptedPassword = encryptPassword(password);
+    const confirmPassword = form['confirm-password'].value;
+    const encryptedConfirmPassword = encryptPassword(confirmPassword);
+    form.password.value = encryptedPassword;
+    form['confirm-password'].value = encryptedConfirmPassword;
+    form.submit();
+  }
+
+    let showPassword = false;
+  let showCPassword = false;
+
+function togglePasswordVisibility() {
+  showPassword = !showPassword;
+}
+function toggleCPasswordVisibility() {
+  showCPassword = !showCPassword;
+}
 
 </script>
 
@@ -42,6 +61,7 @@
   <form
     method="POST"
     action="?/signup"
+    on:submit={handleSubmit}
   >
     <div
       class="form-cont flex flex-col h-full items-center justify-center gap-4 w-[350px] mx-auto scale-[.85] sm:scale-100 xl:scale-100 2xl:scale-125 lg:scale-90 md:scale-75"
@@ -124,60 +144,82 @@
           required
         />
       </div>
-      <div class="mb-4 relative w-[350px] max-h-[40px]">
-        <img
-          alt="mail-line"
-          src={"/assets/vms/password-outline1.svg"}
-          height={30}
-          width={30}
-          class="h-[20px] w-[20px] aspect-square absolute top-1/2 left-2 -translate-y-1/2 dark:block hidden"
-        />
-        <img
-          alt="mail-line"
-          src={"/assets/vms/password-outline2.svg"}
-          height={30}
-          width={30}
-          class="h-[20px] w-[20px] aspect-square absolute top-1/2 left-2 -translate-y-1/2 block dark:hidden"
-        />
+       <div class="mb-4 relative w-[350px] max-h-[40px]">
+          <img
+            alt="mail-line"
+            src={"/assets/vms/password-outline1.svg"}
+            height={30}
+            width={30}
+            class="h-[20px] w-[20px] aspect-square absolute top-1/2 left-2 -translate-y-1/2 dark:block hidden"
+          />
+          <img
+            alt="mail-line"
+            src={"/assets/vms/password-outline2.svg"}
+            height={30}
+            width={30}
+            class="h-[20px] w-[20px] aspect-square absolute top-1/2 left-2 -translate-y-1/2 block dark:hidden"
+          />
 
-        <input
-          class={` appearance-none bg-transparent border-b border-b-[#919EAB] dark:border-b-[#919eab]/[.3] rounded w-full h-full py-4 pl-10 pr-3 font-semibold text-[#637381]   leading-tight focus:outline-none focus:shadow-outline`}
-          autoComplete="off"
-          id="password"
-          type="password"
-          name="password"
-          placeholder="***********"
-          required
-          minLength={8}
-        />
-      </div>
-      <div class="mb-4 relative w-[350px] max-h-[40px]">
-        <img
-          alt="mail-line"
-          src={"/assets/vms/password-outline1.svg"}
-          height={30}
-          width={30}
-          class="h-[20px] w-[20px] aspect-square absolute top-1/2 left-2 -translate-y-1/2 dark:block hidden"
-        />
-        <img
-          alt="mail-line"
-          src={"/assets/vms/password-outline2.svg"}
-          height={30}
-          width={30}
-          class="h-[20px] w-[20px] aspect-square absolute top-1/2 left-2 -translate-y-1/2 block dark:hidden"
-        />
+          <input
+            class={` appearance-none bg-transparent border-b border-b-[#919EAB] dark:border-b-[#919eab]/[.3] rounded w-full h-full py-4 pl-10 pr-3 font-semibold text-[#637381]   leading-tight focus:outline-none focus:shadow-outline`}
+            autoComplete="off"
+            id="password"
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder='password'
+            required
+            minLength={8}
+          />
+          <button
+          type="button"
+          class="absolute top-1/2 right-2 -translate-y-1/2"
+          on:click={togglePasswordVisibility}
+        >
+          {#if showPassword}
+          <EyeOff class="w-5 h-5 text-[#637381]" />
+        {:else}
+          <Eye class="w-5 h-5 text-[#637381]" />
+        {/if}
+        </button>
+        </div>
+        <div class="mb-4 relative w-[350px] max-h-[40px]">
+          <img
+            alt="mail-line"
+            src={"/assets/vms/password-outline1.svg"}
+            height={30}
+            width={30}
+            class="h-[20px] w-[20px] aspect-square absolute top-1/2 left-2 -translate-y-1/2 dark:block hidden"
+          />
+          <img
+            alt="mail-line"
+            src={"/assets/vms/password-outline2.svg"}
+            height={30}
+            width={30}
+            class="h-[20px] w-[20px] aspect-square absolute top-1/2 left-2 -translate-y-1/2 block dark:hidden"
+          />
 
-        <input
-          class={` appearance-none bg-transparent border-b border-b-[#919EAB] dark:border-b-[#919eab]/[.3] rounded w-full h-full py-4 pl-10 pr-3 font-semibold text-[#637381]   leading-tight focus:outline-none focus:shadow-outline`}
-          autoComplete="off"
-          id="confirm-password"
-          name="confirm-password"
-          type="password"
-          placeholder="***********"
-          minLength={8}
-          required
-        />
-      </div>
+          <input
+            class={` appearance-none bg-transparent border-b border-b-[#919EAB] dark:border-b-[#919eab]/[.3] rounded w-full h-full py-4 pl-10 pr-3 font-semibold text-[#637381]   leading-tight focus:outline-none focus:shadow-outline`}
+            autoComplete="off"
+            id="confirm-password"
+            name="confirm-password"
+            type={showCPassword ? "text" : "password"}
+            placeholder='confirm-passowrd'
+            minLength={8}
+            required
+          />
+          <button
+          type="button"
+          class="absolute top-1/2 right-2 -translate-y-1/2"
+          on:click={toggleCPasswordVisibility}
+        >
+          {#if showCPassword}
+          <EyeOff class="w-5 h-5 text-[#637381]" />
+        {:else}
+          <Eye class="w-5 h-5 text-[#637381]" />
+        {/if}
+        </button>
+        </div>
 
       <div class="flex flex-col items-center justify-between mt-2">
         <button

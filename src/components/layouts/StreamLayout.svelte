@@ -118,7 +118,8 @@
     let video = document.createElement("video-stream") as VideoStreamType;
     video.id = `stream-${camera.id}`;
     // video.mode = mode !== undefined ? mode : "webrtc";
-    video.mode = mode !== undefined ? mode : "webrtc";
+    // video.mode = mode !== undefined ? mode : "webrtc";
+    video.mode="mse"
     // console.log(video.mode)
     video.url = camera.url;
     camera?.subUrl?.length === 0
@@ -195,35 +196,54 @@
   };
 
   const refreshVideoStream = (cameraId: string) => {
+    // console.log("cameraId", cameraId);
     const videoElement = videos[cameraId];
+    // console.log("videoElement", videoElement);
     if (videoElement) {
       if (
         videoElement.src instanceof WebSocket &&
         videoElement.src.readyState === WebSocket.OPEN
       ) {
-        console.log("first");
+        // console.log("first");
         videoElement.src.close();
       }
       // console.log(videoElement);
+      // console.log("videoElement");
       videoElement.remove();
       delete videos[cameraId];
       const camera = $selectedNode.camera.find((c) => c.id === cameraId);
-      // console.log(camera.name);
+      console.log(camera.name);
       if (camera) {
+        // console.log('first')
         initVideo(camera);
       }
     }
   };
 
+  // function handleSlideChange() {
+  //   const startIndex = slideIndex * $selectedNode.maxStreamsPerPage;
+  //   const endIndex = startIndex + $selectedNode.maxStreamsPerPage;
+  //   const camerasOnSlide = $selectedNode.camera.slice(startIndex, endIndex);
+  //   const cameraIds = camerasOnSlide.map((camera) => camera.id);
+  //   cameraIds.forEach((cameraId) => {
+  //     refreshVideoStream(cameraId);
+  //   });
+  // }
+
   function handleSlideChange() {
-    const startIndex = slideIndex * $selectedNode.maxStreamsPerPage;
-    const endIndex = startIndex + $selectedNode.maxStreamsPerPage;
-    const camerasOnSlide = $selectedNode.camera.slice(startIndex, endIndex);
-    const cameraIds = camerasOnSlide.map((camera) => camera.id);
-    cameraIds.forEach((cameraId) => {
-      refreshVideoStream(cameraId);
-    });
-  }
+  const startIndex = slideIndex * $selectedNode.maxStreamsPerPage;
+  const endIndex = Math.min(startIndex + $selectedNode.maxStreamsPerPage, $selectedNode.camera.length);
+  const camerasOnSlide = $selectedNode.camera.slice(startIndex, endIndex);
+  // console.log("camerasOnSlide", camerasOnSlide);
+  // const cameraIds = camerasOnSlide.map((camera) => camera.id);
+  // cameraIds.forEach((cameraId) => {
+  //   console.log("cameraId", cameraId);
+  //   refreshVideoStream(cameraId);
+  // });
+  camerasOnSlide.forEach((camera) => {
+initVideo(camera);
+  });
+}
 
   function handlePrevious() {
     if (slideIndex > 0) {
@@ -252,20 +272,37 @@
       videos = {};
       prevName = $selectedNode.name;
     }
-    slideIndex = 0;
-    $selectedNode.camera.map((c) => {
-      if (!videos[c.id]) {
-        // console.log("c", c);
-        initVideo(c);
-      } else {
-        if (videos[c.id].url !== c.url) {
-          videos[c.id].url = c.url;
-          videos[c.id].src = new URL(
-            `ws://${neededUrl}:8082/api/ws?src=${c.id}&nodeID=${1}`,
-          );
-        }
+    // slideIndex = 0;
+    // $selectedNode.camera.map((c) => {
+    //   if (!videos[c.id]) {
+    //     // console.log("c", c);
+    //     initVideo(c);
+    //   } else {
+    //     if (videos[c.id].url !== c.url) {
+    //       videos[c.id].url = c.url;
+    //       videos[c.id].src = new URL(
+    //         `ws://${neededUrl}:8082/api/ws?src=${c.id}&nodeID=${1}`,
+    //       );
+    //     }
+    //   }
+    // });
+     slideIndex = 0;
+  const startIndex = slideIndex * maxStreamsPerPage;
+  const endIndex = Math.min(startIndex + maxStreamsPerPage, $selectedNode.camera.length);
+  console.log("startIndex", startIndex);
+  console.log("endIndex", endIndex);
+  $selectedNode.camera.slice(startIndex, endIndex).forEach((c) => {
+    if (!videos[c.id]) {
+      initVideo(c);
+    } else {
+      if (videos[c.id].url !== c.url) {
+        videos[c.id].url = c.url;
+        videos[c.id].src = new URL(
+          `ws://${neededUrl}:8082/api/ws?src=${c.id}&nodeID=${1}`,
+        );
       }
-    });
+    }
+  });
 
     streamCount =
       $selectedNode.camera.length === $filteredNodeCameras.length
@@ -347,17 +384,22 @@
       if (!$markRoi) {
         updateLayout($selectedNode.maxStreamsPerPage);
       } else {
+        // console.log("updating layout");
         updateLayout(0);
       }
     } else {
+      // console.log("updating layout");
+      // console.log($selectedNode.maxStreamsPerPage)
       updateLayout(0);
     }
   }
 
+  // $: console.log($selectedNode.maxStreamsPerPage)
+
   onMount(() => {
     setTimeout(() => {
       initSortable();
-    }, 100);
+    }, 2000);
   });
 
   function initSortable() {

@@ -2,6 +2,7 @@
   import { toast } from "svelte-sonner";
   import { onMount } from "svelte";
   import { browser } from "$app/environment";
+  import { Eye, EyeOff } from "lucide-svelte";
 
   onMount(() => {
     if (browser) {
@@ -16,6 +17,30 @@
       }
     }
   });
+
+    let showPassword = false;
+
+function togglePasswordVisibility() {
+  showPassword = !showPassword;
+}
+
+    function encryptPassword(password) {
+    const key = 'lensview';
+    let result = '';
+    for (let i = 0; i < password.length; i++) {
+      result += String.fromCharCode(password.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return btoa(result); // Convert to base64 for safe transmission
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+    const password = form.password.value;
+    const encryptedPassword = encryptPassword(password);
+    form.password.value = encryptedPassword;
+    form.submit();
+  }
 </script>
 
 <div
@@ -28,6 +53,7 @@
   <form
     method="post"
     action="?/login"
+     on:submit={handleSubmit}
     class="shadow-md right sm:w-1/2 w-full sm:h-screen h-2/3 bg-background relative sm:rounded-none rounded-tl-[100px] -mt-[15rem] z-20 sm:mt-0 pt-[1rem] pb-[5rem] sm:pb-0 sm:pt-0"
   >
     <div
@@ -100,14 +126,25 @@
           class="h-[20px] w-[20px] aspect-square absolute top-1/2 left-2 -translate-y-1/2 block dark:hidden"
         />
 
-        <input
-          class={`appearance-none bg-transparent border-b border-b-[#919EAB] dark:border-b-[#919eab]/[.3] rounded w-full h-full py-4 pl-10 pr-3 font-semibold text-[#637381]  leading-tight focus:outline-none focus:shadow-outline`}
-          autoComplete="off"
-          id="password"
-          type="password"
-          placeholder="******************"
-          name="password"
-        />
+         <input
+              class={`appearance-none bg-transparent border-b border-b-[#919EAB] dark:border-b-[#919eab]/[.3] rounded w-full h-full py-4 pl-10 pr-3 font-semibold text-[#637381]  leading-tight focus:outline-none focus:shadow-outline`}
+              autoComplete="off"
+              id="password"
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="password"
+            />
+         <button
+            type="button"
+            class="absolute top-1/2 right-2 -translate-y-1/2"
+            on:click={togglePasswordVisibility}
+          >
+            {#if showPassword}
+            <EyeOff class="w-5 h-5 text-[#637381]" />
+          {:else}
+            <Eye class="w-5 h-5 text-[#637381]" />
+          {/if}
+          </button>
       </div>
       <div
         class="flex flex-col items-center justify-between mt-2 mb-10 sm:mb-0"
