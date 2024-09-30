@@ -406,25 +406,25 @@
                       }
                     } else {
                       nodeIndex = index;
-                      console.log(filteredNodeNames[index].id);
-                      const status = await PB.collection(
-                        "camera_ping_status",
-                      ).getList(1, 100, {
-                        filter: `node~"${filteredNodeNames[index].id}"`,
-                        sort: "-created",
-                      });
-                      console.log("status", status);
-                      // camStatusData = [...new Set(status.items.map(item => item.url))];
-                      // camStatusData = [...new Set(status.items.map(item => item))];
-                      const uniqueUrls = new Set();
-                      const uniqueStatus = status.items.filter((item) => {
-                        if (!uniqueUrls.has(item.url)) {
-                          uniqueUrls.add(item.url);
-                          return true;
-                        }
-                        return false;
-                      });
-                      camStatusData = uniqueStatus;
+                      // console.log(filteredNodeNames[index].id);
+                      // const status = await PB.collection(
+                      //   "camera_ping_status",
+                      // ).getList(1, 100, {
+                      //   filter: `node~"${filteredNodeNames[index].id}"`,
+                      //   sort: "-created",
+                      // });
+                      // console.log("status", status);
+                      // // camStatusData = [...new Set(status.items.map(item => item.url))];
+                      // // camStatusData = [...new Set(status.items.map(item => item))];
+                      // const uniqueUrls = new Set();
+                      // const uniqueStatus = status.items.filter((item) => {
+                      //   if (!uniqueUrls.has(item.url)) {
+                      //     uniqueUrls.add(item.url);
+                      //     return true;
+                      //   }
+                      //   return false;
+                      // });
+                      // camStatusData = uniqueStatus;
                       addUserLog(
                         `user clicked on table row with node name ${item.name}`,
                       );
@@ -481,24 +481,24 @@
                     } else {
                       nodeIndex = index;
                       console.log($nodeData[index].id);
-                      const status = await PB.collection(
-                        "camera_ping_status",
-                      ).getList(1, 100, {
-                        filter: `node~"${$nodeData[index].id}"`,
-                        sort: "-created",
-                      });
-                      console.log("status", status);
-                      // camStatusData = [...new Set(status.items.map(item => item.url))];
-                      // camStatusData = [...new Set(status.items.map(item => item))];
-                      const uniqueUrls = new Set();
-                      const uniqueStatus = status.items.filter((item) => {
-                        if (!uniqueUrls.has(item.url)) {
-                          uniqueUrls.add(item.url);
-                          return true;
-                        }
-                        return false;
-                      });
-                      camStatusData = uniqueStatus;
+                      // const status = await PB.collection(
+                      //   "camera_ping_status",
+                      // ).getList(1, 100, {
+                      //   filter: `node~"${$nodeData[index].id}"`,
+                      //   sort: "-created",
+                      // });
+                      // console.log("status", status);
+                      // // camStatusData = [...new Set(status.items.map(item => item.url))];
+                      // // camStatusData = [...new Set(status.items.map(item => item))];
+                      // const uniqueUrls = new Set();
+                      // const uniqueStatus = status.items.filter((item) => {
+                      //   if (!uniqueUrls.has(item.url)) {
+                      //     uniqueUrls.add(item.url);
+                      //     return true;
+                      //   }
+                      //   return false;
+                      // });
+                      // camStatusData = uniqueStatus;
                       addUserLog(
                         `user clicked on table row with node name ${data.name}`,
                       );

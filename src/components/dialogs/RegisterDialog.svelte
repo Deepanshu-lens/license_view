@@ -244,7 +244,7 @@
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ employee, username, data: [...$registrationImages] }),
+      body: JSON.stringify({ username, data: [...$registrationImages] }),
     }).then(() => {
       toast.success(`${username} successfully added to gallery`);
       registrationImages.set([]);
@@ -339,15 +339,15 @@
         >Capture photo</Button
       >
       <div class="rounded-md border p-4 my-2">
-      <div class="flex items-center space-x-4">
+      <!-- <div class="flex items-center space-x-4">
         <Axe />
         <div class="flex-1 space-y-1">
           <p class="text-sm font-medium leading-none">Employee ?</p>
         </div>
         <Switch bind:checked={employee} />
-      </div>
+      </div> -->
       
-      {#if employee}
+      <!-- {#if employee}
         <div class="mt-4 space-y-4">
           <div class="flex flex-col space-y-2">
             <label for="department" class="text-sm font-medium text-[#00132B] dark:text-slate-100">
@@ -398,7 +398,7 @@
             />
           </div>
         </div>
-      {/if}
+      {/if} -->
  
       </div>
      

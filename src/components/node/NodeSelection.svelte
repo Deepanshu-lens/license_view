@@ -20,9 +20,10 @@
   let showAddNode = false;
   const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
-  $: console.log($page)
+  // $: console.log('nodes', nodes)
 
   function groupNodesRecursively(nodes) {
+    // console.log("nodes", nodes)
     const groupNodes = (nodes, level = 0) => {
       const grouped = nodes.reduce((acc, node) => {
         const parts = node.name.split("_");
@@ -55,7 +56,7 @@
     return groupNodes(nodes);
   }
 
-  const resultGroupNodes = groupNodesRecursively(nodes);
+  $: resultGroupNodes = groupNodesRecursively(nodes);
 
   const onDeleteNode = () => {
     const localCameraList = $selectedNode.camera;

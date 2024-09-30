@@ -46,19 +46,20 @@ export const actions = {
     }
 
     try {
-      const session = await locals.pb.collection("session").create({ owned: true });
-      await locals.pb.collection("users").create({
+      const session = await locals.pb?.collection("session").create({ owned: true });
+     await locals.pb?.collection("users").create({
         name,
         email,
         password: decryptedPassword,
         passwordConfirm: decryptedPasswordConfirm,
-        session: session.id,
+        session: session?.id,
       });
     } catch (e) {
+      console.log(e)
       throw redirect(303, `/register?message=${e.message}`);
     }
 
-    await loginWithEmailPassword(locals, cookies, email, password);
+    await loginWithEmailPassword(locals, cookies, email, decryptedPassword);
     throw redirect(303, "/login");
   },
 

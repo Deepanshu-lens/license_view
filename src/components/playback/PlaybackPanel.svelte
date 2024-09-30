@@ -107,21 +107,21 @@
     //     cameraList = data.matchedChannels;
     //   })
     //   .catch((err) => console.log(err));
-      const list = await PB.collection('camera_ping_status').getList(1,100,{
-        filter: `node~"${$selectedNode.id}"`,
-        sort: "-created",
-        expand: 'camera'
+  //     const list = await PB.collection('camera_ping_status').getList(1,100,{
+  //       filter: `node~"${$selectedNode.id}"`,
+  //       sort: "-created",
+  //       expand: 'camera'
         
-      });
-      console.log('camera status list',list)
-  list.items.forEach(item => {
-    if (!$uniqueUrlList.some(uniqueItem => uniqueItem.url === item.url)) {
-      uniqueUrlList.update(currentList => {
-        currentList.push(item);
-        return currentList;
-      });
-    }
-  });
+  //     });
+  //     console.log('camera status list',list)
+  // list.items.forEach(item => {
+  //   if (!$uniqueUrlList.some(uniqueItem => uniqueItem.url === item.url)) {
+  //     uniqueUrlList.update(currentList => {
+  //       currentList.push(item);
+  //       return currentList;
+  //     });
+  //   }
+  // });
 }
 console.log($uniqueUrlList);
 

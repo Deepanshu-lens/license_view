@@ -22,12 +22,16 @@ export const actions = {
       .update(locals.user.record.session[0], {
         "node+": [node?.id],
       });
+
+    await locals.pb?.collection('session').update(locals.user.record.session[0], {
+      activeNode: node?.id
+    })
   },
 };
 
 export const load: PageServerLoad = async ({ locals }) => {
 
-locals.pb?.autoCancellation(false)
+  locals.pb?.autoCancellation(false)
 
   // const events = async () => {
   //   const abortController = new AbortController();
@@ -61,7 +65,7 @@ locals.pb?.autoCancellation(false)
       const timeoutId = setTimeout(() => controller.abort(), 7500);
 
       const e = await locals.pb?.collection("events").getList(1, 100, {
-        sort: "created",
+        sort: "-created",
         fields:
           "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
         signal: controller.signal
@@ -81,7 +85,7 @@ locals.pb?.autoCancellation(false)
         console.log('Events request timed out');
         return [];
       }
-return []
+      return []
 
     }
   }

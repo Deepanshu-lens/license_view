@@ -89,9 +89,7 @@
           camera.name.toLowerCase() === filterText.toLowerCase(),
       );
       filteredNodeCameras.set(
-        exactMatches.length > 0
-          ? exactMatches
-          : $selectedNode.camera.filter((camera: Camera) =>
+       $selectedNode.camera.filter((camera: Camera) =>
               camera.name.toLowerCase().includes(filterText.toLowerCase()),
             ),
       );
@@ -105,7 +103,7 @@
     filterText = (e.target as HTMLInputElement).value;
   }
 
-// $: console.log($filteredNodeCameras)
+
 </script>
 
 {#if $selectedNode?.camera?.length === 0}

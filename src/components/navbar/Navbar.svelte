@@ -140,14 +140,14 @@
 <header class="sm:flex border sticky top-0 left-0 w-full z-20 h-[75px] hidden">
   <nav class="bg-background w-full flex flex-row items-center justify-center">
     <div class="flex w-full justify-between">
-      <div class="cursor-pointer flex items-center gap-2 justify-center px-2">
+      <a href="/" class="cursor-pointer flex items-center gap-2 justify-center px-2">
          <img
           src={$mode === "light" ? "/images/green.svg" : "/images/white.svg"}
           alt="logo"
           class="w-24"
         />
 
-      </div>
+      </a>
 
       <div
         class={`flex flex-row items-center justify-center py-6 px-4 gap-14 `}

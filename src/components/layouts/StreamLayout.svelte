@@ -119,7 +119,7 @@
     video.id = `stream-${camera.id}`;
     // video.mode = mode !== undefined ? mode : "webrtc";
     // video.mode = mode !== undefined ? mode : "webrtc";
-    video.mode="mse"
+    video.mode = "mse";
     // console.log(video.mode)
     video.url = camera.url;
     camera?.subUrl?.length === 0
@@ -220,30 +220,28 @@
     }
   };
 
-  // function handleSlideChange() {
-  //   const startIndex = slideIndex * $selectedNode.maxStreamsPerPage;
-  //   const endIndex = startIndex + $selectedNode.maxStreamsPerPage;
-  //   const camerasOnSlide = $selectedNode.camera.slice(startIndex, endIndex);
-  //   const cameraIds = camerasOnSlide.map((camera) => camera.id);
-  //   cameraIds.forEach((cameraId) => {
-  //     refreshVideoStream(cameraId);
-  //   });
-  // }
-
   function handleSlideChange() {
-  const startIndex = slideIndex * $selectedNode.maxStreamsPerPage;
-  const endIndex = Math.min(startIndex + $selectedNode.maxStreamsPerPage, $selectedNode.camera.length);
-  const camerasOnSlide = $selectedNode.camera.slice(startIndex, endIndex);
-  // console.log("camerasOnSlide", camerasOnSlide);
-  // const cameraIds = camerasOnSlide.map((camera) => camera.id);
-  // cameraIds.forEach((cameraId) => {
-  //   console.log("cameraId", cameraId);
-  //   refreshVideoStream(cameraId);
-  // });
-  camerasOnSlide.forEach((camera) => {
-initVideo(camera);
-  });
-}
+    console.log(Object.values(videos).length);
+    Object.values(videos).forEach((video) => {
+      if (video.src instanceof WebSocket) {
+        video.src.close();
+      }
+      video.remove();
+    });
+    console.log(Object.values(videos).length);
+    videos = {};
+
+    const startIndex = slideIndex * $selectedNode.maxStreamsPerPage;
+    const endIndex = Math.min(
+      startIndex + $selectedNode.maxStreamsPerPage,
+      $selectedNode.camera.length,
+    );
+    const camerasOnSlide = $selectedNode.camera.slice(startIndex, endIndex);
+
+    camerasOnSlide.forEach((camera) => {
+      initVideo(camera);
+    });
+  }
 
   function handlePrevious() {
     if (slideIndex > 0) {
@@ -261,6 +259,8 @@ initVideo(camera);
 
   let prevName = $selectedNode.name;
 
+  $: console.log("selectedNode", $filteredNodeCameras);
+
   const updateLayout = (maxStreamsPerPage: number) => {
     if ($selectedNode.name !== prevName) {
       Object.keys(videos).forEach((videoId) => {
@@ -272,37 +272,44 @@ initVideo(camera);
       videos = {};
       prevName = $selectedNode.name;
     }
-    // slideIndex = 0;
-    // $selectedNode.camera.map((c) => {
-    //   if (!videos[c.id]) {
-    //     // console.log("c", c);
-    //     initVideo(c);
-    //   } else {
-    //     if (videos[c.id].url !== c.url) {
-    //       videos[c.id].url = c.url;
-    //       videos[c.id].src = new URL(
-    //         `ws://${neededUrl}:8082/api/ws?src=${c.id}&nodeID=${1}`,
-    //       );
-    //     }
-    //   }
-    // });
-     slideIndex = 0;
-  const startIndex = slideIndex * maxStreamsPerPage;
-  const endIndex = Math.min(startIndex + maxStreamsPerPage, $selectedNode.camera.length);
-  console.log("startIndex", startIndex);
-  console.log("endIndex", endIndex);
-  $selectedNode.camera.slice(startIndex, endIndex).forEach((c) => {
-    if (!videos[c.id]) {
-      initVideo(c);
+
+    if ($selectedNode.maxStreamsPerPage === 0) {
+      slideIndex = 0;
+      $selectedNode.camera.map((c) => {
+        if (!videos[c.id]) {
+          // console.log("c", c);
+          initVideo(c);
+        } else {
+          if (videos[c.id].url !== c.url) {
+            videos[c.id].url = c.url;
+            videos[c.id].src = new URL(
+              `ws://${neededUrl}:8082/api/ws?src=${c.id}&nodeID=${1}`,
+            );
+          }
+        }
+      });
     } else {
-      if (videos[c.id].url !== c.url) {
-        videos[c.id].url = c.url;
-        videos[c.id].src = new URL(
-          `ws://${neededUrl}:8082/api/ws?src=${c.id}&nodeID=${1}`,
-        );
-      }
+      slideIndex = 0;
+      const startIndex = slideIndex * maxStreamsPerPage;
+      const endIndex = Math.min(
+        startIndex + maxStreamsPerPage,
+        $selectedNode.camera.length,
+      );
+      console.log("startIndex", startIndex);
+      console.log("endIndex", endIndex);
+      $selectedNode.camera.slice(startIndex, endIndex).forEach((c) => {
+        if (!videos[c.id]) {
+          initVideo(c);
+        } else {
+          if (videos[c.id].url !== c.url) {
+            videos[c.id].url = c.url;
+            videos[c.id].src = new URL(
+              `ws://${neededUrl}:8082/api/ws?src=${c.id}&nodeID=${1}`,
+            );
+          }
+        }
+      });
     }
-  });
 
     streamCount =
       $selectedNode.camera.length === $filteredNodeCameras.length
@@ -364,8 +371,6 @@ initVideo(camera);
 
     setTimeout(() => {
       initSortable();
-    }, 500);
-    setTimeout(() => {
       createRoiLines();
       createIntrusionLines();
     }, 2000);
@@ -810,7 +815,6 @@ initVideo(camera);
     }
   }
 
-
   function createIntrusionLines() {
     if (
       $selectedNode.camera.some(
@@ -906,7 +910,7 @@ initVideo(camera);
     });
   };
 
-   let currentIndex = $selectedNode.maxStreamsPerPage;
+  let currentIndex = $selectedNode.maxStreamsPerPage;
   // console.log(currentIndex)
   let refreshInterval;
 
@@ -928,7 +932,7 @@ initVideo(camera);
     refreshInterval = setInterval(refreshCamera, 60000); // Continue refreshing every minute
   }
 
-    onMount(() => {
+  onMount(() => {
     if ($selectedNode) {
       startRefreshing();
       setTimeout(() => {
@@ -936,13 +940,28 @@ initVideo(camera);
       }, 30000);
     }
   });
+
+  $: {
+    if ($filteredNodeCameras.length !== $selectedNode.camera.length) {
+      $filteredNodeCameras.map((camera) => {
+        // refreshVideoStream(camera.id);
+        Object.keys(videos).forEach((key) => {
+          console.log(key);
+          videos[key].remove();
+          delete videos[key];
+        });
+        initVideo(camera);
+      });
+    }
+  }
+
 </script>
 
 {#if streamCount > 0 && Object.keys(videos).length > 0}
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <!-- {#if $selectedNode.camera.length !== $filteredNodeCameras.length && $filteredNodeCameras.length !== 0} -->
-  {#if $filteredNodeCameras.length === 1 ? $markRoi : $selectedNode.camera.length !== $filteredNodeCameras.length && $filteredNodeCameras.length !== 0}
-    <div
+  {#if $filteredNodeCameras.length === 1 && ($selectedNode.camera.length !== $filteredNodeCameras.length ||$selectedNode.camera.length === 1  ) }
+   <div
       class={cn(
         `grid  gap-1 w-full h-full ${!isAllFullScreen ? "max-h-[calc(100vh-76px)]" : "max-h-screen"} grid-cols-${layoutColumns} grid-rows-${layoutRows}`,
       )}
@@ -1323,7 +1342,7 @@ initVideo(camera);
                         </span>
                       {/if}
 
-                        <img
+                      <img
                         src="/images/logo-black.png"
                         alt="logo"
                         class="object-contain w-[15%] absolute right-4 bottom-4 z-20"

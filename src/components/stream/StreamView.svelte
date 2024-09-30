@@ -62,14 +62,13 @@
 
   export let data;
   export let url;
+  export let calledNodes;
   const selectedDetections = writable([]);
-  const { nodes } = data;
   let animateHeader = false;
   let comfort = true;
 
   const search = new URLSearchParams(window.location.search);
   const screens = parseInt(search.get("s") ?? "1");
-  const cameraCount = $selectedNode.camera.length;
   const isMobile = writable(false);
 
   let recording = false;
@@ -505,7 +504,7 @@
           Fullscreen
         </p>
       </span>
-      <AddCameraDialog sNode="" {nodes}>
+      <AddCameraDialog sNode="" nodes={calledNodes}>
         <span class="group flex-col flex items-center justify-center gap-0.5">
           <button
             on:click={() => {
@@ -1033,18 +1032,18 @@
           >
             <button
               on:click={() => view.set(1)}
-              class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-full h-full ${$view === 1 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
+              class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${$view === 1 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
               >Line Crossing</button
             >
-            <!-- <button
+            <button
               on:click={() => view.set(2)}
               class={`rounded-lg text-xs leading-[18px] px-[10px] py-[3px] font-medium w-1/2 h-full ${$view === 2 ? "text-white bg-[#015a62]" : "bg-transparent"}`}
               >Intrusion Detection</button
-            > -->
+            >
           </div>
           {#if $view === 2}
             <div class="px-4 py-4 flex flex-col gap-1">
-              <label for="camera" class="text-black/[.7] text-sm"
+              <label for="camera" class="text-black/[.7] dark:text-white/[.7] text-sm"
                 >Select Camera</label
               >
               <div class="relative w-full">
@@ -1127,7 +1126,7 @@
             {/if}
           {:else}
             <div class="px-4 py-4 flex flex-col gap-1">
-              <label for="camera" class="text-black/[.7] text-sm"
+              <label for="camera" class="text-black/[.7] dark:text-white/[.7] text-sm"
                 >Select Camera</label
               >
               <div class="relative w-full">
@@ -1169,7 +1168,7 @@
               <div class="flex items-center gap-2 px-4">
                 <label
                   for="line-crossing-toggle"
-                  class="text-black/[.7] text-sm">Line Crossing Detection</label
+                  class="text-black/[.7] dark:text-white/[.7] text-sm">Line Crossing Detection</label
                 >
                 <Switch bind:checked={lineCrossing} />
               </div>
@@ -1177,7 +1176,7 @@
                 <div class="flex items-center py-2 gap-2 px-4">
                   <label
                     for="person-detection-toggle"
-                    class="text-black/[.7] text-sm">Person Detection</label
+                    class="text-black/[.7] dark:text-white/[.7] text-sm">Person Detection</label
                   >
                   <Switch
                     id="person-detection-toggle"
@@ -1187,7 +1186,7 @@
                 <div class="flex items-center gap-2 py-2 px-4">
                   <label
                     for="vehicle-detection-toggle"
-                    class="text-black/[.7] text-sm">Vehicle Detection</label
+                    class="text-black/[.7] dark:text-white/[.7] text-sm">Vehicle Detection</label
                   >
                   <Switch
                     id="vehicle-detection-toggle"
@@ -1215,7 +1214,7 @@
             {/if}
           {/if}
         {:else}
-          <NodeSelection {isAllFullScreen} {nodes} {url} {data} />
+          <NodeSelection {isAllFullScreen} nodes={calledNodes} {url} {data} />
           <CameraList {isAllFullScreen} {showItems} user={data.user} {data} />
         {/if}
       </div>

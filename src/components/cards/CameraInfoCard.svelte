@@ -41,7 +41,6 @@
   export let sparshID:string
   export let personCount
 
-console.log(sparshID)
 let hasShownToast = false;
 
   $: count = $cameraCounts[cameraId];
@@ -127,7 +126,7 @@ let hasShownToast = false;
         </span>{/if}
   </span>
     <p class="text-xs">
-      {url?.split("@")?.[1]?.split("/")?.[0]?.split(":")?.[0]}
+      {url?.split("@")?.[1]?.split("/")?.[0]?.split(":")?.[0].length > 15 ? url?.split("@")?.[1]?.split("/")?.[0]?.split(":")?.[0].substring(0, 15) + "..." : url?.split("@")?.[1]?.split("/")?.[0]?.split(":")?.[0]}
     </p>
 </div>
 
@@ -179,7 +178,7 @@ let hasShownToast = false;
     </li>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-    <li class="cursor-pointer hover:scale-125 pt-[1.5px]" on:click={deleteCamera}>
+    <li class="cursor-pointer hover:scale-125 " on:click={deleteCamera}>
       <Trash class="h-4 w-4" />
     </li>
   </ul>

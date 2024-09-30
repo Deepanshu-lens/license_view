@@ -27,6 +27,7 @@
   import FrsMatchModal from "@/components/modal/FrsMatchModal.svelte";
   import AddCameraDialog from "@/components/dialogs/AddCameraDialog.svelte";
   import { writable } from "svelte/store";
+    import { enhance } from "$app/forms";
 
   TimeAgo.addLocale(en);
 
