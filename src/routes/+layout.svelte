@@ -7,6 +7,7 @@
   import Navbar from "@/components/navbar/Navbar.svelte";
   import type { User } from "@/types.d.ts";
   import { cn } from "@/lib";
+  import { pb } from "@/lib/pocketbase";
 
   export let data;
   const user = data.user as User;
@@ -14,7 +15,7 @@
   const nodes = data.nodes;
 
   setContext("user", user);
-
+  setContext("pb", pb);
 
   // console.log(data.url)
 

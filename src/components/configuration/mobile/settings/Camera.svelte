@@ -1,6 +1,6 @@
 <script lang="ts">
   import { CameraIcon, ChevronUp, Search, X } from "lucide-svelte";
-  import { onDestroy, onMount } from "svelte";
+  import { getContext, onDestroy, onMount } from "svelte";
   import PocketBase from "pocketbase";
   import { writable } from "svelte/store";
   import type { User } from "@/types";
@@ -31,8 +31,7 @@
     { length: newDataCount },
     (_, index: number) => index,
   );
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
-  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
+  const PB: PocketBase = getContext("pb");
 
   async function getNodeData() {
     if (user?.session) {

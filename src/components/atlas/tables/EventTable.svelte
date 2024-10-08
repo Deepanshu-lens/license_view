@@ -1,10 +1,11 @@
 <script lang="ts">
   import * as Table from "@/components/ui/table/index";
   import { atlasEvents } from "@/lib/stores";
-  import { page } from "$app/stores";
   import { onDestroy, onMount } from "svelte";
   import PocketBase from "pocketbase";
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  import { getContext } from "svelte";
+
+  const PB: PocketBase = getContext("pb");
 
   export let search: string;
   export let activePanel: string;

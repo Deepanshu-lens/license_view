@@ -18,6 +18,7 @@
   import { onDestroy } from "svelte";
     import NodeSelection from "../node/NodeSelection.svelte";
     import { get, writable } from "svelte/store";
+    import { getContext } from "svelte";
   let showRightPanel: boolean = true;
   let playbackFullscreen = false;
   let showFilters = false;
@@ -29,8 +30,7 @@
 
   export let data;
   const nodes = data.nodes;
-
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  const PB: PocketBase = getContext("pb");
 
   $: if ($selectedNode) {
     (async () => {

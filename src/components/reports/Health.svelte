@@ -1,4 +1,4 @@
-<script>
+<script lang='ts'>
   import Row from "./tableRow/Row.svelte";
   import PocketBase from "pocketbase";
   import {
@@ -21,7 +21,7 @@
   import { writable } from "svelte/store";
   import HealthNvrcard from "../cards/HealthNvrcard.svelte";
   import { page } from "$app/stores";
-  import { onMount } from "svelte";
+  import { getContext, onMount } from "svelte";
   import NodeSelection from "../node/NodeSelection.svelte";
   import { selectedNode } from "@/lib/stores";
   import MapNvr from "../map/MapNvr.svelte";
@@ -31,7 +31,8 @@
   let selectedNvr = writable(null);
   let cameraList = [];
 
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+
+  const PB: PocketBase = getContext("pb");
 
   let view = 1;
 

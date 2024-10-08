@@ -1,6 +1,7 @@
 <script lang="ts">
   import PocketBase from "pocketbase";
   import { page } from "$app/stores";
+    import { getContext } from "svelte";
 
   export let session: any;
   let licenseOptions = [
@@ -14,7 +15,8 @@
   let anpr = session.anpr;
   let playback = session.playback;
   let mars = session.mars;
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+
+  const PB: PocketBase = getContext("pb");
 
   async function handleInputChange(event, label) {
     console.log(label, event.target.checked);

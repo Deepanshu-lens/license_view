@@ -14,19 +14,15 @@
   import Button from "../ui/button/button.svelte";
   export let showItems: boolean;
   import { addUserLog } from "@/lib/addUserLog";
-  import { page } from "$app/stores";
-  import PocketBase from "pocketbase";
+  import { getContext } from "svelte";
 
-  /**
-   * Sortable Camera Info Cards
-   */
+  const PB: PocketBase = getContext("pb");
+
   export let isAllFullScreen: boolean;
   export let user;
   export let data;
   let cameraItems: HTMLDivElement;
   let filterText: string = "";
-
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
   function handleEscape(event: KeyboardEvent) {
     if (event.key === "Escape") {

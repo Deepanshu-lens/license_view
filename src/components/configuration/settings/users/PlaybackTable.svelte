@@ -1,87 +1,10 @@
-<!-- <script>
-  import PocketBase from "pocketbase";
-  import * as Table from "@/components/ui/table/index";
-  export let allUsers;
-  import { page } from "$app/stores";
-  import { onMount } from "svelte";
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
-  let playbackFeatures = [];
-
-  onMount(async () => {
-    const playback = await fetch("/api/features/playback");
-    if (!playback.ok) {
-      throw new Error(
-        `failed to fetch playback features, HTTP error! status: ${playback.status}`,
-      );
-    }
-    const p = await playback.json();
-    console.log(p);
-    playbackFeatures = p?.features?.items;
-  });
-
-
-  console.log(allUsers);
-</script>
-
-<div class="w-full h-full flex flex-col">
-  <Table.Root class="mx-auto w-full flex flex-col pb-10">
-    <Table.Header
-      class="border-2 border-[#e4e4e4] border-solid rounded-lg bg-[#f9f9f9]"
-    >
-      <Table.Row class="bg-transparent flex items-center justify-between p-3">
-         <Table.Head class="text-[#727272] h-full w-[50px]"
-          ><input type="checkbox" name="" id=""></Table.Head
-        >
-        <Table.Head class="text-[#727272] h-full w-[200px]">User Name</Table.Head>
-        {#if playbackFeatures}
-        {#each playbackFeatures as feature}
-        <Table.Head class="text-[#727272] h-full w-[200px]">{feature.feature}</Table.Head>
-        {/each}
-        {/if}
-      </Table.Row>
-    </Table.Header>
-    <Table.Body
-      class="overflow-y-scroll max-h-[calc(100vh-360px)] hide-scrollbar pb-10"
-    >
-
-    {#each allUsers as user}
-      <Table.Row
-        class="bg-transparent cursor-pointer flex items-center justify-between gap-4 mt-4 px-3 rounded-lg  border-2 border-solid border-[#e4e4e4]"
-      >
-        <Table.Cell class="text-black h-full w-[50px]">
-            <input type="checkbox">
-            </Table.Cell>
-        <Table.Cell class="text-black h-full"
-          > <span class="flex flex-col font-semibold text-primary">
-              <span>
-               Name: {user?.name.length > 0 ? user.name : "-"}
-              </span>
-              <span class="text-xs">
-                Id: {user.id}
-              </span>
-            </span>
-        </Table.Cell>
-          {#each playbackFeatures as feature}
-        <Table.Cell class="text-[#727272] h-full  w-[180px]">
-          <input type="checkbox" />
-        </Table.Cell>
-        {/each}
-      </Table.Row>
-      {/each}
-    </Table.Body>
-  </Table.Root>
-</div> -->
-
 <script>
-  import PocketBase from "pocketbase";
   import * as Table from "@/components/ui/table/index";
   import { writable, get } from "svelte/store";
   export let allUsers;
-  import { page } from "$app/stores";
   import { onMount } from "svelte";
     import { Button } from "@/components/ui/button";
     import { toast } from "svelte-sonner";
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
   let playbackFeatures = [];
   let userFeatures = writable([]);
 

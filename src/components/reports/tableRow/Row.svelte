@@ -1,5 +1,5 @@
-<script>
-  import { onDestroy, onMount } from "svelte";
+<script lang='ts'>
+  import { getContext, onDestroy, onMount } from "svelte";
   import PocketBase from "pocketbase";
   export let item;
   export let index;
@@ -10,7 +10,9 @@
    let downtime = "-";
    let lastTrue;
    let lastFalse;
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+
+
+  const PB: PocketBase = getContext("pb");
 
 
   // onMount( async () => {

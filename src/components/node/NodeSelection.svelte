@@ -5,25 +5,23 @@
   import type { Camera, Node } from "@/types";
   import { Edit, PlusCircle, Trash } from "lucide-svelte";
   import { selectedNode } from "@/lib/stores";
-  import Button from "../ui/button/button.svelte";
   import { toast } from "svelte-sonner";
   import AlertDeleteNode from "../dialogs/alerts/AlertDeleteNode.svelte";
   import { cn } from "@/lib";
   import AddNodeModal from "../modal/AddNodeModal.svelte";
   import { page } from "$app/stores";
   import { addUserLog } from "@/lib/addUserLog";
-  import PocketBase from "pocketbase";
   import { Dropdown, DropdownItem } from "flowbite-svelte";
+    import { getContext } from "svelte";
   export let url: string;
   export let nodes: Node[];
   export let isAllFullScreen: boolean;
   let showAddNode = false;
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
-  // $: console.log('nodes', nodes)
+  const PB: PocketBase = getContext("pb");
+
 
   function groupNodesRecursively(nodes) {
-    // console.log("nodes", nodes)
     const groupNodes = (nodes, level = 0) => {
       const grouped = nodes.reduce((acc, node) => {
         const parts = node.name.split("_");

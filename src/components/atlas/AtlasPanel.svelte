@@ -17,7 +17,7 @@
   import { activePanel, atlasEvents } from "@/lib/stores";
   import { Switch } from "../ui/switch";
   import { writable } from "svelte/store";
-  import { onMount } from "svelte";
+  import { getContext, onMount } from "svelte";
   import { selectedNode } from "@/lib/stores";
 
   // props
@@ -49,7 +49,7 @@
   let userList = [];
   let name = "";
   let ssl = false;
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  const PB: PocketBase = getContext("pb");
 
   async function handleSubmit(addPanelData = null) {
     try {

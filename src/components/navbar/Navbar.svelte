@@ -15,29 +15,28 @@
   export let user: User;
   export let session;
   export let sessionId: string | undefined;
-  import Separator from "../ui/separator/separator.svelte";
   import DarkModeSwitch from "../toggles/DarkModeSwitch.svelte";
   import { mode } from "mode-watcher";
   import { addUserLog } from "@/lib/addUserLog";
   import { onDestroy, onMount } from "svelte";
-    import { events } from "@/lib/stores";
+  import { getContext } from "svelte";
 
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  const PB: PocketBase = getContext("pb");
   let Licenses;
 
-  onMount(async()=>{
-     Licenses = await PB.collection('licenses').getFullList()
-  })
+  onMount(async () => {
+    Licenses = await PB.collection("licenses").getFullList();
+  });
 
   const menuList = [
     {
       text: "Live",
       href: `/session/${sessionId}`,
     },
-   {
-    text: "Alerts",
-    href: `/alerts/${sessionId}`,
-  },
+    {
+      text: "Alerts",
+      href: `/alerts/${sessionId}`,
+    },
     {
       text: "Gallery",
       href: `/gallery/${sessionId}`,
@@ -140,20 +139,37 @@
 <header class="sm:flex border sticky top-0 left-0 w-full z-20 h-[75px] hidden">
   <nav class="bg-background w-full flex flex-row items-center justify-center">
     <div class="flex w-full justify-between">
-      <a href="/" class="cursor-pointer flex items-center gap-2 justify-center px-2">
-         <img
+      <!-- <a href="/" class="cursor-pointer flex items-center gap-2 justify-center px-2"> -->
+      <button
+        on:click={async () => {
+          // addUserLog("user clicked on logo")
+          // const pro = await PB.collection('users').requestPasswordReset('pratham.dev@moksa.ai');
+          const pro = await fetch("/api/reset", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              newPassword: "qweqweqwe",
+              newPasswordConfirm: "qweqweqwe",
+            }),
+          });
+          console.log(pro);
+        }}
+      >
+        <img
           src={$mode === "light" ? "/images/green.svg" : "/images/white.svg"}
           alt="logo"
           class="w-24"
         />
-
-      </a>
+      </button>
+      <!-- </a> -->
 
       <div
         class={`flex flex-row items-center justify-center py-6 px-4 gap-14 `}
       >
-      {#if Licenses?.vms === true}
-        <a
+        {#if Licenses?.vms === true}
+          <a
             data-svelte-prefetch
             href={live.href}
             on:click={() => {
@@ -167,12 +183,12 @@
                   : ""
               }`}
             >
-{live.text}
+              {live.text}
             </span>
           </a>
-      {:else}
-        {#each menuList as item}
-          {#key item}
+        {:else}
+          {#each menuList as item}
+            {#key item}
               <a
                 data-svelte-prefetch
                 href={item.href}
@@ -190,11 +206,11 @@
                   {item.text}
                 </span>
               </a>
-          {/key}
+            {/key}
           {/each}
-          {/if}
+        {/if}
         <!-- {#if session.frs} -->
-          <!-- <a
+        <!-- <a
             data-svelte-prefetch
             href={frs.href}
             on:click={() => {
@@ -290,7 +306,6 @@
         {/if}
         <p>{user.name}</p>
         <button on:click={toggleOpen}>
-
           <ChevronDown />
         </button>
         {#if isOpen}

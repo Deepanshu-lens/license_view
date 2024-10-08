@@ -5,7 +5,6 @@
   import { toast } from "svelte-sonner";
   import { writable } from "svelte/store";
   import en from "javascript-time-ago/locale/en";
-  import { PUBLIC_BASE_URL } from "$env/static/public";
   import TimeAgo from "javascript-time-ago";
   import { page } from "$app/stores";
 

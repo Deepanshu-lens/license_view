@@ -9,6 +9,7 @@ import { Check, Plus } from "lucide-svelte";
 import { page } from "$app/stores";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "svelte-sonner";
+    import { getContext } from "svelte";
 
 // Props
 export let cameraList;
@@ -19,7 +20,7 @@ export let doorName;
 let dialogOpen = writable(false);
 let selectedCamerasIds = writable<string[]>([]);
 
-const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+const PB: PocketBase = getContext("pb");
 
 const addCameras = async () => {
   let label = $selectedCamerasIds.length <= 1 ? "Camera" : "Cameras";

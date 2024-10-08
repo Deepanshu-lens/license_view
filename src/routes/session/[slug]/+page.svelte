@@ -4,7 +4,7 @@
   import StreamView from "@/components/stream/StreamView.svelte";
   import PocketBase from "pocketbase";
   import { selectedNode, events } from "@/lib/stores";
-  import { onDestroy, onMount } from "svelte";
+  import { getContext, onDestroy, onMount } from "svelte";
   import AddNodeMob from "@/components/node/mobile/AddNodeMob.svelte";
   import type { PageServerData } from "./$types";
   import { page } from "$app/stores";
@@ -17,9 +17,11 @@
   let batchedEvents: Event[] = [];
   let searching: boolean = true;
 
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  // const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  const PB: PocketBase = getContext("pb");
 
-  // console.log("page on session page", $page);
+
+  console.log("page on session page", data);
 
   async function getNodes(): Promise<Node[]> {
     console.log("getNodes got called");

@@ -5,6 +5,7 @@
   import * as Dialog from "@/components/ui/dialog";
   import { toast } from "svelte-sonner";
   import { Button } from "@/components/ui/button";
+    import { getContext } from "svelte";
 
   //props
   export let name: string;
@@ -20,7 +21,7 @@
    */
 
   const deletePanel = async () => {
-    const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+    const PB: PocketBase = getContext("pb");
 
     if (panelData.expand.users && panelData.expand.users.length > 0) {
       await Promise.all(

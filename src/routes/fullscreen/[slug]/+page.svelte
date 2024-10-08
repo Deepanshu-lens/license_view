@@ -52,7 +52,7 @@ const slug = $page.params.slug;
     }
     let video = document.createElement("video-stream") as VideoStreamType;
     video.id = `stream-${camera.id}`;
-    video.mode = "mse";
+    video.mode = "webrtc";
     video.url = camera.url;
     video.src = new URL(
       `ws://${neededUrl}:8082/api/ws?src=${camera.id}&nodeID=${1}&cn=${camera.name}`,

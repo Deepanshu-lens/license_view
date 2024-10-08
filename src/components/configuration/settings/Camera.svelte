@@ -58,7 +58,7 @@
     X,
   } from "lucide-svelte";
   export let user: User;
-  import { onMount, onDestroy } from "svelte";
+  import { onMount, onDestroy, getContext } from "svelte";
   import { toast } from "svelte-sonner";
   import { addUserLog } from "@/lib/addUserLog";
   import { writable } from "svelte/store";
@@ -89,8 +89,7 @@
   let change = "";
   let camStatusData = [];
 
-  // const PB = new PocketBase(PUBLIC_POCKETBASE_URL);
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  const PB: PocketBase = getContext("pb");
 
   const nodeData = writable([]);
 

@@ -1,9 +1,9 @@
-<script lan="ts">
+<script lang="ts">
   import PocketBase from "pocketbase";
   import { selectedNode } from "@/lib/stores";
   import { EditIcon, ScanFace, X } from "lucide-svelte";
-  import { createEventDispatcher, onMount } from "svelte";
-  import { page } from "$app/stores";
+  import { createEventDispatcher, getContext, onMount } from "svelte";
+
 
   import TimeAgo from "javascript-time-ago";
   import en from "javascript-time-ago/locale/en";
@@ -16,8 +16,8 @@
   console.log(event);
   const dispatch = createEventDispatcher();
 
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
+  const PB: PocketBase = getContext("pb");
   function closeModal() {
     dispatch("close");
   }

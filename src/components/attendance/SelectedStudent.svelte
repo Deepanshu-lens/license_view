@@ -13,9 +13,7 @@
   import { Button } from "../ui/button";
   import AttendanceCard from "../cards/AttendanceCard.svelte";
     import { Input } from "../ui/input";
-  import { page } from "$app/stores";
-    import { onMount } from "svelte";
-  import PocketBase from "pocketbase";
+
 
   export let selectedStudent: any;
   let selectedDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -23,7 +21,6 @@
   // console.log(selectedDate)
 
   $: console.log($selectedStudent)
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
   // onMount(async() => {
   //   const student = await PB.collection("faceGallery").getFullList({

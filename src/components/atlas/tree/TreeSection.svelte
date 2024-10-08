@@ -4,7 +4,7 @@
   import { page } from "$app/stores";
   import { toast } from "svelte-sonner";
   import CameraDoorRelate from "@/components/dialogs/camera-door-relate.svelte";
-  import { onMount } from "svelte";
+  import { getContext, onMount } from "svelte";
   import PocketBase from "pocketbase";
   import { selectedNode } from "@/lib/stores";
 
@@ -18,7 +18,7 @@
   let cameraList = [];
 
   const API_URL = `${$page.url.protocol}://${$page.url.hostname}:5671/unlock/${$activePanel}`;
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  const PB: PocketBase = getContext("pb");
 
   $: filteredDoors = data?.filter((door) =>
     door.name.toLowerCase().includes($search.toLowerCase()),

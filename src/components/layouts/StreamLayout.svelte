@@ -1,5 +1,4 @@
 <script lang="ts">
-  import PocketBase from "pocketbase";
   import { mode } from "mode-watcher";
   import { activeCamera, markRoi } from "@/lib/stores";
   import { cn } from "@/lib";
@@ -32,8 +31,7 @@
   import { addUserLog } from "@/lib/addUserLog";
   import { page } from "$app/stores";
   import Sortable from "sortablejs";
-  import { onDestroy, onMount } from "svelte";
-  import { toast } from "svelte-sonner";
+  import { onMount } from "svelte";
   import { writable } from "svelte/store";
 
   export let handleSingleSS: () => void;
@@ -68,7 +66,6 @@
   let dragOffsetY = 0;
   let draggingLineIndex = null;
   const neededUrl = $page.url.hostname;
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
 
   // onMount(async() => {
   //   try {
@@ -117,9 +114,7 @@
     }
     let video = document.createElement("video-stream") as VideoStreamType;
     video.id = `stream-${camera.id}`;
-    // video.mode = mode !== undefined ? mode : "webrtc";
-    // video.mode = mode !== undefined ? mode : "webrtc";
-    video.mode = "mse";
+    video.mode = "webrtc";
     // console.log(video.mode)
     video.url = camera.url;
     camera?.subUrl?.length === 0
@@ -386,12 +381,12 @@
 
   $: {
     if ($filteredNodeCameras.length === $selectedNode.camera.length) {
-      if (!$markRoi) {
+      // if (!$markRoi) {
         updateLayout($selectedNode.maxStreamsPerPage);
-      } else {
+      // } else {
         // console.log("updating layout");
-        updateLayout(0);
-      }
+        // updateLayout($selectedNode.maxStreamsPerPage);
+      // }
     } else {
       // console.log("updating layout");
       // console.log($selectedNode.maxStreamsPerPage)
@@ -827,7 +822,7 @@
         // console.log(camera.lineData)
         if (
           camera.expand?.inference?.intrusionDetection &&
-          camera.expand?.inference?.roiData.length > 0
+          camera.expand?.inference?.roiData?.length > 0
         ) {
           const canvas = document.getElementById(`intrusionCanvas-${index}`);
           if (canvas) {
@@ -1118,7 +1113,7 @@
                         </button>
                       {/if}
 
-                      {#if $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex]?.expand?.inference?.intrusionDetection === true && $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex]?.expand?.inference?.roiData.length > 0}
+                      {#if $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex]?.expand?.inference?.intrusionDetection === true && $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex]?.expand?.inference?.roiData?.length > 0}
                         <canvas
                           id={`intrusionCanvas-${
                             pageIndex *
@@ -1134,7 +1129,7 @@
                           }}
                         ></canvas>
                       {/if}
-                      {#if $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex]?.expand?.inference?.lineCrossing === true && $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex]?.expand?.inference?.lineData.length > 0}
+                      {#if $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex]?.expand?.inference?.lineCrossing === true && $selectedNode.camera[pageIndex * ($selectedNode.maxStreamsPerPage === 5 || $selectedNode.maxStreamsPerPage === 7 ? $selectedNode.maxStreamsPerPage + 1 : $selectedNode.maxStreamsPerPage) + slotIndex]?.expand?.inference?.lineData?.length > 0}
                         <canvas
                           id={`lineCanvas-${
                             pageIndex *

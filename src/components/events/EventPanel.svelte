@@ -174,12 +174,12 @@
     <div
       class={`${showRightPanel ? "opacity-100" : "opacity-0"} transtion-opacity ease-in-out duration-500 `}
     >
-      <NodeSelection
-      {data}
+      <!-- <NodeSelection
+        {data}
         {nodes}
         url={data.url ?? "/"}
         isAllFullScreen={eventFullscreen}
-      />
+      /> -->
       <div class="relative w-full p-1 bg-[#f9f9f9] dark:bg-[#333333]">
         <input
           id="search-input"

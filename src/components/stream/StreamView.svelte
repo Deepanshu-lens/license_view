@@ -1,7 +1,6 @@
 <script lang="ts">
   import { writable } from "svelte/store";
-  import Stream from "./Stream.svelte";
-  import { onDestroy, onMount } from "svelte";
+  import { getContext, onDestroy, onMount } from "svelte";
   import { toast } from "svelte-sonner";
   import {
     activeCamera,
@@ -21,22 +20,16 @@
     ImageDown,
     Bell,
     Expand,
-    Menu,
     Filter,
     Minimize,
     Monitor,
-    X,
     Plus,
     ChevronRight,
     ScanSearch,
-    ChevronLeft,
     ChevronDown,
   } from "lucide-svelte";
-
-  import { Cctv, LayoutPanelLeft } from "lucide-svelte";
-  import * as DropdownMenu from "@/components/ui/dropdown-menu";
+  import { LayoutPanelLeft } from "lucide-svelte";
   import { Button } from "../ui/button";
-  import PocketBase from "pocketbase";
   import html2canvas from "html2canvas";
   import { Settings } from "lucide-svelte";
   import RegisterDialog from "../dialogs/RegisterDialog.svelte";
@@ -56,8 +49,6 @@
   import CameraList from "../lists/CameraList.svelte";
   import LayoutDialog from "../dialogs/LayoutDialog.svelte";
   import AddCameraDialog from "../dialogs/AddCameraDialog.svelte";
-  import { page } from "$app/stores";
-  import { Slider } from "@/components/ui/slider";
   import Switch from "../ui/switch/switch.svelte";
 
   export let data;
@@ -99,13 +90,15 @@
   let linePersonThresh = 0.7;
   let lineVehicleThresh = 0.7;
 
-  const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
+  const PB: PocketBase = getContext("pb");
   const searchParams = new URLSearchParams(window.location.search);
   let pages = parseInt(searchParams.get("p") ?? "0");
   let activePage = pages === null ? 0 : Number(pages) + 1;
   let queryString = `?p=${Number(pages) === 0 ? 1 : activePage}&g=${$selectedNode.maxStreamsPerPage}`;
   let basePath = `/session/${$selectedNode.session}`;
   let fullURL = basePath + queryString;
+
+
 
   onMount(() => {
     const updateScreenSize = () => {
@@ -961,7 +954,9 @@
                           <p class={"text-xs text-black/.7"}>
                             Camera {$selectedNode.camera.find(
                               (c) => c.id === event.camera,
-                            )?.name}
+                            )?.name === undefined ? event.cameraName : ($selectedNode.camera.find(
+                              (c) => c.id === event.camera,
+                            )?.name)}
                           </p>
                           <span
                             class="flex items-center justify-between border-b border-solid border-[#1c1c1c]/.1 gap-2 w-full"

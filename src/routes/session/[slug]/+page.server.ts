@@ -66,18 +66,24 @@ export const load: PageServerLoad = async ({ locals }) => {
 
       const e = await locals.pb?.collection("events").getList(1, 100, {
         sort: "-created",
-        fields:
-          "title,description,created,updated,frameImage,score,matchScore,session,node,camera",
+        expand: 'camera',
+        fields: 'title,description,created,updated,frameImage,score,matchScore,session,node,camera,expand.camera.name',
         signal: controller.signal
       });
-
       clearTimeout(timeoutId);
-
       return e?.items.map(
         (ee) =>
           ({
-            ...ee,
+            node: ee.node,
+            camera: ee.camera,
+            frameImage: ee.frameImage,
+            cameraName: ee.expand.camera.name,
             created: new Date(ee.created),
+            title: ee.title,
+            description: ee.description,
+            score: ee.score,
+            matchScore: ee.matchScore,
+            updated: ee.updated,
           }) as unknown as Event,
       );
     } catch (error) {
