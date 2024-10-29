@@ -15,10 +15,15 @@ export const fullscreen = persistedWritable("fullscreen", false);
 export const alertPanelHide = persistedWritable("alertPanelHide", true);
 export const markRoi = writable(false);
 export const view = writable(1);
-export const canvasCoordinates = writable({})
+export const canvasCoordinates = writable({});
+export const selectedLicenseArr = writable([]);
+export const isLicenseDialogOpen = writable(false);
+export const licenseCartArr = writable([]);
+export const step = writable(1);
 export const cameraCounts = writable<{ [cameraId: string]: number }>({});
 export const activePanel = writable("")
 export const atlasEvents = writable([])
+export const selectedLicense = writable(null);
 
 function persistedWritable(key: string, defaultValue: boolean) {
   let value = defaultValue;

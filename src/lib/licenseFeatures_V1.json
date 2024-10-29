@@ -1,0 +1,161 @@
+[
+  {
+    "licenseId": "1",
+    "licenseName": "Video Management System",
+    "licensePrice": 3,
+    "features": [
+      {
+        "featureId": "1.1",
+        "type": "basic",
+        "featurePrice": 1,
+        "subFeatures": ["sub_feature_1", "sub_feature_2", "sub_feature_3"]
+      },
+      {
+        "featureId": "1.2",
+        "type": "online",
+        "featurePrice": 1,
+        "subFeatures": ["sub_feature_1", "sub_feature_2", "sub_feature_3"]
+      },
+      {
+        "featureId": "1.3",
+        "type": "hybrid",
+        "featurePrice": 1,
+        "subFeatures": ["sub_feature_1", "sub_feature_2", "sub_feature_3"]
+      }
+    ]
+  },
+  {
+    "licenseId": "2",
+    "licenseName": "Playback",
+    "licensePrice": 3,
+    "features": [
+      {
+        "featureId": "2.1",
+        "type": "online based recording",
+        "featurePrice": 1,
+        "subFeatures": ["sub_feature_1", "sub_feature_2", "sub_feature_3"]
+      },
+      {
+        "featureId": "2.2",
+        "type": "offline based recording",
+        "featurePrice": 1,
+        "subFeatures": ["sub_feature_1", "sub_feature_2", "sub_feature_3"]
+      },
+      {
+        "featureId": "2.3",
+        "type": "7 days recording",
+        "featurePrice": 1,
+        "subFeatures": ["sub_feature_1", "sub_feature_2", "sub_feature_3"]
+      },
+      {
+        "featureId": "2.4",
+        "type": "30 days recording",
+        "featurePrice": 1,
+        "subFeatures": ["sub_feature_1", "sub_feature_2", "sub_feature_3"]
+      },
+      {
+        "featureId": "2.5",
+        "type": "3 months recording",
+        "featurePrice": 1,
+        "subFeatures": ["sub_feature_1", "sub_feature_2", "sub_feature_3"]
+      }
+    ]
+  },
+  {
+    "licenseId": "3",
+    "licenseName": "Face Recognition System",
+    "licensePrice": 3,
+    "features": [
+      {
+        "featureId": "3.1",
+        "type": "light model",
+        "featurePrice": 1,
+        "subFeatures": [
+          "Lower accuracy, optimized for speed",
+          "sub_feature_1",
+          "sub_feature_2",
+          "sub_feature_3"
+        ]
+      },
+      {
+        "featureId": "3.2",
+        "type": "heavy model",
+        "featurePrice": 1,
+        "subFeatures": [
+          "High accuracy, suitable for detailed analysis",
+          "sub_feature_1",
+          "sub_feature_2",
+          "sub_feature_3"
+        ]
+      },
+      {
+        "featureId": "3.3",
+        "type": "face in gallery",
+        "featurePrice": 1,
+        "subFeatures": [
+          "Number of faces supported in the gallery",
+          "sub_feature_1",
+          "sub_feature_2",
+          "sub_feature_3"
+        ]
+      }
+    ]
+  },
+  {
+    "licenseId": "4",
+    "licenseName": "Line Crossing Detection",
+    "licensePrice": 3,
+    "features": [
+      {
+        "featureId": "4.1",
+        "type": "configurable thresholds for alerts",
+        "featurePrice": 1,
+        "subFeatures": ["sub_feature_1", "sub_feature_2", "sub_feature_3"]
+      },
+      {
+        "featureId": "4.2",
+        "type": "adjustable sensitivity levels",
+        "featurePrice": 1,
+        "subFeatures": ["sub_feature_1", "sub_feature_2", "sub_feature_3"]
+      }
+    ]
+  },
+  {
+    "licenseId": "5",
+    "licenseName": "Automatic Number Plate Detection",
+    "licensePrice": 3,
+    "features": [
+      {
+        "featureId": "5.1",
+        "type": "license plate detection and storage",
+        "featurePrice": 1,
+        "subFeatures": ["sub_feature_1", "sub_feature_2", "sub_feature_3"]
+      },
+      {
+        "featureId": "5.2",
+        "type": "accuracy based on environment",
+        "featurePrice": 1,
+        "subFeatures": ["sub_feature_1", "sub_feature_2", "sub_feature_3"]
+      }
+    ]
+  },
+  {
+    "licenseId": "6",
+    "licenseName": "Person Counter",
+    "licensePrice": 3,
+    "features": [
+      {
+        "featureId": "6.1",
+        "type": "real time counting",
+        "featurePrice": 1,
+        "subFeatures": ["sub_feature_1", "sub_feature_2", "sub_feature_3"]
+      },
+      {
+        "featureId": "6.2",
+        "type": "historical count data",
+        "featurePrice": 1,
+        "subFeatures": ["sub_feature_1", "sub_feature_2", "sub_feature_3"]
+      }
+    ]
+  }
+]

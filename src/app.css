@@ -223,6 +223,13 @@ input[type=time]::-webkit-datetime-edit-ampm-field:focus {
   width: 20px;
 }
 
+.flex-cb {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+
 .gsi-material-button .gsi-material-button-content-wrapper {
   -webkit-align-items: center;
   align-items: center;

@@ -25,7 +25,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 
     let currentUser = await locals.pb
       ?.collection("users")
-      .getOne(currentUserToken.id);
+      ?.getOne(currentUserToken.id);
 
     if (currentUser) {
       if (currentUser.nonce) {
@@ -33,25 +33,25 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
         const nonce = url.searchParams.get("nonce");
         const userToken = decodeJwt(currentUser.nonce);
         if (userToken.nonce === nonce) {
-          await locals.pb?.collection("users").update(currentUserToken.id, {
+          await locals.pb?.collection("users")?.update(currentUserToken.id, {
             nonce: "",
             credits: currentUser.credits + userToken.credits,
           });
           currentUser = await locals.pb
             ?.collection("users")
-            .getOne(currentUserToken.id);
+            ?.getOne(currentUserToken.id);
         }
       }
-      const session = await locals.pb?.collection("session").getOne(locals.user.record.session[0],{
+      const session = await locals.pb?.collection("session")?.getOne(locals.user.record.session[0],{
       })
       // console.log(session.activeNode)
       if (locals.user?.record?.session?.length > 0) {
         const [ nodes, role, featureList] = await Promise.all([
-          locals.pb?.collection("node").getOne  (session?.activeNode),
-          locals.pb?.collection("roles").getFullList({
+          locals.pb?.collection("node")?.getOne  (session?.activeNode),
+          locals.pb?.collection("roles")?.getFullList({
             filter: `id~"${currentUser?.role}"`,
           }),
-          locals.pb?.collection("feature").getFullList()
+          locals.pb?.collection("feature")?.getFullList()
         ]);
 
         const matchedFeatures = featureList

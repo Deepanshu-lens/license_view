@@ -4,19 +4,18 @@ import { VITE_POCKETBASE_URL, VITE_BASE_URL } from "$env/static/private";
 export const handle = async ({ event, resolve }) => {
   // console.log(event)
   // console.log(event.request.headers.get("cookie"))
-  const host = event.request.url.split("/")[2].split(":")[0];
+  const host = event?.request?.url?.split("/")[2]?.split(":")[0];
   event.locals.pb = new PocketBase(VITE_POCKETBASE_URL);
-  event.locals.pb.autoCancellation(false)
-  event.locals.pb.authStore.loadFromCookie(
-    event.request.headers.get("cookie") || ''
-  );
+  event?.locals?.pb?.autoCancellation(false)
+  let cookie = event?.request?.headers?.get("cookie") || '';
+  if (cookie) {
+    event?.locals?.pb?.authStore?.loadFromCookie(cookie);
+  }
   try {
-    if (event.locals.pb.authStore.isValid) {
-      event.locals.user = await event.locals.pb
-        .collection("users")
-        .authRefresh();
+    if (event?.locals?.pb?.authStore?.isValid) {
+      event.locals.user = await event?.locals?.pb?.collection("users")?.authRefresh();
     } else {
-      event.locals.pb.authStore.clear();
+      event?.locals?.pb?.authStore?.clear();
       event.locals.user = undefined;
     }
   } catch (_) {
@@ -28,7 +27,7 @@ export const handle = async ({ event, resolve }) => {
   const isProd = process.env.NODE_ENV === "production" ? true : false;
   response.headers.set(
     "set-cookie",
-    event.locals.pb.authStore.exportToCookie({
+    event?.locals?.pb?.authStore?.exportToCookie({
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? "none" : "lax",
@@ -38,7 +37,7 @@ export const handle = async ({ event, resolve }) => {
 
   response.headers.set(
     "set-cookie",
-    event.locals.pb.authStore.exportToCookie({ secure: false }),
+    event?.locals?.pb?.authStore?.exportToCookie({ secure: false }),
   );
   return response;
 };

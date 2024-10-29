@@ -1,3 +1,4 @@
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types.js';
 
 export const ssr = false;
@@ -31,7 +32,12 @@ export const actions = {
 
 export const load: PageServerLoad = async ({ locals }) => {
 
-  locals.pb?.autoCancellation(false)
+  locals.pb?.autoCancellation(false);
+
+  let licensePurchase = false;
+  if (!licensePurchase) {
+    throw redirect(302, "/purchase/");
+  }
 
   // const events = async () => {
   //   const abortController = new AbortController();
