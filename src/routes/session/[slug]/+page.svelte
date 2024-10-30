@@ -17,7 +17,7 @@
   let batchedEvents: Event[] = [];
   let searching: boolean = true;
 
-  console.log(data?.paymentStatus, "payemnt status");
+  console.log(data?.featuresArr, "feature arr");
 
   // const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
   const PB: PocketBase = getContext("pb");

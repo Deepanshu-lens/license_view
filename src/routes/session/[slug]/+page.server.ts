@@ -32,6 +32,7 @@ export const actions = {
 };
 
 export const load: PageServerLoad = async ({ locals, url }) => {
+  let featureArr;
   // Get the query parameters from the URL
   const queryParams = url.searchParams;
 
@@ -50,6 +51,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       body: JSON.stringify({ user: locals?.user?.record?.id })
     });
 
+    const data = await res?.json();
+    featureArr = data;
   } catch (error) {
     console.log(error);
     toast.error("Somthing went wrong while getting license");
@@ -173,6 +176,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     events: events(),
     galleryItems: gelleryItems(),
     imposterItems: imposterItems(),
-    paymentStatus: paymentStatus
+    paymentStatus: paymentStatus,
+    featuresArr: featureArr
   };
 }
