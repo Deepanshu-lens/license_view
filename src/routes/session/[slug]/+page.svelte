@@ -9,17 +9,18 @@
   import type { PageServerData } from "./$types";
   import { page } from "$app/stores";
   import Spinner from "@/components/ui/spinner/Spinner.svelte";
-    import { writable } from "svelte/store";
-
+  import { writable } from "svelte/store";
+  import { toast } from "svelte-sonner";
   export let data: PageServerData;
   const { session } = data;
   let nodes: Node[] = writable([]);
   let batchedEvents: Event[] = [];
   let searching: boolean = true;
 
+  console.log(data?.paymentStatus, "payemnt status");
+
   // const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
   const PB: PocketBase = getContext("pb");
-
 
   console.log("page on session page", data);
 
@@ -108,17 +109,16 @@
       console.log("change e nodes", e.record);
       nodes.set(await getNodes());
 
-      if(e.action === "update"){
-         const selected = $nodes.find((n) => n.id === session.activeNode);
-      if (selected) {
-        selectedNode.set(selected);
+      if (e.action === "update") {
+        const selected = $nodes.find((n) => n.id === session.activeNode);
+        if (selected) {
+          selectedNode.set(selected);
         } else {
           selectedNode.set($nodes[0]);
         }
       } else {
         selectedNode.set($nodes[0]);
       }
-     
     });
 
     PB.collection("ai_inference").subscribe("*", async (e) => {
@@ -131,10 +131,14 @@
       }
     });
 
-      PB.collection("session").subscribe("*", function (e) {
+    PB.collection("session").subscribe("*", function (e) {
       console.log("session subscription", e.action, e.record);
-      session.activeNode = e.record.activeNode
+      session.activeNode = e.record.activeNode;
     });
+
+    if (!!data?.paymentStatus) {
+      toast.success("Payment successfull");
+    }
 
     setTimeout(updateEvents, 1000);
   });

@@ -43,8 +43,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     body: JSON.stringify({ user: locals?.user?.record?.id })
   })
 
-  console.log(res,'res here')
-
   let licensePurchase = !!paymentStatus;
   if (!licensePurchase) {
     throw redirect(302, "/purchase");
@@ -163,5 +161,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     events: events(),
     galleryItems: gelleryItems(),
     imposterItems: imposterItems(),
+    paymentStatus:paymentStatus
   };
 }
