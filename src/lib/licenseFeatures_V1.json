@@ -63,7 +63,7 @@
   },
   {
     "licenseId": "3",
-    "licenseName": "Face Recognition System", // live pe face search and face register
+    "licenseName": "Face Recognition System", 
     "licensePrice": 3000,
     "features": [
       {
