@@ -41,7 +41,7 @@
       }
 
       const result = await response.json(); // Parse the JSON response
-      window.open(result?.url); // Open the link in a new tab
+      window.location.href = result?.url;
     } catch (error) {
       console.error("Error:", error);
     }

@@ -13,13 +13,13 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
     'session'
   ];
 
-  if (
-    !locals.pb?.authStore.isValid &&
-    protectedRoutes.includes(url.pathname.split("/").filter(Boolean)[0])
-  ) {
-    console.log("REDIRECTED FROM PROTECTED ROUTE");
-    throw redirect(302, "/login");
-  }
+  // if (
+  //   !locals.pb?.authStore.isValid &&
+  //   protectedRoutes.includes(url.pathname.split("/").filter(Boolean)[0])
+  // ) {
+  //   console.log("REDIRECTED FROM PROTECTED ROUTE");
+  //   throw redirect(302, "/login");
+  // }
   const currentUserToken = decodeJwt(locals.pb?.authStore.token || '');
   if (currentUserToken) {
 
