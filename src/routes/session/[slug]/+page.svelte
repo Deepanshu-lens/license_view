@@ -20,7 +20,7 @@
   console.log(data?.featuresArr, "feature arr");
 
   // const PB = new PocketBase(`http://${$page.url.hostname}:5555`);
-  const PB: PocketBase = getContext("pb");
+  const PB: PocketBase = new PocketBase(`https://pocketbase.lenscorp.cloud`);
 
   console.log("page on session page", data);
 
