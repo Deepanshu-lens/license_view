@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types.js';
+import { toast } from 'svelte-sonner';
 
 export const ssr = false;
 
@@ -38,10 +39,22 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   const paymentStatus = queryParams.get('payment'); // Replace 'param1' with your actual query parameter name
   locals.pb?.autoCancellation(false);
 
-  const res = await fetch(url, {
-    method: "POST",
-    body: JSON.stringify({ user: locals?.user?.record?.id })
-  })
+  const linkUrl = `https://license.lenscorp.cloud/getLicense`;
+
+  try {
+    const res = await fetch(linkUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user: locals?.user?.record?.id })
+    });
+  console.log(res,'res hjere')
+
+  } catch (error) {
+      console.log(error);
+      toast.error("Somthing went wrong while getting license");
+  }
 
   let licensePurchase = !!paymentStatus;
   if (!licensePurchase) {
