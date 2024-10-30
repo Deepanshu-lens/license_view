@@ -12,6 +12,7 @@
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
   export let userId;
+  export let sessionId;
   import licenseFeatures from "@/lib/licenseFeatures_V1.json";
   let licenseArray = writable([]);
 
@@ -23,6 +24,7 @@
       amount: subtotal,
       currency: "usd",
       userId: userId,
+      sessionId: sessionId,
     };
 
     try {

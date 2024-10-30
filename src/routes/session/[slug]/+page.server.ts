@@ -40,7 +40,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   locals.pb?.autoCancellation(false);
 
   const linkUrl = `https://license.lenscorp.cloud/getLicense`;
-
+  console.log(locals?.user, 'id here')
   try {
     const res = await fetch(linkUrl, {
       method: "POST",
@@ -49,11 +49,10 @@ export const load: PageServerLoad = async ({ locals, url }) => {
       },
       body: JSON.stringify({ user: locals?.user?.record?.id })
     });
-  console.log(res,'res hjere')
 
   } catch (error) {
-      console.log(error);
-      toast.error("Somthing went wrong while getting license");
+    console.log(error);
+    toast.error("Somthing went wrong while getting license");
   }
 
   let licensePurchase = !!paymentStatus;
@@ -174,6 +173,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     events: events(),
     galleryItems: gelleryItems(),
     imposterItems: imposterItems(),
-    paymentStatus:paymentStatus
+    paymentStatus: paymentStatus
   };
 }

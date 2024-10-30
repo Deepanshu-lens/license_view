@@ -29,8 +29,6 @@
   let isComparing = writable(false);
   export let data;
 
-  console.log(data, "data in here");
-
   // handling step increase
   const handleStepInc = () => {
     if ($step < 4) {
@@ -62,7 +60,7 @@
 
       <!-- step 2 -->
     {:else if $step === 2}
-      <StepSecond userId={data?.user?.userId}/>
+      <StepSecond userId={data?.user?.userId} sessionId={data?.token}/>
 
       <!-- step 3 -->
     {:else if $step === 3}
