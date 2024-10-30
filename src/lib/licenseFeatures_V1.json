@@ -2,7 +2,7 @@
   {
     "licenseId": "1",
     "licenseName": "Video Management System",
-    "licensePrice": 3,
+    "licensePrice": 3000,
     "features": [
       {
         "featureId": "1.1",
@@ -27,7 +27,7 @@
   {
     "licenseId": "2",
     "licenseName": "Playback",
-    "licensePrice": 3,
+    "licensePrice": 3000,
     "features": [
       {
         "featureId": "2.1",
@@ -64,7 +64,7 @@
   {
     "licenseId": "3",
     "licenseName": "Face Recognition System",
-    "licensePrice": 3,
+    "licensePrice": 3000,
     "features": [
       {
         "featureId": "3.1",
@@ -104,7 +104,7 @@
   {
     "licenseId": "4",
     "licenseName": "Line Crossing Detection",
-    "licensePrice": 3,
+    "licensePrice": 3000,
     "features": [
       {
         "featureId": "4.1",
@@ -123,7 +123,7 @@
   {
     "licenseId": "5",
     "licenseName": "Automatic Number Plate Detection",
-    "licensePrice": 3,
+    "licensePrice": 3000,
     "features": [
       {
         "featureId": "5.1",
@@ -142,7 +142,7 @@
   {
     "licenseId": "6",
     "licenseName": "Person Counter",
-    "licensePrice": 3,
+    "licensePrice": 3000,
     "features": [
       {
         "featureId": "6.1",

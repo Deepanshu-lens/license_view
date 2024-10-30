@@ -1,4 +1,6 @@
 <script>
+  // @ts-nocheck
+
   import {
     ArrowDown,
     MoveRight,
@@ -7,13 +9,83 @@
   } from "lucide-svelte";
   import Button from "../ui/button/button.svelte";
   import { step } from "@/lib/stores";
+  import { onMount } from "svelte";
+  import { writable } from "svelte/store";
+  export let userId;
+  import licenseFeatures from "@/lib/licenseFeatures_V1.json";
+  let licenseArray = writable([]);
 
-  // handling step increase
-  const handleStepInc = () => {
-    if ($step < 4) {
-      step.set($step + 1);
+  // handling cart checkout
+  const handleCartCheckout = async () => {
+    const url = `https://payment.lenscorp.cloud/lens-view`; // Replace with your API endpoint
+
+    const data = {
+      amount: subtotal,
+      currency: "usd",
+      userId: userId,
+    };
+
+    try {
+      const response = await fetch(url, {
+        method: "POST", // Specify the request method
+        headers: {
+          "Content-Type": "application/json", // Specify the content type
+        },
+        body: JSON.stringify(data), // Convert the data to a JSON string
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json(); // Parse the JSON response
+      window.open(result?.url); // Open the link in a new tab
+    } catch (error) {
+      console.error("Error:", error);
     }
   };
+
+  onMount(() => {
+    getCartItems();
+  });
+
+  // getting cart items
+  const getCartItems = async () => {
+    const url = `https://license.lenscorp.cloud/getCart`;
+    try {
+      const response = await fetch(url, {
+        method: "POST", // Specify the request method
+        body: JSON.stringify({ user: userId }), // Convert the data to a JSON string
+      });
+
+      const result = await response.json(); // Parse the JSON response
+      let addedFeatures = result?.features;
+
+      // Extracting all feature IDs
+      const allFeatureIds =
+        result?.cartItems?.flatMap((item) => item.features) || [];
+
+      // getting all those from json file which are added in cart
+      const filteredFeatures = licenseFeatures.filter((license) =>
+        allFeatureIds?.includes(license?.licenseId),
+      );
+
+      licenseArray.set(filteredFeatures); // setting this to license state
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  let subtotal;
+  let discount = 0;
+  let todayCharge;
+
+  $: {
+    subtotal = $licenseArray?.reduce((total, license) => {
+      return total + license?.licensePrice;
+    }, 0);
+    todayCharge = subtotal - discount;
+  }
 </script>
 
 <section>
@@ -117,24 +189,17 @@
           <div class=" p-4">
             <h5 class="text-sm text-left text-neutral-500">Order Summary</h5>
             <ul class="mt-3 flex-col flex gap-y-3 border-b py-5">
-              <li class="flex-cb">
-                <span class="flex items-center gap-x-2 text-sm font-medium"
-                  >Core VMS Features <ArrowDown size={14} /></span
-                >
-                <span class="text-sm font-normal">$30.99</span>
-              </li>
-              <li class="flex-cb">
-                <span class="flex items-center gap-x-2 text-sm font-medium"
-                  >Core AI Features <ArrowDown size={14} /></span
-                >
-                <span class="text-sm font-normal">$30.99</span>
-              </li>
-              <li class="flex-cb">
-                <span class="flex items-center gap-x-2 text-sm font-medium"
-                  >Core System Features <ArrowDown size={14} /></span
-                >
-                <span class="text-sm font-normal">$30.99</span>
-              </li>
+              {#each $licenseArray as license}
+                <li class="flex-cb">
+                  <span class="flex items-center gap-x-2 text-sm font-medium">
+                    {license?.licenseName}
+                    <ArrowDown size={14} />
+                  </span>
+                  <span class="text-sm font-normal"
+                    >${license?.licensePrice}</span
+                  >
+                </li>
+              {/each}
             </ul>
 
             <!-- discount container -->
@@ -163,20 +228,20 @@
                   <span class="flex items-center gap-x-2 text-sm font-medium"
                     >Subtotal</span
                   >
-                  <span class="text-sm font-normal">$30.99</span>
+                  <span class="text-sm font-normal">${subtotal}</span>
                 </li>
                 <li class="flex-cb">
                   <span class="flex items-center gap-x-2 text-sm font-medium"
                     >discount</span
                   >
-                  <span class="text-xs text-[#0B7D23]">-$4.97</span>
+                  <span class="text-xs text-[#0B7D23]">-${discount}.00</span>
                 </li>
                 <li class="flex-cb">
                   <span class="flex items-center gap-x-2 text-sm font-medium"
                     >Today's charge</span
                   >
                   <span class="text-sm text-[#11A8B6] font-semibold"
-                    >$26.99</span
+                    >${todayCharge}</span
                   >
                 </li>
               </ul>
@@ -188,7 +253,7 @@
                 size="lg"
                 variant="ghost"
                 class="bg-transparent border-teal-800 border w-[20rem] text-primary"
-                on:click={handleStepInc}
+                on:click={handleCartCheckout}
               >
                 Start checkout
                 <ChevronsRight size={20} class="ml-2" />

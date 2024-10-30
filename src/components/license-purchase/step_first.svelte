@@ -15,8 +15,13 @@
   import { writable } from "svelte/store";
   import { cn } from "@/lib";
   import FreeTrialDialog from "./free-trial-dialog.svelte";
+  import { toast } from "svelte-sonner";
+  import User from "../configuration/mobile/settings/User.svelte";
   const licenseArray = Array.from({ length: 6 });
+  let featureArr = writable([]);
   export let licenseFeatures;
+  export let userId;
+
   // handle license select
   const handleSelectLicense = (idx) => {
     // if license is already selected then removing it from arr
@@ -30,9 +35,68 @@
   };
 
   // Add to Cart handler
-  const handleAddTocart = (idx) => {
-    if (!$licenseCartArr.includes(idx))
-      licenseCartArr.set([...$licenseCartArr, idx]);
+  const handleAddTocart = async (license) => {
+    let alreadyExists = $licenseCartArr.find(
+      (l) => l.licenseId === license.licenseId,
+    );
+    if (alreadyExists) {
+      toast.error("License already added to cart");
+      return;
+    }
+
+    // Pushing both license and feature id in one arr
+    const subFeatureArr = $featureArr?.map((f) => f?.featureId);
+    subFeatureArr?.push(license?.licenseId);
+    licenseCartArr.set([...$licenseCartArr, license]);
+
+    const url = `https://license.lenscorp.cloud/saveCartItems`; // Replace with your API endpoint
+
+    const data = {
+      user: userId,
+      features: subFeatureArr,
+    };
+
+    try {
+      const response = await fetch(url, {
+        method: "POST", // Specify the request method
+        headers: {
+          "Content-Type": "application/json", // Specify the content type
+        },
+        body: JSON.stringify(data), // Convert the data to a JSON string
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json(); // Parse the JSON response
+      toast.success(result?.message || "Added successfully");
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  // Add Feature handler
+  const handleAddFeature = (feature) => {
+    // Check if the feature already exists in the array
+    const featureExists = $featureArr.some(
+      (f) => f.featureId === feature.featureId,
+    );
+
+    let updatedFeatureArr;
+
+    if (featureExists) {
+      // If the feature exists, filter it out
+      updatedFeatureArr = $featureArr.filter(
+        (f) => f.featureId !== feature.featureId,
+      );
+    } else {
+      // If the feature does not exist, add it to the array
+      updatedFeatureArr = [...$featureArr, feature];
+    }
+
+    // Update the store with the new array
+    featureArr.set(updatedFeatureArr);
   };
 </script>
 
@@ -119,7 +183,9 @@
                   <div>
                     <input
                       type="checkbox"
-                      on:click|stopPropagation
+                      on:click|stopPropagation={() => {
+                        handleAddFeature(feature);
+                      }}
                       checked={feature?.isSelected}
                     />
                   </div>
@@ -150,7 +216,7 @@
               class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-teal-800 flex-1"
               on:click={(e) => {
                 e.stopPropagation();
-                handleAddTocart(index);
+                handleAddTocart(license);
               }}
             >
               <ShoppingCart size={14} class="mx-2" />

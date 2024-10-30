@@ -27,6 +27,9 @@
   import { writable } from "svelte/store";
   let isOffline = false;
   let isComparing = writable(false);
+  export let data;
+
+  console.log(data, "data in here");
 
   // handling step increase
   const handleStepInc = () => {
@@ -45,7 +48,7 @@
     isComparing.set(true);
   };
 
-  const handleAddToCart = () => {
+  const handleViewCart = () => {
     step.set($step + 1);
   };
 </script>
@@ -55,11 +58,11 @@
   <main class="text-center mt-10 relative max-h-full h-full overflow-y-auto">
     <!-- step 1 -->
     {#if $step === 1}
-      <StepFirst {licenseFeatures} />
+      <StepFirst {licenseFeatures} userId={data?.user?.userId} />
 
       <!-- step 2 -->
     {:else if $step === 2}
-      <StepSecond />
+      <StepSecond userId={data?.user?.userId}/>
 
       <!-- step 3 -->
     {:else if $step === 3}
@@ -76,7 +79,7 @@
         <Button
           class="bg-black hover:bg-gray-800 text-white rounded-3xl text-base flex justify-evenly gap-x-3 px-3 h-[3.2rem]"
           size="lg"
-          on:click={handleAddToCart}
+          on:click={handleViewCart}
         >
           <ShoppingCart size={22} class="" />
           <div>

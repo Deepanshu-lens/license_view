@@ -30,13 +30,24 @@ export const actions = {
   },
 };
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
+  // Get the query parameters from the URL
+  const queryParams = url.searchParams;
 
+  // Access specific query parameters
+  const paymentStatus = queryParams.get('payment'); // Replace 'param1' with your actual query parameter name
   locals.pb?.autoCancellation(false);
 
-  let licensePurchase = false;
+  const res = await fetch(url, {
+    method: "POST",
+    body: JSON.stringify({ user: locals?.user?.record?.id })
+  })
+
+  console.log(res,'res here')
+
+  let licensePurchase = !!paymentStatus;
   if (!licensePurchase) {
-    throw redirect(302, "/purchase/");
+    throw redirect(302, "/purchase");
   }
 
   // const events = async () => {

@@ -61,6 +61,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
         return {
           loggedIn: locals.pb?.authStore.isValid,
           user: {
+            userId: locals.user.record.id,
             name: locals.user.record.name,
             email: locals.user.record.email,
             session: locals.user.record.session[0],
