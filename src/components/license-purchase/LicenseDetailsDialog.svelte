@@ -96,16 +96,5 @@
         </Accordion.Item>
       </Accordion.Root>
     {/each}
-
-    <Dialog.Footer>
-      <Button>
-        <img
-          src="/images/license-purchase/sparkles_light.png"
-          alt="star"
-          class="h-4 w-4 ml-1 mr-2"
-        />
-        Add to Compare
-      </Button>
-    </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

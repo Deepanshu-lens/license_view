@@ -139,7 +139,6 @@
               Most Popular
             </div>
             <div class="flex-cb gap-x-2">
-              Compare
               <input
                 class="rounded-md"
                 type="checkbox"
