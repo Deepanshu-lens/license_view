@@ -9,12 +9,14 @@
   } from "lucide-svelte";
   import Button from "../ui/button/button.svelte";
   import { step } from "@/lib/stores";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { writable } from "svelte/store";
   export let userId;
   export let sessionId;
   import licenseFeatures from "@/lib/licenseFeatures_V1.json";
+  import { goto } from "$app/navigation";
   let licenseArray = writable([]);
+  let websocket;
 
   // handling cart checkout
   const handleCartCheckout = async () => {
@@ -41,7 +43,8 @@
       }
 
       const result = await response.json(); // Parse the JSON response
-      window.location.href = result?.url;
+      window.open(result?.url, "_blank");
+      startWebSocket();
     } catch (error) {
       console.error("Error:", error);
     }
@@ -77,6 +80,44 @@
       console.error("Error:", error);
     }
   };
+
+  // Web socket Handle
+  const startWebSocket = () => {
+    websocket = new WebSocket(
+      `wss://payment.lenscorp.cloud/ws?userId=${userId}`,
+    ); // Replace with your WebSocket URL
+
+    websocket.onopen = () => {
+      console.log("WebSocket connection established");
+    };
+
+    websocket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.status === "success") {
+        console.log("payment success now");
+        alert("Payment was successful!");
+        // goto(`/session/${sessionId}`);
+        // Optionally, you can redirect or update the UI here
+      } else if (message.status === "failed") {
+        alert("Payment failed. Please try again.");
+      }
+    };
+
+    websocket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      console.error("WebSocket error message:", error?.message);
+    };
+
+    websocket.onclose = () => {
+      console.log("WebSocket connection closed");
+    };
+  };
+
+  onDestroy(() => {
+    if (websocket) {
+      websocket.close(); // Clean up the WebSocket connection
+    }
+  });
 
   let subtotal;
   let discount = 0;
